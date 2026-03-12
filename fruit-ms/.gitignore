@@ -1,0 +1,60 @@
+# ── Compiled output ─────────────────────────────────────────────────────────
+/dist
+/build
+
+# ── Dependencies ─────────────────────────────────────────────────────────────
+/node_modules
+
+# ── Environment / secrets ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ── Test coverage ─────────────────────────────────────────────────────────────
+/coverage
+/.nyc_output
+
+# ── Runtime data ─────────────────────────────────────────────────────────────
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ── OS artefacts ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.idea/
+*.ipr
+*.iws
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# VSCode (keep shared settings, ignore personal/machine-specific ones)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ── Temp ─────────────────────────────────────────────────────────────────────
+.temp/
+.tmp/
+
+# ── Diagnostic reports ───────────────────────────────────────────────────────
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

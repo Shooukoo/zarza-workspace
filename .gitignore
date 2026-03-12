@@ -1,0 +1,46 @@
+# ── Root .gitignore — Proyecto Dalet Monorepo ───────────────────────────────
+# Each sub-project (fruit-backend, fruit-ms, fruit-inference, zarza_ai)
+# has its own .gitignore for language-specific rules. This file covers
+# monorepo-level artefacts.
+
+# ── Environment / secrets ────────────────────────────────────────────────────
+# Sub-projects have their own .env files; catch any accidental root-level ones
+.env
+.env.*
+!.env.example
+
+# ── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# ── IDE ──────────────────────────────────────────────────────────────────────
+.idea/
+*.ipr
+*.iws
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ── Large binary files (use Git LFS or external storage) ────────────────────
+*.pt
+*.pth
+*.onnx
+*.h5
+*.weights
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+*.zip
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Temp ─────────────────────────────────────────────────────────────────────
+.temp/
+.tmp/
