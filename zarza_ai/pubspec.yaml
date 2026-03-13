@@ -1,5 +1,5 @@
 name: zarza_ai
-description: "A new Flutter project."
+description: "Zarza AI — Aplicación móvil para análisis fenológico de zarzamora con visión artificial."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -30,21 +30,35 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+
+  # HTTP & Networking
+  dio: ^5.7.0
+  web_socket_channel: ^3.0.1
+
+  # Image
+  image_picker: ^1.1.2
+
+  # State management
+  flutter_bloc: ^9.0.0
+  equatable: ^2.0.7
+
+  # Navigation
+  go_router: ^14.6.1
+
+  # Dependency injection
+  get_it: ^8.0.3
+
+  # UI
+  google_fonts: ^6.2.1
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  mockito: ^5.4.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -57,10 +71,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
