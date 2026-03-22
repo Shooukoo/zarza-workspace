@@ -27,9 +27,8 @@ class AppTheme {
   };
 
   static ThemeData get darkTheme {
-    final base = ThemeData.dark();
+    final base = ThemeData.dark(useMaterial3: true);
     return base.copyWith(
-      useMaterial3: true,
       colorScheme: const ColorScheme.dark(
         primary: _primary,
         primaryContainer: _primaryLight,
@@ -69,7 +68,7 @@ class AppTheme {
         ),
         bodyMedium: GoogleFonts.inter(
           fontSize: 14,
-          color: _onSurface.withOpacity(0.8),
+          color: _onSurface.withValues(alpha: 0.8),
         ),
         labelSmall: GoogleFonts.inter(
           fontSize: 11,
@@ -95,7 +94,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: _primary.withOpacity(0.18),
+            color: _primary.withValues(alpha: 0.18),
             width: 1,
           ),
         ),
@@ -128,12 +127,12 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: _onSurface,
         ),
-        side: BorderSide(color: _primary.withOpacity(0.3)),
+        side: BorderSide(color: _primary.withValues(alpha: 0.3)),
         shape: const StadiumBorder(),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       ),
       dividerTheme: DividerThemeData(
-        color: Colors.white.withOpacity(0.06),
+        color: Colors.white.withValues(alpha: 0.06),
         thickness: 1,
       ),
       snackBarTheme: SnackBarThemeData(

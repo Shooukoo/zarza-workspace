@@ -16,10 +16,16 @@ class FruitsRepositoryImpl implements IFruitsRepository {
   Future<List<FruitAnalysis>> getAnalysisList({
     int page = 1,
     int limit = 20,
+    String? userId,
+    String? startDate,
+    String? endDate,
   }) async {
     final models = await _datasource.getAnalysisList(
       page: page,
       limit: limit,
+      userId: userId,
+      startDate: startDate,
+      endDate: endDate,
     );
     return models.map((m) => m.toEntity()).toList();
   }

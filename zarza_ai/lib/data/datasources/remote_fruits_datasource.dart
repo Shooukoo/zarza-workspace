@@ -16,10 +16,18 @@ class RemoteFruitsDatasource {
   Future<List<FruitAnalysisModel>> getAnalysisList({
     int page = 1,
     int limit = AppConstants.defaultPageSize,
+    String? userId,
+    String? startDate,
+    String? endDate,
   }) async {
+    final query = <String, dynamic>{'page': page, 'limit': limit};
+    if (userId != null) query['user_id'] = userId;
+    if (startDate != null) query['start_date'] = startDate;
+    if (endDate != null) query['end_date'] = endDate;
+
     final response = await _dio.get(
       AppConstants.fruitsEndpoint,
-      queryParameters: {'page': page, 'limit': limit},
+      queryParameters: query,
     );
 
     final data = response.data;

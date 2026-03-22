@@ -27,7 +27,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.register(helmet);
+  await app.register(helmet as any);
 
   // CORS: acepta cualquier origen para soportar app móvil Flutter.
   // En producción, restringir a la URL pública real.
@@ -41,7 +41,7 @@ async function bootstrap() {
   // Adaptador WebSocket nativo (ws) — compatible con Fastify
   app.useWebSocketAdapter(new WsAdapter(app));
 
-  await app.register(multipart, {
+  await app.register(multipart as any, {
     limits: {
       fieldNameSize: 100,
       fieldSize: 1000000,

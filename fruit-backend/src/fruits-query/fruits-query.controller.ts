@@ -23,8 +23,12 @@ export class FruitsQueryController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('image_id') imageId?: string,
+    @Query('user_id') userId?: string,
+    @Query('start_date') startDate?: string,
+    @Query('end_date') endDate?: string,
   ) {
-    return this.fruitsQueryService.findAll(page, limit, imageId);
+    console.log(`[FruitsQuery] GET /fruits | filters=`, { page, limit, imageId, userId, startDate, endDate });
+    return this.fruitsQueryService.findAll(page, limit, imageId, userId, startDate, endDate);
   }
 
   @Get(':id')

@@ -4,6 +4,17 @@
  * Es el único tipo que la capa de aplicación (Use Cases) conoce.
  */
 
+/**
+ * Snapshot inmutable del usuario que solicitó el análisis.
+ * Se almacena junto al análisis para trazabilidad histórica.
+ * Si el usuario cambia su email en fruit-backend, el snapshot
+ * conserva el email original (consistencia eventual intencional).
+ */
+export type UserSnapshot = {
+  userId: string;  // ID canónico en fruit-backend
+  email: string;   // Snapshot al momento del análisis
+};
+
 export type Prediccion = {
   cambio_a: string;
   en_dias: number;
@@ -34,8 +45,11 @@ export interface AnalysisDomain {
   id?: string;
   image_id: string;
   storage_key: string;
+  /** Snapshot del usuario que solicitó el análisis. */
+  requester: UserSnapshot;
   variedad: string | null;
-  fecha_analisis: string;
+  /** Fecha del análisis como tipo Date (tipo semántico de dominio, no string de red). */
+  fecha_analisis: Date;
   metricas_salud: MetricasSalud;
   proyeccion_financiera: ProyeccionFinanciera;
   cronograma_fenologico: EtapaFenologica[];

@@ -65,7 +65,7 @@ class _CaptureBody extends StatelessWidget {
               color: const Color(0xFF1E1E1E),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: const Color(0xFF2E7D32).withOpacity(0.3),
+                color: const Color(0xFF2E7D32).withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
@@ -201,7 +201,7 @@ class _SourceButton extends StatelessWidget {
       label: Text(label),
       style: OutlinedButton.styleFrom(
         foregroundColor: Colors.white70,
-        side: BorderSide(color: const Color(0xFF2E7D32).withOpacity(0.5)),
+        side: BorderSide(color: const Color(0xFF2E7D32).withValues(alpha: 0.5)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         minimumSize: const Size.fromHeight(50),
       ),

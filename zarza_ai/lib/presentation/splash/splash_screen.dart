@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../core/auth/auth_cubit.dart';
+import '../../core/auth/auth_state.dart';
+import '../../core/utils/platform_utils.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -28,7 +33,16 @@ class _SplashScreenState extends State<SplashScreen>
     );
     _ctrl.forward();
     Future.delayed(const Duration(milliseconds: 2400), () {
-      if (mounted) context.go('/home');
+      if (mounted) {
+        final authState = context.read<AuthCubit>().state;
+        if (authState is AuthAuthenticated &&
+            authState.user.role.canCreateUsers &&
+            PlatformUtils.useAdminLayout) {
+          context.go('/admin');
+        } else {
+          context.go('/home');
+        }
+      }
     });
   }
 
@@ -63,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen>
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF2E7D32).withOpacity(0.5),
+                        color: const Color(0xFF2E7D32).withValues(alpha: 0.5),
                         blurRadius: 32,
                         offset: const Offset(0, 8),
                       ),
@@ -100,7 +114,7 @@ class _SplashScreenState extends State<SplashScreen>
                   height: 32,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    color: const Color(0xFF69F0AE).withOpacity(0.7),
+                    color: const Color(0xFF69F0AE).withValues(alpha: 0.7),
                   ),
                 ),
               ],

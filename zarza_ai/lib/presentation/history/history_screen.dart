@@ -7,12 +7,13 @@ import '../history/history_bloc.dart';
 import '../widgets/stage_badge.dart';
 
 class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({super.key});
+  const HistoryScreen({super.key, this.showAppBar = true});
+  final bool showAppBar;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Historial de análisis')),
+      appBar: showAppBar ? AppBar(title: const Text('Historial de análisis')) : null,
       body: BlocBuilder<HistoryBloc, HistoryState>(
         builder: (context, state) {
           if (state is HistoryLoading || state is HistoryInitial) {
@@ -90,7 +91,7 @@ class _HistoryCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2E7D32).withOpacity(0.15),
+                      color: const Color(0xFF2E7D32).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.eco_rounded,
@@ -171,7 +172,7 @@ class _LoadMoreButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: isLoading ? null : onTap,
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: const Color(0xFF2E7D32).withOpacity(0.5)),
+          side: BorderSide(color: const Color(0xFF2E7D32).withValues(alpha: 0.5)),
           minimumSize: const Size.fromHeight(46),
         ),
         child: isLoading

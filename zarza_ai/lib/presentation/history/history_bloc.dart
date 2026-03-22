@@ -13,10 +13,18 @@ abstract class HistoryEvent extends Equatable {
 }
 
 class HistoryLoadEvent extends HistoryEvent {
-  const HistoryLoadEvent({this.page = 1});
+  const HistoryLoadEvent({
+    this.page = 1,
+    this.userId,
+    this.startDate,
+    this.endDate,
+  });
   final int page;
+  final String? userId;
+  final DateTime? startDate;
+  final DateTime? endDate;
   @override
-  List<Object?> get props => [page];
+  List<Object?> get props => [page, userId, startDate, endDate];
 }
 
 class HistoryLoadMoreEvent extends HistoryEvent {
@@ -75,6 +83,11 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   final GetAnalysisListUseCase _getListUseCase;
   int _currentPage = 1;
   final List<FruitAnalysis> _items = [];
+  
+  // Filter state preservation
+  String? _currentUserId;
+  DateTime? _currentStartDate;
+  DateTime? _currentEndDate;
 
   Future<void> _onLoad(
     HistoryLoadEvent event,
@@ -83,10 +96,17 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     emit(const HistoryLoading());
     _currentPage = 1;
     _items.clear();
+    _currentUserId = event.userId;
+    _currentStartDate = event.startDate;
+    _currentEndDate = event.endDate;
+
     try {
       final result = await _getListUseCase(
         page: _currentPage,
         limit: AppConstants.defaultPageSize,
+        userId: _currentUserId,
+        startDate: _currentStartDate?.toIso8601String(),
+        endDate: _currentEndDate?.toIso8601String(),
       );
       _items.addAll(result);
       emit(HistoryLoaded(
@@ -110,6 +130,9 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
       final result = await _getListUseCase(
         page: _currentPage,
         limit: AppConstants.defaultPageSize,
+        userId: _currentUserId,
+        startDate: _currentStartDate?.toIso8601String(),
+        endDate: _currentEndDate?.toIso8601String(),
       );
       _items.addAll(result);
       emit(HistoryLoaded(

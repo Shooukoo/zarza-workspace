@@ -26,6 +26,14 @@ export class NuevaFrutaDto {
   @IsString()
   storage_key: string;
 
+  /** ID del usuario autenticado en fruit-backend que inició el análisis. */
+  @IsString()
+  userId: string;
+
+  /** Email del usuario al momento del análisis (snapshot para trazabilidad). */
+  @IsString()
+  userEmail: string;
+
   @ValidateNested()
   @Type(() => NuevaFrutaMetadataDto)
   metadata: NuevaFrutaMetadataDto;
@@ -33,3 +41,4 @@ export class NuevaFrutaDto {
   @IsIn(['UPLOADED'])
   status: 'UPLOADED';
 }
+

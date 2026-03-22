@@ -9,9 +9,9 @@ export class FruitsQueryService {
     private readonly fruitsClient: ClientProxy,
   ) {}
 
-  async findAll(page: number, limit: number, imageId?: string) {
+  async findAll(page: number, limit: number, imageId?: string, userId?: string, startDate?: string, endDate?: string) {
     return firstValueFrom(
-      this.fruitsClient.send('get_fruits', { page, limit, imageId }),
+      this.fruitsClient.send('get_fruits', { page, limit, imageId, userId, startDate, endDate }),
     );
   }
 

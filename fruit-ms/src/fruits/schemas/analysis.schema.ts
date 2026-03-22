@@ -6,6 +6,14 @@ import { Schema as MongooseSchema, Document } from 'mongoose';
  * Se exporta como un token compatible con @InjectModel.
  */
 
+const userSnapshotSchema = new MongooseSchema(
+  {
+    userId: { type: String, required: true, index: true },
+    email:  { type: String, required: true },
+  },
+  { _id: false },
+);
+
 const prediccionSchema = new MongooseSchema(
   {
     cambio_a:          { type: String, required: true },
@@ -28,8 +36,9 @@ export const AnalysisSchema = new MongooseSchema(
   {
     image_id:       { type: String, required: true, index: true },
     storage_key:    { type: String, required: true },
+    requester:      { type: userSnapshotSchema, required: true },
     variedad:       { type: String, default: null },
-    fecha_analisis: { type: String, required: true },
+    fecha_analisis: { type: Date, required: true },
 
     metricas_salud: {
       type: new MongooseSchema(
@@ -66,8 +75,12 @@ export class Analysis {}
 export interface AnalysisDocument extends Document {
   image_id:       string;
   storage_key:    string;
+  requester: {
+    userId: string;
+    email:  string;
+  };
   variedad:       string | null;
-  fecha_analisis: string;
+  fecha_analisis: Date;
   metricas_salud: {
     total_elementos_detectados: number;
     elementos_sanos:            number;

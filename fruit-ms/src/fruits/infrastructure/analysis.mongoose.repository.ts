@@ -43,7 +43,15 @@ export class MongoAnalysisRepository implements IAnalysisRepository {
     filter: FindAllFilter,
   ): Promise<PaginatedResult<AnalysisDomain>> {
     const skip = (page - 1) * limit;
-    const query = filter.imageId ? { image_id: filter.imageId } : {};
+    const query: any = {};
+    if (filter.imageId) query.image_id = filter.imageId;
+    if (filter.userId) query['requester.userId'] = filter.userId;
+    
+    if (filter.startDate || filter.endDate) {
+      query.fecha_analisis = {};
+      if (filter.startDate) query.fecha_analisis.$gte = filter.startDate;
+      if (filter.endDate) query.fecha_analisis.$lte = filter.endDate;
+    }
 
     const [docs, total] = await Promise.all([
       this.analysisModel
@@ -60,6 +68,7 @@ export class MongoAnalysisRepository implements IAnalysisRepository {
       id:                    (doc._id as Types.ObjectId).toString(),
       image_id:              doc.image_id,
       storage_key:           doc.storage_key,
+      requester:             doc.requester,
       variedad:              doc.variedad ?? null,
       fecha_analisis:        doc.fecha_analisis,
       metricas_salud:        doc.metricas_salud,
@@ -83,6 +92,7 @@ export class MongoAnalysisRepository implements IAnalysisRepository {
       id:                    (doc._id as Types.ObjectId).toString(),
       image_id:              doc.image_id,
       storage_key:           doc.storage_key,
+      requester:             doc.requester,
       variedad:              doc.variedad ?? null,
       fecha_analisis:        doc.fecha_analisis,
       metricas_salud:        doc.metricas_salud,

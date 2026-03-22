@@ -36,9 +36,12 @@ services:
       - "3001:3000"
     env_file: ./fruit-backend/.env
     environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      MONGO_URI: "mongodb://mongo:27017/fruit_db"
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      mongo:
         condition: service_healthy
     networks: [fruit-net]
 
@@ -70,9 +73,9 @@ services:
     build: ./fruit-ms
     env_file: ./fruit-ms/.env
     environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
-      INFERENCE_URL: http://fruit-inference:8000
-      MONGO_URI: mongodb://mongo:27017/fruit_db
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
+      INFERENCE_URL: "http://fruit-inference:8000"
+      MONGO_URI: "mongodb://mongo:27017/fruit_db"
     depends_on:
       rabbitmq:
         condition: service_healthy

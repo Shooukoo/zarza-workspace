@@ -1,61 +1,42 @@
 import { Injectable, Logger, Inject, NotFoundException } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { AxiosError } from 'axios';
-import { envs } from '../config/envs';
 import { NuevaFrutaDto } from './dto/nueva-fruta.dto';
-import { AnalyzeRequestDto } from './dto/analyze-request.dto';
-import { AnalysisResponseDto } from './dto/analysis-response.dto';
-import { ANALYSIS_REPOSITORY } from './ports';
+import { ANALYSIS_REPOSITORY, I_INFERENCE_PORT } from './ports';
 import type { IAnalysisRepository } from './ports';
-
-import { InferenceMapper } from './infrastructure/inference.mapper';
+import type { IInferencePort } from './ports/inference.port';
 
 @Injectable()
 export class FruitsService {
   private readonly logger = new Logger(FruitsService.name);
 
   constructor(
-    private readonly httpService: HttpService,
+    @Inject(I_INFERENCE_PORT)
+    private readonly inference: IInferencePort,
     @Inject(ANALYSIS_REPOSITORY)
     private readonly analysisRepo: IAnalysisRepository,
   ) {}
 
   async process(data: NuevaFrutaDto): Promise<void> {
     this.logger.log(
-      `Nueva fruta recibida | id=${data.image_id} | key=${data.storage_key}`,
+      `Nueva fruta recibida | id=${data.image_id} | key=${data.storage_key} | user=${data.userId}`,
     );
 
-    // 1. Construir el request hacia fruit-inference
-    const requestBody: AnalyzeRequestDto = {
-      storage_key: data.storage_key,
-      image_id:    data.image_id,
-    };
-
-    // 2. Llamar al servicio de inferencia Python
-    let inferenceDto: AnalysisResponseDto;
+    // 1. Llamar al servicio de inferencia a través del Port (Clean Architecture)
+    //    El adapter conoce las URLs, timeouts y el mapeo DTO→dominio.
+    let analysis;
     try {
-      const response = await firstValueFrom(
-        this.httpService.post<AnalysisResponseDto>(
-          `${envs.inferenceUrl}/analyze`,
-          requestBody,
-          { timeout: 60_000 },
-        ),
+      analysis = await this.inference.analyze(
+        data.image_id,
+        data.storage_key,
+        { userId: data.userId, email: data.userEmail },
       );
-      inferenceDto = response.data;
     } catch (err) {
-      const axiosErr = err as AxiosError;
       this.logger.error(
-        `Error al llamar a fruit-inference: ${axiosErr.message}`,
-        axiosErr.response?.data,
+        `Error al procesar inferencia: ${(err as Error).message}`,
       );
       return;
     }
 
-    // 3. Mapear DTO de red → entidad de dominio (desacoplamiento del contrato HTTP)
-    const analysis = InferenceMapper.toDomain(inferenceDto, data.storage_key);
-
-    // 4. Loguear resumen usando la entidad de dominio
+    // 2. Loguear resumen usando la entidad de dominio
     const m = analysis.metricas_salud;
     this.logger.log(
       `Análisis completado | total=${m.total_elementos_detectados} | sanos=${m.elementos_sanos} | merma=${m.porcentaje_merma_general}%`,
@@ -70,7 +51,7 @@ export class FruitsService {
       );
     }
 
-    // 5. Persistir usando el repositorio (no sabe nada de Mongoose)
+    // 3. Persistir usando el repositorio (no sabe nada de Mongoose)
     try {
       const savedId = await this.analysisRepo.save(analysis);
       this.logger.log(`[MongoDB] Análisis guardado | _id=${savedId}`);
@@ -82,8 +63,15 @@ export class FruitsService {
   }
 
   /** Retorna análisis paginados ordenados del más reciente al más antiguo */
-  async findAll(page: number, limit: number, imageId?: string) {
-    return this.analysisRepo.findAll(page, limit, { imageId });
+  async findAll(
+    page: number,
+    limit: number,
+    imageId?: string,
+    userId?: string,
+    startDate?: Date,
+    endDate?: Date,
+  ) {
+    return this.analysisRepo.findAll(page, limit, { imageId, userId, startDate, endDate });
   }
 
   /** Retorna un análisis por su MongoDB _id */
@@ -93,3 +81,4 @@ export class FruitsService {
     return result;
   }
 }
+

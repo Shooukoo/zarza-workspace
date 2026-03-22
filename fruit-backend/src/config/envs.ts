@@ -6,6 +6,9 @@ import * as joi from 'joi';
 interface EnvVars {
   PORT: number;
 
+  // MongoDB
+  MONGO_URI: string;
+
   // Cloudflare R2
   R2_ENDPOINT: string;
   R2_ACCESS_KEY_ID: string;
@@ -15,11 +18,17 @@ interface EnvVars {
   // RabbitMQ
   RABBITMQ_URL: string;
   RABBITMQ_QUEUE: string;
+
+  // JWT
+  JWT_SECRET: string;
+  JWT_EXPIRES_IN: string;
 }
 
 const envSchema = joi
   .object({
     PORT: joi.number().required(),
+
+    MONGO_URI: joi.string().uri().required(),
 
     R2_ENDPOINT: joi.string().uri().required(),
     R2_ACCESS_KEY_ID: joi.string().required(),
@@ -28,6 +37,9 @@ const envSchema = joi
 
     RABBITMQ_URL: joi.string().required(),
     RABBITMQ_QUEUE: joi.string().required(),
+
+    JWT_SECRET: joi.string().required(),
+    JWT_EXPIRES_IN: joi.string().required(),
   })
   .unknown(true);
 
@@ -42,6 +54,9 @@ const envVars: EnvVars = value;
 export const envs = {
   port: envVars.PORT,
 
+  // MongoDB
+  mongoUri: envVars.MONGO_URI,
+
   // Cloudflare R2
   r2Endpoint: envVars.R2_ENDPOINT,
   r2AccessKeyId: envVars.R2_ACCESS_KEY_ID,
@@ -51,5 +66,9 @@ export const envs = {
   // RabbitMQ
   rabbitmqUrl: envVars.RABBITMQ_URL,
   rabbitmqQueue: envVars.RABBITMQ_QUEUE,
+
+  // JWT
+  jwtSecret: envVars.JWT_SECRET,
+  jwtExpiresIn: envVars.JWT_EXPIRES_IN,
 };
 

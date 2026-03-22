@@ -4,6 +4,9 @@ export const ANALYSIS_REPOSITORY = Symbol('ANALYSIS_REPOSITORY');
 
 export type FindAllFilter = {
   imageId?: string;
+  userId?: string;
+  startDate?: Date;
+  endDate?: Date;
 };
 
 export type PaginatedResult<T> = {

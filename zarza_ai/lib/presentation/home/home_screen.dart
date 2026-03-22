@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../core/services/local_notifications_service.dart';
 import '../../domain/entities/fruit_analysis.dart';
 import '../../domain/usecases/watch_notifications_usecase.dart';
 import '../history/history_bloc.dart';
@@ -29,6 +31,30 @@ class _HomeScreenState extends State<HomeScreen> {
     _watchNotifications().listen(
       (message) {
         if (!mounted) return;
+        
+        String cleanMessage = "Análisis completado";
+        String notificationTitle = "Zarza AI";
+        
+        try {
+          final map = jsonDecode(message) as Map<String, dynamic>;
+          if (map['event'] == 'analisis_listo' && map['data'] != null) {
+            final data = map['data'];
+            final detections = data['cronograma_fenologico'] ?? data['detections'] ?? [];
+            if (detections.isNotEmpty) {
+              final dominant = detections[0];
+              final stage = dominant['stage'] ?? dominant['label'] ?? 'General';
+              final weight = dominant['estimatedWeightGrams'] ?? 0.0;
+              final days = dominant['daysToHarvest'] ?? 0;
+              
+              cleanMessage = 'Etapa: $stage | Peso: ${weight}g | Cosecha: $days días';
+              notificationTitle = '¡Análisis Listo!';
+            }
+          }
+        } catch (_) {
+          // Fallback if parsing fails
+          cleanMessage = "Tienes un nuevo resultado de análisis.";
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -36,12 +62,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Icon(Icons.notifications_active,
                     color: Colors.white, size: 18),
                 const SizedBox(width: 8),
-                Expanded(child: Text(message)),
+                Expanded(child: Text(cleanMessage)),
               ],
             ),
             duration: const Duration(seconds: 4),
           ),
         );
+        
+        GetIt.I<LocalNotificationsService>().showNotification(
+          id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+          title: notificationTitle,
+          body: cleanMessage,
+        );
+
         context.read<HistoryBloc>().add(const HistoryLoadEvent());
       },
     );
@@ -115,7 +148,7 @@ class _HeroCaptureCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2E7D32).withOpacity(0.35),
+            color: const Color(0xFF2E7D32).withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -242,7 +275,7 @@ class _AnalysisListTile extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2E7D32).withOpacity(0.15),
+                  color: const Color(0xFF2E7D32).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.eco_rounded,
