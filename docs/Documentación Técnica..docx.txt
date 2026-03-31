@@ -1,0 +1,176 @@
+Nombre del proyecto: Robótica, control inteligente y sistemas de percepción.
+Fecha: 25 de marzo de 2026
+Versión: 1.0
+Creado por: Santiago Antonio Mora Nuñez
+1. Arquitectura y Flujo de Integración.
+El procesamiento de imágenes en Zarza AI utiliza una arquitectura asíncrona orientada a eventos para garantizar la escalabilidad. El flujo técnico para el análisis de una nueva captura es el siguiente:
+Ingestión: El cliente envía la imagen al endpoint de fruit-backend. El servidor sube la imagen cruda a Cloudflare R2 usando AWS SDK v3 (@aws-sdk/client-s3) y obtiene un storage_key.
+Emisión de Evento: El backend emite un evento asíncrono llamado nueva_fruta (conteniendo el storage_key) hacia el bus de mensajes RabbitMQ.
+Consumo: El microservicio fruit-ms escucha la cola de RabbitMQ. Al recibir el evento, utiliza Axios para hacer una petición POST interna al Worker de IA.
+Inferencia: El servicio fruit-inference recibe el storage_key, descarga la imagen directamente desde Cloudflare R2 usando boto3, ejecuta el modelo YOLOv8 y devuelve un JSON con el reporte fenológico.
+Persistencia: fruit-ms mapea la respuesta de la IA a las entidades de dominio y guarda el resultado final en MongoDB.
+2. Diccionario de Datos.
+Colección: users
+Campo
+Tipo
+Validaciones / Defecto
+email
+String
+Requerido, Único, Indexado
+passwordHash
+String
+Requerido
+role
+String
+Defecto: MONITOR
+campos_asignados
+[ObjectId]
+Defecto: [ ]
+fcm_token
+String
+Defecto: null
+Colección: campos
+Campo
+Tipo
+Validaciones / Defecto
+codigo_campo
+String
+Requerido
+nombre
+String
+Requerido
+productor_id
+ObjectId
+Requerido, Indexado
+poligono_gps
+[Number]
+Defecto: [ ]
+Colección: analyses
+Campo
+Tipo
+Validaciones / Defecto
+Descripción / Relación
+image_id
+String
+Requerido, Indexado
+ID único de la captura procesada.
+storage_key
+String
+Requerido
+Ruta de la imagen cruda en Cloudflare R2.
+requester
+Object
+Requerido
+Snapshot del usuario que solicitó el análisis (userId, email).
+fecha_analisis
+Date
+Requerido
+Fecha exacta de la inferencia.
+campo_id
+ObjectId
+Requerido, Indexado
+Referencia a la colección campos.
+productor_id
+ObjectId
+Requerido, Indexado
+Referencia a la colección users.
+ubicacion_gps
+GeoJSON
+Defecto: Point
+Coordenadas exactas: type: 'Point', coordinates: [Lon, Lat].
+offline_sync_id
+String
+Único, Sparse
+UUID generado en la app móvil para evitar duplicados.
+metricas_salud
+Object
+Requerido
+Total detectado, sanos, enfermos y % de merma.
+cronograma_fenologico
+[Object]
+Requerido
+Array de etapas detectadas y predicción de cosecha.
+validacion_experto
+Object
+Opcional
+Datos de corrección manual (fue_corregido, corregido_por).
+Colección: solicitudes_muestreo
+Campo
+Tipo
+Validaciones / Defecto
+Descripción / Relación
+creado_por
+ObjectId
+Requerido, Indexado
+Referencia al Admin (users).
+asignado_a
+ObjectId
+Requerido, Indexado
+Referencia al Monitor/Agrónomo (users).
+campo_id
+ObjectId
+Requerido, Indexado
+Referencia al lugar de la tarea (campos).
+estado
+String
+Defecto: PENDIENTE
+Enum: PENDIENTE, EN_PROGRESO, COMPLETADO, CANCELADO.
+mensaje
+String
+Requerido
+Instrucciones específicas de la tarea.
+3. Referencia de la API.
+Autenticación
+POST /api/auth/register 
+Descripción: Crea un nuevo usuario. Protegido por JwtAuthGuard y RolesGuard.
+Roles: ADMIN
+Payload: { "email": "...", "password": "..." }
+Respuesta (201): Datos del usuario creado (Rol MONITOR por defecto).
+POST /api/auth/login 
+Descripción: Inicia sesión y retorna el token de acceso.
+Roles: Público
+Payload: { "email": "...", "password": "..." }
+Respuesta (200): { "access_token": "JWT_STRING" }
+Ingestión de Datos
+POST /api/ingestion/upload 
+Descripción: Recibe la imagen de la app, la sube a R2 y encola el evento en RabbitMQ.
+Roles: Usuarios autenticados
+Payload: multipart/form-data (file, filename, mimetype, metadatos).
+Respuesta (201): { "image_id": "...", "storage_key": "...", "status": "..." }
+Consultas
+GET /api/fruits 
+Descripción: Retorna listado paginado de análisis. Soporta filtros opcionales.
+Roles: Usuarios autenticados (Filtrado interno por rol/campos asignados).
+Query Params: page, limit, user_id, campo_id, start_date, end_date.
+GET /api/fruits/:id 
+Descripción: Obtiene los detalles completos de un análisis específico usando su _id.
+Roles: Usuarios autenticados.
+Inferencia Fenológica
+POST fruit-inference:8000/analyze
+Descripción: Endpoint del microservicio en Python para procesar la imagen con YOLOv8.
+Roles: Red Interna Privada.
+Payload: { "storage_key": "...", "image_id": "..." }
+4. Variables de Entorno y Configuración.
+Para desplegar la infraestructura, se requieren las siguientes variables de entorno.
+Backend Core fruit-backend y fruit-ms
+Base de Datos y Servidor: 
+PORT: Puerto de ejecución de la API REST.
+MONGO_URI: Cadena de conexión al clúster de MongoDB.
+Seguridad: 
+JWT_SECRET: Llave privada simétrica para firmar los tokens.
+JWT_EXPIRES_IN: Tiempo de vida del token ej. 24h.
+Cloudflare R2 Storage: 
+R2_ENDPOINT: URL de acceso directo al bucket.
+R2_BUCKET_NAME: Nombre lógico del bucket ej. zarza-images.
+R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY: Credenciales de la API de Cloudflare.
+Colas de Mensajería: 
+RABBITMQ_URL: URI de conexión al broker AMQP.
+RABBITMQ_QUEUE: Nombre de la cola de ingestión.
+Microservicios: 
+INFERENCE_URL: Ruta interna del servidor Python ej. http://fruit-inference:8000.
+AI Worker fruit-inference
+Modelo de Machine Learning: 
+MODEL_PATH: Ruta al archivo de pesos entrenados ej. best.pt.
+CONF_THRESHOLD: Umbral mínimo de confianza para el bounding box Visión Computacional.
+Cloudflare R2 Lectura Directa: 
+R2_ENDPOINT, R2_BUCKET_NAME, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY (Para descargar la imagen usando boto3).

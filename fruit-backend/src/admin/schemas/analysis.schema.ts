@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, SchemaTypes, Document } from 'mongoose';
 
 /**
  * Minimalist schema to query the `analyses` collection created by `fruit-ms`.
@@ -28,6 +28,19 @@ export const AnalysisDashboardSchema = new Schema(
         },
       },
     ],
+    // Nuevos campos (read-only mirror)
+    campo_id:     { type: SchemaTypes.ObjectId },
+    productor_id: { type: SchemaTypes.ObjectId },
+    ubicacion_gps: {
+      type:        { type: String },
+      coordinates: { type: [Number] },
+    },
+    offline_sync_id: { type: String },
+    validacion_experto: {
+      fue_corregido:      { type: Boolean },
+      corregido_por:      { type: SchemaTypes.ObjectId },
+      diagnostico_original: { type: String },
+    },
   },
   { collection: 'analyses' },
 );

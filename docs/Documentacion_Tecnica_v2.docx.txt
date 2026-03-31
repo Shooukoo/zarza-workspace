@@ -1,0 +1,523 @@
+ZARZA AI
+Documentación Técnica
+Proyecto:
+Zarza AI — Monitoreo de Zarzamora
+Versión:
+2.0
+Fecha:
+25 de marzo de 2026
+Autor:
+Santiago Antonio Mora Nuñez
+Materia:
+Robótica, Control Inteligente y Sistemas de Percepción
+Índice de Contenidos
+Historial de Revisiones
+Versión
+Fecha
+Autor
+Descripción del Cambio
+1.0
+15/03/2026
+Santiago Mora Nuñez
+Versión inicial: arquitectura base, flujo de integración y diccionario de datos.
+2.0
+25/03/2026
+Santiago Mora Nuñez
+Ampliación: referencia completa de API, variables de entorno, manejo de errores, guía de despliegue y estrategia de pruebas.
+1. Introducción
+Este documento constituye la referencia técnica completa de la plataforma Zarza AI, un sistema de monitoreo agrícola inteligente para cultivos de zarzamora. Su propósito es servir como guía de implementación, integración y mantenimiento para el equipo de desarrollo.
+1.1 Alcance
+Descripción de la arquitectura asíncrona y el flujo de integración de servicios.
+Diccionario de datos completo de las colecciones MongoDB.
+Referencia de todos los endpoints de la API REST.
+Variables de entorno requeridas para cada microservicio.
+Códigos de error HTTP y estrategia de manejo de excepciones.
+Guía de despliegue con Docker Compose.
+Estrategia de pruebas (unitarias, integración y de carga).
+1.2 Público Objetivo
+Este documento está dirigido a desarrolladores backend, ingenieros DevOps e integradores que trabajen directamente con la infraestructura y el código fuente de Zarza AI.
+1.3 Tecnologías Principales
+Componente
+Tecnología
+Propósito
+Backend Core
+NestJS / Node.js
+API REST, autenticación RBAC, orquestación
+AI Worker
+Python / FastAPI + YOLOv8
+Inferencia fenológica sobre imágenes
+App Móvil
+Flutter (Dart)
+Captura, modo offline, sincronización
+Base de Datos
+MongoDB Atlas
+Persistencia de usuarios, campos y análisis
+Almacenamiento
+Cloudflare R2
+Imágenes crudas capturadas en campo
+Mensajería
+RabbitMQ (AMQP)
+Bus de eventos asíncronos entre servicios
+Notificaciones
+Firebase Cloud Messaging
+Alertas push a dispositivos móviles
+Contenedores
+Docker / Docker Compose
+Empaquetado y despliegue reproducible
+2. Arquitectura y Flujo de Integración
+El procesamiento de imágenes en Zarza AI utiliza una arquitectura asíncrona orientada a eventos para garantizar la escalabilidad y el desacoplamiento entre servicios. El flujo completo para el análisis de una nueva captura es el siguiente:
+2.1 Flujo de Procesamiento de Imagen
+Paso
+Servicio
+Descripción
+1
+fruit-backend
+Ingestad: El cliente envía la imagen vía multipart/form-data al endpoint POST /api/ingestion/upload. El servidor sube la imagen cruda a Cloudflare R2 usando AWS SDK v3 y obtiene un storage_key único.
+2
+fruit-backend
+Emisión de Evento: El backend emite un evento asíncrono llamado nueva_fruta hacia el bus de mensajes RabbitMQ, incluyendo el storage_key y los metadatos del muestreo.
+3
+fruit-ms
+Consumo: El microservicio fruit-ms escucha la cola de RabbitMQ. Al recibir el evento, realiza una petición POST interna al Worker de IA mediante Axios.
+4
+fruit-inference
+Inferencia: El servicio Python descarga la imagen desde Cloudflare R2 usando boto3, ejecuta el modelo YOLOv8 y devuelve un JSON con el reporte fenológico (etapas, métricas de salud, bounding boxes).
+5
+fruit-ms
+Persistencia: fruit-ms mapea la respuesta de la IA a las entidades de dominio y guarda el resultado final en MongoDB, asociando el análisis al campo, productor y coordenadas GPS.
+Nota sobre Idempotencia
+El campo offline_sync_id (UUID generado en el dispositivo móvil) actua como clave única sparse en la colección analyses, garantizando que un mismo muestreo no se procese dos veces aunque se sincronice mãs de una vez por problemas de red.
+2.2 Diagrama de Componentes
+El ecosistema se compone de los siguientes servicios interconectados:
+fruit-backend (NestJS): Controlador principal de tráfico. Gestiona autenticación JWT, RBAC, upload a R2 y publicación en RabbitMQ.
+fruit-ms (NestJS): Microservicio consumidor. Coordina la llamada al Worker de IA y la persistencia en MongoDB.
+fruit-inference (Python/FastAPI): Worker aislado. Recibe el storage_key, descarga la imagen y ejecuta YOLOv8.
+MongoDB Atlas: Base de datos principal para usuarios, campos, análisis y solicitudes de muestreo.
+Cloudflare R2: Almacenamiento de objetos para las imágenes crudas en alta resolución.
+RabbitMQ: Bus de mensajes AMQP que desacopla la ingesta de datos de la inferencia.
+3. Diccionario de Datos
+Las siguientes colecciones conforman el esquema de MongoDB para Zarza AI. Todos los documentos incluyen automáticamente los campos _id (ObjectId generado por MongoDB) y __v (versionado de Mongoose).
+3.1 Colección: users
+Campo
+Tipo
+Validaciones / Defecto
+Descripción
+email
+String
+Requerido, Único, Indexado
+Identificador de acceso del usuario. Sirve como login.
+passwordHash
+String
+Requerido
+Hash bcrypt de la contraseña. Nunca se expone en respuestas de API.
+role
+String (Enum)
+Defecto: MONITOR
+Rol del usuario. Valores: ADMIN, PRODUCTOR, AGRONOMO, MONITOR.
+campos_asignados
+[ObjectId]
+Defecto: []
+Referencias a la colección campos. Controla el acceso a datos por huerta.
+fcm_token
+String
+Defecto: null
+Token de Firebase Cloud Messaging para el envío de notificaciones push.
+3.2 Colección: campos
+Campo
+Tipo
+Validaciones / Defecto
+Descripción
+codigo_campo
+String
+Requerido
+Código alfanumérico único que identifica la huerta.
+nombre
+String
+Requerido
+Nombre descriptivo de la huerta o parcela.
+productor_id
+ObjectId
+Requerido, Indexado
+Referencia al dueño de la huerta en la colección users.
+poligono_gps
+[Number]
+Defecto: []
+Array de coordenadas que delimitan el perímetro geográfico de la parcela.
+3.3 Colección: analyses
+Campo
+Tipo
+Validaciones / Defecto
+Descripción
+image_id
+String
+Requerido, Indexado
+ID único de la captura procesada. Generado por el backend al momento del upload.
+storage_key
+String
+Requerido
+Ruta de la imagen cruda en Cloudflare R2 (ej. zarza-images/uuid.jpg).
+requester
+Object
+Requerido
+Snapshot inmutable del usuario que solicitó el análisis: { userId, email }. Se guarda como snapshot para mantener trazabilidad aun si el usuario es eliminado.
+fecha_analisis
+Date
+Requerido
+Timestamp ISO 8601 exacto del momento de inferencia en el servidor.
+campo_id
+ObjectId
+Requerido, Indexado
+Referencia a la colección campos. Permite filtrar análisis por huerta.
+productor_id
+ObjectId
+Requerido, Indexado
+Referencia al productor dueño de la huerta.
+ubicacion_gps
+GeoJSON Point
+Defecto: type:'Point'
+Coordenadas exactas del muestreo: { type: 'Point', coordinates: [Lon, Lat] }. Indexado con 2dsphere para consultas geoespaciales.
+offline_sync_id
+String
+Único, Sparse
+UUID generado en la app móvil. Evita duplicados durante la sincronización offline.
+metricas_salud
+Object
+Requerido
+Resumen de salud: { total_detectado, sanos, enfermos, porcentaje_merma }.
+cronograma_fenologico
+[Object]
+Requerido
+Array de etapas detectadas por YOLOv8 y predicción de fecha de cosecha.
+validacion_experto
+Object
+Opcional
+Datos de corrección manual por un Agrónomo: { fue_corregido, corregido_por, fecha_correccion }.
+3.4 Colección: solicitudes_muestreo
+Campo
+Tipo
+Validaciones / Defecto
+Descripción
+creado_por
+ObjectId
+Requerido, Indexado
+Referencia al Admin que crea la tarea.
+asignado_a
+ObjectId
+Requerido, Indexado
+Referencia al Monitor o Agrónomo que ejecutará el muestreo.
+campo_id
+ObjectId
+Requerido, Indexado
+Referencia al lugar donde se debe realizar el muestreo.
+estado
+String (Enum)
+Defecto: PENDIENTE
+Estado del flujo: PENDIENTE | EN_PROGRESO | COMPLETADO | CANCELADO.
+mensaje
+String
+Requerido
+Instrucciones específicas de la tarea redactadas por el Administrador.
+fecha_creacion
+Date
+Defecto: Date.now()
+Timestamp de creación de la solicitud.
+4. Referencia de la API REST
+Todos los endpoints requieren el header Content-Type: application/json salvo que se indique multipart/form-data. Los endpoints protegidos requieren el header Authorization: Bearer <JWT_TOKEN>.
+URL Base
+http(s)://<HOST>:<PORT>/api  —  Todos los paths listados son relativos a esta URL base.
+4.1 Autenticación
+Método
+Endpoint
+Roles
+Payload
+Respuesta
+POST
+/auth/register
+ADMIN
+{ "email": "...", "password": "..." }
+201: { _id, email, role }
+POST
+/auth/login
+Público
+{ "email": "...", "password": "..." }
+200: { "access_token": "JWT" }
+4.2 Ingestión de Datos
+Método
+Endpoint
+Roles
+Payload
+Respuesta
+POST
+/ingestion/upload
+Autenticado
+multipart/form-data: file, filename, mimetype, campo_id, productor_id, gps_lat, gps_lon
+201: { image_id, storage_key, status: "queued" }
+4.3 Consultas de Análisis
+Método
+Endpoint
+Roles
+Query Params
+Respuesta
+GET
+/fruits
+Autenticado
+page, limit, user_id, campo_id, start_date, end_date
+200: { data: [...], total, page }
+GET
+/fruits/:id
+Autenticado
+—
+200: Objeto analysis completo
+4.4 Solicitudes de Muestreo
+Método
+Endpoint
+Roles
+Payload / Params
+Respuesta
+POST
+/admin/requests
+ADMIN
+{ "campo_id": "...", "asignado_a": "...", "mensaje": "..." }
+201: Solicitud creada + FCM enviado
+GET
+/admin/requests
+ADMIN
+page, limit, estado
+200: Lista de solicitudes paginada
+GET
+/admin/users
+ADMIN
+—
+200: Lista de usuarios del sistema
+4.5 Inferencia Fenológica (Red Interna)
+⚠️ Uso Interno Únicamente
+El siguiente endpoint es del microservicio fruit-inference. Solo es accesible desde la red privada Docker. No debe exponerse a internet.
+Método
+Endpoint
+Roles
+Payload
+Respuesta
+POST
+fruit-inference:8000/analyze
+Red Interna
+{ "storage_key": "...", "image_id": "..." }
+200: Reporte fenológico JSON
+5. Manejo de Errores HTTP
+Todos los servicios del ecosistema Zarza AI siguen una convención uniforme para las respuestas de error, facilitando el debugging y el manejo en el cliente.
+5.1 Formato Estándar de Error
+Toda respuesta de error retorna el siguiente objeto JSON:
+{
+  "statusCode": 400,
+  "message": "Descripción legible del error",
+  "error": "Bad Request",
+  "timestamp": "2026-03-25T10:00:00.000Z",
+  "path": "/api/auth/login"
+}
+5.2 Códigos de Estado y Causas Comunes
+Código
+Estado HTTP
+Causa Común
+Acción Recomendada
+400
+Bad Request
+Payload inválido, campos faltantes o tipos incorrectos.
+Revisar el esquema del cuerpo de la petición.
+401
+Unauthorized
+Token JWT ausente, expirado o con firma inválida.
+Renovar el token mediante POST /auth/login.
+403
+Forbidden
+Token válido pero el rol del usuario no tiene permiso para ese recurso.
+Verificar que el usuario tenga el rol requerido (RBAC).
+404
+Not Found
+El recurso solicitado (analysis, campo, usuario) no existe en la base de datos.
+Verificar que el ID enviado sea correcto.
+409
+Conflict
+Intento de registrar un email duplicado o sincronizar un offline_sync_id ya existente.
+Verificar unicidad antes de persistir.
+413
+Payload Too Large
+El archivo de imagen supera el límite máximo configurado en el servidor.
+Comprimir la imagen o ajustar el límite en la configuración.
+500
+Internal Server Error
+Error inesperado en el servidor (fallo de conexión a MongoDB, R2 o RabbitMQ).
+Revisar los logs del servicio correspondiente.
+503
+Service Unavailable
+El Worker de IA (fruit-inference) no está disponible o su cola está saturada.
+Verificar el estado del contenedor fruit-inference y RabbitMQ.
+6. Variables de Entorno y Configuración
+La configuración de cada microservicio se gestiona exclusivamente a través de variables de entorno. Nunca se deben incluir valores sensibles directamente en el código fuente. Se recomienda el uso de archivos .env junto con docker-compose y un gestor de secretos para producción.
+6.1 Backend Core (fruit-backend y fruit-ms)
+Variable
+Ejemplo
+Descripción
+PORT
+3000
+Puerto donde se expone la API REST.
+MONGO_URI
+mongodb+srv://user:pass@cluster.mongodb.net/zarza
+Cadena de conexión al clúster de MongoDB Atlas.
+JWT_SECRET
+s3cr3t_k3y_muy_larg0!
+Llave simétrica para firmar y verificar los tokens JWT. Mínimo 32 caracteres en producción.
+JWT_EXPIRES_IN
+24h
+Tiempo de vida del token de acceso (ej. 1h, 24h, 7d).
+R2_ENDPOINT
+https://<accountid>.r2.cloudflarestorage.com
+URL de acceso directo al bucket de Cloudflare R2.
+R2_BUCKET_NAME
+zarza-images
+Nombre lógico del bucket de almacenamiento.
+R2_ACCESS_KEY_ID
+a1b2c3d4e5f6...
+Access Key ID del API Token de Cloudflare.
+R2_SECRET_ACCESS_KEY
+xyz...
+Secret Access Key del API Token de Cloudflare.
+RABBITMQ_URL
+amqp://user:pass@rabbitmq:5672
+URI de conexión al broker AMQP.
+RABBITMQ_QUEUE
+nueva_fruta
+Nombre de la cola de ingestad de imágenes.
+INFERENCE_URL
+http://fruit-inference:8000
+URL interna del Worker de IA dentro de la red Docker.
+FCM_SERVER_KEY
+AAAA...
+Llave de servidor de Firebase para envío de notificaciones push.
+6.2 AI Worker (fruit-inference)
+Variable
+Ejemplo
+Descripción
+MODEL_PATH
+./weights/best.pt
+Ruta al archivo de pesos entrenados de YOLOv8.
+CONF_THRESHOLD
+0.45
+Umbral mínimo de confianza para aceptar una detección (valor entre 0 y 1).
+R2_ENDPOINT
+(igual que backend)
+Requerido para que boto3 descargue la imagen desde R2.
+R2_BUCKET_NAME
+zarza-images
+Nombre del bucket de origen.
+R2_ACCESS_KEY_ID
+a1b2c3...
+Credencial de lectura del bucket R2.
+R2_SECRET_ACCESS_KEY
+xyz...
+Credencial secreta de lectura del bucket R2.
+7. Guía de Despliegue
+Zarza AI utiliza Docker y Docker Compose para garantizar un entorno de ejecución reproducible en cualquier servidor. A continuación se describe el proceso de despliegue completo.
+7.1 Requisitos Previos del Servidor
+Docker Engine v24.0 o superior.
+Docker Compose v2.0 o superior.
+Mínimo 4 GB de RAM disponibles para el Worker de IA.
+Acceso a internet para descarga de imágenes base y conexión a MongoDB Atlas.
+Puertos 3000 (backend), 8000 (inference) y 5672/15672 (RabbitMQ) disponibles.
+7.2 Estructura de Contenedores
+Servicio
+Puerto
+Imagen Base
+Descripción
+fruit-backend
+3000
+node:20-alpine
+API REST principal con NestJS.
+fruit-ms
+3001 (interno)
+node:20-alpine
+Microservicio consumidor de RabbitMQ.
+fruit-inference
+8000 (interno)
+python:3.11-slim
+Worker de IA con FastAPI + YOLOv8.
+rabbitmq
+5672 / 15672
+rabbitmq:3-management
+Broker de mensajes AMQP con panel de gestión.
+7.3 Pasos de Despliegue
+#
+Paso
+1
+Clonar el repositorio: git clone <repo-url> && cd zarza-ai
+2
+Copiar el archivo de variables: cp .env.example .env y rellenar todos los valores.
+3
+Construir e iniciar los contenedores: docker compose up --build -d
+4
+Verificar que todos los servicios estén corriendo: docker compose ps
+5
+Verificar los logs del Worker de IA: docker compose logs fruit-inference
+6
+Probar el endpoint de salud: GET http://localhost:3000/api/health
+Actualización del Modelo de IA
+Para actualizar los pesos de YOLOv8 sin reiniciar el backend: 1) Reemplazar el archivo best.pt en el volumen correspondiente. 2) Reiniciar únicamente el contenedor fruit-inference: docker compose restart fruit-inference. Los demás servicios continuarán operando sin interrupción.
+8. Estrategia de Pruebas
+Para garantizar la calidad y estabilidad del sistema, se definen tres niveles de prueba:
+8.1 Pruebas Unitarias
+Alcance: Lógica de negocio aislada en servicios NestJS (AuthService, IngestService, FruitsService).
+Herramienta: Jest con módulo de testing de NestJS (@nestjs/testing).
+Casos críticos: Validación de roles RBAC, generación de JWT, hasheo de contraseñas.
+Meta de cobertura: Mínimo 80% en los archivos *.service.ts.
+8.2 Pruebas de Integración
+Alcance: Flujo completo de carga de imagen, emisión de evento en RabbitMQ, llamada al Worker y persistencia en MongoDB.
+Herramienta: Supertest + instancia de MongoDB en memoria (mongodb-memory-server).
+Casos críticos: Sincronización offline (idempotencia con offline_sync_id), respuesta del Worker de IA y mapeo correcto al esquema de MongoDB.
+8.3 Pruebas de Carga
+Herramienta: Artillery o k6.
+Escenario base: 50 usuarios concurrentes enviando imágenes simultáneamente durante 5 minutos.
+Métrica objetivo: Tiempo de respuesta del endpoint POST /api/ingestion/upload menor a 2 segundos en el percentil 95.
+Consideración: La inferencia de IA es asíncrona y no bloquea la respuesta HTTP, por lo que la carga del Worker se debe monitorear por separado via los logs de RabbitMQ.
+9. Consideraciones de Seguridad
+9.1 Autenticación y Autorización
+Todos los tokens JWT tienen tiempo de expiración configurado mediante JWT_EXPIRES_IN.
+Los tokens no se almacenan en el servidor (arquitectura stateless). La revocación prematura requiere implementar una lista negra en Redis.
+Cada endpoint aplica JwtAuthGuard + RolesGuard de forma independiente.
+9.2 Protección de Datos
+Las contraseñas se almacenan únicamente como hash bcrypt (factor de costo recomendado: 12).
+Las credenciales de Cloudflare R2 y MongoDB nunca se registran en logs.
+El Worker de IA (fruit-inference) no debe estar expuesto a internet; debe operar en la red interna privada de Docker.
+9.3 Transmisión
+En producción, toda la comunicación externa debe estar cifrada mediante TLS (HTTPS).
+Las URLs de imágenes en R2 deben ser URLs firmadas con tiempo de expiración, no URLs públicas permanentes.
+10. Glosario Técnico
+Término
+Definición
+AMQP
+Advanced Message Queuing Protocol. Protocolo estándar utilizado por RabbitMQ para el intercambio de mensajes entre servicios.
+bcrypt
+Algoritmo de hash unidireccional diseñado para contraseñas, con un factor de costo configurable que lo hace resistente a ataques de fuerza bruta.
+Bounding Box
+Rectángulo delimitador que el modelo YOLOv8 dibuja alrededor de cada objeto detectado en la imagen, junto con su nivel de confianza.
+Docker Compose
+Herramienta para definir y ejecutar aplicaciones multi-contenedor mediante un archivo YAML.
+FCM
+Firebase Cloud Messaging. Servicio de Google para el envío de notificaciones push a dispositivos iOS y Android.
+Fenología
+Estudio de las etapas de desarrollo y maduración de los cultivos (floración, fruto verde, fruto rojo, fruto maduro).
+GeoJSON
+Formato estándar para representar estructuras geográficas (puntos, polígonos) en JSON. Utilizado por MongoDB para índices 2dsphere.
+JWT
+JSON Web Token. Estándar para crear tokens de acceso firmados que permiten autenticación stateless.
+Merma
+Porcentaje de frutos enfermos o dañados respecto al total detectado en una imagen.
+NestJS
+Framework de Node.js basado en TypeScript para construir APIs REST escalables y bien estructuradas.
+Offline-first
+Enfoque de diseño donde la app opera sin conexión y sincroniza datos al recuperar la red.
+RBAC
+Role-Based Access Control. Sistema de seguridad que restringe el acceso a recursos según el rol asignado al usuario.
+Sparse Index
+Índice en MongoDB que solo indexa documentos donde el campo existe, evitando errores de unicidad en campos opcionales como offline_sync_id.
+UUID
+Universally Unique Identifier. Identificador de 128 bits generado localmente en el dispositivo para etiquetar muestreos offline.
+YOLOv8
+You Only Look Once version 8. Modelo de visión computacional de última generación para detección de objetos en tiempo real.

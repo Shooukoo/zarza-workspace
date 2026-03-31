@@ -11,4 +11,11 @@ export type ParsedMultipartDto = {
   filename:   string;
   mimetype:   string;
   capturedAt: Date | null;
+  // V2: trazabilidad geoespacial y sincronización offline
+  campoId:        string | null;
+  productorId:    string | null;
+  gpsLat:         number | null;
+  gpsLon:         number | null;
+  offlineSyncId:  string | null;
 };
+

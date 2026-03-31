@@ -80,11 +80,15 @@ class AppRouter {
       // ── Rutas de app móvil normal ────────────────────────────────────────
       GoRoute(
         path: '/home',
-        builder: (context, state) => BlocProvider(
-          create: (_) =>
-              sl<HistoryBloc>()..add(const HistoryLoadEvent()),
-          child: const HomeScreen(),
-        ),
+        builder: (context, state) {
+          final authState = GetIt.I<AuthCubit>().state;
+          final userId = authState is AuthAuthenticated ? authState.user.id : null;
+          return BlocProvider(
+            create: (_) =>
+                sl<HistoryBloc>()..add(HistoryLoadEvent(userId: userId)),
+            child: const HomeScreen(),
+          );
+        },
       ),
       GoRoute(
         path: '/capture',
@@ -106,11 +110,15 @@ class AppRouter {
       ),
       GoRoute(
         path: '/history',
-        builder: (context, state) => BlocProvider(
-          create: (_) =>
-              sl<HistoryBloc>()..add(const HistoryLoadEvent()),
-          child: const HistoryScreen(),
-        ),
+        builder: (context, state) {
+          final authState = GetIt.I<AuthCubit>().state;
+          final userId = authState is AuthAuthenticated ? authState.user.id : null;
+          return BlocProvider(
+            create: (_) =>
+                sl<HistoryBloc>()..add(HistoryLoadEvent(userId: userId)),
+            child: const HistoryScreen(),
+          );
+        },
       ),
 
       // ── Panel de administración (web/desktop con sidebar) ────────────────

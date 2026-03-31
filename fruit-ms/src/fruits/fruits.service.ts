@@ -17,17 +17,26 @@ export class FruitsService {
 
   async process(data: NuevaFrutaDto): Promise<void> {
     this.logger.log(
-      `Nueva fruta recibida | id=${data.image_id} | key=${data.storage_key} | user=${data.userId}`,
+      `Nueva fruta recibida | id=${data.image_id} | key=${data.storage_key} | user=${data.userId ?? 'anon'}`,
     );
 
+    // V2 context: pass metadata from ingestion event to the inference adapter
+    const context = {
+      campoId:       data.campoId,
+      productorId:   data.productorId,
+      gpsLat:        data.gpsLat,
+      gpsLon:        data.gpsLon,
+      offlineSyncId: data.offlineSyncId,
+    };
+
     // 1. Llamar al servicio de inferencia a través del Port (Clean Architecture)
-    //    El adapter conoce las URLs, timeouts y el mapeo DTO→dominio.
     let analysis;
     try {
       analysis = await this.inference.analyze(
         data.image_id,
         data.storage_key,
-        { userId: data.userId, email: data.userEmail },
+        { userId: data.userId ?? 'anonymous', email: data.userEmail ?? '' },
+        context,
       );
     } catch (err) {
       this.logger.error(
@@ -54,7 +63,7 @@ export class FruitsService {
     // 3. Persistir usando el repositorio (no sabe nada de Mongoose)
     try {
       const savedId = await this.analysisRepo.save(analysis);
-      this.logger.log(`[MongoDB] Análisis guardado | _id=${savedId}`);
+      this.logger.log(`[MongoDB] Análisis guardado | _id=${savedId} | campo=${analysis.campo_id ?? 'N/A'}`);
     } catch (err) {
       this.logger.error(
         `[MongoDB] Error al guardar el análisis: ${(err as Error).message}`,
@@ -81,4 +90,5 @@ export class FruitsService {
     return result;
   }
 }
+
 

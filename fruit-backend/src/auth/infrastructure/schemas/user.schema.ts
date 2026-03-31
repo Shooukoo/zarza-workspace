@@ -1,4 +1,4 @@
-import { Schema as MongooseSchema, Types, HydratedDocument } from 'mongoose';
+import { Schema as MongooseSchema, SchemaTypes, Types, HydratedDocument } from 'mongoose';
 import { Role } from '../../domain/enums/role.enum';
 
 /**
@@ -26,6 +26,14 @@ export const UserSchema = new MongooseSchema(
       required: true,
       default: Role.MONITOR,
     },
+    campos_asignados: {
+      type: [{ type: SchemaTypes.ObjectId, ref: 'Campo' }],
+      default: [],
+    },
+    fcm_token: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true, // createdAt + updatedAt automáticos
@@ -39,6 +47,8 @@ export class UserDocument {
   email: string;
   passwordHash: string;
   role: Role;
+  campos_asignados: Types.ObjectId[];
+  fcm_token: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

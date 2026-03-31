@@ -7,8 +7,6 @@
 /**
  * Snapshot inmutable del usuario que solicitó el análisis.
  * Se almacena junto al análisis para trazabilidad histórica.
- * Si el usuario cambia su email en fruit-backend, el snapshot
- * conserva el email original (consistencia eventual intencional).
  */
 export type UserSnapshot = {
   userId: string;  // ID canónico en fruit-backend
@@ -39,6 +37,17 @@ export type ProyeccionFinanciera = {
   peso_sano_gramos: number;
 };
 
+/** GeoJSON Point: { type: 'Point', coordinates: [lon, lat] } */
+export type GeoJsonPoint = {
+  type: 'Point';
+  coordinates: [number, number]; // [longitude, latitude]
+};
+
+export type ValidacionExperto = {
+  fue_corregido: boolean;
+  corregido_por: string | null;        // ObjectId como string
+  diagnostico_original: string | null;
+};
 
 export interface AnalysisDomain {
   /** _id de MongoDB asignado tras la persistencia (undefined antes de guardar) */
@@ -53,4 +62,17 @@ export interface AnalysisDomain {
   metricas_salud: MetricasSalud;
   proyeccion_financiera: ProyeccionFinanciera;
   cronograma_fenologico: EtapaFenologica[];
+
+  // ── V2: trazabilidad, geolocalización, offline, validación ──
+  /** ObjectId del campo donde se realizó el muestreo (como string). Opcional para retro-compat. */
+  campo_id?: string | null;
+  /** ObjectId del productor dueño del campo (como string). */
+  productor_id?: string | null;
+  /** Coordenadas GPS del muestreo en formato GeoJSON Point. */
+  ubicacion_gps?: GeoJsonPoint | null;
+  /** UUID generado en la app móvil para idempotencia offline. */
+  offline_sync_id?: string | null;
+  /** Datos de auditoría de corrección humana (Agrónomo). */
+  validacion_experto?: ValidacionExperto | null;
 }
+

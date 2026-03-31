@@ -5,7 +5,7 @@ import { AxiosError } from 'axios';
 import { envs } from '../../config/envs';
 import { AnalysisResponseDto } from '../dto/analysis-response.dto';
 import { AnalysisDomain, UserSnapshot } from '../domain/analysis.entity';
-import type { IInferencePort } from '../ports/inference.port';
+import type { IInferencePort, InferenceContext } from '../ports/inference.port';
 import { InferenceMapper } from './inference.mapper';
 
 /**
@@ -25,6 +25,7 @@ export class InferenceHttpAdapter implements IInferencePort {
     imageId: string,
     storageKey: string,
     requester: UserSnapshot,
+    context?: InferenceContext,
   ): Promise<AnalysisDomain> {
     let inferenceDto: AnalysisResponseDto;
 
@@ -47,7 +48,6 @@ export class InferenceHttpAdapter implements IInferencePort {
     }
 
     // Transformar DTO de red → entidad de dominio (el mapper vive en infraestructura)
-    return InferenceMapper.toDomain(inferenceDto, storageKey, requester);
+    return InferenceMapper.toDomain(inferenceDto, storageKey, requester, context);
   }
 }
-

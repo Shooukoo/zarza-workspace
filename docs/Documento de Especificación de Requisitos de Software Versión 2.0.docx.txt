@@ -1,0 +1,190 @@
+Nombre del proyecto: Robótica, control inteligente y sistemas de percepción.
+Fecha: 25 de marzo de 2026
+Versión: 2.0
+Creado por: Santiago Antonio Mora Nuñez
+Introducción.
+Propósito del documento: Describir los requisitos de software para la actualización del sistema Zarza AI, estableciendo la nueva arquitectura de base de datos, jerarquía de usuarios y capacidades operativas en campo.
+Alcance del producto: El sistema permite el monitoreo avanzado de cultivos de zarzamora mediante inteligencia artificial. Sus objetivos son digitalizar el proceso de muestreo en campo, garantizar la trazabilidad de los datos y ofrecer predicciones de rendimiento y métricas de salud de las plantas.
+Valor del producto: Proporciona a los productores y agrónomos una herramienta para tomar decisiones estratégicas basadas en datos (mapas de calor, proyecciones financieras y detección temprana de plagas), protegiendo la inversión y optimizando el tiempo de trabajo de los monitores.
+Público objetivo: Administradores del sistema, Productores (dueños de huertas), Agrónomos (especialistas técnicos) y Monitores (trabajadores de campo).
+Uso previsto: Los monitores usarán la app móvil en campo para realizar escaneos fotográficos de las plantas. El personal administrativo y estratégico usará la plataforma web para analizar resultados, monitorear el comportamiento de producción y asignar tareas al personal de campo.
+Descripción general: Zarza AI es un ecosistema compuesto por una aplicación móvil, un panel de administración web y un único modelo de Inteligencia Artificial alojado en la nube que procesa imágenes para extraer métricas de salud (merma, enfermedades) y etapas fenológicas de la zarzamora.
+Requisitos Funcionales.
+Identificación
+Nombre del Requerimiento
+Características
+Descripción del requerimiento
+RNF asociado
+Prioridad
+RF01
+Autenticación y Jerarquía Web
+Restricción de vistas y acciones según el rol del usuario (Admin, Productor, Agrónomo).
+El panel web otorgará control total (CRUD) al Administrador. A Productores y Agrónomos les dará una vista de Solo Lectura, filtrando datos por sus campos asignados.
+RNF01
+Alta
+RF02
+Gestión de Muestreos (Trazabilidad)
+Captura automática de metadatos por cada imagen procesada.
+La app móvil adjuntará obligatoriamente los códigos de productor y campo, ubicación GPS exacta (GeoJSON) y timestamp cada vez que se escanee una planta.
+RNF02, RNF05
+Alta
+RF03
+Procesamiento Centralizado de IA
+Inferencia realizada por un único modelo alojado en la nube.
+El sistema enviará todas las imágenes (web o móvil) al mismo servidor central para su inferencia, garantizando resultados estandarizados.
+RNF06
+Alta
+RF04
+Sincronización y Modo Offline
+Almacenamiento local temporal y sincronización automática.
+La app móvil permitirá tomar fotografías sin conexión a internet, guardándolas localmente y sincronizándolas con el backend al detectar red.
+RNF03, RNF04
+Alta
+RF05
+Gestión de Cuadrillas y Tareas
+Creación de solicitudes en web y recepción vía notificaciones Push.
+El Administrador podrá generar solicitudes de muestreo que llegarán a la app móvil del trabajador en campo mediante notificaciones.
+RNF05, RNF07
+Media
+Requisitos No Funcionales.
+Identificación
+Nombre del Requerimiento
+Descripción del requerimiento
+Prioridad
+RNF01
+Seguridad y Control de Acceso
+Encriptación de contraseñas mediante bcrypt y validación estricta de roles en cada endpoint del servidor para evitar modificaciones no autorizadas.
+Alta
+RNF02
+Capacidad de Almacenamiento
+La base de datos debe soportar miles de registros diarios; el almacenamiento de imágenes crudas se delegará a un servicio remoto optimizado.
+Alta
+RNF03
+Compatibilidad de Dispositivos
+La aplicación móvil debe operar de forma fluida y sin bloqueos en dispositivos móviles de gama media comúnmente utilizados en el campo.
+Alta
+RNF04
+Confiabilidad 
+El sistema móvil debe garantizar que no haya pérdida de datos de muestreo frente a caídas de red celular, manteniendo la información íntegra hasta su sincronización.
+Alta
+RNF05
+Escalabilidad de Base de Datos
+La estructura en MongoDB utilizará índices optimizados (como 2dsphere para coordenadas) para mantener consultas rápidas al filtrar múltiples huertas o productores.
+Alta
+RNF06
+Mantenibilidad de Arquitectura
+Arquitectura desacoplada que permita actualizar o cambiar la versión del modelo de machine learning sin interrumpir el funcionamiento del backend ni de la aplicación.
+Media
+RNF07
+Facilidad de Uso y UX
+Interfaz móvil diseñada con flujos cortos y botones accesibles que demanden una curva de aprendizaje mínima para el personal operativo bajo el sol.
+Alta
+Requisitos de la Interfaz Externa.
+Identificación
+Nombre del Requerimiento
+Características
+Descripción del requerimiento
+RNF asociado
+Prioridad
+RIE-3.1
+Requisitos de la interfaz de usuario
+Describe la lógica detrás de las interacciones entre los usuarios y el software (diseños de pantalla, guías de estilo, etc.).
+La app móvil tendrá botones grandes y flujos cortos para facilitar el uso bajo el sol. El dashboard web mostrará gráficas de comportamiento de producción y mapas de calor interactivos.
+RNF07
+Alta
+RIE-3.2
+Requisitos de la interfaz de hardware
+Especifica los dispositivos compatibles con el software, los requisitos de red y los protocolos de comunicación que se utilizarán.
+Los dispositivos móviles requerirán cámara funcional y sensor GPS activo. Se necesita antena de red (Wi-Fi/Datos) para la eventual sincronización con el servidor.
+RNF03
+Alta
+RIE-3.3
+Requisitos de la interfaz de software
+Incluye las conexiones entre tu producto y otros componentes de software, como el marco de front-end y back-end, las bibliotecas, etc..
+El backend se enlazará con MongoDB (usando índices GeoJSON) y el almacenamiento de imágenes crudas se delegará a un servicio de la nube como Cloudflare R2 o AWS S3.
+RNF02, RNF05
+Alta
+RIE-3.4
+Requisitos de la interfaz de comunicación
+Enumera los requerimientos de los programas de comunicación que usará tu producto, como los emails o los formularios integrados.
+La comunicación se realizará mediante API RESTful entre el cliente y el servidor. Se integrará Firebase Cloud Messaging (FCM) para enviar solicitudes de muestreo (notificaciones push).
+RNF04
+Alta
+Definiciones, Acrónimos y Abreviaturas.
+Término / Acrónimo
+Definición
+Muestreo
+Acción integral que consiste en capturar una fotografía de la planta, adjuntar sus metadatos (ubicación GPS, fecha, códigos de campo) y enviarla al servidor para su análisis.
+Fenología
+Estudio de las diferentes etapas de desarrollo, crecimiento y maduración de la zarzamora (ej. "Flor", "Fruto rojo", "Fruto maduro").
+IA / AI
+Inteligencia Artificial. En este proyecto, se refiere al modelo de Machine Learning alojado en el servidor que procesa las imágenes de los muestreos.
+FCM
+Firebase Cloud Messaging. Servicio utilizado para enviar "Solicitudes de Muestreo" en forma de notificaciones push a los dispositivos móviles.
+GeoJSON
+Formato estándar de código abierto utilizado en la base de datos (MongoDB) para almacenar, consultar y representar las coordenadas geográficas (Latitud y Longitud) de los muestreos.
+Dashboard
+Panel de control en la plataforma web donde los Administradores, Productores y Agrónomos visualizan métricas, gráficas de producción y mapas.
+Offline (Modo Offline)
+Capacidad de la aplicación móvil para funcionar de manera local sin conexión a internet, almacenando los muestreos de forma temporal en el dispositivo.
+API RESTful
+Application Programming Interface. Es el puente de comunicación que permite el intercambio de datos entre las aplicaciones (móvil/web) y el servidor central (backend).
+Backend
+La arquitectura invisible del sistema alojada en la nube (Node.js y MongoDB) que maneja la lógica de negocio, bases de datos y peticiones de la IA.
+Frontend
+Las interfaces visuales con las que interactúan los usuarios (la app móvil en los teléfonos y el dashboard web en los navegadores).
+CRUD
+Acrónimo de Create, Read, Update, Delete (Crear, Leer, Actualizar, Eliminar). Son las operaciones básicas que el Administrador puede realizar sobre los datos en el sistema.
+S3 / Cloudflare R2
+Servicios remotos de almacenamiento en la nube donde se guardan de forma segura los archivos pesados, como las fotografías originales capturadas en campo.
+Merma
+Porcentaje de pérdida o reducción en el rendimiento de la cosecha, generalmente calculado por la IA al detectar elementos enfermos.
+KPI
+Key Performance Indicator (Indicador Clave de Rendimiento). Métricas vitales como el "porcentaje de merma general" o "días para cosecha".
+Descripción General.
+Perspectiva del Proyecto.
+El proyecto está diseñado para digitalizar, administrar y analizar la información fenológica y de salud de los cultivos de zarzamora. Se trata de un ecosistema tecnológico compuesto por una aplicación móvil para el trabajo en campo y un panel de administración web, cuyo objetivo es centralizar los datos de las huertas en una plataforma accesible para productores, agrónomos, monitores y personal administrativo.
+Este sistema permitirá realizar diversas funciones clave, tales como:
+Muestreo digital: Captura de fotografías de las plantas con registro automático de metadatos (productor, parcela, fecha, hora y coordenadas GPS).
+Análisis por Inteligencia Artificial: Procesamiento centralizado en la nube para detectar etapas fenológicas, enfermedades y calcular porcentajes de merma.
+Gestión de fincas y cuadrillas: Creación de solicitudes de muestreo y asignación de rutas a los trabajadores de campo.
+Visualización estratégica: Acceso a mapas de calor, proyecciones de cosecha y gráficas de rendimiento filtradas por productor y campo.
+Funcionalidad del Proyecto.
+El sistema provee las siguientes funcionalidades principales:
+Autenticación y control de acceso basado en roles jerárquicos.
+Captura de imágenes en campo con soporte de guardado local (Modo Offline).
+Sincronización automática de datos al detectar conexión a internet.
+Inferencia de imágenes a través de un único modelo de Machine Learning en el servidor central.
+Envío y recepción de notificaciones Push (FCM) para tareas de campo.
+Visualización de historiales de muestreo y validación manual de diagnósticos.
+Características de los Usuarios.
+Tipo de usuario
+Formación / Perfil
+Habilidades
+Actividades principales
+Administrador
+Gestión de sistemas y operaciones.
+Manejo de plataformas web y análisis de datos globales.
+Control total del sistema. Visualiza todos los datos, gestiona usuarios, sube muestreos manuales y envía solicitudes a la app móvil.
+Productor
+Dueño de huerta o gestor de agronegocios.
+Toma de decisiones estratégicas y financieras.
+Acceso de Solo Lectura en la web. Consulta proyecciones de cosecha, gráficas de rendimiento y mapas de calor de sus parcelas asignadas.
+Agrónomo
+Especialista en sanidad vegetal y cultivos.
+Diagnóstico de plagas y evaluación de tratamientos.
+Acceso de Solo Lectura en la web. Analiza mapas de calor de enfermedades, valida diagnósticos de la IA y toma decisiones técnicas.
+Monitor
+Personal operativo de campo.
+Uso básico de dispositivos móviles. Trabajo físico.
+Uso de la app móvil. Sigue rutas asignadas, toma fotografías de las zarzamoras y sincroniza los datos recolectados.
+Restricciones.
+El modelo de Inteligencia Artificial debe residir únicamente en el servidor central en la nube; no habrá procesamiento de IA local en los dispositivos para garantizar uniformidad.
+La aplicación móvil debe ser capaz de operar en zonas sin cobertura celular (Modo Offline) sin interrumpir el flujo de captura de datos.
+El acceso a la plataforma web para Productores y Agrónomos está estrictamente restringido a funciones de consulta (Solo Lectura) limitadas a sus campos asignados.
+Las imágenes en alta resolución deben almacenarse en un servicio en la nube independiente ( Cloudflare R2) para no saturar la base de datos transaccional.
+Suposiciones y dependencias.
+Se asume que los dispositivos móviles del personal de campo (Monitores) cuentan con cámara funcional y un sensor GPS capaz de obtener coordenadas precisas.
+El sistema asume que la conexión a internet en las huertas será intermitente o nula, por lo que depende totalmente de la robustez del módulo de sincronización offline de la app móvil.
+La precisión de los diagnósticos, mermas y proyecciones de cosecha depende de la calidad, enfoque y correcta iluminación de las fotografías tomadas por los monitores.
+Se considera que el servidor central cuenta con la capacidad de cómputo necesaria para procesar múltiples peticiones de inferencia de IA de manera concurrente una vez que las cuadrillas sincronicen sus datos al final de la jornada.

@@ -2,10 +2,17 @@ import { AnalysisDomain, UserSnapshot } from '../domain/analysis.entity';
 
 export const I_INFERENCE_PORT = Symbol('I_INFERENCE_PORT');
 
+export type InferenceContext = {
+  campoId?:       string | null;
+  productorId?:   string | null;
+  gpsLat?:        number | null;
+  gpsLon?:        number | null;
+  offlineSyncId?: string | null;
+};
+
 /**
  * Puerto que abstrae la comunicación con el servicio de inferencia Python (fruit-inference).
- * FruitsService (capa de aplicación) depende ÚNICAMENTE de este contrato,
- * nunca de HttpService, URLs ni detalles HTTP.
+ * FruitsService (capa de aplicación) depende ÚNICAMENTE de este contrato.
  */
 export interface IInferencePort {
   /**
@@ -13,12 +20,12 @@ export interface IInferencePort {
    * @param imageId    - Identificador único de la imagen en el sistema.
    * @param storageKey - Clave de almacenamiento en el bucket/storage.
    * @param requester  - Snapshot del usuario que inició el análisis.
-   * @throws {Error}   Si el servicio de inferencia no responde o retorna un error.
+   * @param context    - Metadatos V2: campo, productor, GPS, offline_sync_id.
    */
   analyze(
     imageId: string,
     storageKey: string,
     requester: UserSnapshot,
+    context?: InferenceContext,
   ): Promise<AnalysisDomain>;
 }
-

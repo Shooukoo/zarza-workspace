@@ -1,0 +1,55 @@
+Historias de Usuario
+ID
+Historia de Usuario
+Criterios de Aceptación
+Prioridad
+HU-01
+Como Monitor, quiero guardar mis capturas localmente cuando no tengo red, para no perder mi trabajo en el campo.
+1. Si no hay internet en /capture, la app no debe lanzar error síncrono.2. La imagen y datos deben guardarse en una base de datos local.3. Mostrar un ícono de "Guardado localmente".
+Alta
+HU-02
+Como Monitor, quiero sincronizar mis muestreos pendientes al recuperar la conexión, para que la IA los procese en el servidor.
+1. La app debe detectar el regreso de la red.2. Debe existir un indicador visual de "Sincronizando..." en /home.3. Al terminar, la caché local debe vaciarse.
+Alta
+HU-03
+Como Administrador, quiero crear solicitudes de muestreo desde el panel web, para asignar tareas específicas a mi equipo.
+1. Nueva vista en /admin/requests.2. Formulario para seleccionar Campo, Monitor y Mensaje.3. Al guardar, debe disparar la notificación (FCM) al Monitor.
+Media
+HU-04
+Como Productor / Agrónomo, quiero acceder a un panel de gráficas (Dashboard), para analizar la salud y proyección de mis huertas.
+1. Eliminar el bloqueo estricto en app_router.dart para estos roles.2. Crear una vista /dashboard independiente de /admin que solo cargue datos filtrados por sus campos_asignados.
+Alta
+Manual de Usuario: Guía de Referencia.
+Este manual detalla la interfaz actual construida en Flutter para que los usuarios conozcan su entorno de trabajo.
+A. Aplicación Móvil (Monitores, Productores, Agrónomos)
+Pantalla de Inicio /home: 
+Botón Flotante: Etiquetado como "Analizar planta". Es el acceso principal para iniciar un nuevo escaneo.
+Menú Lateral : Permite la navegación rápida hacia el historial y ajustes del perfil.
+Lista de Análisis Recientes: Muestra un resumen rápido de las últimas capturas enviadas.
+Pantalla de Captura /capture: 
+Selector de Origen: Dos botones para elegir si tomar la foto directamente ("Cámara") o subirla desde el teléfono ("Galería").
+Botón "Analizar planta": Envía la fotografía al servidor para su evaluación. (Nota: Actualmente requiere conexión a internet activa).
+Pantalla de Historial /history: 
+Tarjetas de Salud: Lista paginada que muestra el resumen de salud de cada zarzamora analizada, dividida cronológicamente por fechas.
+B. Panel de Administración Web (Exclusivo para ADMIN)
+Dashboard Global /admin: 
+Tarjetas KPI: Indicadores clave de rendimiento de todo el sistema.
+Gráficas de Proyección: Gráficos interactivos de pastel y líneas que muestran la estimación de cosecha y métricas de merma global.
+Gestión de Cuentas /admin/users y /admin/create-user: 
+Tablas y formularios para invitar y administrar los permisos de todo el personal (Productores, Agrónomos y Monitores).
+Manual de Usuario: Guías Paso a Paso
+¿Cómo realizar un escaneo de zarzamora en campo? (App Móvil)
+Ámbito: Monitores, Productores y Agrónomos.
+Abre la aplicación Zarza AI en tu dispositivo móvil e inicia sesión.
+En la pantalla principal, presiona el botón central "Analizar planta".
+Selecciona la opción "Cámara" para tomar una fotografía en vivo del surco o la planta.
+Asegúrate de que la planta esté bien enfocada y confirma la captura.
+Presiona el botón inferior "Analizar planta".
+Importante: Mantén la aplicación abierta unos segundos mientras la imagen se envía al servidor. Serás redirigido a la pantalla de resultados /results donde verás las anotaciones de la Inteligencia Artificial.
+¿Cómo revisar el historial de diagnósticos pasados? (App Móvil)
+Ámbito: Monitores, Productores y Agrónomos.
+Desde la pantalla principal de la aplicación, toca el ícono de las tres líneas en la esquina superior izquierda para abrir el Menú Lateral Drawer.
+Selecciona la opción "Historial".
+Desliza hacia abajo para ver la lista de todas tus capturas pasadas.
+Si deseas ver más registros antiguos, toca el botón "Cargar más" al final de la lista.
+Toca cualquier tarjeta para abrir el detalle completo de ese análisis específico.

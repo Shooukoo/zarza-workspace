@@ -3,6 +3,7 @@ import {
   IsDateString,
   IsIn,
   IsNumber,
+  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -27,12 +28,14 @@ export class NuevaFrutaDto {
   storage_key: string;
 
   /** ID del usuario autenticado en fruit-backend que inició el análisis. */
+  @IsOptional()
   @IsString()
-  userId: string;
+  userId?: string;
 
   /** Email del usuario al momento del análisis (snapshot para trazabilidad). */
+  @IsOptional()
   @IsString()
-  userEmail: string;
+  userEmail?: string;
 
   @ValidateNested()
   @Type(() => NuevaFrutaMetadataDto)
@@ -40,5 +43,27 @@ export class NuevaFrutaDto {
 
   @IsIn(['UPLOADED'])
   status: 'UPLOADED';
+
+  // V2 metadata
+  @IsOptional()
+  @IsString()
+  campoId?: string | null;
+
+  @IsOptional()
+  @IsString()
+  productorId?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  gpsLat?: number | null;
+
+  @IsOptional()
+  @IsNumber()
+  gpsLon?: number | null;
+
+  @IsOptional()
+  @IsString()
+  offlineSyncId?: string | null;
 }
+
 

@@ -21,12 +21,18 @@ export class IngestionService {
     filename: string,
     mimetype: string,
     capturedAt?: Date | null,
+    // V2 metadata
+    campoId?: string | null,
+    productorId?: string | null,
+    gpsLat?: number | null,
+    gpsLon?: number | null,
+    offlineSyncId?: string | null,
+    userId?: string,
+    userEmail?: string,
   ): Promise<UploadResultDto> {
     this.logger.log(`Processing upload: ${filename}`);
 
     // Lee el stream completo y valida el magic number.
-    // Usar buffer en lugar de stream evita el socket hang up intermitente
-    // que causaba stream.unshift() con Fastify multipart.
     const buffer = await this.validator.readAndValidate(fileStream, mimetype);
     this.logger.log(`File validated: ${filename} (${buffer.length} bytes)`);
 
@@ -48,12 +54,21 @@ export class IngestionService {
         size_bytes: buffer.length,
       },
       status: 'UPLOADED',
+      // V2 fields
+      campoId:       campoId ?? null,
+      productorId:   productorId ?? null,
+      gpsLat:        gpsLat ?? null,
+      gpsLon:        gpsLon ?? null,
+      offlineSyncId: offlineSyncId ?? null,
+      userId,
+      userEmail,
     };
 
     this.logger.log(
-      `Upload complete: ${filename} | ${buffer.length} bytes | capturedAt=${result.metadata.capturedAt}`,
+      `Upload complete: ${filename} | ${buffer.length} bytes | capturedAt=${result.metadata.capturedAt} | campo=${campoId ?? 'N/A'}`,
     );
 
     return result;
   }
 }
+

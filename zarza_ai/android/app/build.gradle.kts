@@ -11,6 +11,9 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // Habilita desugaring para que funcionen las notificaciones locales
+        isCoreLibraryDesugaringEnabled = true
+        
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -28,6 +31,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Necesario para desugaring y apps con muchas dependencias
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -41,4 +47,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// Bloque de dependencias nativas
+dependencies {
+    // Librería necesaria para soportar funciones de Java 8+ en versiones anteriores de Android
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }

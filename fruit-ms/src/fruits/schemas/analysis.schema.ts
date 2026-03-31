@@ -1,4 +1,4 @@
-import { Schema as MongooseSchema, Document } from 'mongoose';
+import { Schema as MongooseSchema, SchemaTypes, Types, Document } from 'mongoose';
 
 /**
  * Schema puro de Mongoose (sin decoradores NestJS) para evitar
@@ -64,9 +64,54 @@ export const AnalysisSchema = new MongooseSchema(
     },
 
     cronograma_fenologico: { type: [etapaFenologicaSchema], required: true },
+
+    // ── Nuevos campos: trazabilidad, geolocalización, offline, validación ──
+    campo_id: {
+      type: SchemaTypes.ObjectId,
+      ref: 'Campo',
+      required: true,
+      index: true,
+    },
+    productor_id: {
+      type: SchemaTypes.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
+    ubicacion_gps: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number],
+        default: [0, 0],
+      },
+    },
+    offline_sync_id: {
+      type: String,
+      default: null,
+      unique: true,
+      sparse: true,
+    },
+    validacion_experto: {
+      type: new MongooseSchema(
+        {
+          fue_corregido:      { type: Boolean, default: false },
+          corregido_por:      { type: SchemaTypes.ObjectId, ref: 'User', default: null },
+          diagnostico_original: { type: String, default: null },
+        },
+        { _id: false },
+      ),
+      default: () => ({ fue_corregido: false }),
+    },
   },
   { timestamps: true },
 );
+
+// Índice geoespacial para consultas de mapas de calor
+AnalysisSchema.index({ ubicacion_gps: '2dsphere' });
 
 /** Token de clase para que InjectModel funcione con MongooseModule.forFeature */
 export class Analysis {}
@@ -99,4 +144,16 @@ export interface AnalysisDocument extends Document {
       dias_para_cosecha: number;
     };
   }>;
+  campo_id:        Types.ObjectId;
+  productor_id:    Types.ObjectId;
+  ubicacion_gps: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
+  offline_sync_id: string | null;
+  validacion_experto: {
+    fue_corregido:      boolean;
+    corregido_por:      Types.ObjectId | null;
+    diagnostico_original: string | null;
+  };
 }

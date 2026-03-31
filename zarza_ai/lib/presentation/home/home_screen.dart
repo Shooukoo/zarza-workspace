@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../core/auth/auth_cubit.dart';
+import '../../core/auth/auth_state.dart';
 import '../../core/services/local_notifications_service.dart';
 import '../../domain/entities/fruit_analysis.dart';
 import '../../domain/usecases/watch_notifications_usecase.dart';
@@ -101,14 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const Text('Zarza AI'),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history_rounded),
-            tooltip: 'Historial',
-            onPressed: () => context.push('/history'),
-          ),
-        ],
       ),
+      drawer: const _AppDrawer(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -119,13 +115,97 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text('Análisis recientes', style: theme.textTheme.titleMedium),
           ),
           Expanded(child: _RecentAnalysesList()),
+          _AnalyzeButton(onPressed: () => context.push('/capture')),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'capture_fab',
-        onPressed: () => context.push('/capture'),
-        icon: const Icon(Icons.camera_alt_rounded),
-        label: const Text('Analizar planta'),
+    );
+  }
+}
+
+// ── App Drawer ───────────────────────────────────────────────────────────────
+
+class _AppDrawer extends StatelessWidget {
+  const _AppDrawer();
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = GetIt.I<AuthCubit>().state;
+    final email = authState is AuthAuthenticated ? authState.user.email : '';
+
+    return Drawer(
+      child: Column(
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1B5E20), Color(0xFF2E7D32)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(Icons.eco_rounded, size: 28, color: Colors.white),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Zarza AI',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        email,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.history_rounded),
+            title: const Text('Historial'),
+            onTap: () {
+              Navigator.of(context).pop();
+              context.push('/history');
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout_rounded, color: Colors.redAccent),
+            title: const Text(
+              'Cerrar sesión',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+            onTap: () {
+              Navigator.of(context).pop();
+              GetIt.I<AuthCubit>().logout();
+            },
+          ),
+          const Spacer(),
+        ],
       ),
     );
   }
@@ -305,6 +385,106 @@ class _AnalysisListTile extends StatelessWidget {
               const Icon(Icons.chevron_right_rounded,
                   color: Colors.white38, size: 20),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Analyze Button ────────────────────────────────────────────────────────────
+
+class _AnalyzeButton extends StatefulWidget {
+  const _AnalyzeButton({required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  State<_AnalyzeButton> createState() => _AnalyzeButtonState();
+}
+
+class _AnalyzeButtonState extends State<_AnalyzeButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+      lowerBound: 0.0,
+      upperBound: 0.04,
+    );
+    _scale = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+      child: GestureDetector(
+        onTapDown: (_) => _controller.forward(),
+        onTapUp: (_) {
+          _controller.reverse();
+          widget.onPressed();
+        },
+        onTapCancel: () => _controller.reverse(),
+        child: ScaleTransition(
+          scale: _scale,
+          child: Container(
+            height: 58,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1B5E20), Color(0xFF43A047)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF2E7D32).withValues(alpha: 0.5),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Analizar planta',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

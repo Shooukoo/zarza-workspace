@@ -8,6 +8,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/infrastructure/auth.module';
 import { AdminModule } from './admin/admin.module';
+import { CamposModule } from './campos/campos.module';
+import { SolicitudesModule } from './solicitudes/solicitudes.module';
 import { envs } from './config/envs';
 
 @Module({
@@ -25,6 +27,8 @@ import { envs } from './config/envs';
     IngestionModule,
     FruitsQueryModule,
     NotificationsModule,
+    CamposModule,
+    SolicitudesModule,
   ],
   controllers: [],
   providers: [
