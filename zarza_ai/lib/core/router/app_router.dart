@@ -21,6 +21,7 @@ import '../../presentation/admin/dashboard_page.dart';
 import '../../presentation/admin/users_page.dart';
 import '../../presentation/admin/analyses_page.dart';
 import '../../presentation/admin/admin_blocs/admin_bloc.dart';
+import '../../presentation/queue/offline_queue_screen.dart';
 import '../di/service_locator.dart';
 
 /// Rutas que no requieren autenticación.
@@ -119,6 +120,10 @@ class AppRouter {
             child: const HistoryScreen(),
           );
         },
+      ),
+      GoRoute(
+        path: '/queue',
+        builder: (context, state) => const OfflineQueueScreen(),
       ),
 
       // ── Panel de administración (web/desktop con sidebar) ────────────────

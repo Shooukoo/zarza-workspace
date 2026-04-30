@@ -9,7 +9,9 @@ import '../../core/auth/auth_cubit.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/services/local_notifications_service.dart';
 import '../../domain/entities/fruit_analysis.dart';
+import '../../domain/entities/pending_upload.dart';
 import '../../domain/usecases/watch_notifications_usecase.dart';
+import '../../domain/usecases/watch_pending_uploads_usecase.dart';
 import '../history/history_bloc.dart';
 import '../widgets/stage_badge.dart';
 
@@ -23,17 +25,25 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final WatchNotificationsUseCase _watchNotifications;
   StreamSubscription<String>? _notificationSub;
+  int _pendingCount = 0;
+  StreamSubscription<List<PendingUpload>>? _queueSub;
 
   @override
   void initState() {
     super.initState();
     _watchNotifications = GetIt.I<WatchNotificationsUseCase>();
     _listenNotifications();
+    _queueSub = GetIt.I<WatchPendingUploadsUseCase>()().listen((items) {
+      if (mounted) {
+        setState(() => _pendingCount = items.length);
+      }
+    });
   }
 
   @override
   void dispose() {
     _notificationSub?.cancel();
+    _queueSub?.cancel();
     super.dispose();
   }
 
@@ -111,6 +121,38 @@ class _HomeScreenState extends State<HomeScreen> {
             const Text('Zarza AI'),
           ],
         ),
+        actions: [
+          if (_pendingCount > 0)
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.cloud_upload_outlined),
+                  tooltip: 'Capturas pendientes',
+                  onPressed: () => context.push('/queue'),
+                ),
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.orangeAccent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$_pendingCount',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
       drawer: const _AppDrawer(),
       body: Column(
@@ -198,6 +240,14 @@ class _AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.of(context).pop();
               context.push('/history');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.cloud_upload_outlined),
+            title: const Text('Capturas pendientes'),
+            onTap: () {
+              Navigator.of(context).pop();
+              context.push('/queue');
             },
           ),
           const Divider(),
