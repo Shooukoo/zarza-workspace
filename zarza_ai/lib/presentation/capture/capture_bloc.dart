@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../domain/entities/fruit_analysis.dart';
+import '../../domain/entities/upload_metadata.dart';
 import '../../domain/usecases/upload_image_usecase.dart';
 
-// Events
+// ── Events ────────────────────────────────────────────────────────────────────
+
 abstract class CaptureEvent extends Equatable {
   const CaptureEvent();
   @override
@@ -19,6 +22,19 @@ class CaptureImageSelected extends CaptureEvent {
   List<Object?> get props => [file.path];
 }
 
+class CaptureMetadataUpdated extends CaptureEvent {
+  const CaptureMetadataUpdated({
+    required this.campoId,
+    this.gpsLat,
+    this.gpsLon,
+  });
+  final String campoId;
+  final double? gpsLat;
+  final double? gpsLon;
+  @override
+  List<Object?> get props => [campoId, gpsLat, gpsLon];
+}
+
 class CaptureUploadRequested extends CaptureEvent {
   const CaptureUploadRequested();
 }
@@ -27,7 +43,8 @@ class CaptureClearEvent extends CaptureEvent {
   const CaptureClearEvent();
 }
 
-// States
+// ── States ────────────────────────────────────────────────────────────────────
+
 abstract class CaptureState extends Equatable {
   const CaptureState();
   @override
@@ -45,6 +62,21 @@ class CaptureImageReady extends CaptureState {
   List<Object?> get props => [file.path];
 }
 
+class CaptureMetadataReady extends CaptureState {
+  const CaptureMetadataReady({
+    required this.file,
+    required this.campoId,
+    this.gpsLat,
+    this.gpsLon,
+  });
+  final File file;
+  final String campoId;
+  final double? gpsLat;
+  final double? gpsLon;
+  @override
+  List<Object?> get props => [file.path, campoId];
+}
+
 class CaptureUploading extends CaptureState {
   const CaptureUploading(this.file);
   final File file;
@@ -59,6 +91,13 @@ class CaptureSuccess extends CaptureState {
   List<Object?> get props => [result];
 }
 
+class CaptureQueued extends CaptureState {
+  const CaptureQueued(this.offlineSyncId);
+  final String offlineSyncId;
+  @override
+  List<Object?> get props => [offlineSyncId];
+}
+
 class CaptureFailure extends CaptureState {
   const CaptureFailure(this.message, {this.file});
   final String message;
@@ -67,43 +106,68 @@ class CaptureFailure extends CaptureState {
   List<Object?> get props => [message, file?.path];
 }
 
-// BLoC
+// ── BLoC ──────────────────────────────────────────────────────────────────────
+
 class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   CaptureBloc(this._uploadImageUseCase) : super(const CaptureInitial()) {
     on<CaptureImageSelected>(_onImageSelected);
+    on<CaptureMetadataUpdated>(_onMetadataUpdated);
     on<CaptureUploadRequested>(_onUploadRequested);
     on<CaptureClearEvent>(_onClear);
   }
 
   final UploadImageUseCase _uploadImageUseCase;
-  File? _selectedFile;
+  static const _uuid = Uuid();
 
-  void _onImageSelected(
-    CaptureImageSelected event,
-    Emitter<CaptureState> emit,
-  ) {
-    _selectedFile = event.file;
+  void _onImageSelected(CaptureImageSelected event, Emitter<CaptureState> emit) {
     emit(CaptureImageReady(event.file));
+  }
+
+  void _onMetadataUpdated(CaptureMetadataUpdated event, Emitter<CaptureState> emit) {
+    File? file;
+    if (state is CaptureImageReady) {
+      file = (state as CaptureImageReady).file;
+    } else if (state is CaptureMetadataReady) {
+      file = (state as CaptureMetadataReady).file;
+    }
+    if (file == null) return;
+    emit(CaptureMetadataReady(
+      file: file,
+      campoId: event.campoId,
+      gpsLat: event.gpsLat,
+      gpsLon: event.gpsLon,
+    ));
   }
 
   Future<void> _onUploadRequested(
     CaptureUploadRequested event,
     Emitter<CaptureState> emit,
   ) async {
-    if (_selectedFile == null) return;
-    emit(CaptureUploading(_selectedFile!));
-    final fileToUpload = _selectedFile!;
+    if (state is! CaptureMetadataReady) return;
+    final current = state as CaptureMetadataReady;
+    emit(CaptureUploading(current.file));
+
+    final metadata = UploadMetadata(
+      campoId: current.campoId,
+      capturedAt: DateTime.now(),
+      offlineSyncId: _uuid.v4(),
+      gpsLat: current.gpsLat,
+      gpsLon: current.gpsLon,
+    );
+
     try {
-      final result = await _uploadImageUseCase(fileToUpload);
-      _selectedFile = null;
-      emit(CaptureSuccess(result));
+      final result = await _uploadImageUseCase(current.file, metadata);
+      if (result.status == 'QUEUED') {
+        emit(CaptureQueued(result.imageId));
+      } else {
+        emit(CaptureSuccess(result));
+      }
     } catch (e) {
-      emit(CaptureFailure(_errorMessage(e), file: fileToUpload));
+      emit(CaptureFailure(_errorMessage(e), file: current.file));
     }
   }
 
   void _onClear(CaptureClearEvent event, Emitter<CaptureState> emit) {
-    _selectedFile = null;
     emit(const CaptureInitial());
   }
 
@@ -112,9 +176,7 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
     if (msg.contains('SocketException') || msg.contains('Connection refused')) {
       return 'No se pudo conectar al servidor. ¿Está el backend en ejecución?';
     }
-    if (msg.contains('413')) {
-      return 'La imagen es demasiado grande.';
-    }
+    if (msg.contains('413')) return 'La imagen es demasiado grande.';
     return 'Error al subir la imagen: $msg';
   }
 }
