@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final WatchNotificationsUseCase _watchNotifications;
+  StreamSubscription<String>? _notificationSub;
 
   @override
   void initState() {
@@ -29,8 +31,14 @@ class _HomeScreenState extends State<HomeScreen> {
     _listenNotifications();
   }
 
+  @override
+  void dispose() {
+    _notificationSub?.cancel();
+    super.dispose();
+  }
+
   void _listenNotifications() {
-    _watchNotifications().listen(
+    _notificationSub = _watchNotifications().listen(
       (message) {
         if (!mounted) return;
         

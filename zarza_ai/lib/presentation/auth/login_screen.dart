@@ -43,15 +43,10 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _submit() {
-    print('>>> [LoginScreen] Botón presionado');
-    if (!_formKey.currentState!.validate()) {
-      print('>>> [LoginScreen] Validación falló');
-      return;
-    }
-    print('>>> [LoginScreen] Validación exitosa, llamando a AuthCubit');
+    if (!_formKey.currentState!.validate()) return;
     context.read<AuthCubit>().login(
           email: _emailCtrl.text.trim(),
-          password: _passwordCtrl.text,
+          password: _passwordCtrl.text.trim(),
         );
   }
 
@@ -145,7 +140,9 @@ class _LoginScreenState extends State<LoginScreen>
                               if (v == null || v.isEmpty) {
                                 return 'Ingresa tu correo';
                               }
-                              if (!v.contains('@')) return 'Correo inválido';
+                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(v)) {
+                                return 'Correo inválido';
+                              }
                               return null;
                             },
                           ),

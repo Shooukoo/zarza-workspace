@@ -33,7 +33,7 @@ export class CamposService {
    * Si se pasa `productorId`, filtra solo los campos de ese productor.
    */
   async findAll(productorId?: string): Promise<CampoDocument[]> {
-    const query: any = {};
+    const query: { productor_id?: Types.ObjectId } = {};
     if (productorId) {
       query.productor_id = new Types.ObjectId(productorId);
     }

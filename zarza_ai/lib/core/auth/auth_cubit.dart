@@ -49,17 +49,15 @@ class AuthCubit extends Cubit<AuthState> {
     required String email,
     required String password,
   }) async {
-    print('>>> [AuthCubit] Iniciando login para $email');
     emit(const AuthLoading());
     try {
       final result = await _login(email: email, password: password);
-      print('>>> [AuthCubit] Login exitoso, emitiendo estado.');
       emit(AuthAuthenticated(user: result.user, token: result.token));
     } on Exception catch (e, stack) {
-      print('>>> [AuthCubit] exception (Exception): $e\n$stack');
+      developer.log('[AuthCubit] login error', error: e, stackTrace: stack);
       emit(AuthError(_friendlyMessage(e)));
     } catch (e, stack) {
-      print('>>> [AuthCubit] exception (General): $e\n$stack');
+      developer.log('[AuthCubit] login unexpected error', error: e, stackTrace: stack);
       emit(AuthError('Error desconocido.'));
     }
   }

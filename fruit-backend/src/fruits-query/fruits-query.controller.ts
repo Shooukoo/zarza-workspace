@@ -1,21 +1,21 @@
 import {
   Controller,
   Get,
+  Logger,
   Param,
   Query,
   ParseIntPipe,
   DefaultValuePipe,
+  UseGuards,
 } from '@nestjs/common';
 import { FruitsQueryService } from './fruits-query.service';
+import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard';
 
-/**
- * Prerequisito bloqueante #1 resuelto: expone resultados de análisis a la app Flutter.
- *
- * GET /api/fruits            → Listado paginado de análisis
- * GET /api/fruits/:id        → Un análisis específico por _id de MongoDB
- */
 @Controller('fruits')
+@UseGuards(JwtAuthGuard)
 export class FruitsQueryController {
+  private readonly logger = new Logger(FruitsQueryController.name);
+
   constructor(private readonly fruitsQueryService: FruitsQueryService) {}
 
   @Get()
@@ -27,7 +27,7 @@ export class FruitsQueryController {
     @Query('start_date') startDate?: string,
     @Query('end_date') endDate?: string,
   ) {
-    console.log(`[FruitsQuery] GET /fruits | filters=`, { page, limit, imageId, userId, startDate, endDate });
+    this.logger.debug(`GET /fruits page=${page} limit=${limit}`);
     return this.fruitsQueryService.findAll(page, limit, imageId, userId, startDate, endDate);
   }
 

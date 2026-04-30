@@ -20,8 +20,25 @@ class CaptureScreen extends StatelessWidget {
           context.go('/results/${state.result.imageId}');
         }
         if (state is CaptureFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: Colors.redAccent),
+          showDialog<void>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Error al subir'),
+              content: Text(state.message),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    context.read<CaptureBloc>().add(const CaptureUploadRequested());
+                  },
+                  child: const Text('Reintentar'),
+                ),
+              ],
+            ),
           );
         }
       },
@@ -147,10 +164,13 @@ class _ImagePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (state is CaptureImageReady || state is CaptureUploading) {
+    if (state is CaptureImageReady || state is CaptureUploading ||
+        (state is CaptureFailure && (state as CaptureFailure).file != null)) {
       final file = state is CaptureImageReady
           ? (state as CaptureImageReady).file
-          : (state as CaptureUploading).file;
+          : state is CaptureUploading
+              ? (state as CaptureUploading).file
+              : (state as CaptureFailure).file!;
       return Stack(
         fit: StackFit.expand,
         children: [

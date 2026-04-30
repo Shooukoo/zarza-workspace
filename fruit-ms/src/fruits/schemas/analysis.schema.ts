@@ -112,6 +112,8 @@ export const AnalysisSchema = new MongooseSchema(
 
 // Índice geoespacial para consultas de mapas de calor
 AnalysisSchema.index({ ubicacion_gps: '2dsphere' });
+// Índice para queries frecuentes por usuario
+AnalysisSchema.index({ 'requester.userId': 1 });
 
 /** Token de clase para que InjectModel funcione con MongooseModule.forFeature */
 export class Analysis {}

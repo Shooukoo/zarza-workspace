@@ -59,12 +59,13 @@ export class IngestionController {
         user?.email,
       );
 
-      this.client.emit('nueva_fruta', result);
+      await this.client.emit('nueva_fruta', result).toPromise();
 
       return res.status(201).send(result);
     } catch (error) {
-      file.destroy();
       throw error;
+    } finally {
+      if (!file.destroyed) file.destroy();
     }
   }
 }

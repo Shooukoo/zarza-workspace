@@ -29,13 +29,11 @@ async function bootstrap() {
 
   await app.register(helmet as any);
 
-  // CORS: acepta cualquier origen para soportar app móvil Flutter.
-  // En producción, restringir a la URL pública real.
   await app.enableCors({
-    origin: process.env['CORS_ORIGIN'] || '*',
+    origin: process.env['CORS_ORIGIN'] || 'http://localhost:3001',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
-    credentials: false, // credentials no se puede usar con origin: '*'
+    credentials: false,
   });
 
   // Adaptador WebSocket nativo (ws) — compatible con Fastify

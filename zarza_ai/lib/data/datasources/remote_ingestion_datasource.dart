@@ -27,7 +27,9 @@ class RemoteIngestionDatasource {
     );
 
     return UploadResponseModel.fromJson(
-      response.data as Map<String, dynamic>,
+      response.data is Map<String, dynamic>
+          ? response.data as Map<String, dynamic>
+          : <String, dynamic>{},
     );
   }
 }
