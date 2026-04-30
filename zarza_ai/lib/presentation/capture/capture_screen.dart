@@ -1,9 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../domain/entities/campo_entity.dart';
+import '../../domain/usecases/get_campos_usecase.dart';
 import 'capture_bloc.dart';
 
 class CaptureScreen extends StatelessWidget {
@@ -18,6 +22,15 @@ class CaptureScreen extends StatelessWidget {
             const SnackBar(content: Text('¡Imagen subida! Procesando análisis…')),
           );
           context.go('/results/${state.result.imageId}');
+        }
+        if (state is CaptureQueued) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sin conexión — captura guardada. Se subirá al abrir la app.'),
+              duration: Duration(seconds: 4),
+            ),
+          );
+          context.go('/home');
         }
         if (state is CaptureFailure) {
           showDialog<void>(
@@ -53,9 +66,7 @@ class CaptureScreen extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: BlocBuilder<CaptureBloc, CaptureState>(
-            builder: (context, state) {
-              return _CaptureBody(state: state);
-            },
+            builder: (context, state) => _CaptureBody(state: state),
           ),
         ),
       ),
@@ -63,19 +74,77 @@ class CaptureScreen extends StatelessWidget {
   }
 }
 
-class _CaptureBody extends StatelessWidget {
+class _CaptureBody extends StatefulWidget {
   const _CaptureBody({required this.state});
   final CaptureState state;
 
   @override
+  State<_CaptureBody> createState() => _CaptureBodyState();
+}
+
+class _CaptureBodyState extends State<_CaptureBody> {
+  late final Future<List<CampoEntity>> _camposFuture;
+  CampoEntity? _selectedCampo;
+  double? _gpsLat;
+  double? _gpsLon;
+  bool _fetchingGps = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _camposFuture = GetIt.I<GetCamposUseCase>()();
+  }
+
+  Future<void> _fetchGps() async {
+    setState(() => _fetchingGps = true);
+    try {
+      final permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return;
+      }
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 5),
+        ),
+      );
+      setState(() {
+        _gpsLat = pos.latitude;
+        _gpsLon = pos.longitude;
+      });
+    } catch (_) {
+      // GPS optional — proceed without it
+    } finally {
+      setState(() => _fetchingGps = false);
+    }
+  }
+
+  void _onCampoSelected(CampoEntity? campo) {
+    setState(() => _selectedCampo = campo);
+    if (campo != null) {
+      context.read<CaptureBloc>().add(CaptureMetadataUpdated(
+            campoId: campo.id,
+            gpsLat: _gpsLat,
+            gpsLon: _gpsLon,
+          ));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final state = widget.state;
     final isUploading = state is CaptureUploading;
+    final hasImage = state is CaptureImageReady ||
+        state is CaptureMetadataReady ||
+        state is CaptureUploading ||
+        (state is CaptureFailure && state.file != null);
+    final canAnalyze = state is CaptureMetadataReady;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Image preview / placeholder
         Expanded(
           child: Container(
             decoration: BoxDecoration(
@@ -90,9 +159,8 @@ class _CaptureBody extends StatelessWidget {
             child: _ImagePreview(state: state),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
 
-        // Source buttons
         if (!isUploading) ...[
           Row(
             children: [
@@ -113,22 +181,88 @@ class _CaptureBody extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
 
-          // Analyze button (only when image selected)
-          if (state is CaptureImageReady)
-            ElevatedButton.icon(
-              onPressed: () =>
-                  context.read<CaptureBloc>().add(const CaptureUploadRequested()),
-              icon: const Icon(Icons.auto_awesome_rounded),
-              label: const Text('Analizar planta'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
-              ),
+          if (hasImage) ...[
+            const SizedBox(height: 16),
+
+            FutureBuilder<List<CampoEntity>>(
+              future: _camposFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const LinearProgressIndicator();
+                }
+                final campos = snapshot.data ?? [];
+                return DropdownButtonFormField<CampoEntity>(
+                  initialValue: _selectedCampo,
+                  hint: const Text('Selecciona un campo'),
+                  dropdownColor: const Color(0xFF1E1E1E),
+                  decoration: InputDecoration(
+                    labelText: 'Campo',
+                    prefixIcon: const Icon(Icons.location_on_rounded),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  items: campos
+                      .map((c) => DropdownMenuItem(
+                            value: c,
+                            child: Text(c.nombre),
+                          ))
+                      .toList(),
+                  onChanged: _onCampoSelected,
+                );
+              },
             ),
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                Icon(
+                  _gpsLat != null ? Icons.gps_fixed : Icons.gps_not_fixed,
+                  size: 18,
+                  color: _gpsLat != null
+                      ? const Color(0xFF69F0AE)
+                      : Colors.white38,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _gpsLat != null
+                        ? 'GPS: ${_gpsLat!.toStringAsFixed(5)}, ${_gpsLon!.toStringAsFixed(5)}'
+                        : 'Ubicación no capturada',
+                    style: theme.textTheme.bodySmall!
+                        .copyWith(color: Colors.white54),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: _fetchingGps ? null : _fetchGps,
+                  icon: _fetchingGps
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.my_location_rounded, size: 16),
+                  label: Text(_fetchingGps ? 'Obteniendo…' : 'Capturar GPS'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            if (canAnalyze)
+              ElevatedButton.icon(
+                onPressed: () => context
+                    .read<CaptureBloc>()
+                    .add(const CaptureUploadRequested()),
+                icon: const Icon(Icons.auto_awesome_rounded),
+                label: const Text('Analizar planta'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                ),
+              ),
+          ],
         ],
 
-        // Progress during upload
         if (isUploading) ...[
           const SizedBox(height: 8),
           const LinearProgressIndicator(),
@@ -154,6 +288,7 @@ class _CaptureBody extends StatelessWidget {
     if (xFile == null) return;
     if (context.mounted) {
       context.read<CaptureBloc>().add(CaptureImageSelected(File(xFile.path)));
+      _fetchGps();
     }
   }
 }
@@ -164,13 +299,13 @@ class _ImagePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (state is CaptureImageReady || state is CaptureUploading ||
-        (state is CaptureFailure && (state as CaptureFailure).file != null)) {
-      final file = state is CaptureImageReady
-          ? (state as CaptureImageReady).file
-          : state is CaptureUploading
-              ? (state as CaptureUploading).file
-              : (state as CaptureFailure).file!;
+    File? file;
+    if (state is CaptureImageReady) file = (state as CaptureImageReady).file;
+    if (state is CaptureMetadataReady) file = (state as CaptureMetadataReady).file;
+    if (state is CaptureUploading) file = (state as CaptureUploading).file;
+    if (state is CaptureFailure) file = (state as CaptureFailure).file;
+
+    if (file != null) {
       return Stack(
         fit: StackFit.expand,
         children: [
@@ -185,6 +320,7 @@ class _ImagePreview extends StatelessWidget {
         ],
       );
     }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
