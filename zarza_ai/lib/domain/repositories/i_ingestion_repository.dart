@@ -1,7 +1,7 @@
 import 'dart:io';
 import '../entities/fruit_analysis.dart';
+import '../entities/upload_metadata.dart';
 
-/// Contract for uploading images to the backend.
 abstract class IIngestionRepository {
-  Future<UploadResult> uploadImage(File image);
+  Future<UploadResult> uploadImage(File image, UploadMetadata metadata);
 }
