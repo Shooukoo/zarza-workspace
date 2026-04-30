@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -15,16 +16,25 @@ import '../../data/datasources/websocket_datasource.dart';
 // Admin — Data
 import '../../data/datasources/remote_admin_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
-import '../../data/repositories/ingestion_repository_impl.dart';
 import '../../data/repositories/fruits_repository_impl.dart';
 import '../../data/repositories/notifications_repository_impl.dart';
 import '../../data/repositories/admin_repository_impl.dart';
+// Data — offline queue
+import '../../data/datasources/app_database.dart';
+import '../../data/datasources/local_queue_datasource.dart';
+import '../../data/datasources/remote_campos_datasource.dart';
+import '../../data/repositories/campos_repository_impl.dart';
+import '../../data/repositories/offline_aware_ingestion_repository.dart';
+import '../../data/repositories/offline_queue_repository_impl.dart';
 // Domain
 import '../../domain/repositories/i_auth_repository.dart';
 import '../../domain/repositories/i_ingestion_repository.dart';
 import '../../domain/repositories/i_fruits_repository.dart';
 import '../../domain/repositories/i_notifications_repository.dart';
 import '../../domain/repositories/i_admin_repository.dart';
+// Domain — offline queue
+import '../../domain/repositories/i_campos_repository.dart';
+import '../../domain/repositories/i_offline_queue_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
@@ -36,12 +46,20 @@ import '../../domain/usecases/get_users_usecase.dart';
 import '../../domain/usecases/update_user_role_usecase.dart';
 import '../../domain/usecases/get_admin_stats_usecase.dart';
 import '../../domain/usecases/create_user_usecase.dart';
+import '../../domain/usecases/delete_pending_upload_usecase.dart';
+import '../../domain/usecases/get_campos_usecase.dart';
+import '../../domain/usecases/sync_pending_uploads_usecase.dart';
+import '../../domain/usecases/watch_pending_uploads_usecase.dart';
+// Core services
+import '../services/connectivity_service.dart';
+import '../services/sync_service.dart';
 // Presentation
 import '../../presentation/capture/capture_bloc.dart';
 import '../../presentation/results/results_bloc.dart';
 import '../../presentation/history/history_bloc.dart';
 import '../../presentation/admin/admin_blocs/admin_bloc.dart';
 import '../../presentation/admin/admin_blocs/admin_dashboard_bloc.dart';
+import '../../presentation/queue/offline_queue_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -125,9 +143,43 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<RemoteFruitsDatasource>(
       () => RemoteFruitsDatasource(sl<Dio>()));
 
+  // ── Offline queue ──────────────────────────────────────────────────────────
+  sl.registerLazySingleton<AppDatabase>(() => AppDatabase());
+
+  sl.registerLazySingleton<LocalQueueDatasource>(
+      () => LocalQueueDatasource(sl<AppDatabase>()));
+
+  sl.registerLazySingleton<IOfflineQueueRepository>(
+      () => OfflineQueueRepositoryImpl(sl<LocalQueueDatasource>()));
+
+  sl.registerLazySingleton<ConnectivityService>(
+      () => ConnectivityService(Connectivity()));
+
+  sl.registerLazySingleton<SyncService>(() => SyncService(
+        queue: sl<IOfflineQueueRepository>(),
+        remote: sl<RemoteIngestionDatasource>(),
+        notifications: sl<LocalNotificationsService>(),
+      ));
+
+  // ── Campos ────────────────────────────────────────────────────────────────
+  sl.registerLazySingleton<RemoteCamposDatasource>(
+      () => RemoteCamposDatasource(sl<Dio>()));
+
+  sl.registerLazySingleton<ICamposRepository>(
+      () => CamposRepositoryImpl(sl<RemoteCamposDatasource>()));
+
+  sl.registerLazySingleton<GetCamposUseCase>(
+      () => GetCamposUseCase(sl<ICamposRepository>()));
+
   // ── Repositories (existentes) ──────────────────────────────────────────────
   sl.registerLazySingleton<IIngestionRepository>(
-      () => IngestionRepositoryImpl(sl<RemoteIngestionDatasource>()));
+    () => OfflineAwareIngestionRepository(
+      remote: sl<RemoteIngestionDatasource>(),
+      queue: sl<IOfflineQueueRepository>(),
+      connectivity: sl<ConnectivityService>(),
+      notifications: sl<LocalNotificationsService>(),
+    ),
+  );
 
   sl.registerLazySingleton<IFruitsRepository>(
       () => FruitsRepositoryImpl(sl<RemoteFruitsDatasource>()));
@@ -193,6 +245,24 @@ Future<void> setupServiceLocator() async {
 
   sl.registerFactory<AdminDashboardBloc>(
     () => AdminDashboardBloc(repository: sl<IAdminRepository>()),
+  );
+
+  // ── Queue use cases ───────────────────────────────────────────────────────
+  sl.registerLazySingleton<SyncPendingUploadsUseCase>(
+      () => SyncPendingUploadsUseCase(sl<IOfflineQueueRepository>()));
+
+  sl.registerLazySingleton<DeletePendingUploadUseCase>(
+      () => DeletePendingUploadUseCase(sl<IOfflineQueueRepository>()));
+
+  sl.registerLazySingleton<WatchPendingUploadsUseCase>(
+      () => WatchPendingUploadsUseCase(sl<IOfflineQueueRepository>()));
+
+  sl.registerLazySingleton<OfflineQueueBloc>(
+    () => OfflineQueueBloc(
+      watchUploads: sl<WatchPendingUploadsUseCase>(),
+      deleteUpload: sl<DeletePendingUploadUseCase>(),
+      syncService: sl<SyncService>(),
+    ),
   );
 
   // ── Inicializar sesión ────────────────────────────────────────────────────

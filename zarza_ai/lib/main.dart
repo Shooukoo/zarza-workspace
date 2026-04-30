@@ -8,6 +8,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'core/auth/auth_cubit.dart';
 import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
+import 'core/services/sync_service.dart';
 import 'core/theme/app_theme.dart';
 
 Future<void> main() async {
@@ -36,6 +37,9 @@ Future<void> main() async {
 
   // Configurar DI (también llama AuthCubit.checkSession internamente)
   await setupServiceLocator();
+
+  // Sincronizar cola pendiente sin bloquear arranque
+  sl<SyncService>().syncPending().catchError((_) {});
 
   runApp(const ZarzaAiApp());
 }
