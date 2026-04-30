@@ -142,7 +142,12 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
       ));
     } catch (e) {
       _currentPage--;
-      emit(HistoryError('Error al cargar más: ${e.toString()}'));
+      // Restaurar el estado cargado para no perder los items ya mostrados
+      emit(HistoryLoaded(
+        analyses: List.unmodifiable(_items),
+        hasMore: false,
+        page: _currentPage,
+      ));
     }
   }
 }

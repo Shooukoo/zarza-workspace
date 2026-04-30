@@ -60,10 +60,11 @@ class CaptureSuccess extends CaptureState {
 }
 
 class CaptureFailure extends CaptureState {
-  const CaptureFailure(this.message);
+  const CaptureFailure(this.message, {this.file});
   final String message;
+  final File? file;
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, file?.path];
 }
 
 // BLoC
@@ -91,11 +92,13 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   ) async {
     if (_selectedFile == null) return;
     emit(CaptureUploading(_selectedFile!));
+    final fileToUpload = _selectedFile!;
     try {
-      final result = await _uploadImageUseCase(_selectedFile!);
+      final result = await _uploadImageUseCase(fileToUpload);
+      _selectedFile = null;
       emit(CaptureSuccess(result));
     } catch (e) {
-      emit(CaptureFailure(_errorMessage(e)));
+      emit(CaptureFailure(_errorMessage(e), file: fileToUpload));
     }
   }
 

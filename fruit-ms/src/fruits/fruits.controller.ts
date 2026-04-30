@@ -1,15 +1,22 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { FruitsService } from './fruits.service';
 import { NuevaFrutaDto } from './dto/nueva-fruta.dto';
 
 @Controller()
 export class FruitsController {
+  private readonly logger = new Logger(FruitsController.name);
+
   constructor(private readonly fruitsService: FruitsService) {}
 
   @EventPattern('nueva_fruta')
-  handleNuevaFruta(@Payload() data: NuevaFrutaDto) {
-    this.fruitsService.process(data);
+  async handleNuevaFruta(@Payload() data: NuevaFrutaDto) {
+    try {
+      await this.fruitsService.process(data);
+    } catch (err) {
+      this.logger.error(`Error procesando nueva_fruta id=${data.image_id}: ${(err as Error).message}`);
+      throw err;
+    }
   }
 
   /** Devuelve todos los análisis almacenados (paginado, 20 por página) */
@@ -24,13 +31,12 @@ export class FruitsController {
       endDate?: string;
     },
   ) {
-    console.log(`[FruitMS] get_fruits payload=`, payload);
+    this.logger.debug(`get_fruits page=${payload.page ?? 1} limit=${payload.limit ?? 20}`);
     const sDate = payload.startDate ? new Date(payload.startDate) : undefined;
-    
+
     let eDate = payload.endDate ? new Date(payload.endDate) : undefined;
     if (eDate) {
-      // Ajustar la fecha final para incluir todo el día hasta las 23:59:59
-      eDate = new Date(eDate.setHours(23, 59, 59, 999));
+      eDate.setHours(23, 59, 59, 999);
     }
 
     return this.fruitsService.findAll(

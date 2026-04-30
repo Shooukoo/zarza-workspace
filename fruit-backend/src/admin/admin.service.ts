@@ -54,21 +54,23 @@ export class AdminService {
       this.userModel.countDocuments().exec(),
     ]);
 
-    const data = await Promise.all(
-      docs.map(async (d) => {
-        const id = d._id.toString();
-        const totalAnalyses = await this.analysisModel
-          .countDocuments({ 'requester.userId': id })
-          .exec();
-        return {
-          id,
-          email: d.email,
-          role: d.role,
-          createdAt: d.createdAt,
-          totalAnalyses,
-        };
-      }),
-    );
+    const analysisCounts = await this.analysisModel
+      .aggregate<{ _id: string; count: number }>([
+        { $group: { _id: '$requester.userId', count: { $sum: 1 } } },
+      ])
+      .exec();
+    const countMap = new Map(analysisCounts.map(({ _id, count }) => [_id, count]));
+
+    const data = docs.map((d) => {
+      const id = d._id.toString();
+      return {
+        id,
+        email: d.email,
+        role: d.role,
+        createdAt: d.createdAt,
+        totalAnalyses: countMap.get(id) ?? 0,
+      };
+    });
 
     return {
       data,
@@ -117,6 +119,10 @@ export class AdminService {
   }
 
   async createUser(email: string, plainPassword: string, role: Role): Promise<UserSummary> {
+    if (role === Role.ADMIN) {
+      throw new Error('No se puede crear usuarios con rol ADMIN');
+    }
+
     const existing = await this.userModel.findOne({ email }).exec();
     if (existing) {
       throw new UserAlreadyExistsError(email);

@@ -58,10 +58,14 @@ export class SolicitudesService {
     filters: { estado?: EstadoSolicitud; campo_id?: string; asignado_a?: string } = {},
   ): Promise<{ data: SolicitudMuestreoDocument[]; total: number; page: number; limit: number }> {
     const skip = (page - 1) * limit;
-    const query: any = {};
+    const query: {
+      estado?: EstadoSolicitud;
+      campo_id?: Types.ObjectId;
+      asignado_a?: Types.ObjectId;
+    } = {};
 
-    if (filters.estado)      query.estado    = filters.estado;
-    if (filters.campo_id)    query.campo_id  = new Types.ObjectId(filters.campo_id);
+    if (filters.estado)      query.estado     = filters.estado;
+    if (filters.campo_id)    query.campo_id   = new Types.ObjectId(filters.campo_id);
     if (filters.asignado_a)  query.asignado_a = new Types.ObjectId(filters.asignado_a);
 
     const [data, total] = await Promise.all([

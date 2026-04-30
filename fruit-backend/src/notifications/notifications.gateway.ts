@@ -56,7 +56,11 @@ export class NotificationsGateway
     const payload = JSON.stringify({ event, data });
     this.server.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(payload);
+        try {
+          client.send(payload);
+        } catch (err) {
+          this.logger.warn(`Error enviando mensaje WebSocket: ${(err as Error).message}`);
+        }
       }
     });
   }

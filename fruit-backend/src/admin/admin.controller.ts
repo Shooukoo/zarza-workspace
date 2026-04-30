@@ -70,8 +70,9 @@ export class AdminController {
   async createUser(@Body() dto: CreateUserDto) {
     try {
       return await this.adminService.createUser(dto.email, dto.password, dto.role);
-    } catch (e: any) {
-      throw new BadRequestException(e.message);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      throw new BadRequestException(msg);
     }
   }
 
@@ -82,9 +83,10 @@ export class AdminController {
   ) {
     try {
       return await this.adminService.updateUserRole(id, dto.role);
-    } catch (e: any) {
-      if (e.message?.includes('not found')) throw new NotFoundException(e.message);
-      throw new BadRequestException(e.message);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes('not found')) throw new NotFoundException(msg);
+      throw new BadRequestException(msg);
     }
   }
 
