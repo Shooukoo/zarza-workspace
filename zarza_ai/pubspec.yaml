@@ -58,12 +58,23 @@ dependencies:
   cached_network_image: ^3.4.1
   fl_chart: ^1.2.0
 
+  # Local storage & sync
+  isar: ^3.1.0
+  isar_flutter_libs: ^3.1.0
+  path_provider: ^2.1.4
+
+  # Connectivity & geolocation
+  connectivity_plus: ^6.1.1
+  geolocator: ^13.0.2
+  uuid: ^4.5.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  isar_generator: ^3.1.0
   build_runner: ^2.4.13
-  mockito: ^5.4.5
+  mockito: ^5.4.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
