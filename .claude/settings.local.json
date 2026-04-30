@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx skills *)",
+      "Bash(xargs grep *)",
+      "Bash(git add *)"
+    ]
+  }
+}
