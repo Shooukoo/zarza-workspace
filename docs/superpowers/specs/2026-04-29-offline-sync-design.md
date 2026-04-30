@@ -109,13 +109,14 @@ class UploadMetadata {
 }
 ```
 
-### `PendingUpload` (Isar collection)
+### `PendingUpload` (domain entity — `domain/entities/pending_upload.dart`)
+
+Clase Dart pura, sin anotaciones de Isar. Es el objeto que viaja entre capas.
 
 | Campo | Tipo | Notas |
 |---|---|---|
-| `id` | `Id` | Auto-increment |
-| `offlineSyncId` | `String` | Índice único — previene duplicados en cola |
-| `imagePath` | `String` | Ruta absoluta en disco (no bytes) |
+| `offlineSyncId` | `String` | Identificador único |
+| `imagePath` | `String` | Ruta absoluta al archivo persistente en disco |
 | `campoId` | `String` | |
 | `gpsLat` | `double?` | |
 | `gpsLon` | `double?` | |
@@ -129,7 +130,11 @@ class UploadMetadata {
 enum PendingUploadStatus { pending, syncing, failed }
 ```
 
-**Nota:** `imagePath` apunta al archivo temporal de `image_picker`. La app debe copiar la imagen a un directorio persistente de la app (via `path_provider`) al encolar, ya que los temporales pueden ser limpiados por el OS.
+### `PendingUploadIsar` (Isar model — `data/datasources/`)
+
+Clase con anotaciones `@collection` e `@Index`. `LocalQueueDatasource` mapea entre `PendingUpload` ↔ `PendingUploadIsar`. El resto de la app solo conoce la entidad de dominio.
+
+**Copia de imagen:** `OfflineAwareIngestionRepository`, antes de llamar a `LocalQueueDatasource.enqueue()`, copia el archivo temporal de `image_picker` al directorio de documentos de la app (via `path_provider`) y almacena la nueva ruta en `imagePath`. Esto previene que el OS limpie el archivo temporal antes de sincronizar.
 
 ---
 
@@ -153,8 +158,7 @@ Agregar campo `status` si no existe, o expandir para soportar `'QUEUED'` además
 
 ### `CaptureBloc`
 
-- Nuevos eventos: ninguno (el `CaptureUploadRequested` existente se mantiene).
-- `CaptureUploadRequested` recibe `UploadMetadata` (o el BLoC lo construye desde estado interno).
+- El evento `CaptureUploadRequested` cambia de firma: pasa a recibir `UploadMetadata` explícitamente (el BLoC ya no la construye internamente). La `CaptureScreen` construye y pasa el `UploadMetadata` al disparar el evento.
 - Nuevos estados:
   - `CaptureMetadataReady(File file, UploadMetadata metadata)` — imagen + metadatos listos
   - `CaptureQueued(String offlineSyncId)` — encolado sin red
@@ -172,7 +176,7 @@ Agrega al `FormData`: `campoId`, `gpsLat`, `gpsLon`, `capturedAt` (ISO 8601), `o
 
 ### `service_locator.dart`
 
-Registrar: `IsarService`, `LocalQueueDatasource`, `IOfflineQueueRepository`, `ConnectivityService`, `SyncService`, los tres nuevos use cases de cola, y el `OfflineQueueBloc`. Reemplazar el registro de `IIngestionRepository` con `OfflineAwareIngestionRepository`.
+Registrar como `lazySingleton`: `IsarService`, `LocalQueueDatasource`, `IOfflineQueueRepository`, `ConnectivityService`, `SyncService`, los tres nuevos use cases de cola, y `OfflineQueueBloc` (singleton porque `SyncService` necesita notificarle actualizaciones de estado). Reemplazar el registro de `IIngestionRepository` con `OfflineAwareIngestionRepository`.
 
 ---
 
@@ -206,10 +210,10 @@ Usar canal existente de `LocalNotificationsService`. Agregar método `showSyncPr
 
 | Estado | Mensaje notificación |
 |---|---|
-| Cola > 0, app cerrada | "Zarza AI — `N` capturas pendientes de subir" |
+| Item encolado (sin red) | "Zarza AI — `N` capturas pendientes de subir" — se muestra/actualiza al encolar |
 | Sincronizando | "Zarza AI — Sincronizando `X`/`N` capturas…" |
-| Cola vacía | Notificación descartada |
-| Items fallidos | "Zarza AI — `N` capturas fallaron. Abre la app para revisar." |
+| Cola vacía | Notificación descartada automáticamente |
+| Items fallidos al terminar sync | "Zarza AI — `N` capturas fallaron. Abre la app para revisar." |
 
 Propiedad `ongoing: true` en Android (no descartable por swipe).
 
