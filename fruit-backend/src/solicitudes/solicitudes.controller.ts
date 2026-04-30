@@ -10,6 +10,7 @@ import {
   Req,
   ParseIntPipe,
   DefaultValuePipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { SolicitudesService } from './solicitudes.service';
 import { CreateSolicitudDto, UpdateEstadoDto } from './dto/create-solicitud.dto';
@@ -17,7 +18,9 @@ import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
 import { Role } from '../auth/domain/enums/role.enum';
-import type { EstadoSolicitud } from './schemas/solicitud-muestreo.schema';
+import { type EstadoSolicitud } from './schemas/solicitud-muestreo.schema';
+
+const ESTADO_VALUES = ['PENDIENTE', 'EN_PROGRESO', 'COMPLETADO', 'CANCELADO'] as const;
 
 /**
  * POST   /api/solicitudes              → Crear solicitud de muestreo (ADMIN)
@@ -41,15 +44,17 @@ export class SolicitudesController {
     @Req() req: any,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
-    @Query('estado') estado?: EstadoSolicitud,
+    @Query('estado') estado?: string,
     @Query('campo_id') campo_id?: string,
   ) {
+    if (estado !== undefined && !(ESTADO_VALUES as readonly string[]).includes(estado)) {
+      throw new BadRequestException(`estado must be one of: ${ESTADO_VALUES.join(', ')}`);
+    }
     const user = req.user;
-    // Monitor solo ve sus propias solicitudes
     const asignado_a =
       user.role === Role.MONITOR ? user.sub : undefined;
 
-    return this.solicitudesService.findAll(page, limit, { estado, campo_id, asignado_a });
+    return this.solicitudesService.findAll(page, limit, { estado: estado as EstadoSolicitud, campo_id, asignado_a });
   }
 
   @Patch(':id/estado')

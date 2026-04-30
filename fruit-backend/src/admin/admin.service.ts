@@ -1,6 +1,6 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {
   UserDocument,
   UserHydratedDocument,
@@ -81,8 +81,11 @@ export class AdminService {
   }
 
   async updateUserRole(userId: string, role: Role): Promise<UserSummary> {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException(`Invalid user id: ${userId}`);
+    }
     const doc = await this.userModel
-      .findByIdAndUpdate(userId, { role }, { new: true })
+      .findByIdAndUpdate(new Types.ObjectId(userId), { role }, { new: true })
       .select('-passwordHash')
       .lean<{ _id: any; email: string; role: Role; createdAt: Date }>()
       .exec();
