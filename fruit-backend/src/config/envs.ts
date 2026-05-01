@@ -22,6 +22,9 @@ interface EnvVars {
   // JWT
   JWT_SECRET: string;
   JWT_EXPIRES_IN: string;
+
+  // CORS
+  CORS_ORIGIN: string;
 }
 
 const envSchema = joi
@@ -40,6 +43,8 @@ const envSchema = joi
 
     JWT_SECRET: joi.string().required(),
     JWT_EXPIRES_IN: joi.string().required(),
+
+    CORS_ORIGIN: joi.string().optional().default('http://localhost:5173'),
   })
   .unknown(true);
 
@@ -70,5 +75,8 @@ export const envs = {
   // JWT
   jwtSecret: envVars.JWT_SECRET,
   jwtExpiresIn: envVars.JWT_EXPIRES_IN,
+
+  // CORS
+  corsOrigin: envVars.CORS_ORIGIN,
 };
 

@@ -30,9 +30,7 @@ async function bootstrap() {
   await app.register(helmet as any);
   await app.register(cookie as any);
 
-  const corsOrigins = (process.env['CORS_ORIGIN'] || 'http://localhost:5173')
-    .split(',')
-    .map((s) => s.trim());
+  const corsOrigins = envs.corsOrigin.split(',').map((s) => s.trim());
 
   await app.enableCors({
     origin: corsOrigins,
