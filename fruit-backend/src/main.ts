@@ -7,6 +7,7 @@ import {
 import { WsAdapter } from '@nestjs/platform-ws';
 import { AppModule } from './app.module';
 import multipart from '@fastify/multipart';
+import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import { envs } from './config/envs';
 
@@ -16,9 +17,8 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
-  app.setGlobalPrefix('api'); // Establece el prefijo global "API" para todas las rutas
+  app.setGlobalPrefix('api');
 
-  // Configurar las pipe de las clases validator y transformer
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -28,15 +28,19 @@ async function bootstrap() {
   );
 
   await app.register(helmet as any);
+  await app.register(cookie as any);
+
+  const corsOrigins = (process.env['CORS_ORIGIN'] || 'http://localhost:5173')
+    .split(',')
+    .map((s) => s.trim());
 
   await app.enableCors({
-    origin: process.env['CORS_ORIGIN'] || 'http://localhost:3001',
+    origin: corsOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
-    credentials: false,
+    credentials: true,
   });
 
-  // Adaptador WebSocket nativo (ws) — compatible con Fastify
   app.useWebSocketAdapter(new WsAdapter(app));
 
   await app.register(multipart as any, {
