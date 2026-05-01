@@ -85,6 +85,22 @@ services:
         condition: service_healthy
     networks: [fruit-net]
 
+  # ── Panel web (React + Vite) ─────────────────────────────────────────────────
+  zarza-web:
+    build:
+      context: ./zarza-web
+      target: dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./zarza-web:/app
+      - /app/node_modules
+    environment:
+      VITE_API_TARGET: http://fruit-backend:3000
+    depends_on:
+      - fruit-backend
+    networks: [fruit-net]
+
 networks:
   fruit-net:
     driver: bridge
