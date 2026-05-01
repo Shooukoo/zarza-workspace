@@ -1,15 +1,18 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   HttpCode,
   HttpStatus,
   BadRequestException,
   UnauthorizedException,
-  ForbiddenException,
   Inject,
   UseGuards,
+  Req,
+  Res,
 } from '@nestjs/common';
+import type { FastifyReply } from 'fastify';
 import { AuthService } from '../../application/auth.service';
 import {
   UserAlreadyExistsError,
@@ -22,8 +25,10 @@ import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../domain/enums/role.enum';
 
-// Token de inyección del AuthService instanciado a nivel de módulo (factory)
 export const AUTH_SERVICE = Symbol('AUTH_SERVICE');
+
+const COOKIE_NAME = 'access_token';
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days in seconds
 
 @Controller('auth')
 export class AuthController {
@@ -31,10 +36,6 @@ export class AuthController {
     @Inject(AUTH_SERVICE) private readonly authService: AuthService,
   ) {}
 
-  /**
-   * Crea un nuevo usuario. Solo accesible por administradores autenticados.
-   * El rol del nuevo usuario siempre será MONITOR (nivel mínimo).
-   */
   @Post('register')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -54,9 +55,22 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto) {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
     try {
-      return await this.authService.login(loginDto.email, loginDto.password);
+      const result = await this.authService.login(
+        loginDto.email,
+        loginDto.password,
+      );
+      reply.setCookie(COOKIE_NAME, result.token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: COOKIE_MAX_AGE,
+      });
+      return result;
     } catch (error) {
       if (error instanceof InvalidCredentialsError) {
         throw new UnauthorizedException('Invalid email or password');
@@ -64,6 +78,18 @@ export class AuthController {
       throw error;
     }
   }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  me(@Req() req: any) {
+    // req.user is the JwtPayload set by JwtAuthGuard: { sub, email, role }
+    return req.user;
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Res({ passthrough: true }) reply: FastifyReply) {
+    reply.clearCookie(COOKIE_NAME, { path: '/' });
+    return { message: 'Logged out' };
+  }
 }
-
-
