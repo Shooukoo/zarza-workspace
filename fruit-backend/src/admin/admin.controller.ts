@@ -6,6 +6,7 @@ import {
   Param,
   Body,
   Query,
+  Req,
   ParseIntPipe,
   DefaultValuePipe,
   UseGuards,
@@ -101,17 +102,26 @@ export class AdminController {
   }
 
   @Get('dashboard/yield')
-  getYieldForecast() {
-    return this.dashboardService.getYieldForecast();
+  @Roles(Role.ADMIN, Role.PRODUCTOR)
+  getYieldForecast(@Req() req: any) {
+    const productorId =
+      req.user?.role === Role.PRODUCTOR ? req.user.sub : undefined;
+    return this.dashboardService.getYieldForecast(productorId);
   }
 
   @Get('dashboard/health')
-  getHealthMetrics() {
-    return this.dashboardService.getHealthMetrics();
+  @Roles(Role.ADMIN, Role.PRODUCTOR)
+  getHealthMetrics(@Req() req: any) {
+    const productorId =
+      req.user?.role === Role.PRODUCTOR ? req.user.sub : undefined;
+    return this.dashboardService.getHealthMetrics(productorId);
   }
 
   @Get('dashboard/phenology')
-  getPhenologyDistribution() {
-    return this.dashboardService.getPhenologyDistribution();
+  @Roles(Role.ADMIN, Role.PRODUCTOR)
+  getPhenologyDistribution(@Req() req: any) {
+    const productorId =
+      req.user?.role === Role.PRODUCTOR ? req.user.sub : undefined;
+    return this.dashboardService.getPhenologyDistribution(productorId);
   }
 }
