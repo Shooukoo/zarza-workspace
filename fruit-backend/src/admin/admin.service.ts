@@ -38,20 +38,21 @@ export class AdminService {
   async findAllUsers(
     page = 1,
     limit = 20,
+    role?: Role,
   ): Promise<{ data: UserSummary[]; total: number; page: number; limit: number }> {
     const skip = (page - 1) * limit;
+    const query = role ? { role } : {};
+
     const [docs, total] = await Promise.all([
       this.userModel
-        .find()
+        .find(query)
         .select('-passwordHash')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .lean<
-          { _id: any; email: string; role: Role; createdAt: Date }[]
-        >()
+        .lean<{ _id: any; email: string; role: Role; createdAt: Date }[]>()
         .exec(),
-      this.userModel.countDocuments().exec(),
+      this.userModel.countDocuments(query).exec(),
     ]);
 
     const analysisCounts = await this.analysisModel
@@ -59,7 +60,9 @@ export class AdminService {
         { $group: { _id: '$requester.userId', count: { $sum: 1 } } },
       ])
       .exec();
-    const countMap = new Map(analysisCounts.map(({ _id, count }) => [_id, count]));
+    const countMap = new Map(
+      analysisCounts.map(({ _id, count }) => [_id, count]),
+    );
 
     const data = docs.map((d) => {
       const id = d._id.toString();
@@ -72,12 +75,7 @@ export class AdminService {
       };
     });
 
-    return {
-      data,
-      total,
-      page,
-      limit,
-    };
+    return { data, total, page, limit };
   }
 
   async updateUserRole(userId: string, role: Role): Promise<UserSummary> {

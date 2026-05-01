@@ -62,8 +62,13 @@ export class AdminController {
   findAllUsers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('rol') rol?: string,
   ) {
-    return this.adminService.findAllUsers(page, limit);
+    const role =
+      rol && Object.values(Role).includes(rol as Role)
+        ? (rol as Role)
+        : undefined;
+    return this.adminService.findAllUsers(page, limit, role);
   }
 
   @Post('users')
