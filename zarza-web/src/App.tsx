@@ -56,7 +56,7 @@ export function App() {
 
           <Route
             element={
-              <PrivateRoute allowedRoles={[Role.ADMIN, Role.AGRONOMO]} />
+              <PrivateRoute allowedRoles={[Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR]} />
             }
           >
             <Route path="/analisis" element={<AnalisisPage />} />

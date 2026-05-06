@@ -35,6 +35,7 @@ interface FormValues {
 export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
   const { user } = useAuth();
   const isAgronomo = user?.role === Role.AGRONOMO;
+  const isProductor = user?.role === Role.PRODUCTOR;
 
   const detailQuery = useAnalisisDetail(analysisId);
   const imageQuery = useAnalisisImage(analysisId);
@@ -160,6 +161,7 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
             </Col>
           </Row>
 
+          {!isProductor && (
           <div style={{ marginTop: 24, borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
             <Text strong>
               {isAgronomo ? 'Corrección del diagnóstico' : 'Corrección registrada'}
@@ -200,6 +202,7 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
               )}
             </div>
           </div>
+          )}
         </Form>
       )}
     </Modal>

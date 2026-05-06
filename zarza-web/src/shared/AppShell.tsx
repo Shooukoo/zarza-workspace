@@ -52,7 +52,7 @@ const NAV_ITEMS = [
     key: '/analisis',
     label: 'Revisión IA',
     icon: <AuditOutlined />,
-    roles: [Role.ADMIN, Role.AGRONOMO],
+    roles: [Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR],
   },
 ];
 
