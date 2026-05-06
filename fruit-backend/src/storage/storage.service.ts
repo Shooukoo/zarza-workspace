@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { envs } from '../config/envs';
 import type { IStoragePort } from './ports';
-
 
 @Injectable()
 export class StorageService implements IStoragePort {
@@ -13,7 +13,6 @@ export class StorageService implements IStoragePort {
 
   constructor() {
     this.bucketName = envs.r2BucketName;
-
     this.s3Client = new S3Client({
       region: 'us-east-1',
       endpoint: envs.r2Endpoint,
@@ -28,7 +27,6 @@ export class StorageService implements IStoragePort {
   async uploadBuffer(buffer: Buffer, filename: string, mimeType: string): Promise<string> {
     const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
     const key = `raw/${Date.now()}-${safeFilename}`;
-
     try {
       const upload = new Upload({
         client: this.s3Client,
@@ -40,7 +38,6 @@ export class StorageService implements IStoragePort {
           ContentLength: buffer.length,
         },
       });
-
       this.logger.log(`Starting upload for ${key} (${buffer.length} bytes)`);
       await upload.done();
       this.logger.log(`Upload completed for ${key}`);
@@ -49,5 +46,10 @@ export class StorageService implements IStoragePort {
       this.logger.error(`Upload failed for ${key}`, error);
       throw error;
     }
+  }
+
+  async getPresignedUrl(key: string, expiresIn: number): Promise<string> {
+    const command = new GetObjectCommand({ Bucket: this.bucketName, Key: key });
+    return getSignedUrl(this.s3Client, command, { expiresIn });
   }
 }
