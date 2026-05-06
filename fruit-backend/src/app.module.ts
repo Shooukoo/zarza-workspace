@@ -10,6 +10,7 @@ import { AuthModule } from './auth/infrastructure/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { CamposModule } from './campos/campos.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
+import { AnalysesModule } from './analyses/analyses.module';
 import { envs } from './config/envs';
 
 @Module({
@@ -29,6 +30,7 @@ import { envs } from './config/envs';
     NotificationsModule,
     CamposModule,
     SolicitudesModule,
+    AnalysesModule,
   ],
   controllers: [],
   providers: [
