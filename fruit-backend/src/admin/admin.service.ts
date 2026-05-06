@@ -15,6 +15,7 @@ export interface UserSummary {
   id: string;
   email: string;
   role: Role;
+  campos_asignados: string[];
   createdAt: Date;
   totalAnalyses?: number;
 }
@@ -50,7 +51,7 @@ export class AdminService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .lean<{ _id: any; email: string; role: Role; createdAt: Date }[]>()
+        .lean<{ _id: any; email: string; role: Role; createdAt: Date; campos_asignados: Types.ObjectId[] }[]>()
         .exec(),
       this.userModel.countDocuments(query).exec(),
     ]);
@@ -71,6 +72,7 @@ export class AdminService {
         email: d.email,
         role: d.role,
         createdAt: d.createdAt,
+        campos_asignados: (d.campos_asignados ?? []).map((oid) => oid.toString()),
         totalAnalyses: countMap.get(id) ?? 0,
       };
     });
@@ -95,6 +97,7 @@ export class AdminService {
       email: doc.email,
       role: doc.role,
       createdAt: doc.createdAt,
+      campos_asignados: [],
     };
   }
 
@@ -141,7 +144,61 @@ export class AdminService {
       email: created.email,
       role: created.role,
       createdAt: created.createdAt,
+      campos_asignados: [],
       totalAnalyses: 0,
     };
+  }
+
+  async updateCampos(userId: string, camposIds: string[]): Promise<UserSummary> {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException(`Invalid user id: ${userId}`);
+    }
+    const doc = await this.userModel
+      .findByIdAndUpdate(
+        new Types.ObjectId(userId),
+        { campos_asignados: camposIds.map((id) => new Types.ObjectId(id)) },
+        { new: true },
+      )
+      .select('-passwordHash')
+      .lean<{
+        _id: any;
+        email: string;
+        role: Role;
+        createdAt: Date;
+        campos_asignados: Types.ObjectId[];
+      }>()
+      .exec();
+    if (!doc) throw new Error(`User ${userId} not found`);
+    return {
+      id: doc._id.toString(),
+      email: doc.email,
+      role: doc.role,
+      createdAt: doc.createdAt,
+      campos_asignados: (doc.campos_asignados ?? []).map((oid) => oid.toString()),
+    };
+  }
+
+  async deleteUser(userId: string, requesterId: string): Promise<void> {
+    if (userId === requesterId) {
+      throw new BadRequestException('No puedes eliminar tu propio usuario');
+    }
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException(`Invalid user id: ${userId}`);
+    }
+    const result = await this.userModel
+      .findByIdAndDelete(new Types.ObjectId(userId))
+      .exec();
+    if (!result) throw new Error(`User ${userId} not found`);
+  }
+
+  async updatePassword(userId: string, plainPassword: string): Promise<void> {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException(`Invalid user id: ${userId}`);
+    }
+    const passwordHash = await this.hasher.hash(plainPassword);
+    const result = await this.userModel
+      .findByIdAndUpdate(new Types.ObjectId(userId), { passwordHash })
+      .exec();
+    if (!result) throw new Error(`User ${userId} not found`);
   }
 }
