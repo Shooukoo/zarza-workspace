@@ -23,6 +23,7 @@ export class InMemoryUserRepository implements IUserRepository {
     return newUser;
   }
 
+  // Stub: User entity has no campos_asignados; campo-scoping tests should use the Mongoose adapter.
   async findById(id: string): Promise<UserCampos | null> {
     const user = this.users.find((u) => u.id === id);
     if (!user) return null;
