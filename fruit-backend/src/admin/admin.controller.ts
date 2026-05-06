@@ -3,10 +3,13 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
   Req,
+  HttpCode,
+  HttpStatus,
   ParseIntPipe,
   DefaultValuePipe,
   UseGuards,
@@ -18,7 +21,14 @@ import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
 import { Role } from '../auth/domain/enums/role.enum';
-import { IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsString,
+  MinLength,
+  IsArray,
+  IsMongoId,
+} from 'class-validator';
 
 class UpdateRoleDto {
   @IsEnum(Role)
@@ -35,6 +45,18 @@ class CreateUserDto {
 
   @IsEnum(Role)
   role: Role;
+}
+
+class UpdateCamposDto {
+  @IsArray()
+  @IsMongoId({ each: true })
+  campos_ids: string[];
+}
+
+class UpdatePasswordDto {
+  @IsString()
+  @MinLength(6)
+  password: string;
 }
 
 import { AdminDashboardService } from './admin-dashboard.service';
@@ -89,6 +111,46 @@ export class AdminController {
   ) {
     try {
       return await this.adminService.updateUserRole(id, dto.role);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes('not found')) throw new NotFoundException(msg);
+      throw new BadRequestException(msg);
+    }
+  }
+
+  @Patch('users/:id/campos')
+  async updateUserCampos(
+    @Param('id') id: string,
+    @Body() dto: UpdateCamposDto,
+  ) {
+    try {
+      return await this.adminService.updateCampos(id, dto.campos_ids);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes('not found')) throw new NotFoundException(msg);
+      throw new BadRequestException(msg);
+    }
+  }
+
+  @Delete('users/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(@Param('id') id: string, @Req() req: any) {
+    try {
+      await this.adminService.deleteUser(id, req.user.sub as string);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes('not found')) throw new NotFoundException(msg);
+      throw new BadRequestException(msg);
+    }
+  }
+
+  @Patch('users/:id/password')
+  async updateUserPassword(
+    @Param('id') id: string,
+    @Body() dto: UpdatePasswordDto,
+  ) {
+    try {
+      await this.adminService.updatePassword(id, dto.password);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes('not found')) throw new NotFoundException(msg);
