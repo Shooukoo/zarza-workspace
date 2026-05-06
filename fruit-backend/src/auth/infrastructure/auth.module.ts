@@ -55,7 +55,7 @@ import { UserDocument, UserSchema } from './schemas/user.schema';
       inject: [I_USER_REPOSITORY, I_HASHER_PORT, I_TOKEN_PORT],
     },
   ],
-  exports: [I_TOKEN_PORT, I_HASHER_PORT], // Exportar si otros módulos necesitan verificar tokens o hashear passwords
+  exports: [I_TOKEN_PORT, I_HASHER_PORT, I_USER_REPOSITORY], // Exportar si otros módulos necesitan verificar tokens o hashear passwords
 })
 export class AuthModule {}
 

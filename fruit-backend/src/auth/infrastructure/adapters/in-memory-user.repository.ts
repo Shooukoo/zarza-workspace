@@ -1,5 +1,5 @@
 import { User } from '../../domain/entities/user.entity';
-import { IUserRepository, CreateUserData } from '../../ports/user-repository.port';
+import { IUserRepository, CreateUserData, UserCampos } from '../../ports/user-repository.port';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 
@@ -21,6 +21,12 @@ export class InMemoryUserRepository implements IUserRepository {
     );
     this.users.push(newUser);
     return newUser;
+  }
+
+  async findById(id: string): Promise<UserCampos | null> {
+    const user = this.users.find((u) => u.id === id);
+    if (!user) return null;
+    return { id, camposAsignados: [] };
   }
 }
 

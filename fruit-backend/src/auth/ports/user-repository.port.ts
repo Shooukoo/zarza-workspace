@@ -10,8 +10,13 @@ export type CreateUserData = {
   role: Role;
 };
 
+export type UserCampos = {
+  id: string;
+  camposAsignados: string[];
+};
+
 export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   save(data: CreateUserData): Promise<User>;
+  findById(id: string): Promise<UserCampos | null>;
 }
-
