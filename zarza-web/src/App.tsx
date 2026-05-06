@@ -8,6 +8,7 @@ import { DashboardPage } from './dashboard/DashboardPage';
 import { CamposPage } from './campos/CamposPage';
 import { SolicitudesPage } from './solicitudes/SolicitudesPage';
 import { AnalisisPage } from './analisis/AnalisisPage';
+import { UsersPage } from './admin/UsersPage';
 import { Role } from './auth/types';
 
 export function App() {
@@ -27,6 +28,10 @@ export function App() {
             }
           >
             <Route path="/dashboard" element={<DashboardPage />} />
+          </Route>
+
+          <Route element={<PrivateRoute allowedRoles={[Role.ADMIN]} />}>
+            <Route path="/usuarios" element={<UsersPage />} />
           </Route>
 
           <Route

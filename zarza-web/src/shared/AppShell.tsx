@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Button, Typography, Space, notification } from 'antd';
+import { Layout, Menu, Button, Typography, Space, notification, Avatar, Tag } from 'antd';
 import {
   DashboardOutlined,
   EnvironmentOutlined,
   FileTextOutlined,
   AuditOutlined,
   LogoutOutlined,
+  UserOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../auth/useAuth';
 import { Role } from '../auth/types';
@@ -14,12 +16,25 @@ import { Role } from '../auth/types';
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
 
+const ROLE_TAG: Record<Role, { color: string; label: string }> = {
+  [Role.ADMIN]: { color: 'gold', label: 'Admin' },
+  [Role.PRODUCTOR]: { color: 'green', label: 'Productor' },
+  [Role.AGRONOMO]: { color: 'blue', label: 'Agrónomo' },
+  [Role.MONITOR]: { color: 'orange', label: 'Monitor' },
+};
+
 const NAV_ITEMS = [
   {
     key: '/dashboard',
     label: 'Dashboard',
     icon: <DashboardOutlined />,
     roles: [Role.ADMIN, Role.PRODUCTOR],
+  },
+  {
+    key: '/usuarios',
+    label: 'Usuarios',
+    icon: <TeamOutlined />,
+    roles: [Role.ADMIN],
   },
   {
     key: '/campos',
@@ -60,22 +75,39 @@ export function AppShell() {
     }
   }
 
+  const roleInfo = user ? ROLE_TAG[user.role] : null;
+  const initials = user?.email?.slice(0, 2).toUpperCase() ?? '?';
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        style={{ boxShadow: '2px 0 8px rgba(0,0,0,0.15)' }}
+      >
         <div
           style={{
-            height: 48,
+            height: 64,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: collapsed ? 14 : 18,
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
             padding: '0 16px',
+            gap: 8,
           }}
         >
-          {collapsed ? 'ZA' : 'Zarza AI'}
+          <span style={{ fontSize: 22 }}>🌿</span>
+          {!collapsed && (
+            <div>
+              <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, lineHeight: 1.2 }}>
+                Zarza AI
+              </div>
+              <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 11 }}>
+                Agricultura de precisión
+              </div>
+            </div>
+          )}
         </div>
         <Menu
           theme="dark"
@@ -83,6 +115,7 @@ export function AppShell() {
           selectedKeys={[location.pathname]}
           items={visibleItems}
           onClick={({ key }) => navigate(key)}
+          style={{ marginTop: 8 }}
         />
       </Sider>
 
@@ -94,18 +127,32 @@ export function AppShell() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'flex-end',
-            gap: 16,
+            gap: 12,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+            zIndex: 1,
           }}
         >
-          <Space>
-            <Text>{user?.email}</Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              {user?.role}
-            </Text>
+          <Space size={12} align="center">
+            <Avatar
+              size={32}
+              style={{ backgroundColor: '#389e0d', cursor: 'default', flexShrink: 0 }}
+              icon={<UserOutlined />}
+            >
+              {initials}
+            </Avatar>
+            <div style={{ lineHeight: 1.3 }}>
+              <Text style={{ fontSize: 13, display: 'block' }}>{user?.email}</Text>
+              {roleInfo && (
+                <Tag color={roleInfo.color} style={{ marginTop: 2, lineHeight: '16px', fontSize: 11 }}>
+                  {roleInfo.label}
+                </Tag>
+              )}
+            </div>
             <Button
               type="text"
               icon={<LogoutOutlined />}
               onClick={handleLogout}
+              style={{ color: '#888' }}
             >
               Salir
             </Button>
