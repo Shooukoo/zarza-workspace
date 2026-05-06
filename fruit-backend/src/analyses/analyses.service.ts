@@ -4,6 +4,8 @@ import { Model, Types } from 'mongoose';
 import { Analysis, AnalysisDocument } from './analyses.schema';
 import { ValidateAnalysisDto } from './dto/validate-analysis.dto';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
+import { type UserScope } from '../auth/domain/types/user-scope.type';
+import { Role } from '../auth/domain/enums/role.enum';
 
 @Injectable()
 export class AnalysesService {
@@ -20,9 +22,15 @@ export class AnalysesService {
     page: number,
     limit: number,
     validado: boolean | 'all',
+    scope: UserScope,
   ): Promise<{ data: AnalysisDocument[]; total: number; page: number; limit: number }> {
     const skip = (page - 1) * limit;
-    const query = validado === 'all' ? {} : { 'validacion_experto.fue_corregido': validado };
+    const query: Record<string, unknown> =
+      validado === 'all' ? {} : { 'validacion_experto.fue_corregido': validado };
+
+    if (scope.role === Role.PRODUCTOR) {
+      query.productor_id = new Types.ObjectId(scope.sub);
+    }
 
     const [data, total] = await Promise.all([
       this.analysisModel
