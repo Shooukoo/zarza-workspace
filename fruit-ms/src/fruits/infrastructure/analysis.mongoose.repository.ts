@@ -77,6 +77,12 @@ export class MongoAnalysisRepository implements IAnalysisRepository {
       if (filter.startDate) query.fecha_analisis.$gte = filter.startDate;
       if (filter.endDate) query.fecha_analisis.$lte = filter.endDate;
     }
+    if (filter.productorId) {
+      query.productor_id = new Types.ObjectId(filter.productorId);
+    }
+    if (filter.campoIds?.length) {
+      query.campo_id = { $in: filter.campoIds.map((id) => new Types.ObjectId(id)) };
+    }
 
     const [docs, total] = await Promise.all([
       this.analysisModel

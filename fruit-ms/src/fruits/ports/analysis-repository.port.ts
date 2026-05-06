@@ -7,6 +7,8 @@ export type FindAllFilter = {
   userId?: string;
   startDate?: Date;
   endDate?: Date;
+  productorId?: string;
+  campoIds?: string[];
 };
 
 export type PaginatedResult<T> = {

@@ -29,6 +29,8 @@ export class FruitsController {
       userId?: string;
       startDate?: string;
       endDate?: string;
+      productorId?: string;
+      campoIds?: string[];
     },
   ) {
     this.logger.debug(`get_fruits page=${payload.page ?? 1} limit=${payload.limit ?? 20}`);
@@ -46,13 +48,25 @@ export class FruitsController {
       payload?.userId,
       sDate,
       eDate,
+      { productorId: payload.productorId, campoIds: payload.campoIds },
     );
   }
 
   /** Devuelve un análisis por su _id de MongoDB */
   @MessagePattern('get_fruit_by_id')
-  async getById(@Payload() payload: { id: string }) {
-    return this.fruitsService.findById(payload.id);
+  async getById(@Payload() payload: { id: string; productorId?: string; campoIds?: string[] }) {
+    try {
+      const analysis = await this.fruitsService.findById(payload.id);
+      if (payload.productorId && analysis.productor_id?.toString() !== payload.productorId) {
+        return null;
+      }
+      if (payload.campoIds?.length && !payload.campoIds.includes(analysis.campo_id?.toString() ?? '')) {
+        return null;
+      }
+      return analysis;
+    } catch {
+      return null;
+    }
   }
 }
 

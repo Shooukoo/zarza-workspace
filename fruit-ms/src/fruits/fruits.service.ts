@@ -79,8 +79,16 @@ export class FruitsService {
     userId?: string,
     startDate?: Date,
     endDate?: Date,
+    scopeFilter?: { productorId?: string; campoIds?: string[] },
   ) {
-    return this.analysisRepo.findAll(page, limit, { imageId, userId, startDate, endDate });
+    return this.analysisRepo.findAll(page, limit, {
+      imageId,
+      userId,
+      startDate,
+      endDate,
+      productorId: scopeFilter?.productorId,
+      campoIds: scopeFilter?.campoIds,
+    });
   }
 
   /** Retorna un análisis por su MongoDB _id */
