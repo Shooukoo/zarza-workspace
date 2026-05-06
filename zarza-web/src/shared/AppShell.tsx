@@ -5,6 +5,7 @@ import {
   DashboardOutlined,
   EnvironmentOutlined,
   FileTextOutlined,
+  AuditOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../auth/useAuth';
@@ -31,6 +32,12 @@ const NAV_ITEMS = [
     label: 'Solicitudes',
     icon: <FileTextOutlined />,
     roles: [Role.ADMIN, Role.AGRONOMO, Role.MONITOR],
+  },
+  {
+    key: '/analisis',
+    label: 'Revisión IA',
+    icon: <AuditOutlined />,
+    roles: [Role.ADMIN, Role.AGRONOMO],
   },
 ];
 

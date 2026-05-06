@@ -7,6 +7,7 @@ import { NotFound404Page } from './shared/NotFound404Page';
 import { DashboardPage } from './dashboard/DashboardPage';
 import { CamposPage } from './campos/CamposPage';
 import { SolicitudesPage } from './solicitudes/SolicitudesPage';
+import { AnalisisPage } from './analisis/AnalisisPage';
 import { Role } from './auth/types';
 
 export function App() {
@@ -46,6 +47,14 @@ export function App() {
             }
           >
             <Route path="/solicitudes" element={<SolicitudesPage />} />
+          </Route>
+
+          <Route
+            element={
+              <PrivateRoute allowedRoles={[Role.ADMIN, Role.AGRONOMO]} />
+            }
+          >
+            <Route path="/analisis" element={<AnalisisPage />} />
           </Route>
         </Route>
       </Route>
