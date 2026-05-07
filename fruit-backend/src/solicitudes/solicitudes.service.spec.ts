@@ -112,4 +112,52 @@ describe('SolicitudesService — FCM integration', () => {
       );
     });
   });
+
+  describe('updateEstado()', () => {
+    const solicitudId = '6630000000000000000000c1';
+    const fakeSolicitud = {
+      _id: solicitudId,
+      asignado_a: { toString: () => '6630000000000000000000b1' },
+      campo_id: { toString: () => '6630000000000000000000a1' },
+      estado: 'CANCELADO',
+    };
+
+    beforeEach(() => {
+      mockSolicitudModel.findByIdAndUpdate = jest.fn().mockResolvedValue(fakeSolicitud);
+      mockCamposService.findById.mockResolvedValue({ nombre: 'Finca El Rosal' });
+      mockUserRepo.findFcmTokenById.mockResolvedValue('token-monitor');
+    });
+
+    it('sends push on CANCELADO', async () => {
+      await service.updateEstado(solicitudId, 'CANCELADO');
+
+      expect(mockFcmService.sendToDevice).toHaveBeenCalledWith('token-monitor', {
+        title: 'Solicitud cancelada: Finca El Rosal',
+        body: 'La solicitud de muestreo fue cancelada.',
+      });
+    });
+
+    it('sends push on COMPLETADO', async () => {
+      mockSolicitudModel.findByIdAndUpdate.mockResolvedValue({ ...fakeSolicitud, estado: 'COMPLETADO' });
+
+      await service.updateEstado(solicitudId, 'COMPLETADO');
+
+      expect(mockFcmService.sendToDevice).toHaveBeenCalledWith('token-monitor', {
+        title: 'Solicitud completada: Finca El Rosal',
+        body: 'El análisis ha sido marcado como completado.',
+      });
+    });
+
+    it('does NOT send push on EN_PROGRESO', async () => {
+      await service.updateEstado(solicitudId, 'EN_PROGRESO');
+
+      expect(mockFcmService.sendToDevice).not.toHaveBeenCalled();
+    });
+
+    it('does NOT send push on PENDIENTE', async () => {
+      await service.updateEstado(solicitudId, 'PENDIENTE');
+
+      expect(mockFcmService.sendToDevice).not.toHaveBeenCalled();
+    });
+  });
 });

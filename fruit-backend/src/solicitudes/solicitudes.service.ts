@@ -114,6 +114,16 @@ export class SolicitudesService {
     }
 
     this.logger.log(`Solicitud ${id} → estado: ${estado}`);
+
+    if (estado === 'CANCELADO' || estado === 'COMPLETADO') {
+      await this.sendSolicitudPush(
+        updated.asignado_a?.toString(),
+        updated.campo_id?.toString(),
+        null,
+        estado === 'CANCELADO' ? 'cancelled' : 'completed',
+      );
+    }
+
     return updated;
   }
 
