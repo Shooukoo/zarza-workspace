@@ -13,7 +13,7 @@ import type { ColumnsType } from 'antd/es/table';
 import {
   useCampos,
   useDeleteCampo,
-  useAgronmosList,
+  useAgronomosList,
   useAssignAgronomoToCampo,
   type Campo,
 } from './hooks/useCampos';
@@ -27,7 +27,7 @@ export function CamposPage() {
   const { user } = useAuth();
   const camposQuery = useCampos();
   const deleteMutation = useDeleteCampo();
-  const agronoms = useAgronmosList();
+  const agronoms = useAgronomosList();
   const assignMutation = useAssignAgronomoToCampo();
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -72,15 +72,23 @@ export function CamposPage() {
                   size="small"
                   style={{ minWidth: 160 }}
                   value={assigned?.id ?? null}
-                  loading={agronoms.isLoading || assignMutation.isPending}
+                  loading={
+                    agronoms.isLoading ||
+                    (assignMutation.isPending &&
+                      assignMutation.variables?.campoId === record._id)
+                  }
                   allowClear
                   placeholder="Sin asignar"
-                  onChange={(val: string | null) => {
-                    assignMutation.mutate({
-                      campoId: record._id,
-                      newAgronomoId: val ?? null,
-                      agronoms: agronoms.data ?? [],
-                    });
+                  onChange={async (val: string | null) => {
+                    try {
+                      await assignMutation.mutateAsync({
+                        campoId: record._id,
+                        newAgronomoId: val ?? null,
+                        agronoms: agronoms.data ?? [],
+                      });
+                    } catch {
+                      notification.error({ message: 'Error al asignar agrónomo' });
+                    }
                   }}
                   options={(agronoms.data ?? []).map((a) => ({
                     value: a.id,

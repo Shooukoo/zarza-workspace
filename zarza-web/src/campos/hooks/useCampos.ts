@@ -57,7 +57,7 @@ export interface AgronomoUser {
   campos_asignados: string[];
 }
 
-export function useAgronmosList() {
+export function useAgronomosList() {
   return useQuery<AgronomoUser[]>({
     queryKey: ['admin', 'users', 'AGRONOMO'],
     queryFn: () =>
@@ -100,6 +100,7 @@ export function useAssignAgronomoToCampo() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'users', 'AGRONOMO'] });
+      qc.invalidateQueries({ queryKey: ['campos'] });
     },
   });
 }
