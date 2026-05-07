@@ -42,8 +42,14 @@ export const AnalysisSchema = new Schema(
     },
     validacion_experto: {
       fue_corregido: { type: Boolean, default: false },
+      estado: {
+        type: String,
+        enum: ['pendiente', 'validado', 'rechazado'],
+        default: 'pendiente',
+      },
       corregido_por: { type: SchemaTypes.ObjectId, ref: 'User' },
       fecha_correccion: { type: Date },
+      fecha_validacion: { type: Date },
       diagnostico_original: { type: String },
       cronograma_corregido: [CronogramaCorregidoSchema],
       observaciones: { type: String },
@@ -72,8 +78,10 @@ export interface CronogramaCorregido {
 
 export interface ValidacionExperto {
   fue_corregido: boolean;
+  estado?: 'pendiente' | 'validado' | 'rechazado';
   corregido_por?: Types.ObjectId;
   fecha_correccion?: Date;
+  fecha_validacion?: Date;
   diagnostico_original?: string;
   cronograma_corregido?: CronogramaCorregido[];
   observaciones?: string;

@@ -99,12 +99,13 @@ export const AnalysisSchema = new MongooseSchema(
       type: new MongooseSchema(
         {
           fue_corregido:      { type: Boolean, default: false },
+          estado:             { type: String, enum: ['pendiente', 'validado', 'rechazado'], default: 'pendiente' },
           corregido_por:      { type: SchemaTypes.ObjectId, ref: 'User', default: null },
           diagnostico_original: { type: String, default: null },
         },
         { _id: false },
       ),
-      default: () => ({ fue_corregido: false }),
+      default: () => ({ fue_corregido: false, estado: 'pendiente' }),
     },
   },
   { timestamps: true },
@@ -155,6 +156,7 @@ export interface AnalysisDocument extends Document {
   offline_sync_id: string | null;
   validacion_experto: {
     fue_corregido:      boolean;
+    estado?:            'pendiente' | 'validado' | 'rechazado';
     corregido_por:      Types.ObjectId | null;
     diagnostico_original: string | null;
   };
