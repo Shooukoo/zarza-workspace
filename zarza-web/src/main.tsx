@@ -15,9 +15,28 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <QueryClientProvider client={queryClient}>
-        <ConfigProvider locale={esES}>
+        <ConfigProvider
+          locale={esES}
+          theme={{
+            token: {
+              colorPrimary: '#389e0d',
+              colorLink: '#389e0d',
+              borderRadius: 8,
+              colorBgLayout: '#f4f6f8',
+              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+            },
+            components: {
+              Card: {
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+              },
+              Statistic: {
+                titleFontSize: 13,
+              },
+            },
+          }}
+        >
           <AuthProvider>
             <App />
           </AuthProvider>

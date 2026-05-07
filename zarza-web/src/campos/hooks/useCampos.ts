@@ -21,13 +21,14 @@ export function useCampos() {
   });
 }
 
-export function useProductores() {
+export function useProductores(enabled = true) {
   return useQuery<UserOption[]>({
     queryKey: ['admin', 'users', 'PRODUCTOR'],
     queryFn: () =>
       apiClient
         .get<{ data: UserOption[] }>('/admin/users?rol=PRODUCTOR&limit=200')
         .then((r) => r.data.data),
+    enabled,
   });
 }
 
@@ -57,13 +58,14 @@ export interface AgronomoUser {
   campos_asignados: string[];
 }
 
-export function useAgronomosList() {
+export function useAgronomosList(enabled = false) {
   return useQuery<AgronomoUser[]>({
     queryKey: ['admin', 'users', 'AGRONOMO'],
     queryFn: () =>
       apiClient
         .get<{ data: AgronomoUser[] }>('/admin/users?rol=AGRONOMO&limit=200')
         .then((r) => r.data.data),
+    enabled,
   });
 }
 

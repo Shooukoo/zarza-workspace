@@ -146,10 +146,12 @@ export function SolicitudesPage() {
         }}
       />
 
-      <CreateSolicitudModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-      />
+      {canCreate && (
+        <CreateSolicitudModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

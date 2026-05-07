@@ -27,7 +27,7 @@ export function CamposPage() {
   const { user } = useAuth();
   const camposQuery = useCampos();
   const deleteMutation = useDeleteCampo();
-  const agronoms = useAgronomosList();
+  const agronoms = useAgronomosList(user?.role === Role.ADMIN);
   const assignMutation = useAssignAgronomoToCampo();
   const [modalOpen, setModalOpen] = useState(false);
 

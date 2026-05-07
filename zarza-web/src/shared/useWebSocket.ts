@@ -33,7 +33,12 @@ export function useWebSocket(onMessage: (event: string, data: unknown) => void) 
 
     return () => {
       destroyed = true;
-      ws?.close();
+      if (!ws) return;
+      if (ws.readyState === WebSocket.CONNECTING) {
+        ws.onopen = () => ws.close();
+      } else {
+        ws.close();
+      }
     };
   }, []);
 }

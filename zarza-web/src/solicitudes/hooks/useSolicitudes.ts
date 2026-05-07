@@ -61,13 +61,14 @@ export function useCamposOptions() {
   });
 }
 
-export function useMonitores() {
+export function useMonitores(enabled = false) {
   return useQuery<MonitorOption[]>({
     queryKey: ['admin', 'users', 'MONITOR'],
     queryFn: () =>
       apiClient
         .get<{ data: MonitorOption[] }>('/admin/users?rol=MONITOR&limit=200')
         .then((r) => r.data.data),
+    enabled,
   });
 }
 

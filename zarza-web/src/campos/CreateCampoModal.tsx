@@ -16,10 +16,10 @@ interface FormValues {
 
 export function CreateCampoModal({ open, onClose }: Props) {
   const { user } = useAuth();
+  const isAdmin = user?.role === Role.ADMIN;
   const [form] = Form.useForm<FormValues>();
   const createMutation = useCreateCampo();
-  const productoresQuery = useProductores();
-  const isAdmin = user?.role === Role.ADMIN;
+  const productoresQuery = useProductores(isAdmin);
 
   async function onFinish(values: FormValues) {
     const productor_id = isAdmin ? values.productor_id! : user!.sub;
