@@ -25,6 +25,9 @@ interface EnvVars {
 
   // CORS
   CORS_ORIGIN: string;
+
+  // Firebase Admin SDK
+  FIREBASE_SERVICE_ACCOUNT_B64: string;
 }
 
 const envSchema = joi
@@ -45,6 +48,8 @@ const envSchema = joi
     JWT_EXPIRES_IN: joi.string().required(),
 
     CORS_ORIGIN: joi.string().optional().default('http://localhost:5173'),
+
+    FIREBASE_SERVICE_ACCOUNT_B64: joi.string().required(),
   })
   .unknown(true);
 
@@ -78,5 +83,8 @@ export const envs = {
 
   // CORS
   corsOrigin: envVars.CORS_ORIGIN,
+
+  // Firebase Admin SDK
+  firebaseServiceAccountB64: envVars.FIREBASE_SERVICE_ACCOUNT_B64,
 };
 
