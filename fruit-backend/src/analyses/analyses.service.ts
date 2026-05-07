@@ -28,7 +28,11 @@ export class AnalysesService {
     const query: Record<string, unknown> = {};
 
     if (estado === 'pendiente') {
-      query['validacion_experto.estado'] = { $in: ['pendiente', null] };
+      query['$or'] = [
+        { 'validacion_experto.estado': 'pendiente' },
+        { 'validacion_experto.estado': null },
+        { 'validacion_experto': { $exists: false } },
+      ];
     } else if (estado === 'validado') {
       query['validacion_experto.estado'] = 'validado';
     } else if (estado === 'rechazado') {

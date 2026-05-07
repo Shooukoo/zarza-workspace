@@ -37,7 +37,7 @@ export class AnalysesController {
   @Get()
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR)
   async findAll(
-    @Req() req: any,
+    @Req() req: { user: JwtPayload },
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('estado') estadoParam?: string,
@@ -62,10 +62,17 @@ export class AnalysesController {
 
   @Get(':id')
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR)
-  async findOne(@Param('id') id: string, @Req() req: any) {
+  async findOne(@Param('id') id: string, @Req() req: { user: JwtPayload }) {
     const scope = await this.buildScope(req.user);
     const analysis = await this.analysesService.findById(id);
     if (scope.role === Role.PRODUCTOR && analysis.productor_id?.toString() !== scope.sub) {
+      throw new NotFoundException();
+    }
+    if (
+      scope.role === Role.AGRONOMO &&
+      scope.camposAsignados?.length &&
+      !scope.camposAsignados.includes(analysis.campo_id?.toString() ?? '')
+    ) {
       throw new NotFoundException();
     }
     return analysis;

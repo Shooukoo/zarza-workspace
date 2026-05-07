@@ -6,11 +6,13 @@ import {
   IsNumber,
   Min,
   IsEnum,
+  IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CronogramaCorregidoItemDto {
   @IsString()
+  @IsNotEmpty()
   etapa: string;
 
   @IsNumber()
