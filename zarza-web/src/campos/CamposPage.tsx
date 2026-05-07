@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Button,
   Popconfirm,
+  Select,
   Space,
   Table,
   Typography,
@@ -9,7 +10,13 @@ import {
 } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { useCampos, useDeleteCampo, type Campo } from './hooks/useCampos';
+import {
+  useCampos,
+  useDeleteCampo,
+  useAgronmosList,
+  useAssignAgronomoToCampo,
+  type Campo,
+} from './hooks/useCampos';
 import { CreateCampoModal } from './CreateCampoModal';
 import { useAuth } from '../auth/useAuth';
 import { Role } from '../auth/types';
@@ -20,6 +27,8 @@ export function CamposPage() {
   const { user } = useAuth();
   const camposQuery = useCampos();
   const deleteMutation = useDeleteCampo();
+  const agronoms = useAgronmosList();
+  const assignMutation = useAssignAgronomoToCampo();
   const [modalOpen, setModalOpen] = useState(false);
 
   const canCreate = user?.role === Role.ADMIN || user?.role === Role.PRODUCTOR;
@@ -51,6 +60,37 @@ export function CamposPage() {
     },
     ...(canDelete
       ? [
+          {
+            title: 'Agrónomo',
+            key: 'agronomo',
+            render: (_: unknown, record: Campo) => {
+              const assigned = agronoms.data?.find((a) =>
+                a.campos_asignados.includes(record._id),
+              );
+              return (
+                <Select
+                  size="small"
+                  style={{ minWidth: 160 }}
+                  value={assigned?.id ?? null}
+                  loading={agronoms.isLoading || assignMutation.isPending}
+                  allowClear
+                  placeholder="Sin asignar"
+                  onChange={(val: string | null) => {
+                    assignMutation.mutate({
+                      campoId: record._id,
+                      newAgronomoId: val ?? null,
+                      agronoms: agronoms.data ?? [],
+                    });
+                  }}
+                  options={(agronoms.data ?? []).map((a) => ({
+                    value: a.id,
+                    label: a.email,
+                  }))}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              );
+            },
+          } as ColumnsType<Campo>[number],
           {
             title: 'Acciones',
             key: 'actions',
