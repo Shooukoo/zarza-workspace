@@ -62,5 +62,22 @@ export class MongooseUserRepository implements IUserRepository {
       camposAsignados: doc.campos_asignados?.map((oid) => oid.toString()) ?? [],
     };
   }
+
+  async findFcmTokenById(userId: string): Promise<string | null> {
+    if (!Types.ObjectId.isValid(userId)) return null;
+    const doc = await this.userModel
+      .findById(userId)
+      .select('fcm_token')
+      .lean<{ fcm_token: string | null }>()
+      .exec();
+    return doc?.fcm_token ?? null;
+  }
+
+  async clearFcmToken(userId: string): Promise<void> {
+    if (!Types.ObjectId.isValid(userId)) return;
+    await this.userModel
+      .updateOne({ _id: userId }, { fcm_token: null })
+      .exec();
+  }
 }
 

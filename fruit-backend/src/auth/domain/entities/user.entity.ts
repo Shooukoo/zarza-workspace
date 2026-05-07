@@ -2,6 +2,7 @@ import { Role } from '../enums/role.enum';
 
 export class User {
   private _passwordHash: string;
+  public fcm_token: string | null = null;
 
   constructor(
     public readonly id: string,
