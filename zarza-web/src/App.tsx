@@ -10,6 +10,13 @@ import { SolicitudesPage } from './solicitudes/SolicitudesPage';
 import { AnalisisPage } from './analisis/AnalisisPage';
 import { UsersPage } from './admin/UsersPage';
 import { Role } from './auth/types';
+import { useAuth } from './auth/useAuth';
+import { defaultRouteForRole } from './auth/defaultRoute';
+
+function RootRedirect() {
+  const { user } = useAuth();
+  return <Navigate to={defaultRouteForRole(user!.role)} replace />;
+}
 
 export function App() {
   return (
@@ -20,7 +27,7 @@ export function App() {
       {/* Authenticated shell */}
       <Route element={<PrivateRoute />}>
         <Route element={<AppShell />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<RootRedirect />} />
 
           <Route
             element={
