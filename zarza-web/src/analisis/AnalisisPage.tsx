@@ -5,7 +5,7 @@ import { useAnalisisList, useValidateAnalisis } from './useAnalisis';
 import { AnalisisDetailModal } from './AnalisisDetailModal';
 import { useAuth } from '../auth/useAuth';
 import { Role } from '../auth/types';
-import type { Analysis, EstadoValidacion } from './types';
+import type { Analysis, EstadoValidacion, ValidateAnalisisPayload } from './types';
 
 const { Title } = Typography;
 
@@ -72,7 +72,7 @@ function AnalisisTab({ estado }: { estado: EstadoValidacion }) {
               type="primary"
               loading={
                 validateMutation.isPending &&
-                (validateMutation.variables as { id: string } | undefined)?.id === record._id
+                (validateMutation.variables as { id: string; payload: ValidateAnalisisPayload } | undefined)?.id === record._id
               }
               onClick={async () => {
                 try {
