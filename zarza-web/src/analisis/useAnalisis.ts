@@ -3,18 +3,19 @@ import { apiClient } from '../api/client';
 import type {
   Analysis,
   AnalisisListResponse,
+  EstadoValidacion,
   ValidateAnalisisPayload,
 } from './types';
 
-export function useAnalisisList(validado: boolean | 'all', page = 1, limit = 20) {
+export function useAnalisisList(estado: EstadoValidacion, page = 1, limit = 20) {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
-    validado: validado === 'all' ? 'all' : String(validado),
+    estado,
   });
 
   return useQuery<AnalisisListResponse>({
-    queryKey: ['analisis', validado, page, limit],
+    queryKey: ['analisis', estado, page, limit],
     queryFn: () =>
       apiClient
         .get<AnalisisListResponse>(`/analyses?${params.toString()}`)

@@ -72,7 +72,11 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
     try {
       await validateMutation.mutateAsync({
         id: analysisId,
-        payload: { cronograma_corregido, observaciones: values.observaciones },
+        payload: {
+          action: 'rechazado',
+          cronograma_corregido,
+          observaciones: values.observaciones,
+        },
       });
       message.success('Corrección guardada exitosamente');
       onClose();

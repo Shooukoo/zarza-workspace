@@ -15,8 +15,10 @@ export interface CronogramaCorregido {
 
 export interface ValidacionExperto {
   fue_corregido: boolean;
+  estado?: 'pendiente' | 'validado' | 'rechazado';
   corregido_por?: string;
   fecha_correccion?: string;
+  fecha_validacion?: string;
   diagnostico_original?: string;
   cronograma_corregido?: CronogramaCorregido[];
   observaciones?: string;
@@ -48,7 +50,10 @@ export interface AnalisisListResponse {
   limit: number;
 }
 
+export type EstadoValidacion = 'pendiente' | 'validado' | 'rechazado' | 'all';
+
 export interface ValidateAnalisisPayload {
-  cronograma_corregido: CronogramaCorregido[];
-  observaciones: string;
+  action: 'validado' | 'rechazado';
+  cronograma_corregido?: CronogramaCorregido[];
+  observaciones?: string;
 }
