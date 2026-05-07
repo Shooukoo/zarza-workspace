@@ -5,12 +5,14 @@ import { AnalysesService } from './analyses.service';
 import { Analysis, AnalysisSchema } from './analyses.schema';
 import { AuthModule } from '../auth/infrastructure/auth.module';
 import { StorageModule } from '../storage/storage.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Analysis.name, schema: AnalysisSchema }]),
     AuthModule,
     StorageModule,
+    NotificationsModule,
   ],
   controllers: [AnalysesController],
   providers: [AnalysesService],

@@ -21,15 +21,29 @@ export class AnalysesService {
   async findAll(
     page: number,
     limit: number,
-    validado: boolean | 'all',
+    estado: 'pendiente' | 'validado' | 'rechazado' | 'all',
     scope: UserScope,
   ): Promise<{ data: AnalysisDocument[]; total: number; page: number; limit: number }> {
     const skip = (page - 1) * limit;
-    const query: Record<string, unknown> =
-      validado === 'all' ? {} : { 'validacion_experto.fue_corregido': validado };
+    const query: Record<string, unknown> = {};
+
+    if (estado === 'pendiente') {
+      query['validacion_experto.estado'] = { $in: ['pendiente', null] };
+    } else if (estado === 'validado') {
+      query['validacion_experto.estado'] = 'validado';
+    } else if (estado === 'rechazado') {
+      query['validacion_experto.estado'] = 'rechazado';
+    }
 
     if (scope.role === Role.PRODUCTOR) {
       query.productor_id = new Types.ObjectId(scope.sub);
+    }
+    if (scope.role === Role.AGRONOMO && scope.camposAsignados?.length) {
+      query.campo_id = {
+        $in: scope.camposAsignados
+          .filter((id) => Types.ObjectId.isValid(id))
+          .map((id) => new Types.ObjectId(id)),
+      };
     }
 
     const [data, total] = await Promise.all([
@@ -76,34 +90,32 @@ export class AnalysesService {
   ): Promise<AnalysisDocument> {
     const existing = await this.findById(id);
 
-    const diagnosticoOriginal =
-      existing.validacion_experto?.fue_corregido
-        ? existing.validacion_experto.diagnostico_original
-        : JSON.stringify(existing.cronograma_fenologico);
+    const setFields: Record<string, unknown> = {
+      'validacion_experto.estado': dto.action,
+      'validacion_experto.corregido_por': new Types.ObjectId(corregidoPorId),
+      'validacion_experto.fecha_validacion': new Date(),
+    };
+
+    if (dto.action === 'rechazado' && dto.cronograma_corregido?.length) {
+      const diagnosticoOriginal =
+        existing.validacion_experto?.fue_corregido
+          ? existing.validacion_experto.diagnostico_original
+          : JSON.stringify(existing.cronograma_fenologico);
+
+      setFields['validacion_experto.fue_corregido'] = true;
+      setFields['validacion_experto.fecha_correccion'] = new Date();
+      setFields['validacion_experto.diagnostico_original'] = diagnosticoOriginal;
+      setFields['validacion_experto.cronograma_corregido'] = dto.cronograma_corregido;
+      setFields['validacion_experto.observaciones'] = dto.observaciones ?? '';
+    }
 
     const updated = await this.analysisModel
-      .findByIdAndUpdate(
-        id,
-        {
-          $set: {
-            'validacion_experto.fue_corregido': true,
-            'validacion_experto.corregido_por': new Types.ObjectId(corregidoPorId),
-            'validacion_experto.fecha_correccion': new Date(),
-            'validacion_experto.diagnostico_original': diagnosticoOriginal,
-            'validacion_experto.cronograma_corregido': dto.cronograma_corregido,
-            'validacion_experto.observaciones': dto.observaciones,
-          },
-        },
-        { new: true },
-      )
+      .findByIdAndUpdate(id, { $set: setFields }, { new: true })
       .lean<AnalysisDocument>()
       .exec();
 
-    if (!updated) {
-      throw new NotFoundException(`Análisis con id "${id}" no encontrado`);
-    }
-
-    this.logger.log(`Análisis ${id} validado por usuario ${corregidoPorId}`);
+    if (!updated) throw new NotFoundException(`Análisis con id "${id}" no encontrado`);
+    this.logger.log(`Análisis ${id} ${dto.action} por usuario ${corregidoPorId}`);
     return updated;
   }
 }

@@ -1,17 +1,16 @@
 import {
   IsArray,
-  ArrayMinSize,
+  IsOptional,
   ValidateNested,
   IsString,
-  IsNotEmpty,
   IsNumber,
   Min,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CronogramaCorregidoItemDto {
   @IsString()
-  @IsNotEmpty()
   etapa: string;
 
   @IsNumber()
@@ -20,13 +19,16 @@ export class CronogramaCorregidoItemDto {
 }
 
 export class ValidateAnalysisDto {
+  @IsEnum(['validado', 'rechazado'])
+  action: 'validado' | 'rechazado';
+
+  @IsOptional()
   @IsArray()
-  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CronogramaCorregidoItemDto)
-  cronograma_corregido: CronogramaCorregidoItemDto[];
+  cronograma_corregido?: CronogramaCorregidoItemDto[];
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  observaciones: string;
+  observaciones?: string;
 }
