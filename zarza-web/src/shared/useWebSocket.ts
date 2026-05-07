@@ -5,18 +5,35 @@ export function useWebSocket(onMessage: (event: string, data: unknown) => void) 
   callbackRef.current = onMessage;
 
   useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+    let destroyed = false;
+    let ws: WebSocket;
 
-    ws.onmessage = (e) => {
-      try {
-        const { event, data } = JSON.parse(e.data as string);
-        callbackRef.current(event, data);
-      } catch {
-        // ignore malformed messages
-      }
+    function connect() {
+      if (destroyed) return;
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
+      ws.onmessage = (e) => {
+        try {
+          const { event, data } = JSON.parse(e.data as string);
+          callbackRef.current(event, data);
+        } catch {
+          // ignore malformed messages
+        }
+      };
+
+      ws.onerror = () => {};
+
+      ws.onclose = () => {
+        if (!destroyed) setTimeout(connect, 5000);
+      };
+    }
+
+    connect();
+
+    return () => {
+      destroyed = true;
+      ws?.close();
     };
-
-    return () => ws.close();
   }, []);
 }
