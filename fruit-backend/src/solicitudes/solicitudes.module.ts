@@ -5,6 +5,7 @@ import { SolicitudesService } from './solicitudes.service';
 import { SolicitudMuestreo, SolicitudMuestreoSchema } from './schemas/solicitud-muestreo.schema';
 import { AuthModule } from '../auth/infrastructure/auth.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { CamposModule } from '../campos/campos.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     ]),
     AuthModule,
     NotificationsModule,
+    CamposModule,
   ],
   controllers: [SolicitudesController],
   providers: [SolicitudesService],
