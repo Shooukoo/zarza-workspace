@@ -49,7 +49,12 @@ export class StorageService implements IStoragePort {
   }
 
   async getPresignedUrl(key: string, expiresIn: number): Promise<string> {
-    const command = new GetObjectCommand({ Bucket: this.bucketName, Key: key });
-    return getSignedUrl(this.s3Client, command, { expiresIn });
+    try {
+      const command = new GetObjectCommand({ Bucket: this.bucketName, Key: key });
+      return await getSignedUrl(this.s3Client, command, { expiresIn });
+    } catch (error) {
+      this.logger.error(`Failed to generate presigned URL for ${key}`, error);
+      throw error;
+    }
   }
 }

@@ -1,5 +1,11 @@
 import { Card, Col, Row, Statistic, Typography, Spin } from 'antd';
 import {
+  WarningOutlined,
+  EyeOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+} from '@ant-design/icons';
+import {
   BarChart,
   Bar,
   XAxis,
@@ -43,42 +49,48 @@ export function DashboardPage() {
       {/* Health Metrics */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card style={{ borderTop: '3px solid #faad14' }}>
             <Statistic
               title="% Merma promedio"
               value={healthQuery.data?.avgLossPercent ?? 0}
               precision={1}
               suffix="%"
               loading={healthQuery.isLoading}
+              valueStyle={{ color: '#d48806' }}
+              prefix={<WarningOutlined />}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card style={{ borderTop: '3px solid #1890ff' }}>
             <Statistic
               title="Elementos detectados"
               value={healthQuery.data?.totalDetected ?? 0}
               loading={healthQuery.isLoading}
+              valueStyle={{ color: '#096dd9' }}
+              prefix={<EyeOutlined />}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card style={{ borderTop: '3px solid #52c41a' }}>
             <Statistic
               title="Elementos sanos"
               value={healthQuery.data?.totalHealthyCount ?? 0}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: '#389e0d' }}
               loading={healthQuery.isLoading}
+              prefix={<CheckCircleOutlined />}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card>
+          <Card style={{ borderTop: '3px solid #f5222d' }}>
             <Statistic
               title="Elementos enfermos"
               value={healthQuery.data?.totalSickCount ?? 0}
-              valueStyle={{ color: '#f5222d' }}
+              valueStyle={{ color: '#cf1322' }}
               loading={healthQuery.isLoading}
+              prefix={<CloseCircleOutlined />}
             />
           </Card>
         </Col>

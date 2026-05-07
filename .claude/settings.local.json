@@ -3,7 +3,45 @@
     "allow": [
       "Bash(npx skills *)",
       "Bash(xargs grep *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "PowerShell(cd \"C:\\\\Users\\\\shoxd\\\\Proyecto Dalet\\\\fruit-backend\"; $psi = New-Object System.Diagnostics.ProcessStartInfo; $psi.FileName = \"node\"; $psi.Arguments = \"--version\"; $psi.RedirectStandardOutput = $true; $psi.UseShellExecute = $false; $p = [System.Diagnostics.Process]::Start\\($psi\\); $out = $p.StandardOutput.ReadToEnd\\(\\); $p.WaitForExit\\(\\); Write-Output \"Node: $out\")",
+      "PowerShell(cd \"C:\\\\Users\\\\shoxd\\\\Proyecto Dalet\\\\fruit-backend\"; $psi = New-Object System.Diagnostics.ProcessStartInfo; $psi.FileName = \"node\"; $psi.Arguments = \"-e `\"const j = require\\('./node_modules/jest'\\); console.log\\(Object.keys\\(j\\)\\);`\"\"; $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true; $psi.UseShellExecute = $false; $psi.WorkingDirectory = \"C:\\\\Users\\\\shoxd\\\\Proyecto Dalet\\\\fruit-backend\"; $p = [System.Diagnostics.Process]::Start\\($psi\\); $out = $p.StandardOutput.ReadToEnd\\(\\); $err = $p.StandardError.ReadToEnd\\(\\); $p.WaitForExit\\(\\); Write-Output \"OUT: $out\"; Write-Output \"ERR: $err\")",
+      "PowerShell(Get-Content *)",
+      "Bash(git commit *)",
+      "Bash(npx tsc *)",
+      "Bash(docker compose *)",
+      "Bash(Get-ChildItem *)",
+      "Bash(bash *)",
+      "Bash(Select-Object FullName)",
+      "Bash(pnpm run *)",
+      "Bash(git log *)",
+      "Bash(xargs ls -1)",
+      "Bash(npx jest *)",
+      "Bash(node node_modules/jest-cli/bin/jest.js \"fruits-query.controller.spec\" --forceExit)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(node node_modules/jest/bin/jest.js \"fruits-query.controller.spec\" --forceExit)",
+      "PowerShell(cd \"C:\\\\Users\\\\shoxd\\\\Proyecto Dalet\\\\fruit-backend\"; $env:FORCE_COLOR=0; $proc = Start-Process -FilePath \"node\" -ArgumentList \"node_modules/jest/bin/jest.js\",\"fruits-query.controller.spec\",\"--forceExit\",\"--no-color\" -Wait -PassThru -RedirectStandardOutput \"jest-stdout.txt\" -RedirectStandardError \"jest-stderr.txt\"; Write-Host \"Exit: $\\($proc.ExitCode\\)\"; Get-Content \"jest-stdout.txt\"; Get-Content \"jest-stderr.txt\")",
+      "Bash(echo \"EXIT_CODE:$?\")",
+      "Bash(echo \"exit:$?\")",
+      "Read(//tmp/**)",
+      "Bash(tee /tmp/test-results.txt)",
+      "Bash(node node_modules/.bin/jest --testPathPattern=\"fruits-query.controller.spec\" --forceExit)",
+      "PowerShell(Test-Path \"C:\\\\Temp\\\\jest-out.txt\"; if \\(Test-Path \"C:\\\\Temp\\\\jest-out.txt\"\\) { \\(Get-Item \"C:\\\\Temp\\\\jest-out.txt\"\\).Length })",
+      "PowerShell(cd \"C:\\\\Users\\\\shoxd\\\\Proyecto Dalet\\\\fruit-backend\"; cmd /c \"node_modules\\\\.bin\\\\jest.CMD --testPathPattern=fruits-query.controller.spec --forceExit --json > C:\\\\Temp\\\\jest-json.txt 2>&1\"; $LASTEXITCODE; Test-Path \"C:\\\\Temp\\\\jest-json.txt\"; \\(Get-Item \"C:\\\\Temp\\\\jest-json.txt\"\\).Length)",
+      "PowerShell(cd \"C:\\\\Users\\\\shoxd\\\\Proyecto Dalet\\\\fruit-backend\"; cmd /c \"node_modules\\\\.bin\\\\jest.CMD --testPathPattern=fruits-query.controller.spec --forceExit 2> C:\\\\Temp\\\\jest-stderr.txt 1> C:\\\\Temp\\\\jest-stdout.txt\"; Write-Host \"Exit: $LASTEXITCODE\"; Write-Host \"STDOUT:\"; Get-Content \"C:\\\\Temp\\\\jest-stdout.txt\"; Write-Host \"STDERR:\"; Get-Content \"C:\\\\Temp\\\\jest-stderr.txt\")",
+      "PowerShell(cd \"C:\\\\Users\\\\shoxd\\\\Proyecto Dalet\\\\fruit-backend\"; cmd /c \"node_modules\\\\.bin\\\\jest.CMD --listTests 2> C:\\\\Temp\\\\list-err.txt 1> C:\\\\Temp\\\\list-out.txt\"; Write-Host \"Exit: $LASTEXITCODE\"; Get-Content \"C:\\\\Temp\\\\list-out.txt\"; Get-Content \"C:\\\\Temp\\\\list-err.txt\")",
+      "PowerShell(Out-Null *)",
+      "PowerShell(cd \"C:\\\\Users\\\\shoxd\\\\Proyecto Dalet\\\\fruit-backend\"; cmd /c \"node_modules\\\\.bin\\\\jest.CMD --testPathPattern=fruits-query.controller.spec --forceExit --no-coverage --json --outputFile=C:\\\\Temp\\\\jest-results.json 2>nul\"; Write-Host \"Exit: $LASTEXITCODE\"; if \\(Test-Path \"C:\\\\Temp\\\\jest-results.json\"\\) { $json = Get-Content \"C:\\\\Temp\\\\jest-results.json\" | ConvertFrom-Json; Write-Host \"Success: $\\($json.success\\)\"; Write-Host \"NumTests: $\\($json.numTotalTests\\)\"; Write-Host \"NumPassed: $\\($json.numPassedTests\\)\"; Write-Host \"NumFailed: $\\($json.numFailedTests\\)\"; $json.testResults | ForEach-Object { Write-Host \"Suite: $\\($_.testFilePath\\)\"; $_.testResults | ForEach-Object { Write-Host \"  [$\\($_.status\\)] $\\($_.fullName\\)\" } } })",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Head -30)",
+      "Bash(Select-Object Name, Mode)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\shoxd\\\\Proyecto Dalet\\\\docs\\\\superpowers\\\\specs\")",
+      "Bash(pnpm test *)",
+      "Bash(tee test-output.log)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\shoxd\\Proyecto Dalet\\docs\\superpowers\\specs"
     ]
   }
 }

@@ -1,0 +1,4 @@
+
+> fruit-backend@0.0.1 test C:\Users\shoxd\Proyecto Dalet\fruit-backend
+> jest "--" "--testPathPattern=fcm.service.spec" "--forceExit" "--passWithNoTests"
+

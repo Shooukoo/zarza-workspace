@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "730898905334",
+    "project_id": "rubusai",
+    "storage_bucket": "rubusai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730898905334:android:9b1fadf3c6830a80e1d4d7",
+        "android_client_info": {
+          "package_name": "com.example.rubus_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvtLuRo_YlsgE8znNTZXdM826rLpkgIBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

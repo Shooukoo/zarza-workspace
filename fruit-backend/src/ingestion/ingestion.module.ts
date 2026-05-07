@@ -6,9 +6,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MagicNumberValidator } from './validators/magic-number.validator';
 import { MultipartImagePipe } from './pipes/multipart-image.pipe';
 import { envs } from '../config/envs';
+import { AuthModule } from '../auth/infrastructure/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     StorageModule,
     ClientsModule.register([
       {

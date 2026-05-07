@@ -1,4 +1,5 @@
 {
     "cmake.sourceDirectory": "C:/Users/shoxd/Proyecto Dalet/zarza_ai/windows",
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "postman.settings.dotenv-detection-notification-visibility": false
 }
