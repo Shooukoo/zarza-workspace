@@ -11,7 +11,7 @@ import { AuthUser, Role } from './types';
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<AuthUser>;
   logout: () => Promise<void>;
 }
 
@@ -30,13 +30,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsLoading(false));
   }, []);
 
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string): Promise<AuthUser> {
     // Backend returns { user: { id, email, role } } — normalize id → sub to match AuthUser
     const res = await apiClient.post<{
       user: { id: string; email: string; role: Role };
     }>('/auth/login', { email, password });
     const u = res.data.user;
-    setUser({ sub: u.id, email: u.email, role: u.role });
+    const authUser: AuthUser = { sub: u.id, email: u.email, role: u.role };
+    setUser(authUser);
+    return authUser;
   }
 
   async function logout() {
