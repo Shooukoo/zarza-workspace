@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   Inject,
+  NotFoundException,
 } from '@nestjs/common';
 import { CamposService } from './campos.service';
 import { CreateCampoDto } from './dto/create-campo.dto';
@@ -16,14 +17,9 @@ import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
 import { Role } from '../auth/domain/enums/role.enum';
+import { type JwtPayload } from '../auth/domain/types/jwt-payload.type';
 import { I_USER_REPOSITORY, type IUserRepository } from '../auth/ports/user-repository.port';
 
-/**
- * GET    /api/campos             → Lista todos los campos (ADMIN ve todos, PRODUCTOR ve los suyos, AGRONOMO ve sus asignados)
- * GET    /api/campos/:id         → Detalle de un campo
- * POST   /api/campos             → Crear campo (ADMIN, PRODUCTOR)
- * DELETE /api/campos/:id         → Eliminar campo (ADMIN)
- */
 @Controller('campos')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CamposController {
@@ -35,8 +31,11 @@ export class CamposController {
 
   @Get()
   @Roles(Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO, Role.MONITOR)
-  async findAll(@Req() req: any, @Query('productor_id') productorId?: string) {
-    const user = req.user;
+  async findAll(
+    @Req() req: { user: JwtPayload },
+    @Query('productor_id') productorId?: string,
+  ) {
+    const { user } = req;
     if (user.role === Role.AGRONOMO) {
       const userDoc = await this.userRepository.findById(user.sub);
       return this.camposService.findByIds(userDoc?.camposAsignados ?? []);
@@ -47,7 +46,14 @@ export class CamposController {
 
   @Get(':id')
   @Roles(Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO, Role.MONITOR)
-  findById(@Param('id') id: string) {
+  async findById(@Param('id') id: string, @Req() req: { user: JwtPayload }) {
+    const { user } = req;
+    if (user.role === Role.AGRONOMO) {
+      const userDoc = await this.userRepository.findById(user.sub);
+      if (!userDoc?.camposAsignados.includes(id)) {
+        throw new NotFoundException(`Campo con id "${id}" no encontrado`);
+      }
+    }
     return this.camposService.findById(id);
   }
 
