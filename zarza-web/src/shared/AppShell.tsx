@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { useAuth } from '../auth/useAuth';
 import { Role } from '../auth/types';
+import { useWebSocket } from './useWebSocket';
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
@@ -61,6 +62,23 @@ export function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+
+  useWebSocket((event, data) => {
+    if (event === 'analysis_validated' && user?.role === Role.PRODUCTOR) {
+      const d = data as { action: string; validatedBy?: string };
+      if (d.action === 'validado') {
+        notification.success({
+          message: 'Análisis validado',
+          description: `El agrónomo ${d.validatedBy ?? 'desconocido'} validó el análisis.`,
+        });
+      } else {
+        notification.warning({
+          message: 'Análisis rechazado',
+          description: `El agrónomo ${d.validatedBy ?? 'desconocido'} rechazó el análisis.`,
+        });
+      }
+    }
+  });
 
   const visibleItems = NAV_ITEMS.filter(
     (item) => user && item.roles.includes(user.role),

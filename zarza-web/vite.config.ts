@@ -8,10 +8,18 @@ export default defineConfig(({ mode }) => {
     server: {
       host: true,
       port: 5173,
+      watch: {
+        usePolling: true,
+      },
       proxy: {
         '/api': {
           target: env['VITE_API_TARGET'] || 'http://localhost:3001',
           changeOrigin: true,
+        },
+        '/ws': {
+          target: env['VITE_API_TARGET'] || 'http://localhost:3001',
+          changeOrigin: true,
+          ws: true,
         },
       },
     },
