@@ -40,6 +40,17 @@ export class CamposService {
     return this.campoModel.find(query).lean<CampoDocument[]>().exec();
   }
 
+  async findByIds(ids: string[]): Promise<CampoDocument[]> {
+    if (!ids.length) return [];
+    const objectIds = ids
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
+    return this.campoModel
+      .find({ _id: { $in: objectIds } })
+      .lean<CampoDocument[]>()
+      .exec();
+  }
+
   async findById(id: string): Promise<CampoDocument> {
     if (!Types.ObjectId.isValid(id)) {
       throw new NotFoundException(`Campo con id "${id}" no encontrado`);
