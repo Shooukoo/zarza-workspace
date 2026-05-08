@@ -88,6 +88,7 @@ export class SolicitudesService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
+        .populate('campo_id', 'nombre')
         .lean<SolicitudMuestreoDocument[]>()
         .exec(),
       this.solicitudModel.countDocuments(query),
