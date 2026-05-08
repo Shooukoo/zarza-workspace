@@ -6,31 +6,50 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/models/capture_context.dart';
 import '../../domain/entities/campo_entity.dart';
 import '../../domain/usecases/get_campos_usecase.dart';
 import 'capture_bloc.dart';
 
 class CaptureScreen extends StatelessWidget {
-  const CaptureScreen({super.key});
+  const CaptureScreen({super.key, this.captureContext});
+  final CaptureContext? captureContext;
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<CaptureBloc, CaptureState>(
-      listener: (context, state) {
+    listener: (context, state) {
         if (state is CaptureSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('¡Imagen subida! Procesando análisis…')),
-          );
-          context.go('/results/${state.result.imageId}');
+          if (captureContext?.solicitudId != null) {
+            context.pop(captureContext!.solicitudId);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('¡Imagen subida! Procesando análisis…')),
+            );
+            context.go('/results/${state.result.imageId}');
+          }
         }
         if (state is CaptureQueued) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Sin conexión — captura guardada. Se subirá al abrir la app.'),
-              duration: Duration(seconds: 4),
-            ),
-          );
-          context.go('/home');
+          if (captureContext?.solicitudId != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Análisis en cola. Marca la solicitud como completada cuando tengas conexión.',
+                ),
+                duration: Duration(seconds: 5),
+              ),
+            );
+            context.pop(null);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Sin conexión — captura guardada. Se subirá al abrir la app.'),
+                duration: Duration(seconds: 4),
+              ),
+            );
+            context.go('/home');
+          }
         }
         if (state is CaptureFailure) {
           showDialog<void>(
@@ -46,7 +65,9 @@ class CaptureScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(ctx).pop();
-                    context.read<CaptureBloc>().add(const CaptureUploadRequested());
+                    context
+                        .read<CaptureBloc>()
+                        .add(const CaptureUploadRequested());
                   },
                   child: const Text('Reintentar'),
                 ),
@@ -66,7 +87,10 @@ class CaptureScreen extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: BlocBuilder<CaptureBloc, CaptureState>(
-            builder: (context, state) => _CaptureBody(state: state),
+            builder: (context, state) => _CaptureBody(
+              state: state,
+              captureContext: captureContext,
+            ),
           ),
         ),
       ),
@@ -75,8 +99,9 @@ class CaptureScreen extends StatelessWidget {
 }
 
 class _CaptureBody extends StatefulWidget {
-  const _CaptureBody({required this.state});
+  const _CaptureBody({required this.state, this.captureContext});
   final CaptureState state;
+  final CaptureContext? captureContext;
 
   @override
   State<_CaptureBody> createState() => _CaptureBodyState();
@@ -88,6 +113,7 @@ class _CaptureBodyState extends State<_CaptureBody> {
   double? _gpsLat;
   double? _gpsLon;
   bool _fetchingGps = false;
+  bool _campoPreloaded = false;
 
   @override
   void initState() {
@@ -192,6 +218,17 @@ class _CaptureBodyState extends State<_CaptureBody> {
                   return const LinearProgressIndicator();
                 }
                 final campos = snapshot.data ?? [];
+                if (!_campoPreloaded && widget.captureContext?.campoId != null) {
+                  _campoPreloaded = true;
+                  final preselect = campos
+                      .where((c) => c.id == widget.captureContext!.campoId)
+                      .firstOrNull;
+                  if (preselect != null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) _onCampoSelected(preselect);
+                    });
+                  }
+                }
                 return DropdownButtonFormField<CampoEntity>(
                   initialValue: _selectedCampo,
                   hint: const Text('Selecciona un campo'),
