@@ -60,6 +60,16 @@ import '../../presentation/history/history_bloc.dart';
 import '../../presentation/admin/admin_blocs/admin_bloc.dart';
 import '../../presentation/admin/admin_blocs/admin_dashboard_bloc.dart';
 import '../../presentation/queue/offline_queue_bloc.dart';
+// Solicitudes — Data
+import '../../data/datasources/remote_solicitudes_datasource.dart';
+import '../../data/repositories/solicitudes_repository_impl.dart';
+// Solicitudes — Domain
+import '../../domain/repositories/i_solicitudes_repository.dart';
+import '../../domain/usecases/get_solicitudes_usecase.dart';
+import '../../domain/usecases/update_solicitud_estado_usecase.dart';
+// Solicitudes — Presentation
+import '../../presentation/solicitudes/solicitudes_bloc.dart';
+import '../../presentation/solicitudes/solicitud_detail_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -263,6 +273,31 @@ Future<void> setupServiceLocator() async {
       deleteUpload: sl<DeletePendingUploadUseCase>(),
       syncService: sl<SyncService>(),
     ),
+  );
+
+  // ── Solicitudes ───────────────────────────────────────────────────────────
+  sl.registerLazySingleton<RemoteSolicitudesDatasource>(
+    () => RemoteSolicitudesDatasource(sl<Dio>()),
+  );
+
+  sl.registerLazySingleton<ISolicitudesRepository>(
+    () => SolicitudesRepositoryImpl(sl<RemoteSolicitudesDatasource>()),
+  );
+
+  sl.registerLazySingleton<GetSolicitudesUseCase>(
+    () => GetSolicitudesUseCase(sl<ISolicitudesRepository>()),
+  );
+
+  sl.registerLazySingleton<UpdateSolicitudEstadoUseCase>(
+    () => UpdateSolicitudEstadoUseCase(sl<ISolicitudesRepository>()),
+  );
+
+  sl.registerFactory<SolicitudesBloc>(
+    () => SolicitudesBloc(sl<GetSolicitudesUseCase>()),
+  );
+
+  sl.registerFactory<SolicitudDetailBloc>(
+    () => SolicitudDetailBloc(sl<UpdateSolicitudEstadoUseCase>()),
   );
 
   // ── Inicializar sesión ────────────────────────────────────────────────────
