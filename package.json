@@ -1,0 +1,9 @@
+{
+  "name": "rubusai",
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  }
+}

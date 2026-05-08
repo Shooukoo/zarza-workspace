@@ -1,17 +1,21 @@
 services:
   # ── Base de datos ────────────────────────────────────────────────────────────
-  mongo:
-    image: mongo:7
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    environment:
+      POSTGRES_DB: rubusai
+      POSTGRES_USER: rubus
+      POSTGRES_PASSWORD: rubus_dev
     ports:
-      - "127.0.0.1:27018:27017"
+      - "127.0.0.1:5432:5432"
     volumes:
-      - mongo-data:/data/db
-    networks: [fruit-net]
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD-SHELL", "pg_isready -U rubus -d rubusai"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks: [fruit-net]
 
   # ── Cola de mensajes ─────────────────────────────────────────────────────────
   rabbitmq:
@@ -31,17 +35,19 @@ services:
 
   # ── Backend principal (NestJS + Fastify) ─────────────────────────────────────
   fruit-backend:
-    build: ./fruit-backend
+    build:
+      context: .
+      dockerfile: fruit-backend/Dockerfile
     ports:
       - "3001:3000"
     env_file: ./fruit-backend/.env
     environment:
-      MONGO_URI: "mongodb://mongo:27017/fruit_db"
+      DATABASE_URL: "postgresql://rubus:rubus_dev@postgres:5432/rubusai"
       RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
     depends_on:
       rabbitmq:
         condition: service_healthy
-      mongo:
+      postgres:
         condition: service_healthy
     networks: [fruit-net]
 
@@ -70,18 +76,20 @@ services:
 
   # ── Microservicio consumidor RabbitMQ (NestJS) ───────────────────────────────
   fruit-ms:
-    build: ./fruit-ms
+    build:
+      context: .
+      dockerfile: fruit-ms/Dockerfile
     env_file: ./fruit-ms/.env
     environment:
       RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
       INFERENCE_URL: "http://fruit-inference:8000"
-      MONGO_URI: "mongodb://mongo:27017/fruit_db"
+      DATABASE_URL: "postgresql://rubus:rubus_dev@postgres:5432/rubusai"
     depends_on:
       rabbitmq:
         condition: service_healthy
       fruit-inference:
         condition: service_healthy
-      mongo:
+      postgres:
         condition: service_healthy
     networks: [fruit-net]
 
@@ -106,4 +114,4 @@ networks:
     driver: bridge
 
 volumes:
-  mongo-data:
+  postgres_data:

@@ -1,0 +1,4 @@
+packages:
+  - 'fruit-backend'
+  - 'fruit-ms'
+  - 'packages/*'
