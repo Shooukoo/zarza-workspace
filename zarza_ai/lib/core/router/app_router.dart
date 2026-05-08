@@ -23,6 +23,13 @@ import '../../presentation/admin/analyses_page.dart';
 import '../../presentation/admin/admin_blocs/admin_bloc.dart';
 import '../../presentation/queue/offline_queue_screen.dart';
 import '../di/service_locator.dart';
+import '../../presentation/shell/scaffold_with_bottom_nav.dart';
+import '../../presentation/solicitudes/solicitudes_screen.dart';
+import '../../presentation/solicitudes/solicitud_detail_screen.dart';
+import '../../presentation/solicitudes/solicitudes_bloc.dart';
+import '../../presentation/solicitudes/solicitud_detail_bloc.dart';
+import '../../core/models/capture_context.dart';
+import '../../domain/entities/solicitud_entity.dart';
 
 /// Rutas que no requieren autenticación.
 const _publicRoutes = {'/login', '/'};
@@ -78,46 +85,79 @@ class AppRouter {
         builder: (context, state) => const LoginScreen(),
       ),
 
-      // ── Rutas de app móvil normal ────────────────────────────────────────
-      GoRoute(
-        path: '/home',
-        builder: (context, state) {
+      // ── Shell móvil con NavigationBar ────────────────────────────────────
+      ShellRoute(
+        builder: (context, state, child) {
           final authState = GetIt.I<AuthCubit>().state;
-          final userId = authState is AuthAuthenticated ? authState.user.id : null;
+          final user = authState is AuthAuthenticated ? authState.user : null;
           return BlocProvider(
-            create: (_) =>
-                sl<HistoryBloc>()..add(HistoryLoadEvent(userId: userId)),
-            child: const HomeScreen(),
+            create: (_) => sl<SolicitudesBloc>()..add(const SolicitudesLoad()),
+            child: ScaffoldWithBottomNav(user: user, child: child),
           );
         },
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (context, state) {
+              final authState = GetIt.I<AuthCubit>().state;
+              final userId =
+                  authState is AuthAuthenticated ? authState.user.id : null;
+              return BlocProvider(
+                create: (_) =>
+                    sl<HistoryBloc>()..add(HistoryLoadEvent(userId: userId)),
+                child: const HomeScreen(),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/solicitudes',
+            builder: (context, state) => const SolicitudesScreen(),
+          ),
+          GoRoute(
+            path: '/solicitudes/:id',
+            builder: (context, state) {
+              final solicitud = state.extra as SolicitudEntity;
+              return BlocProvider(
+                create: (_) => sl<SolicitudDetailBloc>()
+                  ..add(SolicitudDetailLoad(solicitud)),
+                child: const SolicitudDetailScreen(),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/history',
+            builder: (context, state) {
+              final authState = GetIt.I<AuthCubit>().state;
+              final userId =
+                  authState is AuthAuthenticated ? authState.user.id : null;
+              return BlocProvider(
+                create: (_) =>
+                    sl<HistoryBloc>()..add(HistoryLoadEvent(userId: userId)),
+                child: const HistoryScreen(),
+              );
+            },
+          ),
+        ],
       ),
+
+      // ── Rutas modales (pantalla completa, sin NavigationBar) ─────────────
       GoRoute(
         path: '/capture',
-        builder: (context, state) => BlocProvider(
-          create: (_) => sl<CaptureBloc>(),
-          child: const CaptureScreen(),
-        ),
+        builder: (context, state) {
+          final captureContext = state.extra as CaptureContext?;
+          return BlocProvider(
+            create: (_) => sl<CaptureBloc>(),
+            child: CaptureScreen(captureContext: captureContext),
+          );
+        },
       ),
       GoRoute(
         path: '/results/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return BlocProvider(
-            create: (_) =>
-                sl<ResultsBloc>()..add(ResultsLoadEvent(id: id)),
+            create: (_) => sl<ResultsBloc>()..add(ResultsLoadEvent(id: id)),
             child: const ResultsScreen(),
-          );
-        },
-      ),
-      GoRoute(
-        path: '/history',
-        builder: (context, state) {
-          final authState = GetIt.I<AuthCubit>().state;
-          final userId = authState is AuthAuthenticated ? authState.user.id : null;
-          return BlocProvider(
-            create: (_) =>
-                sl<HistoryBloc>()..add(HistoryLoadEvent(userId: userId)),
-            child: const HistoryScreen(),
           );
         },
       ),
