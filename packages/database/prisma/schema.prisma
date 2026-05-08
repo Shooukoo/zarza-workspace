@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PRODUCTOR
+  AGRONOMO
+  MONITOR
+}
+
+enum EstadoSolicitud {
+  PENDIENTE
+  EN_PROGRESO
+  COMPLETADO
+  CANCELADO
+}
+
+enum EstadoValidacion {
+  pendiente
+  validado
+  rechazado
+}
+
+model User {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role
+  fcmToken     String?  @map("fcm_token")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  camposAsignados      UserCampo[]
+  camposProductor      Campo[]             @relation("CampoProductor")
+  solicitudesCreadas   SolicitudMuestreo[] @relation("SolicitudCreadoPor")
+  solicitudesAsignadas SolicitudMuestreo[] @relation("SolicitudAsignadoA")
+  analysesAsRequester  Analysis[]          @relation("AnalysisRequester")
+  analysesAsProductor  Analysis[]          @relation("AnalysisProductor")
+  analysesValidadas    Analysis[]          @relation("AnalysisValidador")
+
+  @@map("users")
+}
+
+model Campo {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  codigoCampo String   @map("codigo_campo")
+  nombre      String
+  productorId String   @map("productor_id") @db.Uuid
+  poligonoGps Json?    @map("poligono_gps")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  productor   User                @relation("CampoProductor", fields: [productorId], references: [id])
+  usuarios    UserCampo[]
+  solicitudes SolicitudMuestreo[]
+  analyses    Analysis[]
+
+  @@map("campos")
+}
+
+model UserCampo {
+  userId  String @map("user_id") @db.Uuid
+  campoId String @map("campo_id") @db.Uuid
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campo Campo @relation(fields: [campoId], references: [id], onDelete: Cascade)
+
+  @@id([userId, campoId])
+  @@map("user_campos")
+}
+
+model SolicitudMuestreo {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  creadoPorId String          @map("creado_por_id") @db.Uuid
+  asignadoAId String          @map("asignado_a_id") @db.Uuid
+  campoId     String          @map("campo_id") @db.Uuid
+  mensaje     String
+  estado      EstadoSolicitud @default(PENDIENTE)
+  fechaLimite DateTime?       @map("fecha_limite")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  creadoPor User  @relation("SolicitudCreadoPor", fields: [creadoPorId], references: [id])
+  asignadoA User  @relation("SolicitudAsignadoA", fields: [asignadoAId], references: [id])
+  campo     Campo @relation(fields: [campoId], references: [id])
+
+  @@map("solicitudes_muestreo")
+}
+
+model Analysis {
+  id                            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  imageId                       String           @unique @map("image_id")
+  storageKey                    String           @map("storage_key")
+  requesterUserId               String           @map("requester_user_id") @db.Uuid
+  requesterEmail                String           @map("requester_email")
+  variedad                      String?
+  fechaAnalisis                 DateTime         @map("fecha_analisis")
+  totalElementosDetectados      Int              @map("total_elementos_detectados")
+  elementosSanos                Int              @map("elementos_sanos")
+  elementosEnfermos             Int              @map("elementos_enfermos")
+  porcentajeMermaGeneral        Float            @map("porcentaje_merma_general")
+  pesoSanoGramos                Float            @map("peso_sano_gramos")
+  ubicacionLat                  Float?           @map("ubicacion_lat")
+  ubicacionLng                  Float?           @map("ubicacion_lng")
+  campoId                       String           @map("campo_id") @db.Uuid
+  productorId                   String           @map("productor_id") @db.Uuid
+  offlineSyncId                 String?          @unique @map("offline_sync_id")
+  validacionEstado              EstadoValidacion  @default(pendiente) @map("validacion_estado")
+  validacionFueCorregido        Boolean           @default(false) @map("validacion_fue_corregido")
+  validacionCorregidoPorId      String?           @map("validacion_corregido_por_id") @db.Uuid
+  validacionDiagnosticoOriginal String?           @map("validacion_diagnostico_original")
+  validacionCronogramaCorregido Json?             @map("validacion_cronograma_corregido")
+  validacionObservaciones       String?           @map("validacion_observaciones")
+  createdAt                     DateTime          @default(now()) @map("created_at")
+  updatedAt                     DateTime          @updatedAt @map("updated_at")
+
+  requester       User             @relation("AnalysisRequester", fields: [requesterUserId], references: [id])
+  productor       User             @relation("AnalysisProductor", fields: [productorId], references: [id])
+  campo           Campo            @relation(fields: [campoId], references: [id])
+  validadoPor     User?            @relation("AnalysisValidador", fields: [validacionCorregidoPorId], references: [id])
+  fenologiaEtapas FenologiaEtapa[]
+
+  @@map("analyses")
+}
+
+model FenologiaEtapa {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  analysisId      String   @map("analysis_id") @db.Uuid
+  etapa           String
+  cantidad        Int
+  cambiaA         String   @map("cambia_a")
+  enDias          Int      @map("en_dias")
+  diasParaCosecha Int      @map("dias_para_cosecha")
+
+  analysis Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@map("fenologia_etapas")
+}
