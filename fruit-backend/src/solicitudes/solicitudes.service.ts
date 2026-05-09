@@ -1,17 +1,5 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  Inject,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import {
-  SolicitudMuestreo,
-  SolicitudMuestreoDocument,
-  SolicitudMuestreoHydratedDocument,
-  EstadoSolicitud,
-} from './schemas/solicitud-muestreo.schema';
+import { Injectable, Logger, NotFoundException, Inject } from '@nestjs/common';
+import { PrismaService, EstadoSolicitud } from '@rubus/database';
 import { CreateSolicitudDto } from './dto/create-solicitud.dto';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { FcmService, FcmTokenInvalidError, FcmNotification } from '../fcm/fcm.service';
@@ -23,46 +11,37 @@ export class SolicitudesService {
   private readonly logger = new Logger(SolicitudesService.name);
 
   constructor(
-    @InjectModel(SolicitudMuestreo.name)
-    private readonly solicitudModel: Model<SolicitudMuestreoDocument>,
+    private readonly prisma: PrismaService,
     private readonly notificationsGateway: NotificationsGateway,
     private readonly fcmService: FcmService,
     @Inject(I_USER_REPOSITORY) private readonly userRepository: IUserRepository,
     private readonly camposService: CamposService,
   ) {}
 
-  async create(
-    creadoPorId: string,
-    dto: CreateSolicitudDto,
-  ): Promise<SolicitudMuestreoHydratedDocument> {
+  async create(creadoPorId: string, dto: CreateSolicitudDto) {
     this.logger.log(
       `Creando solicitud para campo=${dto.campo_id} asignado_a=${dto.asignado_a}`,
     );
 
-    const solicitud = await this.solicitudModel.create({
-      creado_por: new Types.ObjectId(creadoPorId),
-      asignado_a: new Types.ObjectId(dto.asignado_a),
-      campo_id:   new Types.ObjectId(dto.campo_id),
-      mensaje:    dto.mensaje,
-      fecha_limite: dto.fecha_limite ? new Date(dto.fecha_limite) : null,
-      estado: 'PENDIENTE',
+    const solicitud = await this.prisma.solicitudMuestreo.create({
+      data: {
+        creadoPorId,
+        asignadoAId: dto.asignado_a,
+        campoId: dto.campo_id,
+        mensaje: dto.mensaje,
+        fechaLimite: dto.fecha_limite ? new Date(dto.fecha_limite) : null,
+        estado: 'PENDIENTE',
+      },
     });
 
-    // Notificar via WebSocket a los clientes conectados (el monitor verá la alerta)
     this.notificationsGateway.broadcast('nueva_solicitud', {
-      solicitud_id: (solicitud._id as Types.ObjectId).toString(),
-      asignado_a:   dto.asignado_a,
-      campo_id:     dto.campo_id,
-      mensaje:      dto.mensaje,
+      solicitud_id: solicitud.id,
+      asignado_a: dto.asignado_a,
+      campo_id: dto.campo_id,
+      mensaje: dto.mensaje,
     });
 
-    await this.sendSolicitudPush(
-      dto.asignado_a,
-      dto.campo_id,
-      dto.fecha_limite ?? null,
-      'created',
-    );
-
+    await this.sendSolicitudPush(dto.asignado_a, dto.campo_id, dto.fecha_limite ?? null, 'created');
     return solicitud;
   }
 
@@ -70,56 +49,52 @@ export class SolicitudesService {
     page = 1,
     limit = 20,
     filters: { estado?: EstadoSolicitud; campo_id?: string; asignado_a?: string } = {},
-  ): Promise<{ data: SolicitudMuestreoDocument[]; total: number; page: number; limit: number }> {
+  ) {
     const skip = (page - 1) * limit;
-    const query: {
-      estado?: EstadoSolicitud;
-      campo_id?: Types.ObjectId;
-      asignado_a?: Types.ObjectId;
-    } = {};
+    const where: { estado?: EstadoSolicitud; campoId?: string; asignadoAId?: string } = {};
 
-    if (filters.estado)      query.estado     = filters.estado;
-    if (filters.campo_id)    query.campo_id   = new Types.ObjectId(filters.campo_id);
-    if (filters.asignado_a)  query.asignado_a = new Types.ObjectId(filters.asignado_a);
+    if (filters.estado)    where.estado     = filters.estado;
+    if (filters.campo_id)  where.campoId    = filters.campo_id;
+    if (filters.asignado_a) where.asignadoAId = filters.asignado_a;
+
+    const include = {
+      campo:    { select: { id: true, nombre: true, codigoCampo: true } },
+      asignadoA: { select: { id: true, email: true } },
+    };
 
     const [data, total] = await Promise.all([
-      this.solicitudModel
-        .find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .populate('campo_id', 'nombre')
-        .lean<SolicitudMuestreoDocument[]>()
-        .exec(),
-      this.solicitudModel.countDocuments(query),
+      this.prisma.solicitudMuestreo.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include,
+      }),
+      this.prisma.solicitudMuestreo.count({ where }),
     ]);
 
     return { data, total, page, limit };
   }
 
-  async updateEstado(
-    id: string,
-    estado: EstadoSolicitud,
-  ): Promise<SolicitudMuestreoDocument> {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new NotFoundException(`Solicitud con id "${id}" no encontrada`);
-    }
+  async updateEstado(id: string, estado: EstadoSolicitud) {
+    const existing = await this.prisma.solicitudMuestreo.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException(`Solicitud con id "${id}" no encontrada`);
 
-    const updated = await this.solicitudModel
-      .findByIdAndUpdate(id, { $set: { estado } }, { new: true })
-      .lean<SolicitudMuestreoDocument>()
-      .exec();
-
-    if (!updated) {
-      throw new NotFoundException(`Solicitud con id "${id}" no encontrada`);
-    }
+    const updated = await this.prisma.solicitudMuestreo.update({
+      where: { id },
+      data: { estado },
+      include: {
+        campo:    { select: { id: true, nombre: true, codigoCampo: true } },
+        asignadoA: { select: { id: true, email: true } },
+      },
+    });
 
     this.logger.log(`Solicitud ${id} → estado: ${estado}`);
 
     if (estado === 'CANCELADO' || estado === 'COMPLETADO') {
       await this.sendSolicitudPush(
-        updated.asignado_a?.toString(),
-        updated.campo_id?.toString(),
+        updated.asignadoAId,
+        updated.campoId,
         null,
         estado === 'CANCELADO' ? 'cancelled' : 'completed',
       );
