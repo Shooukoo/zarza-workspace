@@ -41,6 +41,7 @@ export class AnalysesController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
     @Query('estado') estadoParam?: string,
+    @Query('campo_id') campoId?: string,
   ) {
     let estado: 'pendiente' | 'validado' | 'rechazado' | 'all' = 'pendiente';
     if (estadoParam === 'validado') estado = 'validado';
@@ -50,7 +51,7 @@ export class AnalysesController {
       throw new BadRequestException('estado must be pendiente, validado, rechazado, or all');
     }
     const scope = await this.buildScope(req.user);
-    return this.analysesService.findAll(page, limit, estado, scope);
+    return this.analysesService.findAll(page, limit, estado, scope, campoId);
   }
 
   @Get(':id/image')
@@ -65,13 +66,13 @@ export class AnalysesController {
   async findOne(@Param('id') id: string, @Req() req: { user: JwtPayload }) {
     const scope = await this.buildScope(req.user);
     const analysis = await this.analysesService.findById(id);
-    if (scope.role === Role.PRODUCTOR && analysis.productor_id?.toString() !== scope.sub) {
+    if (scope.role === Role.PRODUCTOR && analysis.productorId !== scope.sub) {
       throw new NotFoundException();
     }
     if (
       scope.role === Role.AGRONOMO &&
       scope.camposAsignados?.length &&
-      !scope.camposAsignados.includes(analysis.campo_id?.toString() ?? '')
+      !scope.camposAsignados.includes(analysis.campoId ?? '')
     ) {
       throw new NotFoundException();
     }
@@ -90,7 +91,7 @@ export class AnalysesController {
       analysisId: id,
       action: dto.action,
       validatedBy: req.user.email,
-      productorId: result.productor_id?.toString(),
+      productorId: result.productorId,
     });
     return result;
   }
