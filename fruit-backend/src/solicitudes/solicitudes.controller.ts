@@ -18,7 +18,7 @@ import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
 import { Role } from '../auth/domain/enums/role.enum';
-import { type EstadoSolicitud } from './schemas/solicitud-muestreo.schema';
+import { type EstadoSolicitud } from '@rubus/database';
 
 const ESTADO_VALUES = ['PENDIENTE', 'EN_PROGRESO', 'COMPLETADO', 'CANCELADO'] as const;
 

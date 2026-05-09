@@ -1,28 +1,24 @@
 import {
   IsEnum,
-  IsMongoId,
+  IsUUID,
   IsNotEmpty,
   IsOptional,
   IsDateString,
   IsString,
 } from 'class-validator';
-import type { EstadoSolicitud } from '../schemas/solicitud-muestreo.schema';
+import type { EstadoSolicitud } from '@rubus/database';
 
 export class CreateSolicitudDto {
-  /** ObjectId del campo donde se debe realizar el muestreo */
-  @IsMongoId()
+  @IsUUID()
   campo_id: string;
 
-  /** ObjectId del Monitor / Agrónomo asignado a la tarea */
-  @IsMongoId()
+  @IsUUID()
   asignado_a: string;
 
-  /** Instrucciones para el trabajador de campo */
   @IsString()
   @IsNotEmpty()
   mensaje: string;
 
-  /** Fecha límite opcional para completar el muestreo (ISO 8601) */
   @IsOptional()
   @IsDateString()
   fecha_limite?: string;
