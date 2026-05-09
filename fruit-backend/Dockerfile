@@ -2,10 +2,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /repo
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.26.0 --activate
 
 # Copy workspace manifests (cacheable layer)
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY packages/database/package.json ./packages/database/package.json
 COPY fruit-backend/package.json ./fruit-backend/package.json
 
@@ -26,9 +26,9 @@ FROM node:22-alpine AS runner
 
 WORKDIR /repo
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.26.0 --activate
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY packages/database/package.json ./packages/database/package.json
 COPY fruit-backend/package.json ./fruit-backend/package.json
 
