@@ -1,11 +1,5 @@
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import {
-  UserDocument,
-  UserHydratedDocument,
-} from '../auth/infrastructure/schemas/user.schema';
-import { AnalysisDashboardDocument } from './schemas/analysis.schema';
+import { PrismaService, Role as PrismaRole } from '@rubus/database';
 import { Role } from '../auth/domain/enums/role.enum';
 import { I_HASHER_PORT } from '../auth/ports/hasher.port';
 import type { IHasherPort } from '../auth/ports/hasher.port';
@@ -28,12 +22,8 @@ export interface AdminStats {
 @Injectable()
 export class AdminService {
   constructor(
-    @InjectModel(UserDocument.name)
-    private readonly userModel: Model<UserHydratedDocument>,
-    @InjectModel(AnalysisDashboardDocument.name)
-    private readonly analysisModel: Model<AnalysisDashboardDocument>,
-    @Inject(I_HASHER_PORT)
-    private readonly hasher: IHasherPort,
+    private readonly prisma: PrismaService,
+    @Inject(I_HASHER_PORT) private readonly hasher: IHasherPort,
   ) {}
 
   async findAllUsers(
@@ -42,80 +32,64 @@ export class AdminService {
     role?: Role,
   ): Promise<{ data: UserSummary[]; total: number; page: number; limit: number }> {
     const skip = (page - 1) * limit;
-    const query = role ? { role } : {};
+    const where = role ? { role: role as PrismaRole } : {};
 
     const [docs, total] = await Promise.all([
-      this.userModel
-        .find(query)
-        .select('-passwordHash')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean<{ _id: any; email: string; role: Role; createdAt: Date; campos_asignados: Types.ObjectId[] }[]>()
-        .exec(),
-      this.userModel.countDocuments(query).exec(),
+      this.prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          createdAt: true,
+          camposAsignados: { select: { campoId: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.user.count({ where }),
     ]);
 
-    const analysisCounts = await this.analysisModel
-      .aggregate<{ _id: string; count: number }>([
-        { $group: { _id: '$requester.userId', count: { $sum: 1 } } },
-      ])
-      .exec();
-    const countMap = new Map(
-      analysisCounts.map(({ _id, count }) => [_id, count]),
-    );
-
-    const data = docs.map((d) => {
-      const id = d._id.toString();
-      return {
-        id,
-        email: d.email,
-        role: d.role,
-        createdAt: d.createdAt,
-        campos_asignados: (d.campos_asignados ?? []).map((oid) => oid.toString()),
-        totalAnalyses: countMap.get(id) ?? 0,
-      };
+    const analysisCounts = await this.prisma.analysis.groupBy({
+      by: ['requesterUserId'],
+      _count: { id: true },
     });
+    const countMap = new Map(analysisCounts.map((r) => [r.requesterUserId, r._count.id]));
+
+    const data: UserSummary[] = docs.map((d) => ({
+      id: d.id,
+      email: d.email,
+      role: d.role as Role,
+      createdAt: d.createdAt,
+      campos_asignados: d.camposAsignados.map((uc) => uc.campoId),
+      totalAnalyses: countMap.get(d.id) ?? 0,
+    }));
 
     return { data, total, page, limit };
   }
 
   async updateUserRole(userId: string, role: Role): Promise<UserSummary> {
-    if (!Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException(`Invalid user id: ${userId}`);
-    }
-    const doc = await this.userModel
-      .findByIdAndUpdate(new Types.ObjectId(userId), { role }, { new: true })
-      .select('-passwordHash')
-      .lean<{ _id: any; email: string; role: Role; createdAt: Date }>()
-      .exec();
-
-    if (!doc) throw new Error(`User ${userId} not found`);
-
-    return {
-      id: doc._id.toString(),
-      email: doc.email,
-      role: doc.role,
-      createdAt: doc.createdAt,
-      campos_asignados: [],
-    };
+    const doc = await this.prisma.user.update({
+      where: { id: userId },
+      data: { role: role as PrismaRole },
+      select: { id: true, email: true, role: true, createdAt: true },
+    });
+    return { id: doc.id, email: doc.email, role: doc.role as Role, createdAt: doc.createdAt, campos_asignados: [] };
   }
 
   async getStats(): Promise<AdminStats> {
-    const roleCounts = await this.userModel
-      .aggregate<{ _id: Role; count: number }>([
-        { $group: { _id: '$role', count: { $sum: 1 } } },
-      ])
-      .exec();
-
+    const roleCounts = await this.prisma.user.groupBy({
+      by: ['role'],
+      _count: { id: true },
+    });
     const usersByRole = Object.values(Role).reduce(
       (acc, r) => ({ ...acc, [r]: 0 }),
       {} as Record<Role, number>,
     );
-    for (const { _id, count } of roleCounts) {
-      usersByRole[_id] = count;
+    for (const { role, _count } of roleCounts) {
+      usersByRole[role as Role] = _count.id;
     }
-
     return {
       totalUsers: Object.values(usersByRole).reduce((a, b) => a + b, 0),
       usersByRole,
@@ -123,26 +97,17 @@ export class AdminService {
   }
 
   async createUser(email: string, plainPassword: string, role: Role): Promise<UserSummary> {
-    if (role === Role.ADMIN) {
-      throw new Error('No se puede crear usuarios con rol ADMIN');
-    }
-
-    const existing = await this.userModel.findOne({ email }).exec();
-    if (existing) {
-      throw new UserAlreadyExistsError(email);
-    }
-
+    if (role === Role.ADMIN) throw new Error('No se puede crear usuarios con rol ADMIN');
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) throw new UserAlreadyExistsError(email);
     const passwordHash = await this.hasher.hash(plainPassword);
-    const created = await this.userModel.create({
-      email,
-      passwordHash,
-      role,
+    const created = await this.prisma.user.create({
+      data: { email, passwordHash, role: role as PrismaRole },
     });
-
     return {
-      id: created._id.toString(),
+      id: created.id,
       email: created.email,
-      role: created.role,
+      role: created.role as Role,
       createdAt: created.createdAt,
       campos_asignados: [],
       totalAnalyses: 0,
@@ -150,55 +115,36 @@ export class AdminService {
   }
 
   async updateCampos(userId: string, camposIds: string[]): Promise<UserSummary> {
-    if (!Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException(`Invalid user id: ${userId}`);
-    }
-    const doc = await this.userModel
-      .findByIdAndUpdate(
-        new Types.ObjectId(userId),
-        { campos_asignados: camposIds.map((id) => new Types.ObjectId(id)) },
-        { new: true },
-      )
-      .select('-passwordHash')
-      .lean<{
-        _id: any;
-        email: string;
-        role: Role;
-        createdAt: Date;
-        campos_asignados: Types.ObjectId[];
-      }>()
-      .exec();
-    if (!doc) throw new Error(`User ${userId} not found`);
+    const userExists = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!userExists) throw new BadRequestException(`User ${userId} not found`);
+
+    await this.prisma.$transaction([
+      this.prisma.userCampo.deleteMany({ where: { userId } }),
+      this.prisma.userCampo.createMany({
+        data: camposIds.map((campoId) => ({ userId, campoId })),
+      }),
+    ]);
+
+    const doc = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, role: true, createdAt: true },
+    });
     return {
-      id: doc._id.toString(),
-      email: doc.email,
-      role: doc.role,
-      createdAt: doc.createdAt,
-      campos_asignados: (doc.campos_asignados ?? []).map((oid) => oid.toString()),
+      id: doc!.id,
+      email: doc!.email,
+      role: doc!.role as Role,
+      createdAt: doc!.createdAt,
+      campos_asignados: camposIds,
     };
   }
 
   async deleteUser(userId: string, requesterId: string): Promise<void> {
-    if (userId === requesterId) {
-      throw new BadRequestException('No puedes eliminar tu propio usuario');
-    }
-    if (!Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException(`Invalid user id: ${userId}`);
-    }
-    const result = await this.userModel
-      .findByIdAndDelete(new Types.ObjectId(userId))
-      .exec();
-    if (!result) throw new Error(`User ${userId} not found`);
+    if (userId === requesterId) throw new BadRequestException('No puedes eliminar tu propio usuario');
+    await this.prisma.user.delete({ where: { id: userId } });
   }
 
   async updatePassword(userId: string, plainPassword: string): Promise<void> {
-    if (!Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException(`Invalid user id: ${userId}`);
-    }
     const passwordHash = await this.hasher.hash(plainPassword);
-    const result = await this.userModel
-      .findByIdAndUpdate(new Types.ObjectId(userId), { passwordHash })
-      .exec();
-    if (!result) throw new Error(`User ${userId} not found`);
+    await this.prisma.user.update({ where: { id: userId }, data: { passwordHash } });
   }
 }

@@ -1,91 +1,69 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { AnalysisDashboardDocument } from './schemas/analysis.schema';
+import { PrismaService } from '@rubus/database';
 
 @Injectable()
 export class AdminDashboardService {
-  constructor(
-    @InjectModel(AnalysisDashboardDocument.name)
-    private readonly analysisModel: Model<AnalysisDashboardDocument>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getYieldForecast(productorId?: string) {
-    const pipeline: any[] = [];
-    if (productorId) {
-      pipeline.push({ $match: { productor_id: new Types.ObjectId(productorId) } });
-    }
-    pipeline.push(
-      { $unwind: '$cronograma_fenologico' },
-      {
-        $match: {
-          $or: [
-            { 'cronograma_fenologico.etapa': 'maduro' },
-            { 'cronograma_fenologico.prediccion.cambio_a': 'maduro' },
-          ],
-        },
-      },
-      {
-        $group: {
-          _id: '$cronograma_fenologico.prediccion.dias_para_cosecha',
-          totalGrams: { $sum: '$proyeccion_financiera.peso_sano_gramos' },
-        },
-      },
-      { $sort: { _id: 1 } },
-    );
-
-    const result = await this.analysisModel.aggregate(pipeline).exec();
-    return result.map((item) => ({
-      daysToHarvest: item._id || 0,
-      estimatedWeightGrams: item.totalGrams,
+    type Row = { daysToHarvest: number; estimatedWeightGrams: number };
+    const rows: Row[] = productorId
+      ? await this.prisma.$queryRaw`
+          SELECT fe.dias_para_cosecha     AS "daysToHarvest",
+                 COALESCE(SUM(a.peso_sano_gramos), 0) AS "estimatedWeightGrams"
+          FROM   fenologia_etapas fe
+          JOIN   analyses a ON a.id = fe.analysis_id
+          WHERE  (fe.etapa = 'maduro' OR fe.cambia_a = 'maduro')
+            AND  a.productor_id = ${productorId}::uuid
+          GROUP BY fe.dias_para_cosecha
+          ORDER BY fe.dias_para_cosecha ASC`
+      : await this.prisma.$queryRaw`
+          SELECT fe.dias_para_cosecha     AS "daysToHarvest",
+                 COALESCE(SUM(a.peso_sano_gramos), 0) AS "estimatedWeightGrams"
+          FROM   fenologia_etapas fe
+          JOIN   analyses a ON a.id = fe.analysis_id
+          WHERE  fe.etapa = 'maduro' OR fe.cambia_a = 'maduro'
+          GROUP BY fe.dias_para_cosecha
+          ORDER BY fe.dias_para_cosecha ASC`;
+    return rows.map((r) => ({
+      daysToHarvest: Number(r.daysToHarvest),
+      estimatedWeightGrams: Number(r.estimatedWeightGrams),
     }));
   }
 
   async getHealthMetrics(productorId?: string) {
-    const pipeline: any[] = [];
-    if (productorId) {
-      pipeline.push({ $match: { productor_id: new Types.ObjectId(productorId) } });
-    }
-    pipeline.push({
-      $group: {
-        _id: null,
-        avgLossPercent: { $avg: '$metricas_salud.porcentaje_merma_general' },
-        totalSickCount: { $sum: '$metricas_salud.elementos_enfermos' },
-        totalHealthyCount: { $sum: '$metricas_salud.elementos_sanos' },
-        totalDetected: { $sum: '$metricas_salud.total_elementos_detectados' },
+    const result = await this.prisma.analysis.aggregate({
+      where: productorId ? { productorId } : undefined,
+      _avg: { porcentajeMermaGeneral: true },
+      _sum: {
+        elementosEnfermos: true,
+        elementosSanos: true,
+        totalElementosDetectados: true,
       },
     });
-
-    const result = await this.analysisModel.aggregate(pipeline).exec();
-    if (!result.length) {
-      return { avgLossPercent: 0, totalSickCount: 0, totalHealthyCount: 0, totalDetected: 0 };
-    }
-    const doc = result[0];
     return {
-      avgLossPercent: doc.avgLossPercent,
-      totalSickCount: doc.totalSickCount,
-      totalHealthyCount: doc.totalHealthyCount,
-      totalDetected: doc.totalDetected,
+      avgLossPercent: result._avg.porcentajeMermaGeneral ?? 0,
+      totalSickCount: result._sum.elementosEnfermos ?? 0,
+      totalHealthyCount: result._sum.elementosSanos ?? 0,
+      totalDetected: result._sum.totalElementosDetectados ?? 0,
     };
   }
 
   async getPhenologyDistribution(productorId?: string) {
-    const pipeline: any[] = [];
-    if (productorId) {
-      pipeline.push({ $match: { productor_id: new Types.ObjectId(productorId) } });
-    }
-    pipeline.push(
-      { $unwind: '$cronograma_fenologico' },
-      {
-        $group: {
-          _id: '$cronograma_fenologico.etapa',
-          count: { $sum: '$cronograma_fenologico.cantidad' },
-        },
-      },
-      { $sort: { count: -1 } },
-    );
-
-    const result = await this.analysisModel.aggregate(pipeline).exec();
-    return result.map((item) => ({ stage: item._id, count: item.count }));
+    type Row = { stage: string; count: number };
+    const rows: Row[] = productorId
+      ? await this.prisma.$queryRaw`
+          SELECT fe.etapa AS stage, COALESCE(SUM(fe.cantidad), 0) AS count
+          FROM   fenologia_etapas fe
+          JOIN   analyses a ON a.id = fe.analysis_id
+          WHERE  a.productor_id = ${productorId}::uuid
+          GROUP BY fe.etapa
+          ORDER BY count DESC`
+      : await this.prisma.$queryRaw`
+          SELECT fe.etapa AS stage, COALESCE(SUM(fe.cantidad), 0) AS count
+          FROM   fenologia_etapas fe
+          GROUP BY fe.etapa
+          ORDER BY count DESC`;
+    return rows.map((r) => ({ stage: r.stage, count: Number(r.count) }));
   }
 }
