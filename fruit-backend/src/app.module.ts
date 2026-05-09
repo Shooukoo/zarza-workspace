@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { DatabaseModule } from '@rubus/database';
 import { IngestionModule } from './ingestion/ingestion.module';
 import { FruitsQueryModule } from './fruits-query/fruits-query.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -12,18 +12,12 @@ import { CamposModule } from './campos/campos.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
 import { AnalysesModule } from './analyses/analyses.module';
 import { FcmModule } from './fcm/fcm.module';
-import { envs } from './config/envs';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRoot(envs.mongoUri),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        limit: 1000,
-      },
-    ]),
+    DatabaseModule,
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 1000 }]),
     FcmModule,
     AuthModule,
     AdminModule,
@@ -35,11 +29,6 @@ import { envs } from './config/envs';
     AnalysesModule,
   ],
   controllers: [],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
