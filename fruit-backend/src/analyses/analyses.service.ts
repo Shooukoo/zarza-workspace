@@ -1,5 +1,5 @@
 import { Injectable, Logger, NotFoundException, Inject } from '@nestjs/common';
-import { PrismaService, EstadoValidacion } from '@rubus/database';
+import { PrismaService, EstadoValidacion, Prisma } from '@rubus/database';
 import { ValidateAnalysisDto } from './dto/validate-analysis.dto';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
 import { type UserScope } from '../auth/domain/types/user-scope.type';
@@ -87,7 +87,7 @@ export class AnalysesService {
           ? {
               validacionFueCorregido: true,
               validacionDiagnosticoOriginal: diagnosticoOriginal,
-              validacionCronogramaCorregido: dto.cronograma_corregido,
+              validacionCronogramaCorregido: dto.cronograma_corregido as unknown as Prisma.InputJsonValue,
               validacionObservaciones: dto.observaciones ?? '',
             }
           : {}),
