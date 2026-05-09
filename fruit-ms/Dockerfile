@@ -1,29 +1,43 @@
-# ─── Etapa de build ────────────────────────────────────────────────────────────
 FROM node:22-alpine AS builder
 
-WORKDIR /app
+WORKDIR /repo
 
-# Instala pnpm
-RUN npm install -g pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copia manifiestos e instala dependencias (capa cacheable)
-COPY package.json pnpm-lock.yaml ./
+# Copy workspace manifests (cacheable layer)
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/database/package.json ./packages/database/package.json
+COPY fruit-ms/package.json ./fruit-ms/package.json
+
 RUN pnpm install --frozen-lockfile
 
-# Copia el código fuente y compila TypeScript
-COPY . .
-RUN pnpm run build
+# Copy source
+COPY packages/database ./packages/database
+COPY fruit-ms ./fruit-ms
 
-# ─── Etapa de producción ────────────────────────────────────────────────────────
+# Generate Prisma client + build shared package
+RUN pnpm --filter @rubus/database run build
+
+# Build fruit-ms TypeScript
+RUN pnpm --filter ./fruit-ms run build
+
+# ── Production runner ──────────────────────────────────────────────────────────
 FROM node:22-alpine AS runner
 
-WORKDIR /app
+WORKDIR /repo
 
-RUN npm install -g pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Solo copia el build compilado y las dependencias de producción
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/database/package.json ./packages/database/package.json
+COPY fruit-ms/package.json ./fruit-ms/package.json
+
+RUN pnpm install --prod --frozen-lockfile
+
+COPY --from=builder /repo/packages/database/dist  ./packages/database/dist
+COPY --from=builder /repo/packages/database/generated ./packages/database/generated
+COPY --from=builder /repo/fruit-ms/dist ./fruit-ms/dist
+
+WORKDIR /repo/fruit-ms
 
 CMD ["node", "dist/main"]
