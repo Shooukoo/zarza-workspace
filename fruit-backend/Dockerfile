@@ -45,4 +45,4 @@ EXPOSE 3000
 
 USER node
 
-CMD ["sh", "-c", "cd /repo/packages/database && pnpm exec prisma migrate deploy && cd /repo/fruit-backend && node dist/main"]
+CMD ["node", "dist/main"]
