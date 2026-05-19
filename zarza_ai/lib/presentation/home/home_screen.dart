@@ -781,8 +781,11 @@ class _AnalysisListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final date = analysis.createdAt != null
-        ? '${analysis.createdAt!.day}/${analysis.createdAt!.month}/${analysis.createdAt!.year}'
+    final relativeTime = analysis.createdAt != null
+        ? _relativeTime(analysis.createdAt!)
+        : '—';
+    final exactDate = analysis.createdAt != null
+        ? _formatExactDate(analysis.createdAt!)
         : '—';
     final health = analysis.healthScore;
     final ringColor =
@@ -833,9 +836,21 @@ class _AnalysisListTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        date,
-                        style: Theme.of(context).textTheme.labelSmall,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            relativeTime,
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            exactDate,
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: AppTheme.dataGray,
+                                ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
