@@ -528,12 +528,24 @@ class _HeroErrorBody extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               const Text(
-                'Verifica tu conexión\ny vuelve a intentarlo.',
+                'Verifica tu internet\ny vuelve a intentarlo.',
                 style: TextStyle(
                   fontSize: 12,
                   color: AppTheme.dataGray,
                   fontFamily: 'Lexend',
                   height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.refresh_rounded, size: 16),
+                label: const Text('Reintentar'),
+                onPressed: () {
+                  context.read<HistoryBloc>().add(GetAnalysesEvent());
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.rubus,
+                  foregroundColor: Colors.white,
                 ),
               ),
             ],
@@ -550,7 +562,7 @@ class _HeroErrorBody extends StatelessWidget {
                 Border.all(color: AppTheme.danger.withValues(alpha: 0.3)),
           ),
           child: const Icon(Icons.cloud_off_rounded,
-              size: 32, color: AppTheme.danger),
+              size: 48, color: AppTheme.danger),
         ),
       ],
     );
