@@ -20,6 +20,13 @@ String _formatExactDate(DateTime dt) {
   return formatter.format(dt);
 }
 
+String _relativeTime(DateTime dt) {
+  final diff = DateTime.now().difference(dt);
+  if (diff.inMinutes < 60) return 'hace ${diff.inMinutes}m';
+  if (diff.inHours < 24) return 'hace ${diff.inHours}h';
+  return 'hace ${diff.inDays}d';
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -338,13 +345,6 @@ class _HealthHeroCard extends StatelessWidget {
         );
       },
     );
-  }
-
-  static String _relativeTime(DateTime dt) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 60) return 'hace ${diff.inMinutes}m';
-    if (diff.inHours < 24) return 'hace ${diff.inHours}h';
-    return 'hace ${diff.inDays}d';
   }
 }
 
