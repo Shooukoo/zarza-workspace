@@ -175,8 +175,8 @@ export function UserDrawer({ user, open, onClose }: Props) {
                     marginBottom: 8,
                   }}
                   options={(camposQuery.data ?? []).map((c) => ({
-                    value: c._id,
-                    label: `${c.codigo_campo} — ${c.nombre}`,
+                    value: c.id,
+                    label: `${c.codigoCampo} — ${c.nombre}`,
                   }))}
                 />
               )}

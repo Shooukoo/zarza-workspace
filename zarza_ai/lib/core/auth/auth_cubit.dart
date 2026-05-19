@@ -1,6 +1,8 @@
 import 'dart:developer' as developer;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
+import '../../core/services/fcm_service.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
@@ -34,8 +36,6 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final user = await _getCurrentUser();
       if (user != null) {
-        // El token se usa internamente por el interceptor; no necesitamos
-        // exponerlo aquí — sólo el UserEntity es relevante para la UI/router.
         emit(AuthAuthenticated(user: user, token: ''));
       } else {
         emit(const AuthUnauthenticated());
@@ -53,6 +53,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final result = await _login(email: email, password: password);
       emit(AuthAuthenticated(user: result.user, token: result.token));
+      GetIt.I<FcmService>().init().catchError((_) {});
     } on Exception catch (e, stack) {
       developer.log('[AuthCubit] login error', error: e, stackTrace: stack);
       emit(AuthError(_friendlyMessage(e)));
@@ -62,23 +63,22 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  /// Crea un nuevo usuario como administrador.
-  /// La sesión del admin **no cambia** — se emite [AdminCreateUserSuccess].
-  Future<void> registerAsAdmin({
+  /// Auto-registro de usuario nuevo. Emite [AuthAuthenticated] en éxito.
+  Future<void> register({
     required String email,
     required String password,
   }) async {
-    // Guardamos el estado actual del admin para restaurarlo si algo va mal
-    final previousState = state;
     emit(const AuthLoading());
     try {
       final result = await _register(email: email, password: password);
-      // Restaurar sesión del admin y notificar éxito
-      emit(previousState);
-      emit(AdminCreateUserSuccess(result.user.email));
-    } on Exception catch (e) {
-      emit(previousState);
-      emit(AuthError(_adminFriendlyMessage(e)));
+      emit(AuthAuthenticated(user: result.user, token: result.token));
+      GetIt.I<FcmService>().init().catchError((_) {});
+    } on Exception catch (e, stack) {
+      developer.log('[AuthCubit] register error', error: e, stackTrace: stack);
+      emit(AuthError(_friendlyMessage(e)));
+    } catch (e, stack) {
+      developer.log('[AuthCubit] register unexpected error', error: e, stackTrace: stack);
+      emit(AuthError('Error desconocido.'));
     }
   }
 
@@ -99,19 +99,5 @@ class AuthCubit extends Cubit<AuthState> {
       return 'Sin conexión con el servidor. Verifica tu red.';
     }
     return 'Ocurrió un error. Intenta de nuevo.';
-  }
-
-  String _adminFriendlyMessage(Exception e) {
-    final msg = e.toString().toLowerCase();
-    if (msg.contains('403') || msg.contains('forbidden')) {
-      return 'No tienes permisos para crear usuarios.';
-    }
-    if (msg.contains('400') || msg.contains('already exists')) {
-      return 'Ese correo ya tiene una cuenta registrada.';
-    }
-    if (msg.contains('timeout') || msg.contains('connection')) {
-      return 'Sin conexión con el servidor. Verifica tu red.';
-    }
-    return 'No se pudo crear el usuario. Intenta de nuevo.';
   }
 }

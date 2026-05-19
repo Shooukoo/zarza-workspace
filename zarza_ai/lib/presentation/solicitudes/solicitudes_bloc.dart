@@ -1,10 +1,15 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/constants/app_constants.dart';
+import '../../core/constants/ws_events.dart';
 import '../../domain/entities/solicitud_entity.dart';
 import '../../domain/enums/estado_solicitud.dart';
 import '../../domain/usecases/get_solicitudes_usecase.dart';
+import '../../domain/usecases/watch_notifications_usecase.dart';
 
 // ── Events ────────────────────────────────────────────────────────────────────
 
@@ -31,6 +36,10 @@ class SolicitudUpdateEstado extends SolicitudesEvent {
   final EstadoSolicitud estado;
   @override
   List<Object?> get props => [id, estado];
+}
+
+class _SolicitudesSilentRefresh extends SolicitudesEvent {
+  const _SolicitudesSilentRefresh();
 }
 
 // ── States ────────────────────────────────────────────────────────────────────
@@ -79,16 +88,35 @@ class SolicitudesError extends SolicitudesState {
 // ── BLoC ──────────────────────────────────────────────────────────────────────
 
 class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
-  SolicitudesBloc(this._getSolicitudesUseCase) : super(const SolicitudesInitial()) {
+  SolicitudesBloc(this._getSolicitudesUseCase, this._watchNotifications)
+      : super(const SolicitudesInitial()) {
     on<SolicitudesLoad>(_onLoad);
     on<SolicitudesLoadMore>(_onLoadMore);
     on<SolicitudUpdateEstado>(_onUpdateEstado);
+    on<_SolicitudesSilentRefresh>(_onSilentRefresh);
+
+    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+      add(const _SolicitudesSilentRefresh());
+    });
+
+    _wsSub = _watchNotifications.call().listen((raw) {
+      try {
+        final map = jsonDecode(raw) as Map<String, dynamic>;
+        final event = map['event'] as String?;
+        if (event == WsEvents.nuevaSolicitud) {
+          add(const _SolicitudesSilentRefresh());
+        }
+      } catch (_) {}
+    });
   }
 
   final GetSolicitudesUseCase _getSolicitudesUseCase;
+  final WatchNotificationsUseCase _watchNotifications;
   int _currentPage = 1;
   final List<SolicitudEntity> _items = [];
   EstadoSolicitud? _currentEstado;
+  Timer? _timer;
+  StreamSubscription<String>? _wsSub;
 
   Future<void> _onLoad(
     SolicitudesLoad event,
@@ -160,5 +188,38 @@ class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
         page: current.page,
       ));
     }
+  }
+
+  Future<void> _onSilentRefresh(
+    _SolicitudesSilentRefresh event,
+    Emitter<SolicitudesState> emit,
+  ) async {
+    if (state is! SolicitudesLoaded) return;
+    try {
+      final result = await _getSolicitudesUseCase(
+        page: 1,
+        limit: AppConstants.defaultPageSize,
+        estado: _currentEstado,
+      );
+      if (result.isEmpty) return;
+      _currentPage = 1;
+      _items
+        ..clear()
+        ..addAll(result);
+      emit(SolicitudesLoaded(
+        items: List.unmodifiable(_items),
+        hasMore: result.length == AppConstants.defaultPageSize,
+        page: _currentPage,
+      ));
+    } catch (e, stack) {
+      developer.log('[SolicitudesBloc] silent refresh failed', error: e, stackTrace: stack);
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _timer?.cancel();
+    _wsSub?.cancel();
+    return super.close();
   }
 }

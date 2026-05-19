@@ -1,5 +1,5 @@
 import {
-  IsMongoId,
+  IsUUID,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -16,8 +16,7 @@ export class CreateCampoDto {
   @IsNotEmpty()
   nombre: string;
 
-  /** ObjectId del usuario con rol PRODUCTOR dueño de la huerta */
-  @IsMongoId()
+  @IsUUID()
   productor_id: string;
 
   /**

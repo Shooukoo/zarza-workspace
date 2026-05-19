@@ -5,7 +5,9 @@ import 'package:mockito/mockito.dart';
 import 'package:zarza_ai/core/services/connectivity_service.dart';
 import 'package:zarza_ai/core/services/local_notifications_service.dart';
 import 'package:zarza_ai/data/datasources/remote_ingestion_datasource.dart';
+import 'package:zarza_ai/data/models/upload_response_model.dart';
 import 'package:zarza_ai/data/repositories/offline_aware_ingestion_repository.dart';
+import 'package:zarza_ai/domain/entities/fruit_analysis.dart';
 import 'package:zarza_ai/domain/entities/pending_upload.dart';
 import 'package:zarza_ai/domain/entities/upload_metadata.dart';
 import 'package:zarza_ai/domain/repositories/i_offline_queue_repository.dart';
@@ -71,6 +73,56 @@ void main() {
       expect(result.imageId, equals('sync-uuid-1'));
       verify(mockQueue.enqueue(any)).called(1);
       verify(mockNotif.showQueuedNotification(1)).called(1);
+    });
+  });
+
+  group('when online', () {
+    late Directory tempDir;
+    late File fakeFile;
+
+    setUp(() async {
+      mockConn = MockConnectivityService();
+      mockQueue = MockIOfflineQueueRepository();
+      mockRemote = MockRemoteIngestionDatasource();
+      mockNotif = MockLocalNotificationsService();
+
+      tempDir = await Directory.systemTemp.createTemp('zarza_test_');
+      fakeFile = File('${tempDir.path}/test.jpg');
+      await fakeFile.writeAsBytes([0xFF, 0xD8, 0xFF]);
+
+      repo = OfflineAwareIngestionRepository(
+        remote: mockRemote,
+        queue: mockQueue,
+        connectivity: mockConn,
+        notifications: mockNotif,
+        directoryResolver: () async => tempDir,
+      );
+
+      when(mockConn.isConnected()).thenAnswer((_) async => true);
+      when(mockRemote.uploadImage(any, any))
+          .thenAnswer((_) async => const UploadResponseModel(
+                imageId: 'img-123',
+                storageKey: 'key-123',
+                status: 'UPLOADED',
+              ));
+    });
+
+    tearDown(() async {
+      if (await tempDir.exists()) await tempDir.delete(recursive: true);
+    });
+
+    test('uploads directly to remote and returns UPLOADED status', () async {
+      final result = await repo.uploadImage(fakeFile, metadata);
+
+      expect(result.status, equals('UPLOADED'));
+      expect(result.imageId, equals('img-123'));
+      verify(mockRemote.uploadImage(any, any)).called(1);
+      verifyNever(mockQueue.enqueue(any));
+    });
+
+    test('does not enqueue when online', () async {
+      await repo.uploadImage(fakeFile, metadata);
+      verifyNever(mockQueue.enqueue(any));
     });
   });
 }

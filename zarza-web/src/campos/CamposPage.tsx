@@ -44,13 +44,13 @@ export function CamposPage() {
   }
 
   const columns: ColumnsType<Campo> = [
-    { title: 'Código', dataIndex: 'codigo_campo', key: 'codigo_campo' },
+    { title: 'Código', dataIndex: 'codigoCampo', key: 'codigoCampo' },
     { title: 'Nombre', dataIndex: 'nombre', key: 'nombre' },
     {
-      title: 'Productor ID',
-      dataIndex: 'productor_id',
-      key: 'productor_id',
+      title: 'Productor',
+      key: 'productor',
       ellipsis: true,
+      render: (_: unknown, record: Campo) => record.productor?.email ?? record.productorId,
     },
     {
       title: 'Alta',
@@ -65,7 +65,7 @@ export function CamposPage() {
             key: 'agronomo',
             render: (_: unknown, record: Campo) => {
               const assigned = agronoms.data?.find((a) =>
-                a.campos_asignados.includes(record._id),
+                a.campos_asignados.includes(record.id),
               );
               return (
                 <Select
@@ -75,14 +75,14 @@ export function CamposPage() {
                   loading={
                     agronoms.isLoading ||
                     (assignMutation.isPending &&
-                      assignMutation.variables?.campoId === record._id)
+                      assignMutation.variables?.campoId === record.id)
                   }
                   allowClear
                   placeholder="Sin asignar"
                   onChange={async (val: string | null) => {
                     try {
                       await assignMutation.mutateAsync({
-                        campoId: record._id,
+                        campoId: record.id,
                         newAgronomoId: val ?? null,
                         agronoms: agronoms.data ?? [],
                       });
@@ -105,7 +105,7 @@ export function CamposPage() {
             render: (_: unknown, record: Campo) => (
               <Popconfirm
                 title="¿Eliminar este campo?"
-                onConfirm={() => handleDelete(record._id)}
+                onConfirm={() => handleDelete(record.id)}
                 okText="Sí"
                 cancelText="No"
               >
@@ -115,7 +115,7 @@ export function CamposPage() {
                   icon={<DeleteOutlined />}
                   loading={
                     deleteMutation.isPending &&
-                    deleteMutation.variables === record._id
+                    deleteMutation.variables === record.id
                   }
                 />
               </Popconfirm>
@@ -145,11 +145,13 @@ export function CamposPage() {
       </Space>
 
       <Table
-        rowKey="_id"
+        rowKey="id"
         dataSource={camposQuery.data ?? []}
         columns={columns}
         loading={camposQuery.isLoading}
-        pagination={{ pageSize: 20 }}
+        size="middle"
+        scroll={{ x: 'max-content' }}
+        pagination={{ pageSize: 20, showTotal: (total) => `${total} campos` }}
       />
 
       <CreateCampoModal

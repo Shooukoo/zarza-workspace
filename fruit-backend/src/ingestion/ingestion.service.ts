@@ -5,6 +5,7 @@ import type { IStoragePort } from '../storage/ports';
 import { MagicNumberValidator } from './validators/magic-number.validator';
 import { Readable } from 'stream';
 import { UploadResultDto } from './dto/upload-result.dto';
+import type { ProcessImageInput } from './dto/parsed-multipart.dto';
 
 @Injectable()
 export class IngestionService {
@@ -16,31 +17,14 @@ export class IngestionService {
   ) {}
 
 
-  async processImageUpload(
-    fileStream: Readable,
-    filename: string,
-    mimetype: string,
-    capturedAt?: Date | null,
-    // V2 metadata
-    campoId?: string | null,
-    productorId?: string | null,
-    gpsLat?: number | null,
-    gpsLon?: number | null,
-    offlineSyncId?: string | null,
-    userId?: string,
-    userEmail?: string,
-  ): Promise<UploadResultDto> {
+  async processImageUpload(input: ProcessImageInput): Promise<UploadResultDto> {
+    const { file, filename, mimetype, capturedAt, campoId, productorId, gpsLat, gpsLon, offlineSyncId, userId, userEmail } = input;
     this.logger.log(`Processing upload: ${filename}`);
 
-    // Lee el stream completo y valida el magic number.
-    const buffer = await this.validator.readAndValidate(fileStream, mimetype);
+    const buffer = await this.validator.readAndValidate(file, mimetype);
     this.logger.log(`File validated: ${filename} (${buffer.length} bytes)`);
 
-    const storageKey = await this.storage.uploadBuffer(
-      buffer,
-      filename,
-      mimetype,
-    );
+    const storageKey = await this.storage.uploadBuffer(buffer, filename, mimetype);
 
     const processedAt = new Date();
     const resolvedCapturedAt = capturedAt ?? processedAt;

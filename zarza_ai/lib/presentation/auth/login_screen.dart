@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/auth/auth_cubit.dart';
-import '../../core/utils/platform_utils.dart';
 import '../../core/auth/auth_state.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/utils/platform_utils.dart';
 import 'auth_widgets.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -55,7 +56,8 @@ class _LoginScreenState extends State<LoginScreen>
     return BlocListener<AuthCubit, AuthState>(
       listener: (ctx, state) {
         if (state is AuthAuthenticated) {
-          if (state.user.role.canCreateUsers && PlatformUtils.useAdminLayout) {
+          if (state.user.role.canCreateUsers &&
+              PlatformUtils.useAdminLayout) {
             ctx.go('/admin');
           } else {
             ctx.go('/home');
@@ -64,14 +66,14 @@ class _LoginScreenState extends State<LoginScreen>
           ScaffoldMessenger.of(ctx).showSnackBar(
             SnackBar(
               content: Text(state.message),
-              backgroundColor: Colors.red.shade700,
+              backgroundColor: AppTheme.danger,
               behavior: SnackBarBehavior.floating,
             ),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF0A0A0A),
+        backgroundColor: AppTheme.obsidian,
         body: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnim,
@@ -81,21 +83,21 @@ class _LoginScreenState extends State<LoginScreen>
                 child: Column(
                   children: [
                     const SizedBox(height: 32),
-                    // ── Logo / Icon ──────────────────────────────────────
+                    // Logo
                     Container(
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(22),
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF4CAF50), Color(0xFF1B5E20)],
+                          colors: [AppTheme.rubus, AppTheme.rubusLight],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF4CAF50).withValues(alpha: 0.4),
-                            blurRadius: 24,
+                            color: AppTheme.rubus.withValues(alpha: 0.5),
+                            blurRadius: 28,
                             spreadRadius: 2,
                           ),
                         ],
@@ -106,27 +108,35 @@ class _LoginScreenState extends State<LoginScreen>
                         size: 40,
                       ),
                     ),
-                    const SizedBox(height: 28),
-                    Text(
-                      'Zarza AI',
-                      style: GoogleFonts.outfit(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
+                    const SizedBox(height: 24),
+                    RichText(
+                      text: TextSpan(
+                        style: GoogleFonts.lexend(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.frost,
+                          letterSpacing: -0.3,
+                        ),
+                        children: const [
+                          TextSpan(text: 'rubusAI'),
+                          TextSpan(
+                            text: '.mx',
+                            style: TextStyle(color: AppTheme.rubus),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       'Inicia sesión para continuar',
-                      style: GoogleFonts.outfit(
-                        fontSize: 14,
-                        color: Colors.white54,
+                      style: GoogleFonts.lexend(
+                        fontSize: 13,
+                        color: AppTheme.dataGray,
                       ),
                     ),
                     const SizedBox(height: 40),
 
-                    // ── Form ─────────────────────────────────────────────
+                    // Form
                     Form(
                       key: _formKey,
                       child: Column(
@@ -140,7 +150,8 @@ class _LoginScreenState extends State<LoginScreen>
                               if (v == null || v.isEmpty) {
                                 return 'Ingresa tu correo';
                               }
-                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(v)) {
+                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$')
+                                  .hasMatch(v)) {
                                 return 'Correo inválido';
                               }
                               return null;
@@ -157,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 _obscurePassword
                                     ? Icons.visibility_off_rounded
                                     : Icons.visibility_rounded,
-                                color: Colors.white38,
+                                color: AppTheme.dataGray,
                               ),
                               onPressed: () => setState(
                                 () => _obscurePassword = !_obscurePassword,

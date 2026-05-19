@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
 import { PrismaService, EstadoSolicitud } from '@rubus/database';
 import { CreateSolicitudDto } from './dto/create-solicitud.dto';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
@@ -76,9 +76,13 @@ export class SolicitudesService {
     return { data, total, page, limit };
   }
 
-  async updateEstado(id: string, estado: EstadoSolicitud) {
+  async updateEstado(id: string, estado: EstadoSolicitud, requesterId?: string, requesterRole?: string) {
     const existing = await this.prisma.solicitudMuestreo.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException(`Solicitud con id "${id}" no encontrada`);
+
+    if (requesterRole === 'MONITOR' && existing.asignadoAId !== requesterId) {
+      throw new ForbiddenException('Solo puedes modificar solicitudes asignadas a ti');
+    }
 
     const updated = await this.prisma.solicitudMuestreo.update({
       where: { id },
@@ -109,6 +113,7 @@ export class SolicitudesService {
     fechaLimite: string | Date | null | undefined,
     event: 'created' | 'cancelled' | 'completed',
   ): Promise<void> {
+    this.logger.log(`[FCM] sendSolicitudPush → event=${event} userId=${userId ?? 'none'}`);
     if (!userId) return;
 
     const fcmToken = await this.userRepository.findFcmTokenById(userId);
@@ -129,9 +134,10 @@ export class SolicitudesService {
 
     const formatFecha = (fl: string | Date | null | undefined): string => {
       if (!fl) return 'sin fecha';
-      // Parse as local date to avoid UTC offset shifting the day
-      const d = fl instanceof Date ? fl : new Date(fl.toString().replace(/-/g, '/'));
-      return d.toLocaleDateString('es-ES');
+      const iso = fl instanceof Date ? fl.toISOString() : fl.toString();
+      const datePart = iso.slice(0, 10); // "YYYY-MM-DD"
+      const [year, month, day] = datePart.split('-');
+      return `${day}/${month}/${year}`;
     };
 
     const notifications: Record<typeof event, FcmNotification> = {

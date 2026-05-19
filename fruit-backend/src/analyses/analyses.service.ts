@@ -46,7 +46,10 @@ export class AnalysesService {
         orderBy: { fechaAnalisis: 'desc' },
         skip,
         take: limit,
-        include: { fenologiaEtapas: true },
+        include: {
+          fenologiaEtapas: true,
+          campo: { select: { id: true, codigoCampo: true, nombre: true } },
+        },
       }),
       this.prisma.analysis.count({ where }),
     ]);
@@ -57,7 +60,10 @@ export class AnalysesService {
   async findById(id: string) {
     const analysis = await this.prisma.analysis.findUnique({
       where: { id },
-      include: { fenologiaEtapas: true },
+      include: {
+        fenologiaEtapas: true,
+        campo: { select: { id: true, codigoCampo: true, nombre: true } },
+      },
     });
     if (!analysis) throw new NotFoundException(`Análisis con id "${id}" no encontrado`);
     return analysis;
@@ -92,7 +98,10 @@ export class AnalysesService {
             }
           : {}),
       },
-      include: { fenologiaEtapas: true },
+      include: {
+        fenologiaEtapas: true,
+        campo: { select: { id: true, codigoCampo: true, nombre: true } },
+      },
     });
 
     this.logger.log(`Análisis ${id} ${dto.action} por usuario ${corregidoPorId}`);

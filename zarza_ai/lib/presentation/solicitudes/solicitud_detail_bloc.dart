@@ -97,8 +97,8 @@ class SolicitudDetailBloc
     try {
       final updated =
           await _updateEstadoUseCase(_current!.id, EstadoSolicitud.EN_PROGRESO);
-      _current = updated;
-      emit(SolicitudDetailEstadoActualizado(updated));
+      _current = _current!.copyWith(estado: updated.estado);
+      emit(SolicitudDetailEstadoActualizado(_current!));
     } catch (e) {
       emit(SolicitudDetailError(
         solicitud: _current!,
@@ -116,8 +116,8 @@ class SolicitudDetailBloc
     try {
       final updated =
           await _updateEstadoUseCase(_current!.id, EstadoSolicitud.COMPLETADO);
-      _current = updated;
-      emit(SolicitudDetailEstadoActualizado(updated));
+      _current = _current!.copyWith(estado: updated.estado);
+      emit(SolicitudDetailEstadoActualizado(_current!));
     } catch (e) {
       emit(SolicitudDetailError(
         solicitud: _current!,

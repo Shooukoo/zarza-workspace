@@ -25,16 +25,18 @@ function AnalisisTab({ estado }: { estado: EstadoValidacion }) {
 
   const columns: ColumnsType<Analysis> = [
     {
-      title: 'Campo ID',
-      dataIndex: 'campo_id',
-      key: 'campo_id',
+      title: 'Campo',
+      key: 'campo',
       ellipsis: true,
-      render: (v: string | undefined) => v ?? '—',
+      render: (_: unknown, record: Analysis) =>
+        record.campo
+          ? `${record.campo.codigoCampo} — ${record.campo.nombre}`
+          : record.campoId ?? '—',
     },
     {
       title: 'Fecha',
-      dataIndex: 'fecha_analisis',
-      key: 'fecha_analisis',
+      dataIndex: 'fechaAnalisis',
+      key: 'fechaAnalisis',
       render: (v: string | undefined) =>
         v ? new Date(v).toLocaleDateString('es-MX') : '—',
     },
@@ -42,24 +44,22 @@ function AnalisisTab({ estado }: { estado: EstadoValidacion }) {
       title: 'Etapa predominante',
       key: 'etapa',
       render: (_: unknown, record: Analysis) => {
-        if (!record.cronograma_fenologico?.length) return '—';
-        const top = [...record.cronograma_fenologico].sort(
-          (a, b) => b.cantidad - a.cantidad,
-        )[0];
+        if (!record.fenologiaEtapas?.length) return '—';
+        const top = [...record.fenologiaEtapas].sort((a, b) => b.cantidad - a.cantidad)[0];
         return top.etapa;
       },
     },
     {
       title: 'Total detectados',
-      key: 'total',
-      render: (_: unknown, record: Analysis) =>
-        record.metricas_salud?.total_elementos_detectados ?? '—',
+      dataIndex: 'totalElementosDetectados',
+      key: 'totalElementosDetectados',
+      render: (v: number | undefined) => v ?? '—',
     },
     {
       title: 'Validación',
       key: 'validacion',
       render: (_: unknown, record: Analysis) => {
-        const est = record.validacion_experto?.estado ?? 'pendiente';
+        const est = record.validacionEstado ?? 'pendiente';
         const tag = ESTADO_TAG[est] ?? ESTADO_TAG['pendiente'];
         if (est !== 'pendiente' || !canValidate) {
           return <Tag color={tag.color}>{tag.label}</Tag>;
@@ -72,12 +72,12 @@ function AnalisisTab({ estado }: { estado: EstadoValidacion }) {
               type="primary"
               loading={
                 validateMutation.isPending &&
-                (validateMutation.variables as { id: string; payload: ValidateAnalisisPayload } | undefined)?.id === record._id
+                (validateMutation.variables as { id: string; payload: ValidateAnalisisPayload } | undefined)?.id === record.id
               }
               onClick={async () => {
                 try {
                   await validateMutation.mutateAsync({
-                    id: record._id,
+                    id: record.id,
                     payload: { action: 'validado' },
                   });
                 } catch {
@@ -90,7 +90,7 @@ function AnalisisTab({ estado }: { estado: EstadoValidacion }) {
             <Button
               size="small"
               danger
-              onClick={() => setSelectedId(record._id)}
+              onClick={() => setSelectedId(record.id)}
             >
               Rechazar
             </Button>
@@ -103,11 +103,11 @@ function AnalisisTab({ estado }: { estado: EstadoValidacion }) {
   return (
     <>
       <Table
-        rowKey="_id"
+        rowKey="id"
         dataSource={query.data?.data ?? []}
         columns={columns}
         loading={query.isLoading}
-        onRow={(record) => ({ onClick: () => setSelectedId(record._id) })}
+        onRow={(record) => ({ onClick: () => setSelectedId(record.id) })}
         style={{ cursor: 'pointer' }}
         pagination={{
           current: page,

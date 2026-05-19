@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, theme } from 'antd';
 import esES from 'antd/locale/es_ES';
 import { AuthProvider } from './auth/AuthContext';
 import { App } from './App';
@@ -20,19 +20,52 @@ createRoot(document.getElementById('root')!).render(
         <ConfigProvider
           locale={esES}
           theme={{
+            algorithm: theme.darkAlgorithm,
             token: {
-              colorPrimary: '#389e0d',
-              colorLink: '#389e0d',
-              borderRadius: 8,
-              colorBgLayout: '#f4f6f8',
-              fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+              colorPrimary: '#7B00D4',
+              colorLink: '#A030F0',
+              colorBgBase: '#0D0221',
+              colorBgLayout: '#0D0221',
+              colorBgContainer: '#160630',
+              colorBgElevated: '#1F0A40',
+              colorBorder: '#2A1547',
+              colorBorderSecondary: '#2A1547',
+              colorText: '#F5F5FA',
+              colorTextSecondary: '#C8C8D4',
+              colorTextTertiary: '#8A8AA0',
+              colorSuccess: '#10B981',
+              colorWarning: '#F59E0B',
+              colorError: '#EF4444',
+              borderRadius: 12,
+              fontFamily: "'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
             },
             components: {
               Card: {
-                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                colorBgContainer: 'rgba(255,255,255,0.04)',
               },
-              Statistic: {
-                titleFontSize: 13,
+              Table: {
+                colorBgContainer: '#160630',
+                headerBg: '#1F0A40',
+                headerColor: '#C8C8D4',
+                rowHoverBg: 'rgba(123,0,212,0.08)',
+                borderColor: '#2A1547',
+                headerSplitColor: '#2A1547',
+              },
+              Modal: {
+                contentBg: '#160630',
+                headerBg: '#160630',
+              },
+              Drawer: {
+                colorBgElevated: '#160630',
+              },
+              Select: {
+                colorBgContainer: '#1F0A40',
+              },
+              Input: {
+                colorBgContainer: '#1F0A40',
+              },
+              DatePicker: {
+                colorBgContainer: '#1F0A40',
               },
             },
           }}

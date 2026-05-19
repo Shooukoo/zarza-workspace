@@ -40,4 +40,6 @@ COPY --from=builder /repo/fruit-ms/dist ./fruit-ms/dist
 
 WORKDIR /repo/fruit-ms
 
+USER node
+
 CMD ["node", "dist/main"]

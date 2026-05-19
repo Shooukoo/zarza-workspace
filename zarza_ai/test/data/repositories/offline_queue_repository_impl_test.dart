@@ -37,4 +37,40 @@ void main() {
     await repo.delete('sync-1');
     verify(mockDatasource.delete('sync-1')).called(1);
   });
+
+  test('getPending delegates to datasource', () async {
+    when(mockDatasource.getPending()).thenAnswer((_) async => [item]);
+    final result = await repo.getPending();
+    expect(result, equals([item]));
+    verify(mockDatasource.getPending()).called(1);
+  });
+
+  test('updateItem delegates to datasource', () async {
+    when(mockDatasource.updateItem(item)).thenAnswer((_) async {});
+    await repo.updateItem(item);
+    verify(mockDatasource.updateItem(item)).called(1);
+  });
+
+  test('countPending delegates to datasource', () async {
+    when(mockDatasource.countPending()).thenAnswer((_) async => 3);
+    final result = await repo.countPending();
+    expect(result, equals(3));
+    verify(mockDatasource.countPending()).called(1);
+  });
+
+  test('resetSyncing delegates to datasource', () async {
+    when(mockDatasource.resetSyncing()).thenAnswer((_) async {});
+    await repo.resetSyncing();
+    verify(mockDatasource.resetSyncing()).called(1);
+  });
+
+  test('watchAll returns stream from datasource', () async {
+    final stream = Stream<List<PendingUpload>>.fromIterable([
+      [item],
+      [],
+    ]);
+    when(mockDatasource.watchAll()).thenAnswer((_) => stream);
+    final result = repo.watchAll();
+    expect(result, emits([item]));
+  });
 }

@@ -8,6 +8,7 @@ import {
   UseGuards,
   Req,
   ParseIntPipe,
+  ParseUUIDPipe,
   DefaultValuePipe,
   BadRequestException,
   NotFoundException,
@@ -56,14 +57,14 @@ export class AnalysesController {
 
   @Get(':id/image')
   @Roles(Role.ADMIN, Role.AGRONOMO)
-  async getImage(@Param('id') id: string) {
+  async getImage(@Param('id', ParseUUIDPipe) id: string) {
     const url = await this.analysesService.getImageUrl(id);
     return { url };
   }
 
   @Get(':id')
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR)
-  async findOne(@Param('id') id: string, @Req() req: { user: JwtPayload }) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req: { user: JwtPayload }) {
     const scope = await this.buildScope(req.user);
     const analysis = await this.analysesService.findById(id);
     if (scope.role === Role.PRODUCTOR && analysis.productorId !== scope.sub) {
@@ -82,7 +83,7 @@ export class AnalysesController {
   @Patch(':id/validate')
   @Roles(Role.AGRONOMO, Role.ADMIN)
   async validate(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Req() req: { user: JwtPayload },
     @Body() dto: ValidateAnalysisDto,
   ) {

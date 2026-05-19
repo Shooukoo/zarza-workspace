@@ -23,6 +23,7 @@ export class CamposService {
   async findAll(productorId?: string) {
     return this.prisma.campo.findMany({
       where: productorId ? { productorId } : undefined,
+      include: { productor: { select: { id: true, email: true } } },
     });
   }
 

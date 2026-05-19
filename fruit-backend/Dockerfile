@@ -38,6 +38,7 @@ RUN pnpm install --prod --frozen-lockfile
 COPY --from=builder /repo/packages/database/dist  ./packages/database/dist
 COPY --from=builder /repo/packages/database/generated ./packages/database/generated
 COPY --from=builder /repo/fruit-backend/dist ./fruit-backend/dist
+COPY --from=builder /repo/fruit-backend/scripts ./fruit-backend/scripts
 
 WORKDIR /repo/fruit-backend
 

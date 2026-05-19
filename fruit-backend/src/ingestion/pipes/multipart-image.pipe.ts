@@ -48,22 +48,27 @@ export class MultipartImagePipe
             break;
           }
           case 'campo_id':
+          case 'campoId':
             campoId = value || null;
             break;
           case 'productor_id':
+          case 'productorId':
             productorId = value || null;
             break;
-          case 'gps_lat': {
+          case 'gps_lat':
+          case 'gpsLat': {
             const n = parseFloat(value);
             gpsLat = isNaN(n) ? null : n;
             break;
           }
-          case 'gps_lon': {
+          case 'gps_lon':
+          case 'gpsLon': {
             const n = parseFloat(value);
             gpsLon = isNaN(n) ? null : n;
             break;
           }
           case 'offline_sync_id':
+          case 'offlineSyncId':
             offlineSyncId = value || null;
             break;
         }

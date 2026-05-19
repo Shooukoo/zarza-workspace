@@ -1,61 +1,56 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Button, Typography, Space, notification, Avatar, Tag } from 'antd';
+import { notification } from 'antd';
 import {
   DashboardOutlined,
   EnvironmentOutlined,
   FileTextOutlined,
   AuditOutlined,
-  LogoutOutlined,
-  UserOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../auth/useAuth';
 import { Role } from '../auth/types';
 import { useWebSocket } from './useWebSocket';
 
-const { Sider, Header, Content } = Layout;
-const { Text } = Typography;
-
-const ROLE_TAG: Record<Role, { color: string; label: string }> = {
-  [Role.ADMIN]: { color: 'gold', label: 'Admin' },
-  [Role.PRODUCTOR]: { color: 'green', label: 'Productor' },
-  [Role.AGRONOMO]: { color: 'blue', label: 'Agrónomo' },
-  [Role.MONITOR]: { color: 'orange', label: 'Monitor' },
+// ── Design tokens ──────────────────────────────────────────────────
+const T = {
+  obsidian:  '#0D0221',
+  obsidian2: '#160630',
+  obsidian3: '#1F0A40',
+  frost:     '#F5F5FA',
+  frostDim:  '#C8C8D4',
+  gray:      '#8A8AA0',
+  grayLine:  '#2A1547',
+  rubus:     '#7B00D4',
+  rubusLt:   '#A030F0',
+  rubusDim:  'rgba(123,0,212,0.18)',
+  emerald:   '#10B981',
 };
 
 const NAV_ITEMS = [
-  {
-    key: '/dashboard',
-    label: 'Dashboard',
-    icon: <DashboardOutlined />,
-    roles: [Role.ADMIN, Role.PRODUCTOR],
-  },
-  {
-    key: '/usuarios',
-    label: 'Usuarios',
-    icon: <TeamOutlined />,
-    roles: [Role.ADMIN],
-  },
-  {
-    key: '/campos',
-    label: 'Campos / Huertas',
-    icon: <EnvironmentOutlined />,
-    roles: [Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO],
-  },
-  {
-    key: '/solicitudes',
-    label: 'Solicitudes',
-    icon: <FileTextOutlined />,
-    roles: [Role.ADMIN, Role.AGRONOMO, Role.MONITOR],
-  },
-  {
-    key: '/analisis',
-    label: 'Revisión IA',
-    icon: <AuditOutlined />,
-    roles: [Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR],
-  },
+  { key: '/dashboard',   label: 'Dashboard',       icon: <DashboardOutlined />, roles: [Role.ADMIN, Role.PRODUCTOR] },
+  { key: '/usuarios',    label: 'Usuarios',         icon: <TeamOutlined />,      roles: [Role.ADMIN] },
+  { key: '/campos',      label: 'Campos / Huertas', icon: <EnvironmentOutlined />, roles: [Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO] },
+  { key: '/solicitudes', label: 'Solicitudes',      icon: <FileTextOutlined />,  roles: [Role.ADMIN, Role.AGRONOMO, Role.MONITOR] },
+  { key: '/analisis',    label: 'Revisión IA',      icon: <AuditOutlined />,     roles: [Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR] },
 ];
+
+const ROLE_LABEL: Record<Role, string> = {
+  [Role.ADMIN]:     'Administrador',
+  [Role.PRODUCTOR]: 'Productor',
+  [Role.AGRONOMO]:  'Agrónomo',
+  [Role.MONITOR]:   'Monitor',
+};
+
+// ── Leaf icon ──────────────────────────────────────────────────────
+function LeafIcon({ size = 18, color = '#fff' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2C6 2 2 9 2 14c0 3.3 2.7 6 6 6 2.2 0 4.2-1.2 5.3-3A6 6 0 0021 11c0-5-4-9-9-9z"/>
+    </svg>
+  );
+}
 
 export function AppShell() {
   const { user, logout } = useAuth();
@@ -82,7 +77,7 @@ export function AppShell() {
 
   const visibleItems = NAV_ITEMS.filter(
     (item) => user && item.roles.includes(user.role),
-  ).map(({ key, label, icon }) => ({ key, label, icon }));
+  );
 
   async function handleLogout() {
     try {
@@ -93,94 +88,122 @@ export function AppShell() {
     }
   }
 
-  const roleInfo = user ? ROLE_TAG[user.role] : null;
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? '?';
+  const sidebarW = collapsed ? 64 : 220;
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        collapsible
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        style={{ boxShadow: '2px 0 8px rgba(0,0,0,0.15)' }}
-      >
-        <div
-          style={{
-            height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
-            padding: '0 16px',
-            gap: 8,
-          }}
-        >
-          <span style={{ fontSize: 22 }}>🌿</span>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: T.obsidian, fontFamily: "'Lexend', sans-serif" }}>
+      {/* ── Sidebar ── */}
+      <aside style={{
+        width: sidebarW, flexShrink: 0, display: 'flex', flexDirection: 'column',
+        background: T.obsidian2, borderRight: `1px solid ${T.grayLine}`,
+        padding: '24px 0', transition: 'width 0.2s ease', overflow: 'hidden',
+      }}>
+        {/* Logo */}
+        <div style={{
+          padding: collapsed ? '0 14px 24px' : '0 20px 24px',
+          borderBottom: `1px solid ${T.grayLine}`,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+            background: `linear-gradient(135deg, ${T.rubus}, ${T.rubusLt})`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: `0 4px 16px ${T.rubus}44`,
+            cursor: 'pointer',
+          }} onClick={() => setCollapsed(c => !c)}>
+            <LeafIcon size={18} color="#fff"/>
+          </div>
           {!collapsed && (
-            <div>
-              <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, lineHeight: 1.2 }}>
-                Zarza AI
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: T.frost, whiteSpace: 'nowrap' }}>
+                rubusAI<span style={{ color: T.rubus }}>.mx</span>
               </div>
-              <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 11 }}>
-                Agricultura de precisión
-              </div>
+              <div style={{ fontSize: 10, color: T.gray, letterSpacing: '0.06em' }}>ADMIN PANEL</div>
             </div>
           )}
         </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={visibleItems}
-          onClick={({ key }) => navigate(key)}
-          style={{ marginTop: 8 }}
-        />
-      </Sider>
 
-      <Layout>
-        <Header
-          style={{
-            background: '#fff',
-            padding: '0 24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            gap: 12,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-            zIndex: 1,
-          }}
-        >
-          <Space size={12} align="center">
-            <Avatar
-              size={32}
-              style={{ backgroundColor: '#389e0d', cursor: 'default', flexShrink: 0 }}
-              icon={<UserOutlined />}
-            >
-              {initials}
-            </Avatar>
-            <div style={{ lineHeight: 1.3 }}>
-              <Text style={{ fontSize: 13, display: 'block' }}>{user?.email}</Text>
-              {roleInfo && (
-                <Tag color={roleInfo.color} style={{ marginTop: 2, lineHeight: '16px', fontSize: 11 }}>
-                  {roleInfo.label}
-                </Tag>
-              )}
+        {/* Nav */}
+        <nav style={{ padding: collapsed ? '16px 8px' : '16px 10px', flex: 1 }}>
+          {visibleItems.map(item => {
+            const active = location.pathname === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => navigate(item.key)}
+                title={collapsed ? item.label : undefined}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center',
+                  gap: collapsed ? 0 : 10, justifyContent: collapsed ? 'center' : 'flex-start',
+                  padding: collapsed ? '10px' : '10px 12px',
+                  borderRadius: 10, border: 'none', cursor: 'pointer',
+                  marginBottom: 2,
+                  background: active ? T.rubusDim : 'transparent',
+                  color: active ? T.frost : T.gray,
+                  fontFamily: "'Lexend', sans-serif",
+                  fontSize: 13, fontWeight: active ? 600 : 400,
+                  transition: 'all 0.15s ease',
+                  position: 'relative',
+                }}>
+                {active && !collapsed && (
+                  <div style={{
+                    position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
+                    width: 3, height: 20, background: T.rubus, borderRadius: '0 4px 4px 0',
+                  }}/>
+                )}
+                <span style={{ color: active ? T.rubusLt : T.gray, display: 'flex' }}>
+                  {item.icon}
+                </span>
+                {!collapsed && item.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* User */}
+        <div style={{
+          padding: collapsed ? '16px 12px' : '16px 20px',
+          borderTop: `1px solid ${T.grayLine}`,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+            background: `linear-gradient(135deg, #3D006A, ${T.rubus})`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 13, fontWeight: 700, color: '#fff',
+          }}>{initials}</div>
+          {!collapsed && (
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: T.frost, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user?.email ?? '—'}
+              </div>
+              <div style={{ fontSize: 10, color: T.gray }}>
+                {user ? ROLE_LABEL[user.role] : ''}
+              </div>
             </div>
-            <Button
-              type="text"
-              icon={<LogoutOutlined />}
+          )}
+          {!collapsed && (
+            <button
               onClick={handleLogout}
-              style={{ color: '#888' }}
-            >
-              Salir
-            </Button>
-          </Space>
-        </Header>
+              title="Cerrar sesión"
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: T.gray, fontSize: 16, padding: 4, flexShrink: 0,
+                display: 'flex', alignItems: 'center',
+              }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+              </svg>
+            </button>
+          )}
+        </div>
+      </aside>
 
-        <Content style={{ margin: 24 }}>
-          <Outlet />
-        </Content>
-      </Layout>
-    </Layout>
+      {/* ── Main ── */}
+      <main style={{ flex: 1, overflow: 'auto', background: T.obsidian, padding: '28px 32px' }}>
+        <Outlet />
+      </main>
+    </div>
   );
 }

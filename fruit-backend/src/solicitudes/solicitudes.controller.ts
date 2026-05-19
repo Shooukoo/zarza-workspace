@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   ParseIntPipe,
+  ParseUUIDPipe,
   DefaultValuePipe,
   BadRequestException,
 } from '@nestjs/common';
@@ -23,7 +24,7 @@ import { type EstadoSolicitud } from '@rubus/database';
 const ESTADO_VALUES = ['PENDIENTE', 'EN_PROGRESO', 'COMPLETADO', 'CANCELADO'] as const;
 
 /**
- * POST   /api/solicitudes              → Crear solicitud de muestreo (ADMIN)
+ * POST   /api/solicitudes              → Crear solicitud de muestreo (ADMIN, AGRONOMO)
  * GET    /api/solicitudes              → Listar solicitudes paginadas (ADMIN, AGRONOMO, MONITOR)
  * PATCH  /api/solicitudes/:id/estado  → Cambiar estado (ADMIN, AGRONOMO, MONITOR)
  */
@@ -33,7 +34,7 @@ export class SolicitudesController {
   constructor(private readonly solicitudesService: SolicitudesService) {}
 
   @Post()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.AGRONOMO)
   create(@Req() req: any, @Body() dto: CreateSolicitudDto) {
     return this.solicitudesService.create(req.user.sub, dto);
   }
@@ -59,7 +60,7 @@ export class SolicitudesController {
 
   @Patch(':id/estado')
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.MONITOR)
-  updateEstado(@Param('id') id: string, @Body() dto: UpdateEstadoDto) {
-    return this.solicitudesService.updateEstado(id, dto.estado);
+  updateEstado(@Req() req: any, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateEstadoDto) {
+    return this.solicitudesService.updateEstado(id, dto.estado, req.user.sub, req.user.role);
   }
 }

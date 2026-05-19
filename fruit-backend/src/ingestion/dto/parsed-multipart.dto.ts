@@ -19,3 +19,8 @@ export type ParsedMultipartDto = {
   offlineSyncId:  string | null;
 };
 
+export type ProcessImageInput = ParsedMultipartDto & {
+  userId?:    string;
+  userEmail?: string;
+};
+

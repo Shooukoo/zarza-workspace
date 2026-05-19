@@ -1,27 +1,30 @@
 import 'dart:io';
 
-/// Central configuration for Zarza AI.
-/// Selects the correct host depending on the platform:
-///   - Android emulator → 10.0.2.2 (loopback alias to host machine)
-///   - Windows / macOS / Linux desktop → localhost
-///   - Physical device → change [_lanIp] to your LAN IP
+/// Central configuration for RubusAI.
+///
+/// El host se puede sobreescribir con --dart-define=SERVER_HOST=<ip>
+///   flutter run --dart-define=SERVER_HOST=192.168.100.26
+///
+/// Si no se pasa, el default es:
+///   - Android → 10.0.2.2 (emulador)
+///   - Desktop → 127.0.0.1
 class AppConstants {
   AppConstants._();
 
-  /// LAN IP for physical devices. Update before testing on a real phone.
-  static const String _lanIp = '192.168.1.100';
+  static const String _envHost = String.fromEnvironment('SERVER_HOST');
 
-  /// Returns the correct host for the current platform.
   static String get _host {
+    if (_envHost.isNotEmpty) return _envHost;
     if (Platform.isAndroid) return '10.0.2.2';
-    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      return '127.0.0.1'; // <-- Cambio clave aquí
-    }
-    return _lanIp; // iOS physical device or unknown
+    return '127.0.0.1';
   }
 
-  static String get baseUrl => 'http://$_host:3001';
-  static String get wsUrl  => 'ws://$_host:3001';
+  static const bool _isDev = bool.fromEnvironment('IS_DEV', defaultValue: true);
+
+  static String get baseUrl =>
+      _isDev ? 'http://$_host:3001' : 'https://$_host';
+  static String get wsUrl =>
+      _isDev ? 'ws://$_host:3001/ws' : 'wss://$_host/ws';
 
   // Endpoints
   static const String uploadEndpoint = '/api/ingestion/upload';

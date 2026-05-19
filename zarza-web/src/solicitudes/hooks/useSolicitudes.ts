@@ -8,20 +8,39 @@ export type EstadoSolicitud =
   | 'COMPLETADO'
   | 'CANCELADO';
 
+export interface PopulatedCampo {
+  id: string;
+  nombre: string;
+  codigoCampo: string;
+}
+
+export interface PopulatedUser {
+  id: string;
+  email: string;
+}
+
 export interface Solicitud {
-  _id: string;
-  campo_id: string;
-  asignado_a: string;
-  creado_por: string;
+  id: string;
+  campo: PopulatedCampo;
+  asignadoA: PopulatedUser;
+  creadoPorId: string;
   mensaje: string;
   estado: EstadoSolicitud;
-  fecha_limite: string | null;
+  fechaLimite: string | null;
   createdAt: string;
 }
 
 export interface MonitorOption {
   id: string;
   email: string;
+}
+
+/** @deprecated Usar PopulatedCampo / PopulatedUser */
+export interface PopulatedRef {
+  _id: string;
+  nombre?: string;
+  codigo_campo?: string;
+  email?: string;
 }
 
 interface SolicitudesFilters {
@@ -51,6 +70,7 @@ export function useSolicitudes(filters: SolicitudesFilters = {}) {
       apiClient
         .get<SolicitudesResponse>(`/solicitudes?${params.toString()}`)
         .then((r) => r.data),
+    refetchInterval: 30_000,
   });
 }
 

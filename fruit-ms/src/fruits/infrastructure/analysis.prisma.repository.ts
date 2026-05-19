@@ -9,8 +9,11 @@ export class PrismaAnalysisRepository implements IAnalysisRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async save(analysis: AnalysisDomain): Promise<string> {
-    if (!analysis.campo_id || !analysis.productor_id) {
-      throw new Error('campo_id and productor_id are required');
+    if (!analysis.campo_id) {
+      throw new Error(`campo_id is required but was null — ensure campoId is sent in the upload request`);
+    }
+    if (!analysis.productor_id) {
+      throw new Error(`productor_id is required but was null — ensure the requester user exists in the database`);
     }
 
     const record = await this.prisma.$transaction(async (tx) => {
@@ -89,8 +92,8 @@ export class PrismaAnalysisRepository implements IAnalysisRepository {
   }
 
   async findById(id: string): Promise<AnalysisDomain | null> {
-    const doc = await this.prisma.analysis.findUnique({
-      where: { id },
+    const doc = await this.prisma.analysis.findFirst({
+      where: { OR: [{ id }, { imageId: id }] },
       include: { fenologiaEtapas: true },
     });
     if (!doc) return null;

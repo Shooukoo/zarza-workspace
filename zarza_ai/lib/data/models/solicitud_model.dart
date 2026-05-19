@@ -25,28 +25,23 @@ class SolicitudModel {
   final DateTime createdAt;
 
   factory SolicitudModel.fromJson(Map<String, dynamic> json) {
-    // campo_id puede ser un ObjectId string o un objeto populado { _id, nombre }
-    final campoRaw = json['campo_id'];
-    final String campoId;
-    final String campoNombre;
-    if (campoRaw is Map<String, dynamic>) {
-      campoId = (campoRaw['_id'] ?? '').toString();
-      campoNombre = campoRaw['nombre'] as String? ?? campoId;
-    } else {
-      campoId = campoRaw?.toString() ?? '';
-      campoNombre = campoId;
-    }
+    final campoRaw = json['campo'] as Map<String, dynamic>?;
+    final campoId = campoRaw?['id']?.toString() ?? '';
+    final campoNombre = campoRaw?['nombre']?.toString() ?? campoId;
+
+    final asignadoARaw = json['asignadoA'] as Map<String, dynamic>?;
+    final asignadoA = asignadoARaw?['email']?.toString() ?? '';
 
     return SolicitudModel(
-      id: (json['_id'] ?? json['id'] ?? '').toString(),
-      creadoPor: (json['creado_por'] ?? '').toString(),
-      asignadoA: (json['asignado_a'] ?? '').toString(),
+      id: (json['id'] ?? '').toString(),
+      creadoPor: (json['creadoPorId'] ?? '').toString(),
+      asignadoA: asignadoA,
       campoId: campoId,
       campoNombre: campoNombre,
       mensaje: json['mensaje'] as String? ?? '',
       estado: EstadoSolicitud.fromString(json['estado'] as String? ?? 'PENDIENTE'),
-      fechaLimite: json['fecha_limite'] != null
-          ? DateTime.tryParse(json['fecha_limite'] as String)
+      fechaLimite: json['fechaLimite'] != null
+          ? DateTime.tryParse(json['fechaLimite'] as String)
           : null,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()

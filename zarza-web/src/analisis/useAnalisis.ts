@@ -20,6 +20,7 @@ export function useAnalisisList(estado: EstadoValidacion, page = 1, limit = 20) 
       apiClient
         .get<AnalisisListResponse>(`/analyses?${params.toString()}`)
         .then((r) => r.data),
+    refetchInterval: 30_000,
   });
 }
 
@@ -42,6 +43,24 @@ export function useAnalisisImage(id: string | null) {
     enabled: !!id,
     staleTime: 0,
     gcTime: 0,
+  });
+}
+
+export function useAnalisisByCampo(campoId: string | null, enabled = true) {
+  const params = new URLSearchParams({
+    campo_id: campoId ?? '',
+    estado: 'all',
+    limit: '50',
+    page: '1',
+  });
+  return useQuery<AnalisisListResponse>({
+    queryKey: ['analisis', 'byCampo', campoId],
+    queryFn: () =>
+      apiClient
+        .get<AnalisisListResponse>(`/analyses?${params.toString()}`)
+        .then((r) => r.data),
+    enabled: enabled && !!campoId,
+    refetchInterval: 30_000,
   });
 }
 

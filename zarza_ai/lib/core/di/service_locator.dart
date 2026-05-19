@@ -52,6 +52,7 @@ import '../../domain/usecases/sync_pending_uploads_usecase.dart';
 import '../../domain/usecases/watch_pending_uploads_usecase.dart';
 // Core services
 import '../services/connectivity_service.dart';
+import '../services/fcm_service.dart';
 import '../services/sync_service.dart';
 // Presentation
 import '../../presentation/capture/capture_bloc.dart';
@@ -79,6 +80,8 @@ Future<void> setupServiceLocator() async {
     () => LocalNotificationsService(),
   );
   await sl<LocalNotificationsService>().init();
+
+  sl.registerLazySingleton<FcmService>(() => FcmService(sl<Dio>()));
 
   sl.registerLazySingleton<FlutterSecureStorage>(
     () => const FlutterSecureStorage(
@@ -217,7 +220,7 @@ Future<void> setupServiceLocator() async {
       () => ResultsBloc(sl<GetAnalysisUseCase>()));
 
   sl.registerFactory<HistoryBloc>(
-      () => HistoryBloc(sl<GetAnalysisListUseCase>()));
+      () => HistoryBloc(sl<GetAnalysisListUseCase>(), sl<WatchNotificationsUseCase>()));
 
   // ── Admin — Data Source ───────────────────────────────────────────────────
   sl.registerLazySingleton<RemoteAdminDatasource>(
@@ -293,7 +296,7 @@ Future<void> setupServiceLocator() async {
   );
 
   sl.registerFactory<SolicitudesBloc>(
-    () => SolicitudesBloc(sl<GetSolicitudesUseCase>()),
+    () => SolicitudesBloc(sl<GetSolicitudesUseCase>(), sl<WatchNotificationsUseCase>()),
   );
 
   sl.registerFactory<SolicitudDetailBloc>(

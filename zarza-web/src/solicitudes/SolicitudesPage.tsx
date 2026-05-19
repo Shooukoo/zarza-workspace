@@ -17,6 +17,7 @@ import {
 import { EstadoBadge } from './EstadoBadge';
 import { UpdateEstadoDropdown } from './UpdateEstadoDropdown';
 import { CreateSolicitudModal } from './CreateSolicitudModal';
+import { SolicitudDetailDrawer } from './SolicitudDetailDrawer';
 import { useAuth } from '../auth/useAuth';
 import { Role } from '../auth/types';
 
@@ -36,6 +37,7 @@ export function SolicitudesPage() {
   const [estado, setEstado] = useState<EstadoSolicitud | ''>('');
   const [campoId, setCampoId] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedSolicitud, setSelectedSolicitud] = useState<Solicitud | null>(null);
 
   const solicitudesQuery = useSolicitudes({
     page,
@@ -45,25 +47,30 @@ export function SolicitudesPage() {
   });
   const camposQuery = useCamposOptions();
 
-  const canCreate = user?.role === Role.ADMIN;
+  const canCreate = user?.role === Role.ADMIN || user?.role === Role.AGRONOMO;
   const canChangeEstado =
     user?.role === Role.ADMIN ||
     user?.role === Role.AGRONOMO ||
     user?.role === Role.MONITOR;
 
   const columns: ColumnsType<Solicitud> = [
-    { title: 'Campo ID', dataIndex: 'campo_id', key: 'campo_id', ellipsis: true },
+    {
+      title: 'Campo',
+      key: 'campo',
+      ellipsis: true,
+      render: (_: unknown, record: Solicitud) => record.campo?.nombre ?? '—',
+    },
     {
       title: 'Asignado a',
-      dataIndex: 'asignado_a',
-      key: 'asignado_a',
+      key: 'asignadoA',
       ellipsis: true,
+      render: (_: unknown, record: Solicitud) => record.asignadoA?.email ?? '—',
     },
     { title: 'Mensaje', dataIndex: 'mensaje', key: 'mensaje', ellipsis: true },
     {
       title: 'Fecha límite',
-      dataIndex: 'fecha_limite',
-      key: 'fecha_limite',
+      dataIndex: 'fechaLimite',
+      key: 'fechaLimite',
       render: (v: string | null) =>
         v ? new Date(v).toLocaleDateString('es-MX') : '—',
     },
@@ -74,7 +81,7 @@ export function SolicitudesPage() {
       render: (estado: EstadoSolicitud, record) =>
         canChangeEstado ? (
           <UpdateEstadoDropdown
-            solicitudId={record._id}
+            solicitudId={record.id}
             currentEstado={estado}
           />
         ) : (
@@ -126,23 +133,30 @@ export function SolicitudesPage() {
           options={[
             { value: '', label: 'Todos los campos' },
             ...(camposQuery.data ?? []).map((c) => ({
-              value: c._id,
-              label: `${c.codigo_campo} — ${c.nombre}`,
+              value: c.id,
+              label: `${c.codigoCampo} — ${c.nombre}`,
             })),
           ]}
         />
       </Space>
 
       <Table
-        rowKey="_id"
+        rowKey="id"
         dataSource={solicitudesQuery.data?.data ?? []}
         columns={columns}
         loading={solicitudesQuery.isLoading}
+        size="middle"
+        scroll={{ x: 'max-content' }}
+        onRow={(record) => ({
+          onClick: () => setSelectedSolicitud(record),
+          style: { cursor: 'pointer' },
+        })}
         pagination={{
           current: page,
           pageSize: 20,
           total: solicitudesQuery.data?.total ?? 0,
           onChange: setPage,
+          showTotal: (total) => `${total} solicitudes`,
         }}
       />
 
@@ -152,6 +166,12 @@ export function SolicitudesPage() {
           onClose={() => setModalOpen(false)}
         />
       )}
+
+      <SolicitudDetailDrawer
+        solicitud={selectedSolicitud}
+        open={!!selectedSolicitud}
+        onClose={() => setSelectedSolicitud(null)}
+      />
     </div>
   );
 }

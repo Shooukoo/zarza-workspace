@@ -60,11 +60,20 @@ class ResultsBloc extends Bloc<ResultsEvent, ResultsState> {
     Emitter<ResultsState> emit,
   ) async {
     emit(const ResultsLoading());
-    try {
-      final analysis = await _getAnalysisUseCase(event.id);
-      emit(ResultsLoaded(analysis));
-    } catch (e) {
-      emit(ResultsError('No se pudo cargar el análisis: ${e.toString()}'));
+    // Analysis is processed asynchronously — retry for up to 90 s
+    const maxAttempts = 9;
+    const retryDelay = Duration(seconds: 10);
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final analysis = await _getAnalysisUseCase(event.id);
+        emit(ResultsLoaded(analysis));
+        return;
+      } catch (_) {
+        if (attempt < maxAttempts) {
+          await Future.delayed(retryDelay);
+        }
+      }
     }
+    emit(const ResultsError('El análisis tardó demasiado. Intenta verlo en tu historial.'));
   }
 }

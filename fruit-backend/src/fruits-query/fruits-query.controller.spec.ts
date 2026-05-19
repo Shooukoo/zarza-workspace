@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { FruitsQueryController } from './fruits-query.controller';
 import { FruitsQueryService } from './fruits-query.service';
+import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard';
 import { I_USER_REPOSITORY } from '../auth/ports/user-repository.port';
 import { Role } from '../auth/domain/enums/role.enum';
 
@@ -20,7 +21,10 @@ describe('FruitsQueryController — scope enforcement', () => {
         { provide: FruitsQueryService, useValue: service },
         { provide: I_USER_REPOSITORY, useValue: userRepo },
       ],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get(FruitsQueryController);
   });

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/fruit_analysis.dart';
 
@@ -50,10 +51,10 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, color) = switch (status) {
-      AnalysisStatus.uploaded => ('SUBIDO', Colors.blue),
-      AnalysisStatus.processing => ('ANALIZANDO', Colors.orange),
-      AnalysisStatus.completed => ('COMPLETADO', const Color(0xFF4CAF50)),
-      AnalysisStatus.failed => ('FALLIDO', Colors.redAccent),
+      AnalysisStatus.uploaded    => ('SUBIDO', AppTheme.rubusLight),
+      AnalysisStatus.processing  => ('ANALIZANDO', AppTheme.warn),
+      AnalysisStatus.completed   => ('COMPLETADO', AppTheme.emerald),
+      AnalysisStatus.failed      => ('FALLIDO', AppTheme.danger),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

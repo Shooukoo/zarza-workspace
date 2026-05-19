@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/auth/auth_cubit.dart';
 import '../../core/auth/auth_state.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/platform_utils.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -55,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: AppTheme.obsidian,
       body: Center(
         child: FadeTransition(
           opacity: _fade,
@@ -64,22 +65,21 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo hexagon
                 Container(
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF2E7D32), Color(0xFF69F0AE)],
+                      colors: [AppTheme.rubus, AppTheme.rubusLight],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF2E7D32).withValues(alpha: 0.5),
-                        blurRadius: 32,
-                        offset: const Offset(0, 8),
+                        color: AppTheme.rubus.withValues(alpha: 0.5),
+                        blurRadius: 40,
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
@@ -90,31 +90,45 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 28),
-                Text(
-                  'Zarza AI',
-                  style: GoogleFonts.inter(
+                RichText(
+                  text: TextStyle(
+                    fontFamily: GoogleFonts.lexend().fontFamily,
                     fontSize: 36,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
                     letterSpacing: -0.5,
+                  ).toTextSpan(
+                    'rubusAI',
+                    children: [
+                      TextSpan(
+                        text: '.mx',
+                        style: TextStyle(
+                          fontFamily: GoogleFonts.lexend().fontFamily,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.rubus,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Análisis fenológico inteligente',
-                  style: GoogleFonts.inter(
+                  'Detección inteligente. Cosecha exacta.',
+                  style: GoogleFonts.lexend(
                     fontSize: 13,
-                    color: const Color(0xFF69F0AE),
-                    letterSpacing: 0.5,
+                    color: AppTheme.rubusLight,
+                    letterSpacing: 0.3,
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
                 const SizedBox(height: 48),
                 SizedBox(
-                  width: 32,
-                  height: 32,
+                  width: 28,
+                  height: 28,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: const Color(0xFF69F0AE).withValues(alpha: 0.7),
+                    strokeWidth: 2,
+                    color: AppTheme.rubus.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -124,4 +138,12 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+}
+
+extension on TextStyle {
+  TextSpan toTextSpan(String text, {List<InlineSpan>? children}) => TextSpan(
+        text: text,
+        style: copyWith(color: AppTheme.frost),
+        children: children,
+      );
 }

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/theme/app_theme.dart';
 import '../../domain/entities/fruit_analysis.dart';
 import '../history/history_bloc.dart';
+import '../widgets/ring_progress.dart';
 import '../widgets/stage_badge.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -13,7 +15,9 @@ class HistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: showAppBar ? AppBar(title: const Text('Historial de análisis')) : null,
+      appBar: showAppBar
+          ? AppBar(title: const Text('Historial de Análisis'))
+          : null,
       body: BlocBuilder<HistoryBloc, HistoryState>(
         builder: (context, state) {
           if (state is HistoryLoading || state is HistoryInitial) {
@@ -29,12 +33,13 @@ class HistoryScreen extends StatelessWidget {
           final analyses = state is HistoryLoaded
               ? state.analyses
               : (state as HistoryLoadingMore).current;
-          final hasMore = state is HistoryLoaded ? state.hasMore : false;
+          final hasMore =
+              state is HistoryLoaded ? state.hasMore : false;
 
           if (analyses.isEmpty) return const _EmptyView();
 
           return RefreshIndicator(
-            color: const Color(0xFF69F0AE),
+            color: AppTheme.rubusLight,
             onRefresh: () async =>
                 context.read<HistoryBloc>().add(const HistoryLoadEvent()),
             child: ListView.builder(
@@ -71,88 +76,96 @@ class _HistoryCard extends StatelessWidget {
         : '—';
     final score = analysis.healthScore;
     final scoreColor = score >= 70
-        ? const Color(0xFF4CAF50)
+        ? AppTheme.emerald
         : score >= 40
-            ? Colors.orange
-            : Colors.redAccent;
+            ? AppTheme.warn
+            : AppTheme.danger;
 
-    return Card(
-      child: InkWell(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Material(
+        color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(16),
-        onTap: () => context.push('/results/${analysis.id}'),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2E7D32).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.eco_rounded,
-                        size: 20, color: Color(0xFF4CAF50)),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${analysis.totalDetected} detectados · ${analysis.healthyCount} sanos',
-                          style: theme.textTheme.titleMedium,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => context.push('/results/${analysis.id}'),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border:
+                  Border.all(color: Colors.white.withValues(alpha: 0.07)),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    RingProgress(
+                      value: score,
+                      color: scoreColor,
+                      size: 44,
+                      strokeWidth: 5,
+                      child: Text(
+                        score.toStringAsFixed(0),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.frost,
+                          fontFamily: 'Lexend',
                         ),
-                        Text(date, style: theme.textTheme.labelSmall),
-                      ],
+                      ),
                     ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${analysis.totalDetected} detectados · ${analysis.healthyCount} sanos',
+                            style: theme.textTheme.titleMedium,
+                          ),
+                          Text(date, style: theme.textTheme.labelSmall),
+                        ],
+                      ),
+                    ),
+                    StatusBadge(status: analysis.status),
+                  ],
+                ),
+                if (analysis.detections.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: analysis.detections
+                        .take(4)
+                        .map((d) =>
+                            StageBadge(label: d.label, count: d.count))
+                        .toList(),
                   ),
-                  StatusBadge(status: analysis.status),
                 ],
-              ),
-              if (analysis.detections.isNotEmpty) ...[
                 const SizedBox(height: 10),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: analysis.detections
-                      .take(4)
-                      .map((d) => StageBadge(label: d.label, count: d.count))
-                      .toList(),
+                Row(
+                  children: [
+                    Icon(Icons.monitor_weight_rounded,
+                        size: 14, color: AppTheme.emerald),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${analysis.healthyWeightGrams.toStringAsFixed(1)} g',
+                      style: const TextStyle(
+                        color: AppTheme.emerald,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        fontFamily: 'Lexend',
+                      ),
+                    ),
+                    const Spacer(),
+                    const Icon(Icons.chevron_right_rounded,
+                        color: AppTheme.dataGray, size: 18),
+                  ],
                 ),
               ],
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Icon(Icons.favorite_rounded, size: 14, color: scoreColor),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${score.toStringAsFixed(0)}% salud',
-                    style: TextStyle(
-                        color: scoreColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12),
-                  ),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.monitor_weight_rounded,
-                      size: 14, color: Color(0xFF69F0AE)),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${analysis.healthyWeightGrams.toStringAsFixed(1)} g',
-                    style: const TextStyle(
-                        color: Color(0xFF69F0AE),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12),
-                  ),
-                  const Spacer(),
-                  const Icon(Icons.chevron_right_rounded,
-                      color: Colors.white38, size: 18),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -161,7 +174,8 @@ class _HistoryCard extends StatelessWidget {
 }
 
 class _LoadMoreButton extends StatelessWidget {
-  const _LoadMoreButton({required this.isLoading, required this.onTap});
+  const _LoadMoreButton(
+      {required this.isLoading, required this.onTap});
   final bool isLoading;
   final VoidCallback onTap;
 
@@ -172,7 +186,6 @@ class _LoadMoreButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: isLoading ? null : onTap,
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: const Color(0xFF2E7D32).withValues(alpha: 0.5)),
           minimumSize: const Size.fromHeight(46),
         ),
         child: isLoading
@@ -180,7 +193,8 @@ class _LoadMoreButton extends StatelessWidget {
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Color(0xFF69F0AE)))
+                    strokeWidth: 2, color: AppTheme.rubusLight),
+              )
             : const Text('Cargar más'),
       ),
     );
@@ -189,6 +203,7 @@ class _LoadMoreButton extends StatelessWidget {
 
 class _EmptyView extends StatelessWidget {
   const _EmptyView();
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -196,13 +211,15 @@ class _EmptyView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.history_toggle_off_rounded,
-              size: 64, color: Colors.white24),
+              size: 64, color: AppTheme.grayLine),
           const SizedBox(height: 16),
-          Text('No hay análisis registrados.',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(color: Colors.white38)),
+          Text(
+            'No hay análisis registrados.',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: AppTheme.dataGray),
+          ),
         ],
       ),
     );
@@ -222,11 +239,14 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_rounded, size: 56, color: Colors.white24),
+            const Icon(Icons.cloud_off_rounded,
+                size: 56, color: AppTheme.grayLine),
             const SizedBox(height: 16),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white54)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.dataGray),
+            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: onRetry,

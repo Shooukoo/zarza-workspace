@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  ParseUUIDPipe,
   DefaultValuePipe,
   UseGuards,
   BadRequestException,
@@ -27,7 +28,7 @@ import {
   IsString,
   MinLength,
   IsArray,
-  IsMongoId,
+  IsUUID,
 } from 'class-validator';
 
 class UpdateRoleDto {
@@ -49,7 +50,7 @@ class CreateUserDto {
 
 class UpdateCamposDto {
   @IsArray()
-  @IsMongoId({ each: true })
+  @IsUUID('4', { each: true })
   campos_ids: string[];
 }
 
@@ -106,7 +107,7 @@ export class AdminController {
 
   @Patch('users/:id/role')
   async updateUserRole(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateRoleDto,
   ) {
     try {
@@ -120,7 +121,7 @@ export class AdminController {
 
   @Patch('users/:id/campos')
   async updateUserCampos(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateCamposDto,
   ) {
     try {
@@ -134,7 +135,7 @@ export class AdminController {
 
   @Delete('users/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUser(@Param('id') id: string, @Req() req: any) {
+  async deleteUser(@Param('id', ParseUUIDPipe) id: string, @Req() req: any) {
     try {
       await this.adminService.deleteUser(id, req.user.sub as string);
     } catch (e) {
@@ -146,7 +147,7 @@ export class AdminController {
 
   @Patch('users/:id/password')
   async updateUserPassword(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdatePasswordDto,
   ) {
     try {

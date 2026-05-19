@@ -96,6 +96,8 @@ export function UsersPage() {
         dataSource={usersQuery.data?.data ?? []}
         columns={columns}
         loading={usersQuery.isLoading}
+        size="middle"
+        scroll={{ x: 'max-content' }}
         onRow={(record) => ({
           onClick: () => setSelectedUser(record),
           style: { cursor: 'pointer' },
@@ -105,6 +107,7 @@ export function UsersPage() {
           pageSize: 20,
           total: usersQuery.data?.total ?? 0,
           onChange: setPage,
+          showTotal: (total) => `${total} usuarios`,
         }}
       />
 

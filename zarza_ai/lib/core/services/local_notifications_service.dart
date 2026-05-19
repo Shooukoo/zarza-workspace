@@ -48,7 +48,7 @@ class LocalNotificationsService {
   Future<void> showQueuedNotification(int count) async {
     await _plugin.show(
       _syncNotificationId,
-      'Zarza AI',
+      'RubusAI',
       '$count ${count == 1 ? 'captura pendiente' : 'capturas pendientes'} de subir',
       _syncDetails(ongoing: true),
     );
@@ -57,7 +57,7 @@ class LocalNotificationsService {
   Future<void> updateSyncProgress(int done, int total) async {
     await _plugin.show(
       _syncNotificationId,
-      'Zarza AI',
+      'RubusAI',
       'Sincronizando $done/$total capturas…',
       _syncDetails(ongoing: true),
     );
@@ -66,7 +66,7 @@ class LocalNotificationsService {
   Future<void> showFailedNotification(int count) async {
     await _plugin.show(
       _syncNotificationId,
-      'Zarza AI',
+      'RubusAI',
       '$count ${count == 1 ? 'captura falló' : 'capturas fallaron'}. Abre la app para revisar.',
       _syncDetails(ongoing: false),
     );

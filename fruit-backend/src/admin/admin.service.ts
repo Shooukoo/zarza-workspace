@@ -98,11 +98,12 @@ export class AdminService {
 
   async createUser(email: string, plainPassword: string, role: Role): Promise<UserSummary> {
     if (role === Role.ADMIN) throw new Error('No se puede crear usuarios con rol ADMIN');
-    const existing = await this.prisma.user.findUnique({ where: { email } });
-    if (existing) throw new UserAlreadyExistsError(email);
+    const normalizedEmail = email.toLowerCase().trim();
+    const existing = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
+    if (existing) throw new UserAlreadyExistsError(normalizedEmail);
     const passwordHash = await this.hasher.hash(plainPassword);
     const created = await this.prisma.user.create({
-      data: { email, passwordHash, role: role as PrismaRole },
+      data: { email: normalizedEmail, passwordHash, role: role as PrismaRole },
     });
     return {
       id: created.id,

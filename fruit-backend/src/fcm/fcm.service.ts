@@ -29,17 +29,22 @@ export class FcmService implements OnModuleInit {
   }
 
   async sendToDevice(fcmToken: string, notification: FcmNotification): Promise<void> {
+    this.logger.log(`[FCM] Enviando push → title="${notification.title}"`);
     try {
-      await admin.messaging().send({
+      const msgId = await admin.messaging().send({
         token: fcmToken,
-        notification: { title: notification.title, body: notification.body },
+        // Data-only: el OS nunca auto-muestra nada; onBackgroundMessage lo maneja
+        data: { title: notification.title, body: notification.body },
+        android: { priority: 'high' },
+        apns: { headers: { 'apns-priority': '10' } },
       });
+      this.logger.log(`[FCM] Push enviado OK → messageId=${msgId}`);
     } catch (error: any) {
       const code: string = error?.errorInfo?.code ?? error?.code ?? '';
+      this.logger.error(`[FCM] Error al enviar push: code=${code} msg=${error?.message ?? error}`);
       if (code === 'messaging/registration-token-not-registered') {
         throw new FcmTokenInvalidError(fcmToken);
       }
-      this.logger.error(`[FCM] Error enviando push: ${error?.message ?? error}`);
     }
   }
 }

@@ -1,23 +1,32 @@
+import 'dart:developer' as developer;
 import 'dart:ui';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'core/auth/auth_cubit.dart';
 import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
+import 'core/services/fcm_service.dart';
 import 'core/services/sync_service.dart';
 import 'core/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  // Debe registrarse aquí, en el isolate principal, antes de runApp.
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   // Global safety net: swallow WebSocketChannelException del backend offline
   PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
     if (error is WebSocketChannelException) {
-      return true; // handled, no re-throw
+      developer.log('[WS] Swallowed exception', error: error, stackTrace: stack);
+      return true;
     }
     return false;
   };
@@ -38,6 +47,9 @@ Future<void> main() async {
   // Configurar DI (también llama AuthCubit.checkSession internamente)
   await setupServiceLocator();
 
+  // Inicializar FCM (pide permisos y registra token si hay sesión activa)
+  sl<FcmService>().init().catchError((_) {});
+
   // Sincronizar cola pendiente sin bloquear arranque
   sl<SyncService>().syncPending().catchError((_) {});
 
@@ -52,7 +64,7 @@ class ZarzaAiApp extends StatelessWidget {
     return BlocProvider<AuthCubit>(
       create: (_) => GetIt.I<AuthCubit>(),
       child: MaterialApp.router(
-        title: 'Zarza AI',
+        title: 'RubusAI',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,
         routerConfig: AppRouter.router,

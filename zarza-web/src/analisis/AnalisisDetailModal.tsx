@@ -34,7 +34,7 @@ interface FormValues {
 
 export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
   const { user } = useAuth();
-  const isAgronomo = user?.role === Role.AGRONOMO;
+  const canEdit = user?.role === Role.AGRONOMO || user?.role === Role.ADMIN;
   const isProductor = user?.role === Role.PRODUCTOR;
 
   const detailQuery = useAnalisisDetail(analysisId);
@@ -48,24 +48,23 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
     if (!analysis) return;
 
     const source =
-      analysis.validacion_experto?.cronograma_corregido &&
-      analysis.validacion_experto.cronograma_corregido.length > 0
-        ? analysis.validacion_experto.cronograma_corregido
-        : analysis.cronograma_fenologico;
+      analysis.validacionCronogramaCorregido?.length
+        ? analysis.validacionCronogramaCorregido
+        : analysis.fenologiaEtapas;
 
     const etapas: Record<string, number> = {};
     source.forEach((e) => { etapas[e.etapa] = e.cantidad; });
 
     form.setFieldsValue({
       etapas,
-      observaciones: analysis.validacion_experto?.observaciones ?? '',
+      observaciones: analysis.validacionObservaciones ?? '',
     });
   }, [analysis, form]);
 
   async function onFinish(values: FormValues) {
     if (!analysisId || !analysis) return;
 
-    const cronograma_corregido: CronogramaCorregido[] = analysis.cronograma_fenologico.map(
+    const cronograma_corregido: CronogramaCorregido[] = analysis.fenologiaEtapas.map(
       (e) => ({ etapa: e.etapa, cantidad: values.etapas[e.etapa] ?? e.cantidad }),
     );
 
@@ -125,28 +124,36 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
                 </div>
               )}
 
-              {analysis.fecha_analisis && (
+              {analysis.fechaAnalisis && (
                 <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
-                  Fecha: {new Date(analysis.fecha_analisis).toLocaleDateString('es-MX')}
+                  Fecha: {new Date(analysis.fechaAnalisis).toLocaleDateString('es-MX')}
                 </Text>
               )}
             </Col>
 
             <Col xs={24} md={14}>
+              {analysis.campo && (
+                <div style={{ marginBottom: 12 }}>
+                  <Text type="secondary">Campo</Text>
+                  <div>
+                    <Text strong>{analysis.campo.codigoCampo} — {analysis.campo.nombre}</Text>
+                  </div>
+                </div>
+              )}
               <Text strong>Métricas del modelo IA</Text>
-              {analysis.metricas_salud ? (
+              {analysis.totalElementosDetectados != null ? (
                 <Descriptions column={2} size="small" style={{ marginTop: 8, marginBottom: 16 }}>
                   <Descriptions.Item label="Total detectados">
-                    {analysis.metricas_salud.total_elementos_detectados}
+                    {analysis.totalElementosDetectados}
                   </Descriptions.Item>
                   <Descriptions.Item label="Sanos">
-                    {analysis.metricas_salud.elementos_sanos}
+                    {analysis.elementosSanos}
                   </Descriptions.Item>
                   <Descriptions.Item label="Enfermos">
-                    {analysis.metricas_salud.elementos_enfermos}
+                    {analysis.elementosEnfermos}
                   </Descriptions.Item>
                   <Descriptions.Item label="Merma %">
-                    {analysis.metricas_salud.porcentaje_merma_general?.toFixed(1)}%
+                    {analysis.porcentajeMermaGeneral?.toFixed(1)}%
                   </Descriptions.Item>
                 </Descriptions>
               ) : (
@@ -155,7 +162,7 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
 
               <Text strong>Cronograma fenológico (modelo IA)</Text>
               <div style={{ marginTop: 8 }}>
-                {analysis.cronograma_fenologico.map((e) => (
+                {analysis.fenologiaEtapas.map((e) => (
                   <Space key={e.etapa} style={{ display: 'flex', marginBottom: 4 }}>
                     <Text style={{ minWidth: 120 }}>{e.etapa}:</Text>
                     <Text>{e.cantidad} unidades</Text>
@@ -166,46 +173,46 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
           </Row>
 
           {!isProductor && (
-          <div style={{ marginTop: 24, borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
-            <Text strong>
-              {isAgronomo ? 'Corrección del diagnóstico' : 'Corrección registrada'}
-            </Text>
+            <div style={{ marginTop: 24, borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
+              <Text strong>
+                {canEdit ? 'Corrección del diagnóstico' : 'Corrección registrada'}
+              </Text>
 
-            <div style={{ marginTop: 12 }}>
-              {analysis.cronograma_fenologico.map((e) => (
+              <div style={{ marginTop: 12 }}>
+                {analysis.fenologiaEtapas.map((e) => (
+                  <Form.Item
+                    key={e.etapa}
+                    label={`${e.etapa} — cantidad corregida`}
+                    name={['etapas', e.etapa]}
+                    rules={[{ required: true, message: 'Requerido' }]}
+                  >
+                    <InputNumber min={0} style={{ width: 120 }} disabled={!canEdit} />
+                  </Form.Item>
+                ))}
+
                 <Form.Item
-                  key={e.etapa}
-                  label={`${e.etapa} — cantidad corregida`}
-                  name={['etapas', e.etapa]}
-                  rules={[{ required: true, message: 'Requerido' }]}
+                  label="Observaciones"
+                  name="observaciones"
+                  rules={[{ required: true, message: 'Ingresa observaciones' }]}
                 >
-                  <InputNumber min={0} style={{ width: 120 }} disabled={!isAgronomo} />
+                  <Input.TextArea
+                    rows={3}
+                    placeholder="Describe la corrección realizada..."
+                    disabled={!canEdit}
+                  />
                 </Form.Item>
-              ))}
 
-              <Form.Item
-                label="Observaciones"
-                name="observaciones"
-                rules={[{ required: true, message: 'Ingresa observaciones' }]}
-              >
-                <Input.TextArea
-                  rows={3}
-                  placeholder="Describe la corrección realizada..."
-                  disabled={!isAgronomo}
-                />
-              </Form.Item>
-
-              {isAgronomo && (
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={validateMutation.isPending}
-                >
-                  Guardar corrección
-                </Button>
-              )}
+                {canEdit && (
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={validateMutation.isPending}
+                  >
+                    Guardar corrección
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
           )}
         </Form>
       )}

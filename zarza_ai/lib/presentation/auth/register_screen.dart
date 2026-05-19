@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/auth/auth_cubit.dart';
 import '../../core/auth/auth_state.dart';
+import '../../core/theme/app_theme.dart';
 import 'auth_widgets.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -46,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    context.read<AuthCubit>().registerAsAdmin(
+    context.read<AuthCubit>().register(
           email: _emailCtrl.text.trim(),
           password: _passwordCtrl.text,
         );
@@ -69,7 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF0A0A0A),
+        backgroundColor: AppTheme.obsidian,
         body: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnim,
@@ -86,13 +87,13 @@ class _RegisterScreenState extends State<RegisterScreen>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF4CAF50), Color(0xFF1B5E20)],
+                          colors: [AppTheme.rubus, AppTheme.rubusLight],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF4CAF50).withValues(alpha: 0.4),
+                            color: AppTheme.rubus.withValues(alpha: 0.4),
                             blurRadius: 24,
                             spreadRadius: 2,
                           ),

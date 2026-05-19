@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Patch,
   Get,
   Body,
   HttpCode,
@@ -12,6 +13,14 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { IsString, MaxLength } from 'class-validator';
+
+class FcmTokenDto {
+  @IsString()
+  @MaxLength(512)
+  token: string;
+}
 import type { FastifyReply } from 'fastify';
 import { AuthService } from '../../application/auth.service';
 import {
@@ -24,6 +33,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../domain/enums/role.enum';
+import { I_USER_REPOSITORY, type IUserRepository } from '../../ports/user-repository.port';
 
 export const AUTH_SERVICE = Symbol('AUTH_SERVICE');
 
@@ -34,6 +44,7 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days in seconds
 export class AuthController {
   constructor(
     @Inject(AUTH_SERVICE) private readonly authService: AuthService,
+    @Inject(I_USER_REPOSITORY) private readonly userRepository: IUserRepository,
   ) {}
 
   @Post('register')
@@ -55,6 +66,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ auth: { limit: 10, ttl: 60000 } })
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) reply: FastifyReply,
@@ -66,7 +78,8 @@ export class AuthController {
       );
       reply.setCookie(COOKIE_NAME, result.token, {
         httpOnly: true,
-        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
         path: '/',
         maxAge: COOKIE_MAX_AGE,
       });
@@ -86,9 +99,22 @@ export class AuthController {
     return req.user;
   }
 
+  @Patch('fcm-token')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async registerFcmToken(
+    @Req() req: any,
+    @Body() body: FcmTokenDto,
+  ) {
+    await this.userRepository.saveFcmToken(req.user.sub, body.token);
+  }
+
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Res({ passthrough: true }) reply: FastifyReply) {
+  async logout(@Req() req: any, @Res({ passthrough: true }) reply: FastifyReply) {
+    if (req.user?.sub) {
+      await this.userRepository.clearFcmToken(req.user.sub).catch(() => {});
+    }
     reply.clearCookie(COOKIE_NAME, { path: '/' });
     return { message: 'Logged out' };
   }

@@ -53,4 +53,11 @@ export class PrismaUserRepository implements IUserRepository {
       data: { fcmToken: null },
     });
   }
+
+  async saveFcmToken(userId: string, token: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { fcmToken: token },
+    });
+  }
 }

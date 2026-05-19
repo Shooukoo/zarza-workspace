@@ -13,6 +13,7 @@ import { IngestionService } from './ingestion.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { MultipartImagePipe } from './pipes/multipart-image.pipe';
 import type { ParsedMultipartDto } from './dto/parsed-multipart.dto';
+import type { ProcessImageInput } from './dto/parsed-multipart.dto';
 import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard';
 
 
@@ -20,10 +21,10 @@ import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard'
 @UseGuards(JwtAuthGuard)
 export class IngestionController {
   private readonly logger = new Logger(IngestionController.name);
-  private readonly pipe = new MultipartImagePipe();
 
   constructor(
     private readonly ingestionService: IngestionService,
+    private readonly pipe: MultipartImagePipe,
     @Inject('FRUITS_SERVICE') private readonly client: ClientProxy,
   ) {}
 
@@ -41,29 +42,19 @@ export class IngestionController {
       offlineSyncId,
     }: ParsedMultipartDto = await this.pipe.transform(req);
 
-    // Extract authenticated user from JWT (set by JwtAuthGuard)
     const user = (req as any).user as { sub: string; email: string } | undefined;
 
     try {
-      const result = await this.ingestionService.processImageUpload(
-        file,
-        filename,
-        mimetype,
-        capturedAt,
-        campoId,
-        productorId,
-        gpsLat,
-        gpsLon,
-        offlineSyncId,
-        user?.sub,
-        user?.email,
-      );
+      const result = await this.ingestionService.processImageUpload({
+        file, filename, mimetype, capturedAt,
+        campoId, productorId, gpsLat, gpsLon, offlineSyncId,
+        userId: user?.sub,
+        userEmail: user?.email,
+      } satisfies ProcessImageInput);
 
       await this.client.emit('nueva_fruta', result).toPromise();
 
       return res.status(201).send(result);
-    } catch (error) {
-      throw error;
     } finally {
       if (!file.destroyed) file.destroy();
     }

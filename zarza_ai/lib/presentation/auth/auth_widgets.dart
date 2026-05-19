@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/theme/app_theme.dart';
+
 /// Campo de texto con estilo dark para las pantallas de autenticación.
 class AuthTextField extends StatelessWidget {
   const AuthTextField({
@@ -26,41 +28,23 @@ class AuthTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      style: const TextStyle(color: Colors.white),
+      style: const TextStyle(
+          color: AppTheme.frost, fontFamily: 'Lexend'),
       keyboardType: keyboardType,
       obscureText: obscureText,
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white54),
-        prefixIcon: Icon(icon, color: Colors.white38, size: 20),
+        labelStyle:
+            const TextStyle(color: AppTheme.dataGray, fontFamily: 'Lexend'),
+        prefixIcon: Icon(icon, color: AppTheme.dataGray, size: 20),
         suffixIcon: suffixIcon,
-        filled: true,
-        fillColor: const Color(0xFF1A1A1A),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: Color(0xFF4CAF50), width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.red.shade700),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.red.shade700, width: 1.5),
-        ),
-        errorStyle: const TextStyle(color: Color(0xFFEF5350)),
       ),
     );
   }
 }
 
-/// Botón con gradiente verde para las pantallas de autenticación.
+/// Botón con gradiente Royal Rubus para las pantallas de autenticación.
 class AuthGradientButton extends StatelessWidget {
   const AuthGradientButton({
     super.key,
@@ -75,6 +59,7 @@ class AuthGradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final disabled = onPressed == null;
     return SizedBox(
       width: double.infinity,
       height: 52,
@@ -82,16 +67,18 @@ class AuthGradientButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           gradient: LinearGradient(
-            colors: onPressed == null
-                ? [const Color(0xFF333333), const Color(0xFF282828)]
-                : [const Color(0xFF43A047), const Color(0xFF1B5E20)],
+            colors: disabled
+                ? [AppTheme.obsidian3, AppTheme.obsidian2]
+                : [AppTheme.rubus, AppTheme.rubusLight],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
-          boxShadow: onPressed == null
+          boxShadow: disabled
               ? []
               : [
                   BoxShadow(
-                    color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
-                    blurRadius: 16,
+                    color: AppTheme.rubus.withValues(alpha: 0.4),
+                    blurRadius: 20,
                     offset: const Offset(0, 6),
                   ),
                 ],
@@ -111,8 +98,8 @@ class AuthGradientButton extends StatelessWidget {
                 )
               : Text(
                   label,
-                  style: GoogleFonts.outfit(
-                    fontSize: 16,
+                  style: GoogleFonts.lexend(
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),

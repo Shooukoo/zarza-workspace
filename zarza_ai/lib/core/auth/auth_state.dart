@@ -44,13 +44,3 @@ class AuthError extends AuthState {
   @override
   List<Object?> get props => [message];
 }
-
-/// El admin creó un nuevo usuario exitosamente. La sesión del admin no cambia.
-class AdminCreateUserSuccess extends AuthState {
-  const AdminCreateUserSuccess(this.createdUserEmail);
-
-  final String createdUserEmail;
-
-  @override
-  List<Object?> get props => [createdUserEmail];
-}

@@ -53,7 +53,7 @@ export class InferenceMapper {
       })),
       // V2 fields
       campo_id:      context?.campoId    ?? null,
-      productor_id:  context?.productorId ?? null,
+      productor_id:  context?.productorId ?? requester.userId,
       ubicacion_gps,
       offline_sync_id: context?.offlineSyncId ?? null,
       validacion_experto: null,

@@ -1,8 +1,10 @@
 import { Injectable, Logger, Inject, NotFoundException } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { NuevaFrutaDto } from './dto/nueva-fruta.dto';
 import { ANALYSIS_REPOSITORY, I_INFERENCE_PORT } from './ports';
 import type { IAnalysisRepository } from './ports';
 import type { IInferencePort } from './ports/inference.port';
+import { envs } from '../config/envs';
 
 @Injectable()
 export class FruitsService {
@@ -13,6 +15,7 @@ export class FruitsService {
     private readonly inference: IInferencePort,
     @Inject(ANALYSIS_REPOSITORY)
     private readonly analysisRepo: IAnalysisRepository,
+    private readonly http: HttpService,
   ) {}
 
   async process(data: NuevaFrutaDto): Promise<void> {
@@ -60,14 +63,35 @@ export class FruitsService {
       );
     }
 
-    // 3. Persistir usando el repositorio (no sabe nada de Mongoose)
+    // 3. Persistir usando el repositorio
+    let savedId: string | null = null;
     try {
-      const savedId = await this.analysisRepo.save(analysis);
-      this.logger.log(`[MongoDB] Análisis guardado | _id=${savedId} | campo=${analysis.campo_id ?? 'N/A'}`);
+      savedId = await this.analysisRepo.save(analysis);
+      this.logger.log(`Análisis guardado | id=${savedId} | campo=${analysis.campo_id ?? 'N/A'}`);
     } catch (err) {
-      this.logger.error(
-        `[MongoDB] Error al guardar el análisis: ${(err as Error).message}`,
+      this.logger.error(`Error al guardar el análisis: ${(err as Error).message}`);
+      return;
+    }
+
+    // 4. Notificar al backend para que haga broadcast por WebSocket
+    try {
+      await this.http.axiosRef.post(
+        `${envs.backendUrl}/api/internal/notify`,
+        {
+          event: 'analisis_listo',
+          data: {
+            imageId: analysis.image_id,
+            id: savedId,
+            userId: data.userId ?? null,
+          },
+        },
+        {
+          timeout: 3000,
+          headers: { 'x-internal-token': envs.internalNotifyToken },
+        },
       );
+    } catch {
+      // Non-critical — la app hace polling de todas formas
     }
   }
 

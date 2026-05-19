@@ -21,4 +21,5 @@ export interface IUserRepository {
   findById(id: string): Promise<UserCampos | null>;
   findFcmTokenById(userId: string): Promise<string | null>;
   clearFcmToken(userId: string): Promise<void>;
+  saveFcmToken(userId: string, token: string): Promise<void>;
 }

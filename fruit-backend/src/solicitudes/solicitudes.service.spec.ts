@@ -1,18 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
+import { PrismaService } from '@rubus/database';
 import { SolicitudesService } from './solicitudes.service';
-import { SolicitudMuestreo } from './schemas/solicitud-muestreo.schema';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { FcmService, FcmTokenInvalidError } from '../fcm/fcm.service';
 import { I_USER_REPOSITORY } from '../auth/ports/user-repository.port';
 import { CamposService } from '../campos/campos.service';
 
-const mockSolicitudModel = {
-  create: jest.fn(),
-  find: jest.fn(),
-  findByIdAndUpdate: jest.fn(),
-  countDocuments: jest.fn(),
+const mockPrisma = {
+  solicitudMuestreo: {
+    create: jest.fn(),
+    findMany: jest.fn(),
+    count: jest.fn(),
+    findUnique: jest.fn(),
+    update: jest.fn(),
+  },
 };
 
 const mockGateway = { broadcast: jest.fn() };
@@ -34,7 +36,7 @@ async function buildModule(): Promise<SolicitudesService> {
   const module: TestingModule = await Test.createTestingModule({
     providers: [
       SolicitudesService,
-      { provide: getModelToken(SolicitudMuestreo.name), useValue: mockSolicitudModel },
+      { provide: PrismaService, useValue: mockPrisma },
       { provide: NotificationsGateway, useValue: mockGateway },
       { provide: FcmService, useValue: mockFcmService },
       { provide: I_USER_REPOSITORY, useValue: mockUserRepo },
@@ -43,6 +45,10 @@ async function buildModule(): Promise<SolicitudesService> {
   }).compile();
   return module.get(SolicitudesService);
 }
+
+const CAMPO_ID   = 'a1a1a1a1-0000-0000-0000-000000000001';
+const MONITOR_ID = 'b2b2b2b2-0000-0000-0000-000000000001';
+const SOL_ID     = 'c3c3c3c3-0000-0000-0000-000000000001';
 
 describe('SolicitudesService — FCM integration', () => {
   let service: SolicitudesService;
@@ -54,15 +60,15 @@ describe('SolicitudesService — FCM integration', () => {
 
   describe('create()', () => {
     const dto = {
-      campo_id: '6630000000000000000000a1',
-      asignado_a: '6630000000000000000000b1',
+      campo_id: CAMPO_ID,
+      asignado_a: MONITOR_ID,
       mensaje: 'Muestreo urgente',
       fecha_limite: '2026-05-10',
     };
-    const fakeSolicitud = { _id: 'sol1', ...dto, estado: 'PENDIENTE' };
+    const fakeSolicitud = { id: SOL_ID, campoId: CAMPO_ID, asignadoAId: MONITOR_ID, estado: 'PENDIENTE' };
 
     beforeEach(() => {
-      mockSolicitudModel.create.mockResolvedValue(fakeSolicitud);
+      mockPrisma.solicitudMuestreo.create.mockResolvedValue(fakeSolicitud);
       mockCamposService.findById.mockResolvedValue({ nombre: 'Finca El Rosal' });
     });
 
@@ -114,22 +120,22 @@ describe('SolicitudesService — FCM integration', () => {
   });
 
   describe('updateEstado()', () => {
-    const solicitudId = '6630000000000000000000c1';
     const fakeSolicitud = {
-      _id: solicitudId,
-      asignado_a: { toString: () => '6630000000000000000000b1' },
-      campo_id: { toString: () => '6630000000000000000000a1' },
+      id: SOL_ID,
+      asignadoAId: MONITOR_ID,
+      campoId: CAMPO_ID,
       estado: 'CANCELADO',
     };
 
     beforeEach(() => {
-      mockSolicitudModel.findByIdAndUpdate = jest.fn().mockResolvedValue(fakeSolicitud);
+      mockPrisma.solicitudMuestreo.findUnique.mockResolvedValue(fakeSolicitud);
+      mockPrisma.solicitudMuestreo.update.mockResolvedValue(fakeSolicitud);
       mockCamposService.findById.mockResolvedValue({ nombre: 'Finca El Rosal' });
       mockUserRepo.findFcmTokenById.mockResolvedValue('token-monitor');
     });
 
     it('sends push on CANCELADO', async () => {
-      await service.updateEstado(solicitudId, 'CANCELADO');
+      await service.updateEstado(SOL_ID, 'CANCELADO');
 
       expect(mockFcmService.sendToDevice).toHaveBeenCalledWith('token-monitor', {
         title: 'Solicitud cancelada: Finca El Rosal',
@@ -138,9 +144,9 @@ describe('SolicitudesService — FCM integration', () => {
     });
 
     it('sends push on COMPLETADO', async () => {
-      mockSolicitudModel.findByIdAndUpdate.mockResolvedValue({ ...fakeSolicitud, estado: 'COMPLETADO' });
+      mockPrisma.solicitudMuestreo.update.mockResolvedValue({ ...fakeSolicitud, estado: 'COMPLETADO' });
 
-      await service.updateEstado(solicitudId, 'COMPLETADO');
+      await service.updateEstado(SOL_ID, 'COMPLETADO');
 
       expect(mockFcmService.sendToDevice).toHaveBeenCalledWith('token-monitor', {
         title: 'Solicitud completada: Finca El Rosal',
@@ -149,13 +155,17 @@ describe('SolicitudesService — FCM integration', () => {
     });
 
     it('does NOT send push on EN_PROGRESO', async () => {
-      await service.updateEstado(solicitudId, 'EN_PROGRESO');
+      mockPrisma.solicitudMuestreo.update.mockResolvedValue({ ...fakeSolicitud, estado: 'EN_PROGRESO' });
+
+      await service.updateEstado(SOL_ID, 'EN_PROGRESO');
 
       expect(mockFcmService.sendToDevice).not.toHaveBeenCalled();
     });
 
     it('does NOT send push on PENDIENTE', async () => {
-      await service.updateEstado(solicitudId, 'PENDIENTE');
+      mockPrisma.solicitudMuestreo.update.mockResolvedValue({ ...fakeSolicitud, estado: 'PENDIENTE' });
+
+      await service.updateEstado(SOL_ID, 'PENDIENTE');
 
       expect(mockFcmService.sendToDevice).not.toHaveBeenCalled();
     });

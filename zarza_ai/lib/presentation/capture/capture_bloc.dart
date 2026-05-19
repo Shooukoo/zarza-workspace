@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -162,7 +163,8 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
       } else {
         emit(CaptureSuccess(result));
       }
-    } catch (e) {
+    } catch (e, stack) {
+      developer.log('[CaptureBloc] upload failed', error: e, stackTrace: stack);
       emit(CaptureFailure(_errorMessage(e), file: current.file));
     }
   }
@@ -174,9 +176,9 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   String _errorMessage(Object e) {
     final msg = e.toString();
     if (msg.contains('SocketException') || msg.contains('Connection refused')) {
-      return 'No se pudo conectar al servidor. ¿Está el backend en ejecución?';
+      return 'No se pudo conectar al servidor. Verifica tu conexión.';
     }
     if (msg.contains('413')) return 'La imagen es demasiado grande.';
-    return 'Error al subir la imagen: $msg';
+    return 'Error al subir la imagen. Intenta de nuevo.';
   }
 }

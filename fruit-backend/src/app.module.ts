@@ -17,7 +17,10 @@ import { FcmModule } from './fcm/fcm.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 1000 }]),
+    ThrottlerModule.forRoot([
+      { name: 'global', ttl: 60000, limit: 1000 },
+      { name: 'auth',   ttl: 60000, limit: 10 },   // 10 intentos/min en endpoints de auth
+    ]),
     FcmModule,
     AuthModule,
     AdminModule,

@@ -15,6 +15,7 @@ interface EnvVars {
   JWT_EXPIRES_IN: string;
   CORS_ORIGIN: string;
   FIREBASE_SERVICE_ACCOUNT_B64: string;
+  INTERNAL_NOTIFY_TOKEN: string;
 }
 
 const envSchema = joi
@@ -30,6 +31,7 @@ const envSchema = joi
     JWT_EXPIRES_IN: joi.string().required(),
     CORS_ORIGIN: joi.string().optional().default('http://localhost:5173'),
     FIREBASE_SERVICE_ACCOUNT_B64: joi.string().required(),
+    INTERNAL_NOTIFY_TOKEN: joi.string().min(32).required(),
   })
   .unknown(true);
 
@@ -53,4 +55,5 @@ export const envs = {
   jwtExpiresIn: envVars.JWT_EXPIRES_IN,
   corsOrigin: envVars.CORS_ORIGIN,
   firebaseServiceAccountB64: envVars.FIREBASE_SERVICE_ACCOUNT_B64,
+  internalNotifyToken: envVars.INTERNAL_NOTIFY_TOKEN,
 };

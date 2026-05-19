@@ -154,7 +154,7 @@ Reemplaza el array `cronograma_fenologico` dentro de cada documento de análisis
 | `cronograma_fenologico[]` → tabla `fenologia_etapas` | Convierte `$unwind + $group` en JOINs SQL; habilita queries directas sobre etapas |
 | `ubicacion_gps` → dos columnas Float | El índice 2dsphere no está activo; PostGIS se añade cuando se implemente el heatmap |
 | `campos_asignados[]` → tabla `user_campos` | Foreign keys reales + integridad referencial |
-| `requester_email` como snapshot | Preserva historial aunque el usuario cambie su email |
+| `requester_email` como snapshot | Preserva historial aunque el usuario cambie su email; no se sincroniza ante cambios de email — comportamiento intencional |
 | `offline_sync_id` UNIQUE nullable | PostgreSQL indexa solo valores no-null en UNIQUE nullable — equivalente al sparse index de Mongo |
 
 ---

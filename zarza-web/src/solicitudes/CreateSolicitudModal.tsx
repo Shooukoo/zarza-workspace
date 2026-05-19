@@ -22,7 +22,7 @@ export function CreateSolicitudModal({ open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
   const createMutation = useCreateSolicitud();
   const camposQuery = useCamposOptions();
-  const monitoresQuery = useMonitores();
+  const monitoresQuery = useMonitores(open);
 
   async function onFinish(values: FormValues) {
     try {
@@ -61,8 +61,8 @@ export function CreateSolicitudModal({ open, onClose }: Props) {
             loading={camposQuery.isLoading}
             placeholder="Selecciona campo"
             options={(camposQuery.data ?? []).map((c) => ({
-              value: c._id,
-              label: `${c.codigo_campo} — ${c.nombre}`,
+              value: c.id,
+              label: `${c.codigoCampo} — ${c.nombre}`,
             }))}
           />
         </Form.Item>

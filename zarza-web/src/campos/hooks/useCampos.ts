@@ -2,10 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../api/client';
 
 export interface Campo {
-  _id: string;
-  codigo_campo: string;
+  id: string;
+  codigoCampo: string;
   nombre: string;
-  productor_id: string;
+  productorId: string;
+  productor: { id: string; email: string };
   createdAt: string;
 }
 
