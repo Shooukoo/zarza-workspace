@@ -731,21 +731,34 @@ class _RecentAnalysesList extends StatelessWidget {
         }
         if (state is HistoryError) {
           return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.cloud_off_rounded,
-                      size: 48, color: AppTheme.dataGray),
-                  const SizedBox(height: 12),
-                  Text(
-                    state.message,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppTheme.dataGray),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.cloud_off_rounded,
+                    size: 48, color: AppTheme.warn),
+                const SizedBox(height: 12),
+                Text(
+                  'Sin conexión',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Verifica tu internet.',
+                  style: TextStyle(color: AppTheme.dataGray),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.refresh_rounded, size: 16),
+                  label: const Text('Reintentar'),
+                  onPressed: () {
+                    context.read<HistoryBloc>().add(GetAnalysesEvent());
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.rubus,
+                    foregroundColor: Colors.white,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         }
