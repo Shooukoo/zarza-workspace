@@ -1,5 +1,5 @@
 name: zarza_ai
-description: "Zarza AI — Aplicación móvil para análisis fenológico de zarzamora con visión artificial."
+description: "RubusAI — Aplicación móvil para análisis fenológico de zarzamora con visión artificial."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -42,6 +42,8 @@ dependencies:
 
   # Notifications
   flutter_local_notifications: ^17.2.3
+  firebase_core: ^3.13.1
+  firebase_messaging: ^15.2.5
 
   # State management
   flutter_bloc: ^9.0.0
