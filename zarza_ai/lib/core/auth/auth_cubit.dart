@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -7,30 +8,29 @@ import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/update_profile_usecase.dart';
 import 'auth_state.dart';
 
-/// Cubit global que gestiona el estado de sesión de toda la aplicación.
-///
-/// Es un **singleton** registrado en GetIt. El router lo escucha para redirigir
-/// automáticamente entre rutas protegidas y públicas.
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit({
     required LoginUseCase loginUseCase,
     required RegisterUseCase registerUseCase,
     required LogoutUseCase logoutUseCase,
     required GetCurrentUserUseCase getCurrentUserUseCase,
+    required UpdateProfileUseCase updateProfileUseCase,
   })  : _login = loginUseCase,
         _register = registerUseCase,
         _logout = logoutUseCase,
         _getCurrentUser = getCurrentUserUseCase,
+        _updateProfile = updateProfileUseCase,
         super(const AuthInitial());
 
   final LoginUseCase _login;
   final RegisterUseCase _register;
   final LogoutUseCase _logout;
   final GetCurrentUserUseCase _getCurrentUser;
+  final UpdateProfileUseCase _updateProfile;
 
-  /// Verifica si hay una sesión persistida. Debe llamarse al arrancar la app.
   Future<void> checkSession() async {
     emit(const AuthLoading());
     try {
@@ -40,7 +40,7 @@ class AuthCubit extends Cubit<AuthState> {
       } else {
         emit(const AuthUnauthenticated());
       }
-    } catch (_) {
+    } on Exception catch (_) {
       emit(const AuthUnauthenticated());
     }
   }
@@ -53,32 +53,51 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final result = await _login(email: email, password: password);
       emit(AuthAuthenticated(user: result.user, token: result.token));
-      GetIt.I<FcmService>().init().catchError((_) {});
+      unawaited(GetIt.I<FcmService>().init().catchError((_) {}));
     } on Exception catch (e, stack) {
       developer.log('[AuthCubit] login error', error: e, stackTrace: stack);
       emit(AuthError(_friendlyMessage(e)));
-    } catch (e, stack) {
-      developer.log('[AuthCubit] login unexpected error', error: e, stackTrace: stack);
-      emit(AuthError('Error desconocido.'));
     }
   }
 
-  /// Auto-registro de usuario nuevo. Emite [AuthAuthenticated] en éxito.
   Future<void> register({
     required String email,
     required String password,
+    String? firstName,
+    String? lastName,
   }) async {
     emit(const AuthLoading());
     try {
-      final result = await _register(email: email, password: password);
+      final result = await _register(
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+      );
       emit(AuthAuthenticated(user: result.user, token: result.token));
-      GetIt.I<FcmService>().init().catchError((_) {});
+      unawaited(GetIt.I<FcmService>().init().catchError((_) {}));
     } on Exception catch (e, stack) {
       developer.log('[AuthCubit] register error', error: e, stackTrace: stack);
       emit(AuthError(_friendlyMessage(e)));
-    } catch (e, stack) {
-      developer.log('[AuthCubit] register unexpected error', error: e, stackTrace: stack);
-      emit(AuthError('Error desconocido.'));
+    }
+  }
+
+  Future<void> updateProfile({
+    String? firstName,
+    String? lastName,
+  }) async {
+    final current = state;
+    if (current is! AuthAuthenticated) return;
+    try {
+      final updated = await _updateProfile(
+        firstName: firstName?.trim().isEmpty ?? true ? null : firstName!.trim(),
+        lastName: lastName?.trim().isEmpty ?? true ? null : lastName!.trim(),
+      );
+      emit(AuthAuthenticated(user: updated, token: current.token));
+    } on Exception catch (e, stack) {
+      developer.log('[AuthCubit] updateProfile error',
+          error: e, stackTrace: stack);
+      rethrow;
     }
   }
 
@@ -89,7 +108,9 @@ class AuthCubit extends Cubit<AuthState> {
 
   String _friendlyMessage(Exception e) {
     final msg = e.toString().toLowerCase();
-    if (msg.contains('401') || msg.contains('unauthorized') || msg.contains('invalid')) {
+    if (msg.contains('401') ||
+        msg.contains('unauthorized') ||
+        msg.contains('invalid')) {
       return 'Correo o contraseña incorrectos.';
     }
     if (msg.contains('400') || msg.contains('already exists')) {
