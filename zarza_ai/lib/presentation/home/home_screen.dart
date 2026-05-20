@@ -56,10 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = GetIt.I<AuthCubit>().state;
-    final user = authState is AuthAuthenticated ? authState.user : null;
-    final userName = user?.displayName ?? '';
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -135,11 +131,25 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
         ],
       ),
-      drawer: _AppDrawer(userName: userName),
+      drawer: BlocBuilder<AuthCubit, AuthState>(
+        bloc: GetIt.I<AuthCubit>(),
+        builder: (context, authState) {
+          final user = authState is AuthAuthenticated ? authState.user : null;
+          final userName = user?.displayName ?? '';
+          return _AppDrawer(userName: userName);
+        },
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _UserGreeting(userName: userName),
+          BlocBuilder<AuthCubit, AuthState>(
+            bloc: GetIt.I<AuthCubit>(),
+            builder: (context, authState) {
+              final user = authState is AuthAuthenticated ? authState.user : null;
+              final userName = user?.displayName ?? '';
+              return _UserGreeting(userName: userName);
+            },
+          ),
           _HealthHeroCard(),
           const SizedBox(height: 4),
           _CaptureCtaButton(onPressed: () => context.push('/capture')),

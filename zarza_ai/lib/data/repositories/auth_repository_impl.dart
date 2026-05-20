@@ -73,8 +73,9 @@ class AuthRepositoryImpl implements IAuthRepository {
       },
     );
     final stored = await _local.getUser();
+    if (stored == null) throw StateError('No authenticated user in local storage');
     final updated = UserEntity(
-      id: stored!.id,
+      id: stored.id,
       email: stored.email,
       role: stored.role,
       firstName: firstName ?? stored.firstName,

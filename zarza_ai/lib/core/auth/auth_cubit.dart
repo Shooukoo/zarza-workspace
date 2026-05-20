@@ -89,9 +89,11 @@ class AuthCubit extends Cubit<AuthState> {
     final current = state;
     if (current is! AuthAuthenticated) return;
     try {
+      final trimmedFirst = firstName?.trim();
+      final trimmedLast = lastName?.trim();
       final updated = await _updateProfile(
-        firstName: firstName?.trim().isEmpty ?? true ? null : firstName!.trim(),
-        lastName: lastName?.trim().isEmpty ?? true ? null : lastName!.trim(),
+        firstName: (trimmedFirst == null || trimmedFirst.isEmpty) ? null : trimmedFirst,
+        lastName: (trimmedLast == null || trimmedLast.isEmpty) ? null : trimmedLast,
       );
       emit(AuthAuthenticated(user: updated, token: current.token));
     } on Exception catch (e, stack) {

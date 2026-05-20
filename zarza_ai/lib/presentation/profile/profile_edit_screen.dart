@@ -54,6 +54,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             behavior: SnackBarBehavior.floating,
           ),
         );
+        Navigator.of(context).pop();
       }
     } catch (_) {
       if (mounted) {
