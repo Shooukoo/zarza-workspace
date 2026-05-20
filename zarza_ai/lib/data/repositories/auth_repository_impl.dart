@@ -1,3 +1,6 @@
+import 'package:dio/dio.dart';
+
+import '../../core/constants/app_constants.dart';
 import '../../domain/entities/auth_result_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/i_auth_repository.dart';
@@ -8,11 +11,14 @@ class AuthRepositoryImpl implements IAuthRepository {
   AuthRepositoryImpl({
     required RemoteAuthDatasource remote,
     required LocalAuthDatasource local,
+    required Dio dio,
   })  : _remote = remote,
-        _local = local;
+        _local = local,
+        _dio = dio;
 
   final RemoteAuthDatasource _remote;
   final LocalAuthDatasource _local;
+  final Dio _dio;
 
   @override
   Future<AuthResultEntity> login({
@@ -20,9 +26,6 @@ class AuthRepositoryImpl implements IAuthRepository {
     required String password,
   }) async {
     final model = await _remote.login(email: email, password: password);
-
-    // Después del login el servidor no devuelve `user`, pero necesitamos
-    // un UserEntity mínimo para continuar; usaremos el del modelo (fallback).
     final entity = model.toEntity();
     await _local.saveToken(entity.token);
     await _local.saveUser(entity.user);
@@ -33,8 +36,15 @@ class AuthRepositoryImpl implements IAuthRepository {
   Future<AuthResultEntity> register({
     required String email,
     required String password,
+    String? firstName,
+    String? lastName,
   }) async {
-    final model = await _remote.register(email: email, password: password);
+    final model = await _remote.register(
+      email: email,
+      password: password,
+      firstName: firstName,
+      lastName: lastName,
+    );
     final entity = model.toEntity();
     await _local.saveToken(entity.token);
     await _local.saveUser(entity.user);
@@ -49,4 +59,28 @@ class AuthRepositoryImpl implements IAuthRepository {
 
   @override
   Future<UserEntity?> getStoredUser() => _local.getUser();
+
+  @override
+  Future<UserEntity> updateProfile({
+    String? firstName,
+    String? lastName,
+  }) async {
+    await _dio.patch<void>(
+      '${AppConstants.baseUrl}/auth/profile',
+      data: {
+        if (firstName != null) 'firstName': firstName,
+        if (lastName != null) 'lastName': lastName,
+      },
+    );
+    final stored = await _local.getUser();
+    final updated = UserEntity(
+      id: stored!.id,
+      email: stored.email,
+      role: stored.role,
+      firstName: firstName ?? stored.firstName,
+      lastName: lastName ?? stored.lastName,
+    );
+    await _local.saveUser(updated);
+    return updated;
+  }
 }

@@ -29,10 +29,12 @@ class RemoteAuthDatasource {
           message: 'Tiempo de conexión agotado. Verifica tu red.',
         );
       }
-      developer.log('[RemoteAuthDatasource] DioError: ${e.type} - ${e.response?.statusCode}');
+      developer.log(
+          '[RemoteAuthDatasource] DioError: ${e.type} - ${e.response?.statusCode}');
       rethrow;
     } catch (e, stack) {
-      developer.log('[RemoteAuthDatasource] Error general', error: e, stackTrace: stack);
+      developer.log('[RemoteAuthDatasource] Error general',
+          error: e, stackTrace: stack);
       rethrow;
     }
   }
@@ -40,10 +42,17 @@ class RemoteAuthDatasource {
   Future<AuthResponseModel> register({
     required String email,
     required String password,
+    String? firstName,
+    String? lastName,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       AppConstants.registerEndpoint,
-      data: {'email': email, 'password': password},
+      data: {
+        'email': email,
+        'password': password,
+        if (firstName != null && firstName.isNotEmpty) 'firstName': firstName,
+        if (lastName != null && lastName.isNotEmpty) 'lastName': lastName,
+      },
     );
     return AuthResponseModel.fromJson(response.data!);
   }

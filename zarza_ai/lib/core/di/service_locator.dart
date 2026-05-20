@@ -51,6 +51,7 @@ import '../../domain/usecases/get_campos_usecase.dart';
 import '../../domain/usecases/sync_pending_uploads_usecase.dart';
 import '../../domain/usecases/watch_pending_uploads_usecase.dart';
 // Core services
+import '../services/auto_sync_service.dart';
 import '../services/connectivity_service.dart';
 import '../services/fcm_service.dart';
 import '../services/sync_service.dart';
@@ -117,6 +118,7 @@ Future<void> setupServiceLocator() async {
     () => AuthRepositoryImpl(
       remote: sl<RemoteAuthDatasource>(),
       local: sl<LocalAuthDatasource>(),
+      dio: sl<Dio>(),
     ),
   );
 
@@ -172,6 +174,11 @@ Future<void> setupServiceLocator() async {
         queue: sl<IOfflineQueueRepository>(),
         remote: sl<RemoteIngestionDatasource>(),
         notifications: sl<LocalNotificationsService>(),
+      ));
+
+  sl.registerLazySingleton<AutoSyncService>(() => AutoSyncService(
+        connectivity: sl<ConnectivityService>(),
+        sync: sl<SyncService>(),
       ));
 
   // ── Campos ────────────────────────────────────────────────────────────────
