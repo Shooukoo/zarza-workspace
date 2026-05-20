@@ -22,6 +22,7 @@ import '../../presentation/admin/users_page.dart';
 import '../../presentation/admin/analyses_page.dart';
 import '../../presentation/admin/admin_blocs/admin_bloc.dart';
 import '../../presentation/queue/offline_queue_screen.dart';
+import '../../presentation/profile/profile_edit_screen.dart';
 import '../di/service_locator.dart';
 import '../../presentation/shell/scaffold_with_bottom_nav.dart';
 import '../../presentation/solicitudes/solicitudes_screen.dart';
@@ -136,6 +137,10 @@ class AppRouter {
                 child: const HistoryScreen(),
               );
             },
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const ProfileEditScreen(),
           ),
         ],
       ),
