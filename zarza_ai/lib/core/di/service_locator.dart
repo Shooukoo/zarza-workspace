@@ -39,6 +39,7 @@ import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
+import '../../domain/usecases/update_profile_usecase.dart';
 import '../../domain/usecases/upload_image_usecase.dart';
 import '../../domain/usecases/get_analysis_usecase.dart';
 import '../../domain/usecases/watch_notifications_usecase.dart';
@@ -135,6 +136,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<GetCurrentUserUseCase>(
     () => GetCurrentUserUseCase(sl<IAuthRepository>()),
   );
+  sl.registerLazySingleton<UpdateProfileUseCase>(
+    () => UpdateProfileUseCase(sl<IAuthRepository>()),
+  );
 
   // ── Auth Cubit (singleton global) ─────────────────────────────────────────
   sl.registerLazySingleton<AuthCubit>(
@@ -143,6 +147,7 @@ Future<void> setupServiceLocator() async {
       registerUseCase: sl<RegisterUseCase>(),
       logoutUseCase: sl<LogoutUseCase>(),
       getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
+      updateProfileUseCase: sl<UpdateProfileUseCase>(),
     ),
   );
 
