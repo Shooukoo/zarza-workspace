@@ -18,6 +18,8 @@ export class InMemoryUserRepository implements IUserRepository {
       data.email,
       data.passwordHash,
       data.role,
+      data.firstName ?? null,
+      data.lastName ?? null,
     );
     this.users.push(newUser);
     return newUser;
@@ -43,6 +45,13 @@ export class InMemoryUserRepository implements IUserRepository {
   async saveFcmToken(userId: string, token: string): Promise<void> {
     const user = this.users.find((u) => u.id === userId);
     if (user) user.fcm_token = token;
+  }
+
+  async updateProfile(
+    _userId: string,
+    _data: { firstName?: string; lastName?: string },
+  ): Promise<void> {
+    // No-op in tests — User is immutable; test state is verified through the array directly
   }
 }
 

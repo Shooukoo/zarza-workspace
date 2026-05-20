@@ -13,7 +13,14 @@ export class PrismaUserRepository implements IUserRepository {
       where: { email: email.toLowerCase().trim() },
     });
     if (!doc) return null;
-    return new User(doc.id, doc.email, doc.passwordHash, doc.role as Role);
+    return new User(
+      doc.id,
+      doc.email,
+      doc.passwordHash,
+      doc.role as Role,
+      doc.firstName ?? null,
+      doc.lastName ?? null,
+    );
   }
 
   async save(data: CreateUserData): Promise<User> {
@@ -22,9 +29,18 @@ export class PrismaUserRepository implements IUserRepository {
         email: data.email,
         passwordHash: data.passwordHash,
         role: data.role,
+        firstName: data.firstName ?? null,
+        lastName: data.lastName ?? null,
       },
     });
-    return new User(created.id, created.email, created.passwordHash, created.role as Role);
+    return new User(
+      created.id,
+      created.email,
+      created.passwordHash,
+      created.role as Role,
+      created.firstName ?? null,
+      created.lastName ?? null,
+    );
   }
 
   async findById(id: string): Promise<UserCampos | null> {
@@ -58,6 +74,19 @@ export class PrismaUserRepository implements IUserRepository {
     await this.prisma.user.update({
       where: { id: userId },
       data: { fcmToken: token },
+    });
+  }
+
+  async updateProfile(
+    userId: string,
+    data: { firstName?: string; lastName?: string },
+  ): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(data.firstName !== undefined && { firstName: data.firstName }),
+        ...(data.lastName !== undefined && { lastName: data.lastName }),
+      },
     });
   }
 }
