@@ -64,6 +64,8 @@ class FruitAnalysisModel {
         .map((e) => DetectionModel.fromJson(e as Map<String, dynamic>))
         .toList();
 
+    final rawCreatedAt = json['createdAt'] ?? json['created_at'];
+
     return FruitAnalysisModel(
       id: (json['_id'] ?? json['id'] ?? '').toString(),
       imageId: json['image_id'] as String? ?? '',
@@ -81,9 +83,8 @@ class FruitAnalysisModel {
       pesoSanoGramos:
           (proyeccion['peso_sano_gramos'] as num?)?.toDouble() ?? 0.0,
       cronograma: cronograma,
-      createdAt: (json['createdAt'] ?? json['created_at']) != null
-          ? DateTime.tryParse(
-              (json['createdAt'] ?? json['created_at']) as String)
+      createdAt: rawCreatedAt != null
+          ? DateTime.tryParse(rawCreatedAt.toString())
           : null,
     );
   }
