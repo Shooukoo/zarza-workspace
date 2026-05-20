@@ -6,17 +6,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'core/auth/auth_cubit.dart';
 import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
+import 'core/services/auto_sync_service.dart';
 import 'core/services/fcm_service.dart';
 import 'core/services/sync_service.dart';
 import 'core/theme/app_theme.dart';
+import 'domain/usecases/get_campos_usecase.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es_ES');
   await Firebase.initializeApp();
 
   // Debe registrarse aquí, en el isolate principal, antes de runApp.
@@ -50,8 +54,14 @@ Future<void> main() async {
   // Inicializar FCM (pide permisos y registra token si hay sesión activa)
   sl<FcmService>().init().catchError((_) {});
 
+  // Pre-cargar campos en caché sin bloquear arranque
+  sl<GetCamposUseCase>()().catchError((_) {});
+
   // Sincronizar cola pendiente sin bloquear arranque
   sl<SyncService>().syncPending().catchError((_) {});
+
+  // Iniciar listener de reconexión automática
+  sl<AutoSyncService>().start();
 
   runApp(const ZarzaAiApp());
 }
