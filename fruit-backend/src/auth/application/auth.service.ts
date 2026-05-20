@@ -8,8 +8,16 @@ import {
   UserAlreadyExistsError,
 } from '../domain/errors/auth.errors';
 
+export type UserProfile = {
+  id: string;
+  email: string;
+  role: Role;
+  firstName: string | null;
+  lastName: string | null;
+};
+
 export type RegisteredUserResult = {
-  user: { id: string; email: string; role: Role };
+  user: UserProfile;
   token: string;
 };
 
@@ -20,14 +28,11 @@ export class AuthService {
     private readonly tokenService: ITokenPort,
   ) {}
 
-  /**
-   * Registra un nuevo usuario. El rol siempre se asigna como `MONITOR`
-   * (nivel mínimo de acceso). La promoción de roles debe realizarse
-   * mediante un endpoint de administración separado.
-   */
   async register(
     email: string,
     plainPassword: string,
+    firstName?: string,
+    lastName?: string,
   ): Promise<RegisteredUserResult> {
     const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
@@ -39,7 +44,9 @@ export class AuthService {
     const newUser = await this.userRepository.save({
       email,
       passwordHash,
-      role: Role.MONITOR, // ← Rol mínimo por defecto; nunca viene del cliente
+      role: Role.MONITOR,
+      firstName: firstName?.trim(),
+      lastName: lastName?.trim(),
     });
 
     const token = await this.tokenService.generateToken({
@@ -49,7 +56,7 @@ export class AuthService {
     });
 
     return {
-      user: { id: newUser.id, email: newUser.email, role: newUser.role },
+      user: this._toProfile(newUser),
       token,
     };
   }
@@ -57,19 +64,15 @@ export class AuthService {
   async login(
     email: string,
     plainPassword: string,
-  ): Promise<{ token: string; user: { id: string; email: string; role: Role } }> {
+  ): Promise<{ token: string; user: UserProfile }> {
     const user = await this.userRepository.findByEmail(email);
-    if (!user) {
-      throw new InvalidCredentialsError();
-    }
+    if (!user) throw new InvalidCredentialsError();
 
     const isPasswordValid = await this.hasher.compare(
       plainPassword,
       user.hashedPassword,
     );
-    if (!isPasswordValid) {
-      throw new InvalidCredentialsError();
-    }
+    if (!isPasswordValid) throw new InvalidCredentialsError();
 
     const token = await this.tokenService.generateToken({
       sub: user.id,
@@ -77,9 +80,16 @@ export class AuthService {
       role: user.role,
     });
 
+    return { token, user: this._toProfile(user) };
+  }
+
+  private _toProfile(user: User): UserProfile {
     return {
-      token,
-      user: { id: user.id, email: user.email, role: user.role },
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
   }
 }
