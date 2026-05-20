@@ -5,8 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/fruit_analysis.dart';
 import '../../domain/entities/fenological_detection.dart';
+import '../widgets/help_tooltip.dart';
 import '../widgets/ring_progress.dart';
-import '../widgets/stage_badge.dart';
+import '../widgets/stage_badge.dart' show StageBadge, StatusBadge;
 import 'results_bloc.dart';
 
 class ResultsScreen extends StatelessWidget {
@@ -294,6 +295,20 @@ class _SummaryCard extends StatelessWidget {
                 Text('Resumen',
                     style: Theme.of(context).textTheme.titleMedium),
                 const Spacer(),
+                Row(
+                  children: [
+                    StatusBadge(status: analysis.status),
+                    const SizedBox(width: 6),
+                    const HelpTooltip(
+                      content: 'SUBIDO = carga completada. '
+                          'ANALIZANDO = procesando. '
+                          'COMPLETADO = análisis finalizado. '
+                          'FALLIDO = error, reintentar.',
+                      maxWidth: 260,
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 8),
                 if (analysis.variety != null)
                   Chip(label: Text(analysis.variety!)),
               ],
@@ -403,6 +418,13 @@ class _DetectionsCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text('Etapas fenológicas',
                     style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(width: 6),
+                const HelpTooltip(
+                  content: 'Etapas de desarrollo de la fruta. '
+                      'Stages 1-7 según cronología de maduración. '
+                      'Cada etapa indica progreso en madurez.',
+                  maxWidth: 260,
+                ),
               ],
             ),
             const SizedBox(height: 14),
