@@ -81,8 +81,9 @@ class FruitAnalysisModel {
       pesoSanoGramos:
           (proyeccion['peso_sano_gramos'] as num?)?.toDouble() ?? 0.0,
       cronograma: cronograma,
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'] as String)
+      createdAt: (json['createdAt'] ?? json['created_at']) != null
+          ? DateTime.tryParse(
+              (json['createdAt'] ?? json['created_at']) as String)
           : null,
     );
   }
