@@ -21,6 +21,8 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
+  final _firstNameCtrl = TextEditingController();
+  final _lastNameCtrl = TextEditingController();
   bool _obscurePass = true;
   bool _obscureConfirm = true;
   late final AnimationController _fadeCtrl;
@@ -42,6 +44,8 @@ class _RegisterScreenState extends State<RegisterScreen>
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _confirmCtrl.dispose();
+    _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
     super.dispose();
   }
 
@@ -50,6 +54,12 @@ class _RegisterScreenState extends State<RegisterScreen>
     context.read<AuthCubit>().register(
           email: _emailCtrl.text.trim(),
           password: _passwordCtrl.text,
+          firstName: _firstNameCtrl.text.trim().isEmpty
+              ? null
+              : _firstNameCtrl.text.trim(),
+          lastName: _lastNameCtrl.text.trim().isEmpty
+              ? null
+              : _lastNameCtrl.text.trim(),
         );
   }
 
@@ -136,6 +146,22 @@ class _RegisterScreenState extends State<RegisterScreen>
                               if (!v.contains('@')) return 'Correo inválido';
                               return null;
                             },
+                          ),
+                          const SizedBox(height: 16),
+                          AuthTextField(
+                            controller: _firstNameCtrl,
+                            label: 'Nombre (opcional)',
+                            icon: Icons.person_outline_rounded,
+                            keyboardType: TextInputType.name,
+                            validator: (_) => null,
+                          ),
+                          const SizedBox(height: 16),
+                          AuthTextField(
+                            controller: _lastNameCtrl,
+                            label: 'Apellido (opcional)',
+                            icon: Icons.person_outline_rounded,
+                            keyboardType: TextInputType.name,
+                            validator: (_) => null,
                           ),
                           const SizedBox(height: 16),
                           AuthTextField(
