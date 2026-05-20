@@ -3,11 +3,12 @@ import { Role } from '../domain/enums/role.enum';
 
 export const I_USER_REPOSITORY = Symbol('I_USER_REPOSITORY');
 
-/** Datos necesarios para crear un nuevo usuario (sin ID, que lo genera el repositorio). */
 export type CreateUserData = {
   email: string;
   passwordHash: string;
   role: Role;
+  firstName?: string;
+  lastName?: string;
 };
 
 export type UserCampos = {
@@ -22,4 +23,5 @@ export interface IUserRepository {
   findFcmTokenById(userId: string): Promise<string | null>;
   clearFcmToken(userId: string): Promise<void>;
   saveFcmToken(userId: string, token: string): Promise<void>;
+  updateProfile(userId: string, data: { firstName?: string; lastName?: string }): Promise<void>;
 }
