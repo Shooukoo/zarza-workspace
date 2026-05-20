@@ -2,11 +2,6 @@ import '../../domain/entities/auth_result_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/enums/user_role.dart';
 
-/// DTO que mapea la respuesta JSON del servidor a entidades de dominio.
-///
-/// Soporta las dos formas de respuesta del backend:
-///  - Login  → `{ "token": "..." }`            (sin campo `user`)
-///  - Register → `{ "token": "...", "user": { "id", "email", "role" } }`
 class AuthResponseModel {
   const AuthResponseModel._({
     required this.token,
@@ -18,7 +13,6 @@ class AuthResponseModel {
 
   factory AuthResponseModel.fromJson(
     Map<String, dynamic> json, {
-    /// Si el servidor no devuelve `user` (ej. login) se usa este fallback.
     UserEntity? fallbackUser,
   }) {
     final userJson = json['user'] as Map<String, dynamic>?;
@@ -29,11 +23,12 @@ class AuthResponseModel {
         id: userJson['id'] as String? ?? '',
         email: userJson['email'] as String? ?? '',
         role: UserRole.fromString(userJson['role'] as String? ?? 'MONITOR'),
+        firstName: userJson['firstName'] as String?,
+        lastName: userJson['lastName'] as String?,
       );
     } else if (fallbackUser != null) {
       user = fallbackUser;
     } else {
-      // Fallback seguro — no debería ocurrir en producción
       user = const UserEntity(id: '', email: '', role: UserRole.monitor);
     }
 
