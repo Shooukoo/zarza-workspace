@@ -13,6 +13,7 @@ import '../../domain/entities/pending_upload.dart';
 import '../../domain/usecases/watch_pending_uploads_usecase.dart';
 import '../help/help_screen.dart';
 import '../history/history_bloc.dart';
+import '../widgets/help_tooltip.dart';
 import '../widgets/ring_progress.dart';
 import '../widgets/stage_badge.dart';
 
@@ -277,15 +278,25 @@ class _HealthHeroCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'SALUD DEL CULTIVO',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.06,
-                            color: AppTheme.rubusLight,
-                            fontFamily: 'Lexend',
-                          ),
+                        Row(
+                          children: [
+                            const Text(
+                              'SALUD DEL CULTIVO',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.06,
+                                color: AppTheme.rubusLight,
+                                fontFamily: 'Lexend',
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            HelpTooltip(
+                              content: 'La salud es el porcentaje promedio '
+                                  'de frutas sanas. 100% = todas sanas, 0% = todas enfermas.',
+                              maxWidth: 260,
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Row(
@@ -856,10 +867,21 @@ class _AnalysisListTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '${analysis.totalDetected} detectados · ${analysis.healthyCount} sanos',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${analysis.totalDetected} detectados · ${analysis.healthyCount} sanos',
+                              style: Theme.of(context).textTheme.titleMedium,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          HelpTooltip(
+                            content: 'Detectados = frutas analizadas. Sanos = sin enfermedades.',
+                            maxWidth: 260,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Column(
