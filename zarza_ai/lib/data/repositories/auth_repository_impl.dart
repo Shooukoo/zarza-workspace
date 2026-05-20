@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 
-import '../../core/constants/app_constants.dart';
 import '../../domain/entities/auth_result_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/i_auth_repository.dart';
@@ -66,7 +65,7 @@ class AuthRepositoryImpl implements IAuthRepository {
     String? lastName,
   }) async {
     await _dio.patch<void>(
-      '${AppConstants.baseUrl}/auth/profile',
+      '/api/auth/profile',
       data: {
         if (firstName != null) 'firstName': firstName,
         if (lastName != null) 'lastName': lastName,
