@@ -11,6 +11,7 @@ import '../../core/theme/app_theme.dart';
 import '../../domain/entities/fruit_analysis.dart';
 import '../../domain/entities/pending_upload.dart';
 import '../../domain/usecases/watch_pending_uploads_usecase.dart';
+import '../help/help_screen.dart';
 import '../history/history_bloc.dart';
 import '../widgets/ring_progress.dart';
 import '../widgets/stage_badge.dart';
@@ -1000,6 +1001,21 @@ class _AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.of(context).pop();
               context.push('/queue');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.help_outline_rounded,
+                color: AppTheme.frostDim),
+            title: const Text('📖 Manual de Usuario',
+                style: TextStyle(
+                    color: AppTheme.frost, fontFamily: 'Lexend')),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push<void>(
+                MaterialPageRoute<void>(
+                  builder: (context) => const HelpScreen(),
+                ),
+              );
             },
           ),
           const Divider(),
