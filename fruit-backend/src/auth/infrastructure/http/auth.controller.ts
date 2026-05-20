@@ -21,6 +21,7 @@ class FcmTokenDto {
   @MaxLength(512)
   token: string;
 }
+
 import type { FastifyReply } from 'fastify';
 import { AuthService } from '../../application/auth.service';
 import {
@@ -29,6 +30,7 @@ import {
 } from '../../domain/errors/auth.errors';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
+import { UpdateProfileDto } from './dtos/update-profile.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
@@ -38,7 +40,7 @@ import { I_USER_REPOSITORY, type IUserRepository } from '../../ports/user-reposi
 export const AUTH_SERVICE = Symbol('AUTH_SERVICE');
 
 const COOKIE_NAME = 'access_token';
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days in seconds
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 
 @Controller('auth')
 export class AuthController {
@@ -50,11 +52,13 @@ export class AuthController {
   @Post('register')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  async register(@Body() registerDto: RegisterDto) {
+  async register(@Body() dto: RegisterDto) {
     try {
       return await this.authService.register(
-        registerDto.email,
-        registerDto.password,
+        dto.email,
+        dto.password,
+        dto.firstName,
+        dto.lastName,
       );
     } catch (error) {
       if (error instanceof UserAlreadyExistsError) {
@@ -95,17 +99,23 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   me(@Req() req: any) {
-    // req.user is the JwtPayload set by JwtAuthGuard: { sub, email, role }
     return req.user;
+  }
+
+  @Patch('profile')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(@Req() req: any, @Body() dto: UpdateProfileDto) {
+    await this.userRepository.updateProfile(req.user.sub, {
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+    });
   }
 
   @Patch('fcm-token')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
-  async registerFcmToken(
-    @Req() req: any,
-    @Body() body: FcmTokenDto,
-  ) {
+  async registerFcmToken(@Req() req: any, @Body() body: FcmTokenDto) {
     await this.userRepository.saveFcmToken(req.user.sub, body.token);
   }
 
