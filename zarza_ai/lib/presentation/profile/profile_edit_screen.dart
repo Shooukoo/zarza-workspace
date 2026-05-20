@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -56,11 +57,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         );
         Navigator.of(context).pop();
       }
-    } catch (_) {
+    } catch (e, stack) {
+      developer.log('[ProfileEditScreen] updateProfile error', error: e, stackTrace: stack);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al guardar. Intenta de nuevo.'),
+          SnackBar(
+            content: Text('Error: $e'),
             backgroundColor: AppTheme.danger,
             behavior: SnackBarBehavior.floating,
           ),
