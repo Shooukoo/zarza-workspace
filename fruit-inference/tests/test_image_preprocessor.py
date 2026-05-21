@@ -2,10 +2,11 @@ import cv2
 import numpy as np
 import pytest
 
+from infrastructure.image_preprocessor import preprocess
+
 
 def test_black_image_does_not_raise():
     """Gray World debe activar guardrail en imagen negra sin lanzar excepción."""
-    from infrastructure.image_preprocessor import preprocess
 
     black = np.zeros((100, 100, 3), dtype=np.uint8)
     result, meta = preprocess(black, return_debug=True)
@@ -19,8 +20,6 @@ def test_black_image_does_not_raise():
 
 def test_red_dominant_image_reduces_red_channel():
     """Gray World debe reducir el canal dominante rojo."""
-    from infrastructure.image_preprocessor import preprocess
-
     img = np.zeros((100, 100, 3), dtype=np.uint8)
     img[:, :, 2] = 200  # Red (BGR index 2)
     img[:, :, 1] = 80   # Green
@@ -34,8 +33,6 @@ def test_red_dominant_image_reduces_red_channel():
 
 def test_output_shape_and_dtype_preserved():
     """La imagen de salida debe tener el mismo shape y dtype que la entrada."""
-    from infrastructure.image_preprocessor import preprocess
-
     img = np.random.randint(50, 200, (480, 640, 3), dtype=np.uint8)
     result = preprocess(img)
 
@@ -45,11 +42,9 @@ def test_output_shape_and_dtype_preserved():
 
 def test_clahe_does_not_alter_color_channels():
     """CLAHE solo debe modificar el canal L en espacio LAB, no a ni b."""
-    from infrastructure.image_preprocessor import preprocess
-
     # Imagen con todos los canales iguales (Gray World es no-op: scale=1)
     img = np.full((100, 100, 3), 128, dtype=np.uint8)
-    img[25:75, 25:75] = [60, 128, 128]  # variación en L, a y b equilibrados
+    img[25:75, 25:75] = [60, 128, 128]  # variación de luminosidad para forzar efecto CLAHE
 
     result, meta = preprocess(img, return_debug=True)
 
