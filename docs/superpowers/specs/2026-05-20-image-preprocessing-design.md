@@ -70,9 +70,16 @@ Una sola decodificación. Consistencia entre lo que ve YOLO y lo que usa el cál
 ### Interfaz pública
 
 ```python
-def preprocess(bgr_img: np.ndarray) -> np.ndarray:
+def preprocess(
+    bgr_img: np.ndarray,
+    return_debug: bool = False,
+) -> np.ndarray | tuple[np.ndarray, dict]:
     ...
 ```
+
+Cuando `return_debug=False` (default): retorna solo `np.ndarray`.  
+Cuando `return_debug=True`: retorna `(np.ndarray, metadata_dict)`.  
+`main.py` llama con `return_debug=True` solo si `PREPROCESSING_DEBUG=true`.
 
 ### Paso 1 — Gray World White Balance
 
