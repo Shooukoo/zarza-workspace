@@ -44,7 +44,7 @@ def test_clahe_does_not_alter_color_channels():
     """CLAHE solo debe modificar el canal L en espacio LAB, no a ni b."""
     # Imagen con todos los canales iguales (Gray World es no-op: scale=1)
     img = np.full((100, 100, 3), 128, dtype=np.uint8)
-    img[25:75, 25:75] = [60, 128, 128]  # variación de luminosidad para forzar efecto CLAHE
+    img[25:75, 25:75] = [60, 60, 60]  # variación de luminosidad para forzar efecto CLAHE (todos los canales iguales → Gray World no-op)
 
     result, meta = preprocess(img, return_debug=True)
 
