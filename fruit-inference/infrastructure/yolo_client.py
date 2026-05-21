@@ -1,13 +1,12 @@
 """
 fruit-inference — Infraestructura: cliente YOLO + helpers de conversión de imagen.
 
-Responsabilidad: ejecutar el modelo YOLO sobre bytes de imagen y retornar
+Responsabilidad: ejecutar el modelo YOLO sobre un array BGR y retornar
 las detecciones en un formato neutral de dominio (list[dict]).
 Sin dependencias de FastAPI ni boto3.
 """
 
 import io
-from typing import Optional
 
 import cv2
 import numpy as np
@@ -22,22 +21,21 @@ def bytes_to_bgr(image_bytes: bytes) -> np.ndarray:
 
 def run_inference(
     model,
-    image_bytes: bytes,
+    bgr_img: np.ndarray,
     conf_threshold: float,
 ) -> list[dict]:
     """
-    Ejecuta el modelo YOLO sobre los bytes de imagen y retorna las detecciones.
+    Ejecuta el modelo YOLO sobre un array BGR y retorna las detecciones.
 
     Args:
         model:          Instancia del modelo YOLO ya cargado.
-        image_bytes:    Bytes de la imagen.
+        bgr_img:        Array BGR uint8 de OpenCV (ya preprocesado).
         conf_threshold: Umbral de confianza de detección.
 
     Returns:
         Lista de dicts con keys: class, confidence, bbox (x1, y1, x2, y2).
     """
-    pil_img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    results  = model.predict(source=pil_img, conf=conf_threshold, verbose=False)
+    results = model.predict(source=bgr_img, conf=conf_threshold, verbose=False)
 
     detections = []
     for result in results:
