@@ -72,7 +72,12 @@
       "Bash(curl -s -X POST http://localhost:3001/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"admin@test.com\",\"password\":\"Test1234!\"}' -c /tmp/cookies.txt)",
       "Bash(flutter analyze *)",
       "Bash(node fruit-backend/scripts/seed-admin.js)",
-      "WebFetch(domain:api.anthropic.com)"
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(python)",
+      "Bash(python -m pytest tests/test_image_preprocessor.py::test_red_dominant_image_reduces_red_channel -v)",
+      "Bash(python -m pytest tests/test_image_preprocessor.py -v)",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(python -c \"from main import app; print\\('OK'\\)\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\shoxd\\Proyecto Dalet\\docs\\superpowers\\specs"

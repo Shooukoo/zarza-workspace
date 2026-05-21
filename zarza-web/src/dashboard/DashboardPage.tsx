@@ -285,6 +285,7 @@ export function DashboardPage() {
                   tickLine={false}
                 />
                 <Tooltip
+                  cursor={{ fill: 'rgba(255,255,255,0.04)' }}
                   contentStyle={{ background: T.obsidian3, border: `1px solid ${T.grayLine}`, borderRadius: 10, fontFamily: 'Lexend', fontSize: 12 }}
                   labelStyle={{ color: T.frostDim }}
                   itemStyle={{ color: T.rubusLt }}

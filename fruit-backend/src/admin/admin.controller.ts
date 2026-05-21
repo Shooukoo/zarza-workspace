@@ -26,6 +26,7 @@ import {
   IsEmail,
   IsEnum,
   IsString,
+  IsOptional,
   MinLength,
   IsArray,
   IsUUID,
@@ -46,6 +47,24 @@ class CreateUserDto {
 
   @IsEnum(Role)
   role: Role;
+
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+}
+
+class UpdateNameDto {
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
 }
 
 class UpdateCamposDto {
@@ -98,9 +117,23 @@ export class AdminController {
   @Post('users')
   async createUser(@Body() dto: CreateUserDto) {
     try {
-      return await this.adminService.createUser(dto.email, dto.password, dto.role);
+      return await this.adminService.createUser(dto.email, dto.password, dto.role, dto.firstName, dto.lastName);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
+      throw new BadRequestException(msg);
+    }
+  }
+
+  @Patch('users/:id/name')
+  async updateUserName(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateNameDto,
+  ) {
+    try {
+      return await this.adminService.updateName(id, dto.firstName, dto.lastName);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes('not found')) throw new NotFoundException(msg);
       throw new BadRequestException(msg);
     }
   }

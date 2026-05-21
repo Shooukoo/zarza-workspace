@@ -60,23 +60,14 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppTheme.rubus, AppTheme.rubusLight],
-                ),
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.rubus.withValues(alpha: 0.4),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/images/logo-rubus.png',
+                width: 30,
+                height: 30,
+                fit: BoxFit.cover,
               ),
-              child: const Icon(Icons.eco_rounded, size: 16, color: Colors.white),
             ),
             const SizedBox(width: 10),
             RichText(
@@ -88,11 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: AppTheme.frost,
                 ),
                 children: [
-                  TextSpan(text: 'rubusAI'),
-                  TextSpan(
-                    text: '.mx',
-                    style: TextStyle(color: AppTheme.rubus),
-                  ),
+                  TextSpan(text: 'RubusAI'),
                 ],
               ),
             ),
@@ -962,9 +949,6 @@ class _AppDrawer extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF3D006A), AppTheme.rubus],
-                    ),
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
@@ -973,8 +957,15 @@ class _AppDrawer extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.eco_rounded,
-                      size: 24, color: Colors.white),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: Image.asset(
+                      'assets/images/logo-rubus.png',
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -991,11 +982,7 @@ class _AppDrawer extends StatelessWidget {
                             color: AppTheme.frost,
                           ),
                           children: [
-                            TextSpan(text: 'rubusAI'),
-                            TextSpan(
-                              text: '.mx',
-                              style: TextStyle(color: AppTheme.rubusLight),
-                            ),
+                            TextSpan(text: 'RubusAI'),
                           ],
                         ),
                       ),
@@ -1040,7 +1027,7 @@ class _AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.help_outline_rounded,
                 color: AppTheme.frostDim),
-            title: const Text('📖 Manual de Usuario',
+            title: const Text('Manual de Usuario',
                 style: TextStyle(
                     color: AppTheme.frost, fontFamily: 'Lexend')),
             onTap: () {

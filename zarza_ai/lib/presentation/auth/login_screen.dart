@@ -89,11 +89,6 @@ class _LoginScreenState extends State<LoginScreen>
                       height: 80,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(22),
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.rubus, AppTheme.rubusLight],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
                         boxShadow: [
                           BoxShadow(
                             color: AppTheme.rubus.withValues(alpha: 0.5),
@@ -102,10 +97,14 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.eco_rounded,
-                        color: Colors.white,
-                        size: 40,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(22),
+                        child: Image.asset(
+                          'assets/images/logo-rubus.png',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -118,11 +117,7 @@ class _LoginScreenState extends State<LoginScreen>
                           letterSpacing: -0.3,
                         ),
                         children: const [
-                          TextSpan(text: 'rubusAI'),
-                          TextSpan(
-                            text: '.mx',
-                            style: TextStyle(color: AppTheme.rubus),
-                          ),
+                          TextSpan(text: 'RubusAI'),
                         ],
                       ),
                     ),

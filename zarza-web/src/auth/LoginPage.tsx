@@ -64,19 +64,13 @@ export function LoginPage() {
       }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{
+          <img src="/logo-rubus.png" alt="RubusAI" style={{
             width: 56, height: 56, borderRadius: 16, margin: '0 auto 16px',
-            background: `linear-gradient(135deg, ${T.rubus}, ${T.rubusLt})`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'block', objectFit: 'cover',
             boxShadow: `0 8px 32px ${T.rubus}44`,
-          }}>
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff"
-              strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2C6 2 2 9 2 14c0 3.3 2.7 6 6 6 2.2 0 4.2-1.2 5.3-3A6 6 0 0021 11c0-5-4-9-9-9z"/>
-            </svg>
-          </div>
+          }} />
           <div style={{ fontSize: 22, fontWeight: 700, color: T.frost, marginBottom: 4 }}>
-            rubusAI<span style={{ color: T.rubus }}>.mx</span>
+            RubusAI
           </div>
           <div style={{ fontSize: 12, color: T.gray, letterSpacing: '0.05em' }}>
             Detección inteligente. Cosecha exacta.

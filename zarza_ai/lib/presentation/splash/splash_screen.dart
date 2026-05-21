@@ -69,11 +69,6 @@ class _SplashScreenState extends State<SplashScreen>
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppTheme.rubus, AppTheme.rubusLight],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
@@ -83,10 +78,14 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.eco_rounded,
-                    size: 52,
-                    color: Colors.white,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(28),
+                    child: Image.asset(
+                      'assets/images/logo-rubus.png',
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -97,19 +96,8 @@ class _SplashScreenState extends State<SplashScreen>
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
                   ).toTextSpan(
-                    'rubusAI',
-                    children: [
-                      TextSpan(
-                        text: '.mx',
-                        style: TextStyle(
-                          fontFamily: GoogleFonts.lexend().fontFamily,
-                          fontSize: 36,
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.rubus,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                    ],
+                    'RubusAI',
+                    children: [],
                   ),
                 ),
                 const SizedBox(height: 8),

@@ -24,10 +24,14 @@ class ScaffoldWithBottomNav extends StatefulWidget {
   State<ScaffoldWithBottomNav> createState() => _ScaffoldWithBottomNavState();
 }
 
+// Stable per-event-type IDs so notifications replace instead of stack.
+const int _kNotifAnalisisListo    = 200;
+const int _kNotifAnalysisValidated = 201;
+const int _kNotifNuevaSolicitud   = 202;
+
 class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
   StreamSubscription<String>? _wsSub;
   final _notifications = GetIt.I<LocalNotificationsService>();
-  int _notifId = 1;
 
   bool get _canSeeSolicitudes =>
       widget.user?.role == UserRole.monitor ||
@@ -54,12 +58,15 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
       String? title;
       String? body;
 
+      int notifId;
       switch (event) {
         case WsEvents.analisisListo:
+          notifId = _kNotifAnalisisListo;
           title = '¡Análisis listo!';
           body = 'Tu análisis ya está disponible en el historial.';
 
         case WsEvents.analysisValidated:
+          notifId = _kNotifAnalysisValidated;
           final data = map['data'] as Map<String, dynamic>?;
           final action = data?['action'] as String? ?? '';
           title = action == 'validado' ? 'Análisis validado ✓' : 'Análisis rechazado';
@@ -68,6 +75,7 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
               : 'Un agrónomo rechazó tu análisis. Revisa las observaciones.';
 
         case WsEvents.nuevaSolicitud:
+          notifId = _kNotifNuevaSolicitud;
           title = 'Nueva solicitud de muestreo';
           body = 'Tienes una nueva solicitud asignada. Revísala en Solicitudes.';
 
@@ -75,9 +83,9 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
           return;
       }
 
-      // Notificación del sistema (aparece aunque la app esté en segundo plano)
+      // ID estable por tipo → reemplaza la notificación anterior del mismo tipo.
       _notifications.showNotification(
-        id: _notifId++,
+        id: notifId,
         title: title,
         body: body,
       );

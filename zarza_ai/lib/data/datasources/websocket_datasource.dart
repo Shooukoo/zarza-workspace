@@ -17,6 +17,7 @@ class WebSocketDatasource {
       StreamController<String>.broadcast();
 
   bool _disposed = false;
+  bool _connecting = false;
   int _retryCount = 0;
   StreamSubscription<dynamic>? _subscription;
 
@@ -28,12 +29,14 @@ class WebSocketDatasource {
   }
 
   Future<void> _connectAsync() async {
-    if (_disposed) return;
+    if (_disposed || _connecting) return;
+    _connecting = true;
 
     WebSocketChannel channel;
     try {
       channel = WebSocketChannel.connect(Uri.parse(AppConstants.wsUrl));
     } catch (_) {
+      _connecting = false;
       _scheduleReconnect();
       return;
     }
@@ -57,9 +60,15 @@ class WebSocketDatasource {
       onError: (Object _) {
         _subscription?.cancel();
         _subscription = null;
+        _connecting = false;
         _scheduleReconnect();
       },
-      onDone: () => _scheduleReconnect(),
+      onDone: () {
+        _subscription?.cancel();
+        _subscription = null;
+        _connecting = false;
+        _scheduleReconnect();
+      },
       cancelOnError: true,
     );
 
@@ -68,9 +77,11 @@ class WebSocketDatasource {
     // fine; _scheduleReconnect is idempotent via the _disposed guard.
     try {
       await channel.ready;
+      _connecting = false;
     } catch (_) {
       _subscription?.cancel();
       _subscription = null;
+      _connecting = false;
       _scheduleReconnect();
     }
   }

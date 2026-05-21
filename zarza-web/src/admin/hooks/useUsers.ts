@@ -26,8 +26,17 @@ export function useUsers(page: number, rol?: Role) {
 export function useCreateUser() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (dto: { email: string; password: string; role: Role }) =>
+    mutationFn: (dto: { email: string; password: string; role: Role; firstName?: string; lastName?: string }) =>
       apiClient.post<User>('/admin/users', dto).then((r) => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+  });
+}
+
+export function useUpdateName() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, firstName, lastName }: { id: string; firstName?: string; lastName?: string }) =>
+      apiClient.patch<User>(`/admin/users/${id}/name`, { firstName, lastName }).then((r) => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
   });
 }

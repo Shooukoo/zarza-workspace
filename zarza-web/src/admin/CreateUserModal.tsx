@@ -11,6 +11,8 @@ interface FormValues {
   email: string;
   password: string;
   role: Role;
+  firstName?: string;
+  lastName?: string;
 }
 
 const ROLE_OPTIONS = [
@@ -52,6 +54,15 @@ export function CreateUserModal({ open, onClose }: Props) {
         onFinish={onFinish}
         initialValues={{ role: Role.MONITOR }}
       >
+        <div style={{ display: 'flex', gap: 12 }}>
+          <Form.Item label="Nombre" name="firstName" style={{ flex: 1, marginBottom: 12 }}>
+            <Input placeholder="Juan" />
+          </Form.Item>
+          <Form.Item label="Apellido" name="lastName" style={{ flex: 1, marginBottom: 12 }}>
+            <Input placeholder="García" />
+          </Form.Item>
+        </div>
+
         <Form.Item
           label="Email"
           name="email"
@@ -60,7 +71,7 @@ export function CreateUserModal({ open, onClose }: Props) {
             { type: 'email', message: 'Email inválido' },
           ]}
         >
-          <Input placeholder="usuario@zarza.mx" />
+          <Input placeholder="usuario@rubus.com" />
         </Form.Item>
 
         <Form.Item

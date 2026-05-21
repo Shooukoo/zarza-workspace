@@ -42,15 +42,6 @@ const ROLE_LABEL: Record<Role, string> = {
   [Role.MONITOR]:   'Monitor',
 };
 
-// ── Leaf icon ──────────────────────────────────────────────────────
-function LeafIcon({ size = 18, color = '#fff' }: { size?: number; color?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
-      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2C6 2 2 9 2 14c0 3.3 2.7 6 6 6 2.2 0 4.2-1.2 5.3-3A6 6 0 0021 11c0-5-4-9-9-9z"/>
-    </svg>
-  );
-}
 
 export function AppShell() {
   const { user, logout } = useAuth();
@@ -105,19 +96,15 @@ export function AppShell() {
           borderBottom: `1px solid ${T.grayLine}`,
           display: 'flex', alignItems: 'center', gap: 10,
         }}>
-          <div style={{
+          <img src="/logo-rubus.png" alt="RubusAI" style={{
             width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-            background: `linear-gradient(135deg, ${T.rubus}, ${T.rubusLt})`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            objectFit: 'cover', cursor: 'pointer',
             boxShadow: `0 4px 16px ${T.rubus}44`,
-            cursor: 'pointer',
-          }} onClick={() => setCollapsed(c => !c)}>
-            <LeafIcon size={18} color="#fff"/>
-          </div>
+          }} onClick={() => setCollapsed(c => !c)} />
           {!collapsed && (
             <div style={{ overflow: 'hidden' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: T.frost, whiteSpace: 'nowrap' }}>
-                rubusAI<span style={{ color: T.rubus }}>.mx</span>
+                RubusAI
               </div>
               <div style={{ fontSize: 10, color: T.gray, letterSpacing: '0.06em' }}>ADMIN PANEL</div>
             </div>

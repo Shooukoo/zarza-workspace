@@ -96,11 +96,6 @@ class _RegisterScreenState extends State<RegisterScreen>
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.rubus, AppTheme.rubusLight],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
                         boxShadow: [
                           BoxShadow(
                             color: AppTheme.rubus.withValues(alpha: 0.4),
@@ -109,8 +104,12 @@ class _RegisterScreenState extends State<RegisterScreen>
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.eco_rounded,
-                          color: Colors.white, size: 40),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo-rubus.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 28),
                     Text(

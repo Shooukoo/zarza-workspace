@@ -1542,6 +1542,8 @@ export namespace Prisma {
     passwordHash: string | null
     role: $Enums.Role | null
     fcmToken: string | null
+    firstName: string | null
+    lastName: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1552,6 +1554,8 @@ export namespace Prisma {
     passwordHash: string | null
     role: $Enums.Role | null
     fcmToken: string | null
+    firstName: string | null
+    lastName: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1562,6 +1566,8 @@ export namespace Prisma {
     passwordHash: number
     role: number
     fcmToken: number
+    firstName: number
+    lastName: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1574,6 +1580,8 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     fcmToken?: true
+    firstName?: true
+    lastName?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1584,6 +1592,8 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     fcmToken?: true
+    firstName?: true
+    lastName?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1594,6 +1604,8 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     fcmToken?: true
+    firstName?: true
+    lastName?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1677,6 +1689,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken: string | null
+    firstName: string | null
+    lastName: string | null
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -1704,6 +1718,8 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     fcmToken?: boolean
+    firstName?: boolean
+    lastName?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     camposAsignados?: boolean | User$camposAsignadosArgs<ExtArgs>
@@ -1722,6 +1738,8 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     fcmToken?: boolean
+    firstName?: boolean
+    lastName?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1732,6 +1750,8 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     fcmToken?: boolean
+    firstName?: boolean
+    lastName?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1742,11 +1762,13 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     fcmToken?: boolean
+    firstName?: boolean
+    lastName?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "fcmToken" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "fcmToken" | "firstName" | "lastName" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     camposAsignados?: boolean | User$camposAsignadosArgs<ExtArgs>
     camposProductor?: boolean | User$camposProductorArgs<ExtArgs>
@@ -1777,6 +1799,8 @@ export namespace Prisma {
       passwordHash: string
       role: $Enums.Role
       fcmToken: string | null
+      firstName: string | null
+      lastName: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -2214,6 +2238,8 @@ export namespace Prisma {
     readonly passwordHash: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
     readonly fcmToken: FieldRef<"User", 'String'>
+    readonly firstName: FieldRef<"User", 'String'>
+    readonly lastName: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -8700,6 +8726,8 @@ export namespace Prisma {
     passwordHash: 'passwordHash',
     role: 'role',
     fcmToken: 'fcmToken',
+    firstName: 'firstName',
+    lastName: 'lastName',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -8964,6 +8992,8 @@ export namespace Prisma {
     passwordHash?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     fcmToken?: StringNullableFilter<"User"> | string | null
+    firstName?: StringNullableFilter<"User"> | string | null
+    lastName?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     camposAsignados?: UserCampoListRelationFilter
@@ -8981,6 +9011,8 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrderInput | SortOrder
+    firstName?: SortOrderInput | SortOrder
+    lastName?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     camposAsignados?: UserCampoOrderByRelationAggregateInput
@@ -9001,6 +9033,8 @@ export namespace Prisma {
     passwordHash?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     fcmToken?: StringNullableFilter<"User"> | string | null
+    firstName?: StringNullableFilter<"User"> | string | null
+    lastName?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     camposAsignados?: UserCampoListRelationFilter
@@ -9018,6 +9052,8 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrderInput | SortOrder
+    firstName?: SortOrderInput | SortOrder
+    lastName?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -9034,6 +9070,8 @@ export namespace Prisma {
     passwordHash?: StringWithAggregatesFilter<"User"> | string
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     fcmToken?: StringNullableWithAggregatesFilter<"User"> | string | null
+    firstName?: StringNullableWithAggregatesFilter<"User"> | string | null
+    lastName?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -9479,6 +9517,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
@@ -9496,6 +9536,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
@@ -9513,6 +9555,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
@@ -9530,6 +9574,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
@@ -9547,6 +9593,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9557,6 +9605,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9567,6 +9617,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10143,6 +10195,8 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -10153,6 +10207,8 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -10163,6 +10219,8 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrder
+    firstName?: SortOrder
+    lastName?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -12243,6 +12301,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
@@ -12259,6 +12319,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
@@ -12407,6 +12469,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
@@ -12423,6 +12487,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
@@ -12487,6 +12553,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposProductor?: CampoCreateNestedManyWithoutProductorInput
@@ -12503,6 +12571,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposProductor?: CampoUncheckedCreateNestedManyWithoutProductorInput
@@ -12564,6 +12634,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposProductor?: CampoUpdateManyWithoutProductorNestedInput
@@ -12580,6 +12652,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposProductor?: CampoUncheckedUpdateManyWithoutProductorNestedInput
@@ -12631,6 +12705,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
@@ -12647,6 +12723,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
@@ -12668,6 +12746,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
@@ -12684,6 +12764,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
@@ -12745,6 +12827,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
@@ -12761,6 +12845,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
@@ -12788,6 +12874,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
@@ -12804,6 +12892,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
@@ -12855,6 +12945,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
@@ -12871,6 +12963,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
@@ -12892,6 +12986,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
@@ -12908,6 +13004,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
@@ -12958,6 +13056,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
@@ -12974,6 +13074,8 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
@@ -13034,6 +13136,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
@@ -13050,6 +13154,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
@@ -13077,6 +13183,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
@@ -13093,6 +13201,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
@@ -13155,6 +13265,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
@@ -13171,6 +13283,8 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput

@@ -6,9 +6,25 @@ class CamposRepositoryImpl implements ICamposRepository {
   CamposRepositoryImpl(this._datasource);
   final RemoteCamposDatasource _datasource;
 
+  List<CampoEntity>? _cache;
+  DateTime? _cacheTime;
+  static const _ttl = Duration(minutes: 5);
+
   @override
   Future<List<CampoEntity>> getCampos() async {
-    final models = await _datasource.getCampos();
-    return models.map((m) => m.toEntity()).toList();
+    final isFresh = _cache != null &&
+        _cacheTime != null &&
+        DateTime.now().difference(_cacheTime!) < _ttl;
+    if (isFresh) return _cache!;
+
+    try {
+      final models = await _datasource.getCampos();
+      _cache = models.map((m) => m.toEntity()).toList();
+      _cacheTime = DateTime.now();
+      return _cache!;
+    } catch (_) {
+      if (_cache != null) return _cache!;
+      rethrow;
+    }
   }
 }

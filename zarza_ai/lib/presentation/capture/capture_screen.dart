@@ -260,6 +260,14 @@ class _CaptureBodyState extends State<_CaptureBody> {
                     }
                     final campos = snapshot.data ?? [];
 
+                    if (snapshot.hasError && (snapshot.data == null || snapshot.data!.isEmpty)) {
+                      return _CamposErrorWidget(
+                        onRetry: () => setState(() {
+                          _camposFuture = GetIt.I<GetCamposUseCase>()();
+                        }),
+                      );
+                    }
+
                     if (campos.isEmpty) {
                       return Container(
                         padding: const EdgeInsets.all(12),
@@ -517,6 +525,34 @@ class _SourceButton extends StatelessWidget {
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         minimumSize: const Size.fromHeight(50),
+      ),
+    );
+  }
+}
+
+class _CamposErrorWidget extends StatelessWidget {
+  const _CamposErrorWidget({required this.onRetry});
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.obsidian3,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Sin conexión — no se pudieron cargar los campos.',
+              style: TextStyle(color: Colors.white54, fontSize: 13),
+            ),
+          ),
+          TextButton(onPressed: onRetry, child: const Text('Reintentar')),
+        ],
       ),
     );
   }

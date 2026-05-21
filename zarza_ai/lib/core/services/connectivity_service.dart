@@ -8,4 +8,8 @@ class ConnectivityService {
     final results = await _connectivity.checkConnectivity();
     return !results.contains(ConnectivityResult.none);
   }
+
+  Stream<bool> get onConnectivityChanged =>
+      _connectivity.onConnectivityChanged
+          .map((results) => !results.contains(ConnectivityResult.none));
 }

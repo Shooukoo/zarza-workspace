@@ -43,6 +43,17 @@ class FcmService {
     final settings = await messaging.requestPermission(alert: true, badge: true, sound: true);
     if (settings.authorizationStatus == AuthorizationStatus.denied) return;
 
+    // En foreground el WebSocket ya muestra la notificación local —
+    // suprimir la notificación automática de FCM para evitar duplicados.
+    await messaging.setForegroundNotificationPresentationOptions(
+      alert: false,
+      badge: false,
+      sound: false,
+    );
+
+    // Consumir el mensaje en foreground sin mostrarlo (evita duplicado FCM+WS).
+    FirebaseMessaging.onMessage.listen((_) {});
+
     // Obtener token y registrarlo en el backend
     final token = await messaging.getToken();
     if (token != null) await _registerToken(token);

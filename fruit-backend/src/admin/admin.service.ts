@@ -9,6 +9,8 @@ export interface UserSummary {
   id: string;
   email: string;
   role: Role;
+  firstName?: string | null;
+  lastName?: string | null;
   campos_asignados: string[];
   createdAt: Date;
   totalAnalyses?: number;
@@ -41,6 +43,8 @@ export class AdminService {
           id: true,
           email: true,
           role: true,
+          firstName: true,
+          lastName: true,
           createdAt: true,
           camposAsignados: { select: { campoId: true } },
         },
@@ -61,6 +65,8 @@ export class AdminService {
       id: d.id,
       email: d.email,
       role: d.role as Role,
+      firstName: d.firstName,
+      lastName: d.lastName,
       createdAt: d.createdAt,
       campos_asignados: d.camposAsignados.map((uc) => uc.campoId),
       totalAnalyses: countMap.get(d.id) ?? 0,
@@ -96,22 +102,50 @@ export class AdminService {
     };
   }
 
-  async createUser(email: string, plainPassword: string, role: Role): Promise<UserSummary> {
+  async createUser(email: string, plainPassword: string, role: Role, firstName?: string, lastName?: string): Promise<UserSummary> {
     if (role === Role.ADMIN) throw new Error('No se puede crear usuarios con rol ADMIN');
     const normalizedEmail = email.toLowerCase().trim();
     const existing = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (existing) throw new UserAlreadyExistsError(normalizedEmail);
     const passwordHash = await this.hasher.hash(plainPassword);
     const created = await this.prisma.user.create({
-      data: { email: normalizedEmail, passwordHash, role: role as PrismaRole },
+      data: {
+        email: normalizedEmail,
+        passwordHash,
+        role: role as PrismaRole,
+        firstName: firstName?.trim() || null,
+        lastName: lastName?.trim() || null,
+      },
     });
     return {
       id: created.id,
       email: created.email,
       role: created.role as Role,
+      firstName: created.firstName,
+      lastName: created.lastName,
       createdAt: created.createdAt,
       campos_asignados: [],
       totalAnalyses: 0,
+    };
+  }
+
+  async updateName(userId: string, firstName?: string, lastName?: string): Promise<UserSummary> {
+    const doc = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        firstName: firstName?.trim() ?? undefined,
+        lastName: lastName?.trim() ?? undefined,
+      },
+      select: { id: true, email: true, role: true, firstName: true, lastName: true, createdAt: true },
+    });
+    return {
+      id: doc.id,
+      email: doc.email,
+      role: doc.role as Role,
+      firstName: doc.firstName,
+      lastName: doc.lastName,
+      createdAt: doc.createdAt,
+      campos_asignados: [],
     };
   }
 

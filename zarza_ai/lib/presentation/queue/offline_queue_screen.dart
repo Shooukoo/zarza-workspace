@@ -13,9 +13,8 @@ class OfflineQueueScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => GetIt.I<OfflineQueueBloc>()
-        ..add(const QueueStartWatching()),
+    return BlocProvider.value(
+      value: GetIt.I<OfflineQueueBloc>()..add(const QueueStartWatching()),
       child: const _OfflineQueueView(),
     );
   }

@@ -15,6 +15,7 @@ import { useCampos } from '../campos/hooks/useCampos';
 import {
   useDeleteUser,
   useUpdateCampos,
+  useUpdateName,
   useUpdatePassword,
   useUpdateRole,
 } from './hooks/useUsers';
@@ -41,19 +42,32 @@ export function UserDrawer({ user, open, onClose }: Props) {
   const camposQuery = useCampos();
   const updateRoleMutation = useUpdateRole();
   const updateCamposMutation = useUpdateCampos();
+  const updateNameMutation = useUpdateName();
   const updatePasswordMutation = useUpdatePassword();
   const deleteUserMutation = useDeleteUser();
 
   const [selectedRole, setSelectedRole] = useState<Role>(Role.MONITOR);
   const [selectedCampos, setSelectedCampos] = useState<string[]>([]);
   const [passwordForm] = Form.useForm<{ password: string }>();
+  const [nameForm] = Form.useForm<{ firstName?: string; lastName?: string }>();
 
   useEffect(() => {
     if (user) {
       setSelectedRole(user.role);
       setSelectedCampos(user.campos_asignados ?? []);
+      nameForm.setFieldsValue({ firstName: user.firstName ?? '', lastName: user.lastName ?? '' });
     }
-  }, [user]);
+  }, [user, nameForm]);
+
+  async function handleSaveName(values: { firstName?: string; lastName?: string }) {
+    if (!user) return;
+    try {
+      await updateNameMutation.mutateAsync({ id: user.id, ...values });
+      notification.success({ message: 'Nombre actualizado' });
+    } catch {
+      notification.error({ message: 'Error al actualizar nombre' });
+    }
+  }
 
   async function handleSaveRole() {
     if (!user) return;
@@ -115,7 +129,35 @@ export function UserDrawer({ user, open, onClose }: Props) {
     >
       {user && (
         <>
-          {/* Sección ① — Rol */}
+          {/* Sección ① — Nombre */}
+          <div>
+            <Text strong style={{ color: '#722ed1', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              ① Nombre
+            </Text>
+            <Form form={nameForm} layout="vertical" onFinish={handleSaveName} style={{ marginTop: 8 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <Form.Item name="firstName" label="Nombre" style={{ flex: 1, marginBottom: 8 }}>
+                  <Input placeholder="Juan" />
+                </Form.Item>
+                <Form.Item name="lastName" label="Apellido" style={{ flex: 1, marginBottom: 8 }}>
+                  <Input placeholder="García" />
+                </Form.Item>
+              </div>
+              <Button
+                htmlType="submit"
+                type="primary"
+                block
+                loading={updateNameMutation.isPending}
+                style={{ background: '#722ed1', borderColor: '#722ed1' }}
+              >
+                Guardar nombre
+              </Button>
+            </Form>
+          </div>
+
+          <Divider />
+
+          {/* Sección ② — Rol */}
           <div>
             <Text
               strong
@@ -126,7 +168,7 @@ export function UserDrawer({ user, open, onClose }: Props) {
                 letterSpacing: '0.5px',
               }}
             >
-              ① Rol
+              ② Rol
             </Text>
             <div style={{ marginTop: 8 }}>
               <Select
@@ -159,7 +201,7 @@ export function UserDrawer({ user, open, onClose }: Props) {
                 letterSpacing: '0.5px',
               }}
             >
-              ② Campos asignados
+              ③ Campos asignados
             </Text>
             <div style={{ marginTop: 8 }}>
               {!camposQuery.isLoading && (camposQuery.data?.length ?? 0) === 0 ? (
@@ -209,7 +251,7 @@ export function UserDrawer({ user, open, onClose }: Props) {
                 letterSpacing: '0.5px',
               }}
             >
-              ③ Zona de riesgo
+              ④ Zona de riesgo
             </Text>
             <Form
               form={passwordForm}

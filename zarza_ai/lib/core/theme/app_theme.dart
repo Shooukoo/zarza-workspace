@@ -113,6 +113,7 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: Colors.white.withValues(alpha: 0.04),
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -197,6 +198,9 @@ class AppTheme {
           return GoogleFonts.lexend(fontSize: 10, color: dataGray);
         }),
       ),
+      hoverColor: Colors.white.withValues(alpha: 0.03),
+      splashColor: Colors.white.withValues(alpha: 0.04),
+      highlightColor: Colors.transparent,
       drawerTheme: const DrawerThemeData(
         backgroundColor: obsidian2,
       ),
