@@ -28,7 +28,7 @@ export class InferenceMapper {
     }
 
     return {
-      image_id:    dto.image_id,
+      image_id:    storageKey,
       storage_key: storageKey,
       requester,
       variedad:    dto.variedad ?? null,
