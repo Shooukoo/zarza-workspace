@@ -25,51 +25,37 @@ def preprocess(
     """
     meta = {"wb_applied": False, "wb_skipped_reason": None, "clahe_applied": False}
 
-    # Convert to LAB and extract color channels
-    lab = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2LAB)
-    l, a, b = cv2.split(lab)
-
-    # Apply Gray World White Balance to L channel
-    l = _apply_gray_world_to_l(bgr_img, l, meta)
-
-    # Apply CLAHE to L channel
-    l = _apply_clahe_to_l(l, meta)
-
-    # Reconstruct LAB with processed L and original a/b
-    lab_result = cv2.merge([l, a, b])
-    result_bgr = cv2.cvtColor(lab_result, cv2.COLOR_LAB2BGR)
+    img = _apply_gray_world(bgr_img, meta)
+    img = _apply_clahe(img, meta)
 
     if return_debug:
-        return result_bgr, meta
-    return result_bgr
+        return img, meta
+    return img
 
 
-def _apply_gray_world_to_l(bgr_img: np.ndarray, l_channel: np.ndarray, meta: dict) -> np.ndarray:
-    """Apply Gray World White Balance to L channel based on BGR image."""
+def _apply_gray_world(bgr_img: np.ndarray, meta: dict) -> np.ndarray:
     img_f = bgr_img.astype(np.float32)
     means = img_f.mean(axis=(0, 1))  # [mean_B, mean_G, mean_R]
 
     if (means < 1.0).any():
         meta["wb_skipped_reason"] = "low_mean_channel"
-        return l_channel
+        return bgr_img
 
-    # Apply Gray World scaling: each channel scaled so all have equal mean
     global_mean = means.mean()
-    scales = global_mean / means
-    # For L channel in LAB, apply the minimum scale (to preserve the white balance effect)
-    min_scale = np.min(scales)
-    l_f = l_channel.astype(np.float32)
-    l_corrected = np.clip(l_f * min_scale, 0, 255).astype(np.uint8)
+    scale       = global_mean / means
+    corrected   = np.clip(img_f * scale, 0, 255).astype(np.uint8)
     meta["wb_applied"] = True
-    return l_corrected
+    return corrected
 
 
-def _apply_clahe_to_l(l_channel: np.ndarray, meta: dict) -> np.ndarray:
-    """Apply CLAHE to L channel."""
-    clahe = cv2.createCLAHE(
+def _apply_clahe(bgr_img: np.ndarray, meta: dict) -> np.ndarray:
+    lab        = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2LAB)
+    l, a, b    = cv2.split(lab)
+    clahe      = cv2.createCLAHE(
         clipLimit=_CLAHE_CLIP_LIMIT,
         tileGridSize=(_CLAHE_TILE_SIZE, _CLAHE_TILE_SIZE),
     )
-    l_eq = clahe.apply(l_channel)
+    l_eq       = clahe.apply(l)
+    lab_eq     = cv2.merge([l_eq, a, b])
     meta["clahe_applied"] = True
-    return l_eq
+    return cv2.cvtColor(lab_eq, cv2.COLOR_LAB2BGR)
