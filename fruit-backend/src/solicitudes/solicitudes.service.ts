@@ -41,9 +41,13 @@ export class SolicitudesService {
       mensaje: dto.mensaje,
     };
     this.notificationsGateway.emitToUser(solicitud.asignadoAId, 'nueva_solicitud', wsPayload);
-    const agronomiIds = await this.findAgronomos(solicitud.campoId);
-    for (const id of agronomiIds) {
-      this.notificationsGateway.emitToUser(id, 'nueva_solicitud', wsPayload);
+    try {
+      const agronomoIds = await this.findAgronomos(solicitud.campoId);
+      for (const id of agronomoIds) {
+        this.notificationsGateway.emitToUser(id, 'nueva_solicitud', wsPayload);
+      }
+    } catch (err) {
+      this.logger.warn(`[WS] No se pudo notificar agrónomos: ${(err as Error).message}`);
     }
 
     await this.sendSolicitudPush(dto.asignado_a, dto.campo_id, dto.fecha_limite ?? null, 'created');
