@@ -6,7 +6,7 @@ import { I_TOKEN_PORT } from '../auth/ports/token.port';
 
 const mockTokenService = { verifyToken: jest.fn() };
 
-function makeSocket(readyState = WebSocket.OPEN): WebSocket {
+function makeSocket(readyState: number = WebSocket.OPEN): WebSocket {
   return {
     send: jest.fn(),
     close: jest.fn(),
