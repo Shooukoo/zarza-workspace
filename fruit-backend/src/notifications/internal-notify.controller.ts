@@ -23,7 +23,10 @@ export class InternalNotifyController {
     if (!expected || token !== expected) {
       throw new UnauthorizedException('Invalid internal token');
     }
-    this.gateway.broadcast(body.event, body.data);
+    const userId = body.data?.userId as string | undefined;
+    if (userId) {
+      this.gateway.emitToUser(userId, body.event, body.data);
+    }
 
     if (body.event === 'analisis_listo') {
       await this.sendAnalisisPush(body.data);
