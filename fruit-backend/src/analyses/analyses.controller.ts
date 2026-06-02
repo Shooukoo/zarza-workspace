@@ -88,12 +88,14 @@ export class AnalysesController {
     @Body() dto: ValidateAnalysisDto,
   ) {
     const result = await this.analysesService.validate(id, req.user.sub, dto);
-    this.notificationsGateway.broadcast('analysis_validated', {
-      analysisId: id,
-      action: dto.action,
-      validatedBy: req.user.email,
-      productorId: result.productorId,
-    });
+    if (result.productorId) {
+      this.notificationsGateway.emitToUser(result.productorId, 'analysis_validated', {
+        analysisId: id,
+        action: dto.action,
+        validatedBy: req.user.email,
+        productorId: result.productorId,
+      });
+    }
     return result;
   }
 
