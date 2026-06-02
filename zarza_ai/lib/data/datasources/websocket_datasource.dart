@@ -1,15 +1,9 @@
+// zarza_ai/lib/data/datasources/websocket_datasource.dart
 import 'dart:async';
+import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../../core/constants/app_constants.dart';
 
-/// WebSocket data source — robust against connection failures.
-///
-/// Key fix: in web_socket_channel v3, a failed handshake pushes an error
-/// BOTH to [channel.ready] and to [channel.stream] at the same time.
-/// If the stream has no listener when the error is emitted it becomes an
-/// "unhandled async exception" in Flutter. Solution: subscribe to the stream
-/// BEFORE awaiting [channel.ready], so the stream's onError callback is
-/// always the one that receives the failure.
 class WebSocketDatasource {
   WebSocketDatasource();
 
@@ -19,9 +13,14 @@ class WebSocketDatasource {
   bool _disposed = false;
   bool _connecting = false;
   int _retryCount = 0;
+  String? _token;
   StreamSubscription<dynamic>? _subscription;
 
   Stream<String> get stream => _controller.stream;
+
+  void setToken(String? token) {
+    _token = token;
+  }
 
   void connect() {
     if (_disposed) return;
@@ -35,14 +34,14 @@ class WebSocketDatasource {
     WebSocketChannel channel;
     try {
       channel = WebSocketChannel.connect(Uri.parse(AppConstants.wsUrl));
-    } catch (_) {
+    } on Object catch (_) {
       _connecting = false;
       _scheduleReconnect();
       return;
     }
 
-    // Subscribe FIRST — before awaiting ready — so the stream's onError
-    // receives any handshake failure instead of it becoming unhandled.
+    // Subscribe FIRST so handshake errors land in onError instead of
+    // becoming unhandled async exceptions (web_socket_channel v3 quirk).
     _subscription = channel.stream.listen(
       (message) {
         if (_disposed) return;
@@ -58,13 +57,13 @@ class WebSocketDatasource {
         if (!_controller.isClosed) _controller.add(decoded);
       },
       onError: (Object _) {
-        _subscription?.cancel();
+        unawaited(_subscription?.cancel() ?? Future.value());
         _subscription = null;
         _connecting = false;
         _scheduleReconnect();
       },
       onDone: () {
-        _subscription?.cancel();
+        unawaited(_subscription?.cancel() ?? Future.value());
         _subscription = null;
         _connecting = false;
         _scheduleReconnect();
@@ -72,14 +71,19 @@ class WebSocketDatasource {
       cancelOnError: true,
     );
 
-    // Now await the ready future. If it throws we cancel the subscription
-    // and schedule a retry. The stream's onError might also fire — that's
-    // fine; _scheduleReconnect is idempotent via the _disposed guard.
     try {
       await channel.ready;
       _connecting = false;
-    } catch (_) {
-      _subscription?.cancel();
+
+      // Send auth message immediately after connection is ready
+      if (_token != null) {
+        channel.sink.add(jsonEncode({
+          'event': 'auth',
+          'data': {'token': _token},
+        }));
+      }
+    } on Object catch (_) {
+      unawaited(_subscription?.cancel() ?? Future.value());
       _subscription = null;
       _connecting = false;
       _scheduleReconnect();
@@ -90,14 +94,14 @@ class WebSocketDatasource {
     if (_disposed) return;
     _retryCount++;
     final seconds = (_retryCount * 5).clamp(5, 60);
-    Future.delayed(Duration(seconds: seconds), () {
-      if (!_disposed) _connectAsync();
-    });
+    unawaited(Future.delayed(Duration(seconds: seconds), () async {
+      if (!_disposed) await _connectAsync();
+    }));
   }
 
   void dispose() {
     _disposed = true;
-    _subscription?.cancel();
+    unawaited(_subscription?.cancel() ?? Future.value());
     if (!_controller.isClosed) _controller.close();
   }
 }

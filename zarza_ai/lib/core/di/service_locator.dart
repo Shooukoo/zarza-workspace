@@ -210,7 +210,10 @@ Future<void> setupServiceLocator() async {
       () => FruitsRepositoryImpl(sl<RemoteFruitsDatasource>()));
 
   sl.registerLazySingleton<INotificationsRepository>(
-      () => NotificationsRepositoryImpl(sl<WebSocketDatasource>()));
+      () => NotificationsRepositoryImpl(
+            sl<WebSocketDatasource>(),
+            sl<LocalAuthDatasource>(),
+          ));
 
   // ── Use Cases (existentes) ─────────────────────────────────────────────────
   sl.registerLazySingleton<UploadImageUseCase>(
