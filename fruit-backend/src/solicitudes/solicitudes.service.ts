@@ -34,12 +34,17 @@ export class SolicitudesService {
       },
     });
 
-    this.notificationsGateway.broadcast('nueva_solicitud', {
+    const wsPayload = {
       solicitud_id: solicitud.id,
       asignado_a: dto.asignado_a,
       campo_id: dto.campo_id,
       mensaje: dto.mensaje,
-    });
+    };
+    this.notificationsGateway.emitToUser(solicitud.asignadoAId, 'nueva_solicitud', wsPayload);
+    const agronomiIds = await this.findAgronomos(solicitud.campoId);
+    for (const id of agronomiIds) {
+      this.notificationsGateway.emitToUser(id, 'nueva_solicitud', wsPayload);
+    }
 
     await this.sendSolicitudPush(dto.asignado_a, dto.campo_id, dto.fecha_limite ?? null, 'created');
     return solicitud;
@@ -163,5 +168,13 @@ export class SolicitudesService {
         this.logger.log(`[FCM] Token inválido limpiado para usuario ${userId}`);
       }
     }
+  }
+
+  private async findAgronomos(campoId: string): Promise<string[]> {
+    const ucs = await this.prisma.userCampo.findMany({
+      where: { campoId, user: { role: 'AGRONOMO' } },
+      select: { userId: true },
+    });
+    return ucs.map((uc) => uc.userId);
   }
 }

@@ -15,9 +15,12 @@ const mockPrisma = {
     findUnique: jest.fn(),
     update: jest.fn(),
   },
+  userCampo: {
+    findMany: jest.fn(),
+  },
 };
 
-const mockGateway = { broadcast: jest.fn() };
+const mockGateway = { emitToUser: jest.fn() };
 
 const mockFcmService = {
   sendToDevice: jest.fn(),
@@ -69,6 +72,7 @@ describe('SolicitudesService — FCM integration', () => {
 
     beforeEach(() => {
       mockPrisma.solicitudMuestreo.create.mockResolvedValue(fakeSolicitud);
+      mockPrisma.userCampo.findMany.mockResolvedValue([]);
       mockCamposService.findById.mockResolvedValue({ nombre: 'Finca El Rosal' });
     });
 
@@ -79,7 +83,7 @@ describe('SolicitudesService — FCM integration', () => {
 
       expect(mockFcmService.sendToDevice).toHaveBeenCalledWith('token-monitor', {
         title: 'Nueva solicitud: Finca El Rosal',
-        body: 'Fecha límite: 10/5/2026. Abre la app para ver detalles.',
+        body: 'Fecha límite: 10/05/2026. Abre la app para ver detalles.',
       });
     });
 
@@ -115,6 +119,35 @@ describe('SolicitudesService — FCM integration', () => {
       expect(mockFcmService.sendToDevice).toHaveBeenCalledWith(
         'token-monitor',
         expect.objectContaining({ title: expect.stringContaining(dto.campo_id) }),
+      );
+    });
+
+    it('emite nueva_solicitud al monitor asignado', async () => {
+      mockUserRepo.findFcmTokenById.mockResolvedValue(null);
+      mockPrisma.userCampo.findMany.mockResolvedValue([]);
+
+      await service.create('admin-id', dto);
+
+      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+        MONITOR_ID,
+        'nueva_solicitud',
+        expect.objectContaining({ solicitud_id: SOL_ID }),
+      );
+    });
+
+    it('emite nueva_solicitud a cada agrónomo del campo', async () => {
+      const AGRONOMO_ID = 'd4d4d4d4-0000-0000-0000-000000000001';
+      mockUserRepo.findFcmTokenById.mockResolvedValue(null);
+      mockPrisma.userCampo.findMany.mockResolvedValue([
+        { userId: AGRONOMO_ID },
+      ]);
+
+      await service.create('admin-id', dto);
+
+      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+        AGRONOMO_ID,
+        'nueva_solicitud',
+        expect.objectContaining({ solicitud_id: SOL_ID }),
       );
     });
   });
