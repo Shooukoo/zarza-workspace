@@ -67,8 +67,8 @@ class AuthRepositoryImpl implements IAuthRepository {
     await _dio.patch<void>(
       '/api/auth/profile',
       data: {
-        if (firstName != null) 'firstName': firstName,
-        if (lastName != null) 'lastName': lastName,
+        'firstName': ?firstName,
+        'lastName': ?lastName,
       },
     );
     final stored = await _local.getUser();

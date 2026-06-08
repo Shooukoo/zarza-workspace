@@ -363,7 +363,7 @@ class _CaptureBodyState extends State<_CaptureBody> {
 
                 // Paso 3 — Analizar
                 const SizedBox(height: 14),
-                _StepLabel(
+                const _StepLabel(
                   step: '3',
                   label: 'Enviar para análisis',
                   done: false,
@@ -487,12 +487,12 @@ class _ImagePreview extends StatelessWidget {
       );
     }
 
-    return Column(
+    return const Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.add_a_photo_rounded, size: 56, color: Colors.white24),
-        const SizedBox(height: 14),
-        const Text(
+        Icon(Icons.add_a_photo_rounded, size: 56, color: Colors.white24),
+        SizedBox(height: 14),
+        Text(
           'Captura o selecciona una imagen\nde la planta para analizarla',
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white38, fontSize: 14),

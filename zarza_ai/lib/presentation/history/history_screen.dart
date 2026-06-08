@@ -147,7 +147,7 @@ class _HistoryCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Icon(Icons.monitor_weight_rounded,
+                    const Icon(Icons.monitor_weight_rounded,
                         size: 14, color: AppTheme.emerald),
                     const SizedBox(width: 4),
                     Text(

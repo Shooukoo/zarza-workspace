@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../core/auth/auth_cubit.dart';
-import '../../core/auth/auth_state.dart';
 import '../../domain/enums/user_role.dart';
 import '../auth/auth_widgets.dart';
 import 'admin_blocs/admin_bloc.dart';
@@ -177,7 +175,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                       const SizedBox(height: 16),
                       // ── Selector de Rol ────────────────────────────────────
                       DropdownButtonFormField<UserRole>(
-                        value: _selectedRole,
+                        initialValue: _selectedRole,
                         dropdownColor: const Color(0xFF1A1A1A),
                         decoration: InputDecoration(
                           labelText: 'Rol del usuario',

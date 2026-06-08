@@ -19,7 +19,7 @@ void main() {
       mockAuthCubit = MockAuthCubit();
       // Mock auth state as Productor
       when(() => mockAuthCubit.state).thenReturn(
-        AuthAuthenticated(
+        const AuthAuthenticated(
           user: UserEntity(
             id: '1',
             email: 'test@test.com',
@@ -37,8 +37,8 @@ void main() {
 
     testWidgets('renders all 6 section tiles', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: const HelpScreen(),
+        const MaterialApp(
+          home: HelpScreen(),
         ),
       );
 
@@ -56,8 +56,8 @@ void main() {
 
     testWidgets('close button pops navigation', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: const HelpScreen(),
+        const MaterialApp(
+          home: HelpScreen(),
         ),
       );
 
@@ -73,8 +73,8 @@ void main() {
 
     testWidgets('expansion tile expands and collapses', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: const HelpScreen(),
+        const MaterialApp(
+          home: HelpScreen(),
         ),
       );
 

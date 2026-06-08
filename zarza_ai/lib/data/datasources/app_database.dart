@@ -23,7 +23,7 @@ class PendingUploads extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
-  AppDatabase.forTesting(QueryExecutor executor) : super(executor);
+  AppDatabase.forTesting(super.executor);
 
   @override
   int get schemaVersion => 1;

@@ -277,9 +277,9 @@ class _HealthHeroCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+                        const Row(
                           children: [
-                            const Text(
+                            Text(
                               'SALUD DEL CULTIVO',
                               style: TextStyle(
                                 fontSize: 11,
@@ -289,7 +289,7 @@ class _HealthHeroCard extends StatelessWidget {
                                 fontFamily: 'Lexend',
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: 6),
                             HelpTooltip(
                               content: 'La salud es el porcentaje promedio '
                                   'de frutas sanas. 100% = todas sanas, 0% = todas enfermas.',
@@ -394,11 +394,11 @@ class _HeroLoadingBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
+        const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'SALUD DEL CULTIVO',
                 style: TextStyle(
                   fontSize: 11,
@@ -408,8 +408,8 @@ class _HeroLoadingBody extends StatelessWidget {
                   fontFamily: 'Lexend',
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text(
+              SizedBox(height: 10),
+              Text(
                 'Cargando datos...',
                 style: TextStyle(
                   fontSize: 16,
@@ -418,8 +418,8 @@ class _HeroLoadingBody extends StatelessWidget {
                   fontFamily: 'Lexend',
                 ),
               ),
-              const SizedBox(height: 6),
-              const Text(
+              SizedBox(height: 6),
+              Text(
                 'Conectando con el servidor',
                 style: TextStyle(
                   fontSize: 12,
@@ -451,11 +451,11 @@ class _HeroEmptyBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
+        const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'SALUD DEL CULTIVO',
                 style: TextStyle(
                   fontSize: 11,
@@ -465,8 +465,8 @@ class _HeroEmptyBody extends StatelessWidget {
                   fontFamily: 'Lexend',
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text(
+              SizedBox(height: 10),
+              Text(
                 'Sin análisis aún',
                 style: TextStyle(
                   fontSize: 20,
@@ -475,8 +475,8 @@ class _HeroEmptyBody extends StatelessWidget {
                   fontFamily: 'Lexend',
                 ),
               ),
-              const SizedBox(height: 6),
-              const Text(
+              SizedBox(height: 6),
+              Text(
                 'Captura tu primera imagen\npara comenzar el análisis.',
                 style: TextStyle(
                   fontSize: 12,
@@ -552,7 +552,7 @@ class _HeroErrorBody extends StatelessWidget {
                 icon: const Icon(Icons.refresh_rounded, size: 16),
                 label: const Text('Reintentar'),
                 onPressed: () {
-                  context.read<HistoryBloc>().add(GetAnalysesEvent());
+                  context.read<HistoryBloc>().add(const GetAnalysesEvent());
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.rubus,
@@ -762,7 +762,7 @@ class _RecentAnalysesList extends StatelessWidget {
                   icon: const Icon(Icons.refresh_rounded, size: 16),
                   label: const Text('Reintentar'),
                   onPressed: () {
-                    context.read<HistoryBloc>().add(GetAnalysesEvent());
+                    context.read<HistoryBloc>().add(const GetAnalysesEvent());
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.rubus,
@@ -876,7 +876,7 @@ class _AnalysisListTile extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          HelpTooltip(
+                          const HelpTooltip(
                             content: 'Detectados = frutas analizadas. Sanos = sin enfermedades.',
                             maxWidth: 260,
                           ),

@@ -186,7 +186,7 @@ class _YieldChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (data.isEmpty) {
-      return _EmptyCard(title: 'Proyección de Cosecha');
+      return const _EmptyCard(title: 'Proyección de Cosecha');
     }
 
     return _CardContainer(
@@ -217,7 +217,7 @@ class _YieldChartCard extends StatelessWidget {
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
-              getDrawingHorizontalLine: (value) => FlLine(
+              getDrawingHorizontalLine: (value) => const FlLine(
                 color: Colors.white12,
                 strokeWidth: 1,
               ),
@@ -291,7 +291,7 @@ class _PhenologyPieChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (data.isEmpty) return _EmptyCard(title: 'Distribución Fenológica');
+    if (data.isEmpty) return const _EmptyCard(title: 'Distribución Fenológica');
 
     final total = data.fold<int>(0, (sum, item) => sum + item.count);
     
@@ -303,7 +303,7 @@ class _PhenologyPieChartCard extends StatelessWidget {
       'flor': const Color(0xFFFFFFFF),       // White
     }; // Fallback for unexpected states is grey
 
-    List<PieChartSectionData> sections = [];
+    final List<PieChartSectionData> sections = [];
     for (int i = 0; i < data.length; i++) {
       final item = data[i];
       final color = colorMap[item.stage.toLowerCase()] ?? Colors.grey;
@@ -584,7 +584,7 @@ class _KpiCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),

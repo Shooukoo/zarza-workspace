@@ -136,7 +136,7 @@ class _UsersTable extends StatelessWidget {
               border: Border(
                   bottom: BorderSide(color: Color(0xFF1E1E1E))),
             ),
-            child: Row(
+            child: const Row(
               children: [
                 Expanded(
                     flex: 4,
@@ -144,7 +144,7 @@ class _UsersTable extends StatelessWidget {
                 Expanded(flex: 3, child: _HeaderCell('Rol')),
                 Expanded(flex: 3, child: _HeaderCell('Miembro desde')),
                 Expanded(flex: 3, child: _HeaderCell('Actividad')),
-                const SizedBox(width: 140, child: _HeaderCell('Acción')),
+                SizedBox(width: 140, child: _HeaderCell('Acción')),
               ],
             ),
           ),

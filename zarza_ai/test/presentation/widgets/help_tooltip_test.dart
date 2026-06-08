@@ -6,7 +6,7 @@ void main() {
   group('HelpTooltip', () {
     testWidgets('renders icon', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
               child: HelpTooltip(
@@ -23,7 +23,7 @@ void main() {
 
     testWidgets('shows dialog on tap', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
               child: HelpTooltip(
@@ -49,7 +49,7 @@ void main() {
     testWidgets('closes dialog when tapping Cerrar button',
         (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: Center(
               child: HelpTooltip(

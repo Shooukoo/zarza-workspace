@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:zarza_ai/domain/entities/fruit_analysis.dart';
-import 'package:zarza_ai/domain/entities/upload_metadata.dart';
 import 'package:zarza_ai/domain/usecases/upload_image_usecase.dart';
 import 'package:zarza_ai/presentation/capture/capture_bloc.dart';
 

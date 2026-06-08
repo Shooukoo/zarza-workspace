@@ -46,7 +46,7 @@ class HelpSection {
 
 final allHelpSections = <HelpSection>[
   // 1. Primeros Pasos
-  HelpSection(
+  const HelpSection(
     id: 'getting-started',
     title: 'Primeros Pasos',
     description: 'Aprende lo básico de la app y cómo navegar.',
@@ -81,7 +81,7 @@ final allHelpSections = <HelpSection>[
     ],
   ),
   // 2. Captura de Análisis
-  HelpSection(
+  const HelpSection(
     id: 'capture',
     title: 'Captura de Análisis',
     description: 'Cómo tomar fotos y enviar para análisis.',
@@ -128,7 +128,7 @@ final allHelpSections = <HelpSection>[
     ],
   ),
   // 3. Interpretar Resultados
-  HelpSection(
+  const HelpSection(
     id: 'results',
     title: 'Interpretar Resultados',
     description: 'Entiende qué significan los números y gráficos.',
@@ -172,7 +172,7 @@ final allHelpSections = <HelpSection>[
     ],
   ),
   // 4. Conceptos Clave (Glosario)
-  HelpSection(
+  const HelpSection(
     id: 'glossary',
     title: 'Conceptos Clave',
     description: 'Definiciones de términos importantes.',
@@ -219,7 +219,7 @@ final allHelpSections = <HelpSection>[
     ],
   ),
   // 5. Solución de Problemas (FAQ)
-  HelpSection(
+  const HelpSection(
     id: 'troubleshooting',
     title: 'Solución de Problemas',
     description: 'Respuestas a preguntas frecuentes.',
@@ -264,7 +264,7 @@ final allHelpSections = <HelpSection>[
     ],
   ),
   // 6. Gestión de Campos/Solicitudes
-  HelpSection(
+  const HelpSection(
     id: 'fields-requests',
     title: 'Gestión de Campos y Solicitudes',
     description: 'Administra campos y solicitudes de muestreo.',

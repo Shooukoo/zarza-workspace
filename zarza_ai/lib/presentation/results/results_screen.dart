@@ -147,7 +147,7 @@ class _HealthCard extends StatelessWidget {
                         children: [
                           Text(
                             score.toStringAsFixed(0),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 42,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.frost,

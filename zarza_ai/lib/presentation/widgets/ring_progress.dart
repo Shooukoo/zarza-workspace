@@ -53,7 +53,7 @@ class RingProgress extends StatelessWidget {
                 glow: glow,
               ),
             ),
-            if (child != null) child!,
+            ?child,
           ],
         ),
       ),

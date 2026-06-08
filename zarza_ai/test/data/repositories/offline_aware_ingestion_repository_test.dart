@@ -7,8 +7,6 @@ import 'package:zarza_ai/core/services/local_notifications_service.dart';
 import 'package:zarza_ai/data/datasources/remote_ingestion_datasource.dart';
 import 'package:zarza_ai/data/models/upload_response_model.dart';
 import 'package:zarza_ai/data/repositories/offline_aware_ingestion_repository.dart';
-import 'package:zarza_ai/domain/entities/fruit_analysis.dart';
-import 'package:zarza_ai/domain/entities/pending_upload.dart';
 import 'package:zarza_ai/domain/entities/upload_metadata.dart';
 import 'package:zarza_ai/domain/repositories/i_offline_queue_repository.dart';
 

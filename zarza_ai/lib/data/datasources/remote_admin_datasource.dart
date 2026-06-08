@@ -43,7 +43,7 @@ class RemoteAdminDatasource {
     required UserRole role,
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
-      '${AppConstants.adminUsersEndpoint}',
+      AppConstants.adminUsersEndpoint,
       data: {
         'email': email,
         'password': password,

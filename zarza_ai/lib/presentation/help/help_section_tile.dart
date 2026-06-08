@@ -6,9 +6,9 @@ class HelpSectionTile extends StatefulWidget {
   final HelpSection section;
 
   const HelpSectionTile({
-    Key? key,
+    super.key,
     required this.section,
-  }) : super(key: key);
+  });
 
   @override
   State<HelpSectionTile> createState() => _HelpSectionTileState();
