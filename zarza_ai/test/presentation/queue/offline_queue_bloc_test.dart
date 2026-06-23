@@ -158,7 +158,7 @@ void main() {
     },
     act: (b) {
       b.add(const QueueStartWatching());
-      Future.delayed(const Duration(milliseconds: 10)).then((_) {
+      Future<void>.delayed(const Duration(milliseconds: 10)).then((_) {
         // Emulate stream updates
         mockWatch().listen((items) {
           b.add(QueueUpdated(items));

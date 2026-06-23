@@ -136,10 +136,10 @@ class _SolicitudCard extends StatelessWidget {
   }
 
   (Color, String) _badgeForEstado(EstadoSolicitud estado) => switch (estado) {
-        EstadoSolicitud.PENDIENTE => (Colors.grey, 'Pendiente'),
-        EstadoSolicitud.EN_PROGRESO => (Colors.orange, 'En progreso'),
-        EstadoSolicitud.COMPLETADO => (const Color(0xFF4CAF50), 'Completado'),
-        EstadoSolicitud.CANCELADO => (Colors.redAccent, 'Cancelado'),
+        EstadoSolicitud.pendiente => (Colors.grey, 'Pendiente'),
+        EstadoSolicitud.enProgreso => (Colors.orange, 'En progreso'),
+        EstadoSolicitud.completado => (const Color(0xFF4CAF50), 'Completado'),
+        EstadoSolicitud.cancelado => (Colors.redAccent, 'Cancelado'),
       };
 }
 

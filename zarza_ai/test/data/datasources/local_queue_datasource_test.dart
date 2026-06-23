@@ -306,13 +306,13 @@ void main() {
       });
 
       // Initial emission
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(emissions.length, equals(1));
       expect(emissions[0], isEmpty);
 
       // Add item
       await datasource.enqueue(item1);
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(emissions.length, equals(2));
       expect(emissions[1].length, equals(1));
       expect(emissions[1][0].offlineSyncId, equals('sync-1'));
@@ -320,13 +320,13 @@ void main() {
       // Update item
       final updated = item1.copyWith(status: domain.PendingUploadStatus.syncing);
       await datasource.updateItem(updated);
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(emissions.length, equals(3));
       expect(emissions[2][0].status, equals(domain.PendingUploadStatus.syncing));
 
       // Delete item
       await datasource.delete('sync-1');
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(emissions.length, equals(4));
       expect(emissions[3], isEmpty);
 

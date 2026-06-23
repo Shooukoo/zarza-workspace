@@ -14,7 +14,7 @@ class RemoteSolicitudesDatasource {
     final query = <String, dynamic>{'page': page, 'limit': limit};
     if (estado != null) query['estado'] = estado;
 
-    final response = await _dio.get(
+    final response = await _dio.get<dynamic>(
       AppConstants.solicitudesEndpoint,
       queryParameters: query,
     );
@@ -35,7 +35,7 @@ class RemoteSolicitudesDatasource {
   }
 
   Future<SolicitudModel> updateEstado(String id, String estado) async {
-    final response = await _dio.patch(
+    final response = await _dio.patch<dynamic>(
       '${AppConstants.solicitudesEndpoint}/$id/estado',
       data: {'estado': estado},
     );

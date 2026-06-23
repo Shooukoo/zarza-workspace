@@ -21,7 +21,7 @@ class RemoteIngestionDatasource {
       if (metadata.gpsLon != null) 'gpsLon': metadata.gpsLon.toString(),
     });
 
-    final response = await _dio.post(
+    final response = await _dio.post<dynamic>(
       AppConstants.uploadEndpoint,
       data: formData,
       options: Options(

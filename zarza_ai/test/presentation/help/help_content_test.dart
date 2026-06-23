@@ -6,8 +6,6 @@ void main() {
   group('HelpSection', () {
     test('filterByRole returns only sections visible to role', () {
       const productor = UserRole.productor;
-      const agronomo = UserRole.agronomo;
-      const admin = UserRole.admin;
 
       // Filter for Productor
       final productorSections = HelpSection.filterByRole(allHelpSections, productor);

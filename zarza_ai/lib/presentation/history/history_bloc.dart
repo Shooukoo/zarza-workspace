@@ -147,7 +147,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         hasMore: result.length == AppConstants.defaultPageSize,
         page: _currentPage,
       ));
-    } catch (e) {
+    } on Object catch (e) {
       emit(HistoryError('No se pudo cargar el historial: ${e.toString()}'));
     }
   }
@@ -173,7 +173,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         hasMore: result.length == AppConstants.defaultPageSize,
         page: _currentPage,
       ));
-    } catch (e) {
+    } on Object catch (_) {
       _currentPage--;
       emit(HistoryLoaded(
         analyses: List.unmodifiable(_items),
@@ -207,7 +207,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         hasMore: result.length == AppConstants.defaultPageSize,
         page: _currentPage,
       ));
-    } catch (e, stack) {
+    } on Object catch (e, stack) {
       developer.log('[HistoryBloc] silent refresh failed', error: e, stackTrace: stack);
     }
   }

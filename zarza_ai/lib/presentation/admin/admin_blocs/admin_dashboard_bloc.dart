@@ -84,7 +84,7 @@ class AdminDashboardBloc
         healthMetrics: results[1] as HealthMetricsEntity,
         phenology: results[2] as List<PhenologyDistributionEntity>,
       ));
-    } catch (e) {
+    } on Object catch (e) {
       emit(DashboardError(e.toString()));
     }
   }

@@ -163,7 +163,7 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
       } else {
         emit(CaptureSuccess(result));
       }
-    } catch (e, stack) {
+    } on Object catch (e, stack) {
       developer.log('[CaptureBloc] upload failed', error: e, stackTrace: stack);
       emit(CaptureFailure(_errorMessage(e), file: current.file));
     }

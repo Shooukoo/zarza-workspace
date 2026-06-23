@@ -70,7 +70,7 @@ class ResultsBloc extends Bloc<ResultsEvent, ResultsState> {
         return;
       } on Object {
         if (attempt < maxAttempts) {
-          await Future.delayed(retryDelay);
+          await Future<void>.delayed(retryDelay);
         }
       }
     }

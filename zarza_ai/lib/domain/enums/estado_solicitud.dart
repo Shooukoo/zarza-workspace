@@ -1,20 +1,20 @@
 enum EstadoSolicitud {
-  PENDIENTE,
-  EN_PROGRESO,
-  COMPLETADO,
-  CANCELADO;
+  pendiente,
+  enProgreso,
+  completado,
+  cancelado;
 
   static EstadoSolicitud fromString(String value) {
     return EstadoSolicitud.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => EstadoSolicitud.PENDIENTE,
+      orElse: () => EstadoSolicitud.pendiente,
     );
   }
 
   String get displayName => switch (this) {
-        EstadoSolicitud.PENDIENTE => 'Pendiente',
-        EstadoSolicitud.EN_PROGRESO => 'En progreso',
-        EstadoSolicitud.COMPLETADO => 'Completado',
-        EstadoSolicitud.CANCELADO => 'Cancelado',
+        EstadoSolicitud.pendiente => 'Pendiente',
+        EstadoSolicitud.enProgreso => 'En progreso',
+        EstadoSolicitud.completado => 'Completado',
+        EstadoSolicitud.cancelado => 'Cancelado',
       };
 }

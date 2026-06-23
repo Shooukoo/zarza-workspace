@@ -2,8 +2,8 @@ import 'dart:io';
 
 /// Central configuration for RubusAI.
 ///
-/// El host se puede sobreescribir con --dart-define=SERVER_HOST=<ip>
-///   flutter run --dart-define=SERVER_HOST=192.168.100.26
+/// El host se puede sobreescribir con `--dart-define=SERVER_HOST=<ip>`
+///   `flutter run --dart-define=SERVER_HOST=192.168.100.26`
 ///
 /// Si no se pasa, el default es:
 ///   - Android → 10.0.2.2 (emulador)
