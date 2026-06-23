@@ -198,6 +198,16 @@ exports.Prisma.FenologiaEtapaScalarFieldEnum = {
   diasParaCosecha: 'diasParaCosecha'
 };
 
+exports.Prisma.RefreshTokenScalarFieldEnum = {
+  id: 'id',
+  tokenHash: 'tokenHash',
+  userId: 'userId',
+  familyId: 'familyId',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -249,7 +259,8 @@ exports.Prisma.ModelName = {
   UserCampo: 'UserCampo',
   SolicitudMuestreo: 'SolicitudMuestreo',
   Analysis: 'Analysis',
-  FenologiaEtapa: 'FenologiaEtapa'
+  FenologiaEtapa: 'FenologiaEtapa',
+  RefreshToken: 'RefreshToken'
 };
 
 /**
