@@ -115,7 +115,9 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
                   : null,
         ),
       );
-    } on Object {}
+    } on Object {
+      // Ignore malformed WebSocket messages
+    }
   }
 
   @override

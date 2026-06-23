@@ -96,10 +96,10 @@ class SolicitudDetailBloc
     emit(SolicitudDetailUpdating(_current!));
     try {
       final updated =
-          await _updateEstadoUseCase(_current!.id, EstadoSolicitud.EN_PROGRESO);
+          await _updateEstadoUseCase(_current!.id, EstadoSolicitud.enProgreso);
       _current = _current!.copyWith(estado: updated.estado);
       emit(SolicitudDetailEstadoActualizado(_current!));
-    } catch (e) {
+    } on Object catch (e) {
       emit(SolicitudDetailError(
         solicitud: _current!,
         message: 'No se pudo actualizar: ${e.toString()}',
@@ -115,10 +115,10 @@ class SolicitudDetailBloc
     emit(SolicitudDetailUpdating(_current!));
     try {
       final updated =
-          await _updateEstadoUseCase(_current!.id, EstadoSolicitud.COMPLETADO);
+          await _updateEstadoUseCase(_current!.id, EstadoSolicitud.completado);
       _current = _current!.copyWith(estado: updated.estado);
       emit(SolicitudDetailEstadoActualizado(_current!));
-    } catch (e) {
+    } on Object catch (e) {
       emit(SolicitudDetailError(
         solicitud: _current!,
         message: 'No se pudo completar: ${e.toString()}',

@@ -64,7 +64,7 @@ class FcmService {
 
   Future<void> _registerToken(String token) async {
     try {
-      await _dio.patch('/api/auth/fcm-token', data: {'token': token});
+      await _dio.patch<dynamic>('/api/auth/fcm-token', data: {'token': token});
     } on Exception {
       // Ignorar si el backend no está disponible — se reintentará en el próximo arranque
     }

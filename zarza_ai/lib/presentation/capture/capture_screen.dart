@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -176,7 +177,7 @@ class _CaptureBodyState extends State<_CaptureBody> {
     );
     if (xFile == null || !context.mounted) return;
     context.read<CaptureBloc>().add(CaptureImageSelected(File(xFile.path)));
-    _fetchGps();
+    unawaited(_fetchGps());
   }
 
   @override

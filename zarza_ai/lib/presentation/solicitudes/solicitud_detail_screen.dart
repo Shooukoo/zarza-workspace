@@ -125,10 +125,10 @@ class _InfoCard extends StatelessWidget {
   }
 
   (Color, String) _badgeForEstado(EstadoSolicitud estado) => switch (estado) {
-        EstadoSolicitud.PENDIENTE => (Colors.grey, 'Pendiente'),
-        EstadoSolicitud.EN_PROGRESO => (Colors.orange, 'En progreso'),
-        EstadoSolicitud.COMPLETADO => (const Color(0xFF4CAF50), 'Completado'),
-        EstadoSolicitud.CANCELADO => (Colors.redAccent, 'Cancelado'),
+        EstadoSolicitud.pendiente => (Colors.grey, 'Pendiente'),
+        EstadoSolicitud.enProgreso => (Colors.orange, 'En progreso'),
+        EstadoSolicitud.completado => (const Color(0xFF4CAF50), 'Completado'),
+        EstadoSolicitud.cancelado => (Colors.redAccent, 'Cancelado'),
       };
 }
 
@@ -184,15 +184,15 @@ class _ActionButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     final estado = solicitud.estado;
 
-    if (estado == EstadoSolicitud.COMPLETADO ||
-        estado == EstadoSolicitud.CANCELADO) {
+    if (estado == EstadoSolicitud.completado ||
+        estado == EstadoSolicitud.cancelado) {
       return const _ReadOnlyBanner();
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (estado == EstadoSolicitud.PENDIENTE)
+        if (estado == EstadoSolicitud.pendiente)
           OutlinedButton.icon(
             onPressed: () => context
                 .read<SolicitudDetailBloc>()
@@ -208,7 +208,7 @@ class _ActionButtons extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14)),
             ),
           ),
-        if (estado == EstadoSolicitud.PENDIENTE) const SizedBox(height: 12),
+        if (estado == EstadoSolicitud.pendiente) const SizedBox(height: 12),
         ElevatedButton.icon(
           onPressed: () => _subirAnalisis(context),
           icon: const Icon(Icons.camera_alt_rounded),

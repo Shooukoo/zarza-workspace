@@ -8,7 +8,7 @@ class RemoteFruitsDatasource {
 
   Future<FruitAnalysisModel> getAnalysis(String id) async {
     final response =
-        await _dio.get('${AppConstants.fruitsEndpoint}/$id');
+        await _dio.get<dynamic>('${AppConstants.fruitsEndpoint}/$id');
     return FruitAnalysisModel.fromJson(
         response.data as Map<String, dynamic>);
   }
@@ -25,7 +25,7 @@ class RemoteFruitsDatasource {
     if (startDate != null) query['start_date'] = startDate;
     if (endDate != null) query['end_date'] = endDate;
 
-    final response = await _dio.get(
+    final response = await _dio.get<dynamic>(
       AppConstants.fruitsEndpoint,
       queryParameters: query,
     );

@@ -57,7 +57,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         );
         Navigator.of(context).pop();
       }
-    } catch (e, stack) {
+    } on Object catch (e, stack) {
       developer.log('[ProfileEditScreen] updateProfile error', error: e, stackTrace: stack);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

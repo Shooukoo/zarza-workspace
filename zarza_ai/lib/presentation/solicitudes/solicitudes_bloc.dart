@@ -106,7 +106,9 @@ class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
         if (event == WsEvents.nuevaSolicitud) {
           add(const _SolicitudesSilentRefresh());
         }
-      } on Object {}
+      } on Object {
+        // Ignore malformed WebSocket messages
+      }
     });
   }
 
@@ -139,7 +141,7 @@ class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
         hasMore: result.length == AppConstants.defaultPageSize,
         page: _currentPage,
       ));
-    } catch (e) {
+    } on Object catch (e) {
       emit(SolicitudesError('No se pudieron cargar las solicitudes: ${e.toString()}'));
     }
   }
@@ -163,7 +165,7 @@ class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
         hasMore: result.length == AppConstants.defaultPageSize,
         page: _currentPage,
       ));
-    } catch (e) {
+    } on Object catch (_) {
       _currentPage--;
       emit(SolicitudesLoaded(
         items: List.unmodifiable(_items),
@@ -211,7 +213,7 @@ class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
         hasMore: result.length == AppConstants.defaultPageSize,
         page: _currentPage,
       ));
-    } catch (e, stack) {
+    } on Object catch (e, stack) {
       developer.log('[SolicitudesBloc] silent refresh failed', error: e, stackTrace: stack);
     }
   }

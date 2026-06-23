@@ -71,7 +71,7 @@ class SyncService {
             lastError: e.message,
           ));
         }
-      } catch (e) {
+      } on Object catch (e) {
         final newRetry = item.retryCount + 1;
         final newStatus =
             newRetry >= 3 ? PendingUploadStatus.failed : PendingUploadStatus.pending;

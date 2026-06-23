@@ -15,8 +15,6 @@ class HelpSectionTile extends StatefulWidget {
 }
 
 class _HelpSectionTileState extends State<HelpSectionTile> {
-  bool _isExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -50,9 +48,7 @@ class _HelpSectionTileState extends State<HelpSectionTile> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          onExpansionChanged: (expanded) {
-            setState(() => _isExpanded = expanded);
-          },
+          onExpansionChanged: (expanded) {},
           children: [
             ListView.builder(
               shrinkWrap: true,

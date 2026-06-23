@@ -16,6 +16,7 @@ import 'core/services/auto_sync_service.dart';
 import 'core/services/fcm_service.dart';
 import 'core/services/sync_service.dart';
 import 'core/theme/app_theme.dart';
+import 'domain/entities/campo_entity.dart';
 import 'domain/usecases/get_campos_usecase.dart';
 
 Future<void> main() async {
