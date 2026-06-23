@@ -52,13 +52,13 @@ Future<void> main() async {
   await setupServiceLocator();
 
   // Inicializar FCM (pide permisos y registra token si hay sesión activa)
-  sl<FcmService>().init().catchError((_) {});
+  sl<FcmService>().init().catchError((_) {}).ignore();
 
   // Pre-cargar campos en caché sin bloquear arranque
-  sl<GetCamposUseCase>()().catchError((_) {});
+  sl<GetCamposUseCase>()().catchError((Object _) => <CampoEntity>[]).ignore();
 
   // Sincronizar cola pendiente sin bloquear arranque
-  sl<SyncService>().syncPending().catchError((_) {});
+  sl<SyncService>().syncPending().catchError((_) {}).ignore();
 
   // Iniciar listener de reconexión automática
   sl<AutoSyncService>().start();

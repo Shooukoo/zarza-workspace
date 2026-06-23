@@ -106,7 +106,9 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         if (event == WsEvents.analisisListo || event == WsEvents.analysisValidated) {
           add(const _HistorySilentRefresh());
         }
-      } catch (_) {}
+      } on Object {
+        // Ignore malformed WebSocket messages
+      }
     });
   }
 

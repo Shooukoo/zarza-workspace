@@ -139,7 +139,7 @@ class _CaptureBodyState extends State<_CaptureBody> {
         _gpsLat = pos.latitude;
         _gpsLon = pos.longitude;
       });
-    } catch (_) {
+    } on Object {
       // GPS opcional — continuar sin ubicación
     } finally {
       setState(() => _fetchingGps = false);

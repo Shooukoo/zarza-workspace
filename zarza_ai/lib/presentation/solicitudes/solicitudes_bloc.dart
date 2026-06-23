@@ -106,7 +106,7 @@ class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
         if (event == WsEvents.nuevaSolicitud) {
           add(const _SolicitudesSilentRefresh());
         }
-      } catch (_) {}
+      } on Object {}
     });
   }
 

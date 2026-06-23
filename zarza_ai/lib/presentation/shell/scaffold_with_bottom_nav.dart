@@ -115,7 +115,7 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
                   : null,
         ),
       );
-    } catch (_) {}
+    } on Object {}
   }
 
   @override

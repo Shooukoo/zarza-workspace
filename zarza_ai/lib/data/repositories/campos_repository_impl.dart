@@ -22,7 +22,7 @@ class CamposRepositoryImpl implements ICamposRepository {
       _cache = models.map((m) => m.toEntity()).toList();
       _cacheTime = DateTime.now();
       return _cache!;
-    } catch (_) {
+    } on Object {
       if (_cache != null) return _cache!;
       rethrow;
     }

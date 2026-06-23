@@ -68,7 +68,7 @@ class ResultsBloc extends Bloc<ResultsEvent, ResultsState> {
         final analysis = await _getAnalysisUseCase(event.id);
         emit(ResultsLoaded(analysis));
         return;
-      } catch (_) {
+      } on Object {
         if (attempt < maxAttempts) {
           await Future.delayed(retryDelay);
         }
