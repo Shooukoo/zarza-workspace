@@ -12,7 +12,8 @@ interface EnvVars {
   RABBITMQ_URL: string;
   RABBITMQ_QUEUE: string;
   JWT_SECRET: string;
-  JWT_EXPIRES_IN: string;
+  JWT_ACCESS_EXPIRES_IN: string;
+  JWT_REFRESH_EXPIRES_IN: string;
   CORS_ORIGIN: string;
   FIREBASE_SERVICE_ACCOUNT_B64: string;
   INTERNAL_NOTIFY_TOKEN: string;
@@ -28,7 +29,8 @@ const envSchema = joi
     RABBITMQ_URL: joi.string().required(),
     RABBITMQ_QUEUE: joi.string().required(),
     JWT_SECRET: joi.string().required(),
-    JWT_EXPIRES_IN: joi.string().required(),
+    JWT_ACCESS_EXPIRES_IN: joi.string().required(),
+    JWT_REFRESH_EXPIRES_IN: joi.string().required(),
     CORS_ORIGIN: joi.string().optional().default('http://localhost:5173'),
     FIREBASE_SERVICE_ACCOUNT_B64: joi.string().required(),
     INTERNAL_NOTIFY_TOKEN: joi.string().min(32).required(),
@@ -52,7 +54,8 @@ export const envs = {
   rabbitmqUrl: envVars.RABBITMQ_URL,
   rabbitmqQueue: envVars.RABBITMQ_QUEUE,
   jwtSecret: envVars.JWT_SECRET,
-  jwtExpiresIn: envVars.JWT_EXPIRES_IN,
+  jwtAccessExpiresIn: envVars.JWT_ACCESS_EXPIRES_IN,
+  jwtRefreshExpiresIn: envVars.JWT_REFRESH_EXPIRES_IN,
   corsOrigin: envVars.CORS_ORIGIN,
   firebaseServiceAccountB64: envVars.FIREBASE_SERVICE_ACCOUNT_B64,
   internalNotifyToken: envVars.INTERNAL_NOTIFY_TOKEN,

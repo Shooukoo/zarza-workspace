@@ -27,6 +27,9 @@ class AuthRepositoryImpl implements IAuthRepository {
     final model = await _remote.login(email: email, password: password);
     final entity = model.toEntity();
     await _local.saveToken(entity.token);
+    if (entity.refreshToken != null) {
+      await _local.saveRefreshToken(entity.refreshToken!);
+    }
     await _local.saveUser(entity.user);
     return entity;
   }
@@ -51,7 +54,19 @@ class AuthRepositoryImpl implements IAuthRepository {
   }
 
   @override
-  Future<void> logout() => _local.clearAll();
+  Future<void> logout() async {
+    final refreshToken = await _local.getRefreshToken();
+    final body = refreshToken != null ? {'refreshToken': refreshToken} : <String, dynamic>{};
+    try {
+      await _dio.post<void>(
+        '/api/auth/logout',
+        data: body,
+      );
+    } on DioException catch (_) {
+      // Si la revocación falla (red, 4xx/5xx, timeout), igual limpiamos el storage local
+    }
+    await _local.clearAll();
+  }
 
   @override
   Future<String?> getStoredToken() => _local.getToken();

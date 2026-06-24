@@ -34,6 +34,7 @@ class AppConstants {
   // Auth endpoints
   static const String loginEndpoint = '/api/auth/login';
   static const String registerEndpoint = '/api/auth/register';
+  static const String refreshEndpoint = '/api/auth/refresh';
 
   // Admin endpoints
   static const String adminUsersEndpoint = '/api/admin/users';

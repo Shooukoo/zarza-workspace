@@ -32,6 +32,10 @@ export class InMemoryUserRepository implements IUserRepository {
     return { id, camposAsignados: [] };
   }
 
+  async findUserById(id: string): Promise<User | null> {
+    return this.users.find((u) => u.id === id) ?? null;
+  }
+
   async findFcmTokenById(userId: string): Promise<string | null> {
     const user = this.users.find((u) => u.id === userId);
     return user?.fcm_token ?? null;

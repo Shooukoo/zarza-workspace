@@ -14,14 +14,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { IsString, MaxLength } from 'class-validator';
-
-class FcmTokenDto {
-  @IsString()
-  @MaxLength(512)
-  token: string;
-}
-
+import { IsString, MaxLength, IsNotEmpty, IsOptional } from 'class-validator';
 import type { FastifyReply } from 'fastify';
 import { AuthService } from '../../application/auth.service';
 import {
@@ -40,7 +33,25 @@ import { I_USER_REPOSITORY, type IUserRepository } from '../../ports/user-reposi
 export const AUTH_SERVICE = Symbol('AUTH_SERVICE');
 
 const COOKIE_NAME = 'access_token';
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+const ACCESS_COOKIE_MAX_AGE = 900; // 15 minutos
+
+class FcmTokenDto {
+  @IsString()
+  @MaxLength(512)
+  token: string;
+}
+
+class RefreshTokenDto {
+  @IsString()
+  @IsNotEmpty()
+  refreshToken: string;
+}
+
+class LogoutDto {
+  @IsString()
+  @IsOptional()
+  refreshToken?: string;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -76,24 +87,27 @@ export class AuthController {
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
     try {
-      const result = await this.authService.login(
-        loginDto.email,
-        loginDto.password,
-      );
-      reply.setCookie(COOKIE_NAME, result.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-        path: '/',
-        maxAge: COOKIE_MAX_AGE,
-      });
-      return result;
+      const result = await this.authService.login(loginDto.email, loginDto.password);
+      this.setAccessTokenCookie(reply, result.token);
+      return result; // { token, refreshToken, user }
     } catch (error) {
       if (error instanceof InvalidCredentialsError) {
         throw new UnauthorizedException('Invalid email or password');
       }
       throw error;
     }
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
+  async refresh(
+    @Body() body: RefreshTokenDto,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const result = await this.authService.refresh(body.refreshToken);
+    this.setAccessTokenCookie(reply, result.token);
+    return result; // { token, refreshToken }
   }
 
   @Get('me')
@@ -121,11 +135,26 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: any, @Res({ passthrough: true }) reply: FastifyReply) {
+  async logout(
+    @Body() body: LogoutDto,
+    @Req() req: any,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    await this.authService.logout(body?.refreshToken);
     if (req.user?.sub) {
       await this.userRepository.clearFcmToken(req.user.sub).catch(() => {});
     }
     reply.clearCookie(COOKIE_NAME, { path: '/' });
     return { message: 'Logged out' };
+  }
+
+  private setAccessTokenCookie(reply: FastifyReply, token: string): void {
+    reply.setCookie(COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      path: '/',
+      maxAge: ACCESS_COOKIE_MAX_AGE,
+    });
   }
 }
