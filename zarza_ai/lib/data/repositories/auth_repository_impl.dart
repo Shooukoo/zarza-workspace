@@ -59,7 +59,7 @@ class AuthRepositoryImpl implements IAuthRepository {
     final body = refreshToken != null ? {'refreshToken': refreshToken} : <String, dynamic>{};
     try {
       await _dio.post<void>(
-        '/api/auth/logout',
+        '/api/v1/auth/logout',
         data: body,
       );
     } on DioException catch (_) {
@@ -80,7 +80,7 @@ class AuthRepositoryImpl implements IAuthRepository {
     String? lastName,
   }) async {
     await _dio.patch<void>(
-      '/api/auth/profile',
+      '/api/v1/auth/profile',
       data: {
         'firstName': ?firstName,
         'lastName': ?lastName,

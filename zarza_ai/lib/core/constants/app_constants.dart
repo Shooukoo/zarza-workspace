@@ -27,18 +27,18 @@ class AppConstants {
       _isDev ? 'ws://$_host:3001/ws' : 'wss://$_host/ws';
 
   // Endpoints
-  static const String uploadEndpoint = '/api/ingestion/upload';
-  static const String fruitsEndpoint = '/api/fruits';
-  static const String solicitudesEndpoint = '/api/solicitudes';
+  static const String uploadEndpoint = '/api/v1/ingestion/upload';
+  static const String fruitsEndpoint = '/api/v1/fruits';
+  static const String solicitudesEndpoint = '/api/v1/solicitudes';
 
   // Auth endpoints
-  static const String loginEndpoint = '/api/auth/login';
-  static const String registerEndpoint = '/api/auth/register';
-  static const String refreshEndpoint = '/api/auth/refresh';
+  static const String loginEndpoint = '/api/v1/auth/login';
+  static const String registerEndpoint = '/api/v1/auth/register';
+  static const String refreshEndpoint = '/api/v1/auth/refresh';
 
   // Admin endpoints
-  static const String adminUsersEndpoint = '/api/admin/users';
-  static const String adminStatsEndpoint = '/api/admin/stats';
+  static const String adminUsersEndpoint = '/api/v1/admin/users';
+  static const String adminStatsEndpoint = '/api/v1/admin/stats';
 
   // Upload timeout (analysis can take up to 60 s server-side)
   static const int uploadTimeoutSeconds = 90;

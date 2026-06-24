@@ -85,12 +85,12 @@ import { AdminDashboardService } from './admin-dashboard.service';
  * Endpoints exclusivos para administradores.
  * Todos requieren JWT válido + rol ADMIN.
  *
- * GET  /api/admin/users              → Lista paginada de usuarios
- * PATCH /api/admin/users/:id/role    → Cambia el rol de un usuario
- * GET  /api/admin/stats              → Estadísticas globales del sistema
- * GET  /api/admin/dashboard/yield    → Proyección de Cosecha
- * GET  /api/admin/dashboard/health   → Resumen de Salud y Mermas
- * GET  /api/admin/dashboard/phenology→ Distribución Fenológica
+ * GET  /api/v1/admin/users              → Lista paginada de usuarios
+ * PATCH /api/v1/admin/users/:id/role    → Cambia el rol de un usuario
+ * GET  /api/v1/admin/stats              → Estadísticas globales del sistema
+ * GET  /api/v1/admin/dashboard/yield    → Proyección de Cosecha
+ * GET  /api/v1/admin/dashboard/health   → Resumen de Salud y Mermas
+ * GET  /api/v1/admin/dashboard/phenology→ Distribución Fenológica
  */
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)

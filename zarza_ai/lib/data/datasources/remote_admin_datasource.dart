@@ -55,7 +55,7 @@ class RemoteAdminDatasource {
 
   Future<List<YieldForecastDto>> getDashboardYield() async {
     final response = await _dio.get<List<dynamic>>(
-      '/api/admin/dashboard/yield',
+      '/api/v1/admin/dashboard/yield',
     );
     return response.data!
         .map((e) => YieldForecastDto.fromJson(e as Map<String, dynamic>))
@@ -64,14 +64,14 @@ class RemoteAdminDatasource {
 
   Future<HealthMetricsDto> getDashboardHealth() async {
     final response = await _dio.get<Map<String, dynamic>>(
-      '/api/admin/dashboard/health',
+      '/api/v1/admin/dashboard/health',
     );
     return HealthMetricsDto.fromJson(response.data!);
   }
 
   Future<List<PhenologyDistributionDto>> getDashboardPhenology() async {
     final response = await _dio.get<List<dynamic>>(
-      '/api/admin/dashboard/phenology',
+      '/api/v1/admin/dashboard/phenology',
     );
     return response.data!
         .map((e) => PhenologyDistributionDto.fromJson(e as Map<String, dynamic>))
