@@ -55,6 +55,19 @@ export class PrismaUserRepository implements IUserRepository {
     };
   }
 
+  async findUserById(id: string): Promise<User | null> {
+    const doc = await this.prisma.user.findUnique({ where: { id } });
+    if (!doc) return null;
+    return new User(
+      doc.id,
+      doc.email,
+      doc.passwordHash,
+      doc.role as Role,
+      doc.firstName ?? null,
+      doc.lastName ?? null,
+    );
+  }
+
   async findFcmTokenById(userId: string): Promise<string | null> {
     const doc = await this.prisma.user.findUnique({
       where: { id: userId },

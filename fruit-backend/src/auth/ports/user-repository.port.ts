@@ -20,6 +20,7 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<User | null>;
   save(data: CreateUserData): Promise<User>;
   findById(id: string): Promise<UserCampos | null>;
+  findUserById(id: string): Promise<User | null>;
   findFcmTokenById(userId: string): Promise<string | null>;
   clearFcmToken(userId: string): Promise<void>;
   saveFcmToken(userId: string, token: string): Promise<void>;
