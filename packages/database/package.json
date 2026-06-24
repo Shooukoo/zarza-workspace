@@ -18,13 +18,13 @@
     "studio": "prisma studio"
   },
   "dependencies": {
-    "@prisma/client": "^6.0.0"
+    "@prisma/client": "^6.19.3"
   },
   "peerDependencies": {
     "@nestjs/common": "^11.0.0"
   },
   "devDependencies": {
-    "prisma": "^6.0.0",
-    "typescript": "^5.0.0"
+    "prisma": "^6.19.3",
+    "typescript": "^5.9.3"
   }
 }
