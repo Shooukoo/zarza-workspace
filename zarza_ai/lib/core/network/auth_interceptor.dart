@@ -68,7 +68,7 @@ class AuthInterceptor extends Interceptor {
         retryOptions.headers['Authorization'] = 'Bearer ${data['token']}';
         final retryResponse = await _refreshDio.fetch<dynamic>(retryOptions);
         return handler.resolve(retryResponse);
-      } on Exception catch (_) {
+      } on Object catch (_) {
         unawaited(sl<AuthCubit>().logout());
         return handler.next(err);
       } finally {
