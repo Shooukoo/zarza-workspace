@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@rubus/database';
+import { PrismaService, User as PrismaUser } from '@rubus/database';
 import { User } from '../../domain/entities/user.entity';
 import { IUserRepository, CreateUserData, UserCampos } from '../../ports/user-repository.port';
 import { Role } from '../../domain/enums/role.enum';
@@ -13,14 +13,7 @@ export class PrismaUserRepository implements IUserRepository {
       where: { email: email.toLowerCase().trim() },
     });
     if (!doc) return null;
-    return new User(
-      doc.id,
-      doc.email,
-      doc.passwordHash,
-      doc.role as Role,
-      doc.firstName ?? null,
-      doc.lastName ?? null,
-    );
+    return this.toDomain(doc);
   }
 
   async save(data: CreateUserData): Promise<User> {
@@ -58,14 +51,7 @@ export class PrismaUserRepository implements IUserRepository {
   async findUserById(id: string): Promise<User | null> {
     const doc = await this.prisma.user.findUnique({ where: { id } });
     if (!doc) return null;
-    return new User(
-      doc.id,
-      doc.email,
-      doc.passwordHash,
-      doc.role as Role,
-      doc.firstName ?? null,
-      doc.lastName ?? null,
-    );
+    return this.toDomain(doc);
   }
 
   async findFcmTokenById(userId: string): Promise<string | null> {
@@ -101,5 +87,16 @@ export class PrismaUserRepository implements IUserRepository {
         ...(data.lastName !== undefined && { lastName: data.lastName }),
       },
     });
+  }
+
+  private toDomain(doc: PrismaUser): User {
+    return new User(
+      doc.id,
+      doc.email,
+      doc.passwordHash,
+      doc.role as Role,
+      doc.firstName ?? null,
+      doc.lastName ?? null,
+    );
   }
 }
