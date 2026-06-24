@@ -76,7 +76,7 @@ export class FruitsService {
     // 4. Notificar al backend para que haga broadcast por WebSocket
     try {
       await this.http.axiosRef.post(
-        `${envs.backendUrl}/api/internal/notify`,
+        `${envs.backendUrl}/api/v1/internal/notify`,
         {
           event: 'analisis_listo',
           data: {

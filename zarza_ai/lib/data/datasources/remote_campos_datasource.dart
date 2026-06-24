@@ -6,7 +6,7 @@ class RemoteCamposDatasource {
   final Dio _dio;
 
   Future<List<CampoModel>> getCampos() async {
-    final response = await _dio.get<List<dynamic>>('/api/campos');
+    final response = await _dio.get<List<dynamic>>('/api/v1/campos');
     final data = response.data ?? [];
     return data
         .cast<Map<String, dynamic>>()

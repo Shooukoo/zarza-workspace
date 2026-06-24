@@ -257,7 +257,6 @@ Estas ideas están documentadas en la auditoría original pero no han tenido nin
 - **Mapa geográfico de análisis** — visualizar en un mapa (Google Maps/Mapbox) la ubicación de los análisis por campo, usando los datos GPS que ya existen.
 - **Exportación de reportes PDF/Excel** — endpoint para que un agrónomo exporte los análisis de un campo.
 - **Cache en Redis para el dashboard** — las métricas de `/admin/dashboard/*` son costosas de calcular en cada request.
-- **Versionado de API (`/v1/`)** — para poder evolucionar el backend sin romper clientes existentes.
 - **Healthchecks en `docker-compose.yml`** — para que los servicios esperen correctamente a sus dependencias (ej. `fruit-ms` no debe procesar hasta que `fruit-inference` esté listo).
 - **Compresión de imágenes antes del upload** — reducir tiempo de subida y costo de almacenamiento en R2.
 - **Paginación consistente** — unificar `fruit-backend` (offset) y `fruit-ms` (cursor) a un solo esquema.
@@ -274,3 +273,4 @@ Para que quede claro de dónde partimos, esto ya está completado desde la audit
 - **Refresh tokens con rotación** — access token de 15 minutos, refresh token de 7 días, con detección de robo de token (rotación por familia) y revocación al hacer logout.
 - **Panel web (`zarza-web`)** — ya tiene una implementación real en React/TypeScript (gestión de usuarios, análisis, solicitudes), no solo un directorio vacío como decía la auditoría original.
 - **Corrección de vulnerabilidades de dependencias** reportadas por Dependabot en todo el monorepo.
+- **Versionado de API (`/v1/`)** — `fruit-backend` usa URI Versioning de NestJS (`/api/v1/...`) con `defaultVersion: '1'`; permite añadir `/v2/` a futuro sin romper clientes. Actualizado `fruit-ms`, `zarza_ai` y `zarza-web` para apuntar a las rutas versionadas.

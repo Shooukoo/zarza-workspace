@@ -24,9 +24,9 @@ import { type EstadoSolicitud } from '@rubus/database';
 const ESTADO_VALUES = ['PENDIENTE', 'EN_PROGRESO', 'COMPLETADO', 'CANCELADO'] as const;
 
 /**
- * POST   /api/solicitudes              → Crear solicitud de muestreo (ADMIN, AGRONOMO)
- * GET    /api/solicitudes              → Listar solicitudes paginadas (ADMIN, AGRONOMO, MONITOR)
- * PATCH  /api/solicitudes/:id/estado  → Cambiar estado (ADMIN, AGRONOMO, MONITOR)
+ * POST   /api/v1/solicitudes              → Crear solicitud de muestreo (ADMIN, AGRONOMO)
+ * GET    /api/v1/solicitudes              → Listar solicitudes paginadas (ADMIN, AGRONOMO, MONITOR)
+ * PATCH  /api/v1/solicitudes/:id/estado  → Cambiar estado (ADMIN, AGRONOMO, MONITOR)
  */
 @Controller('solicitudes')
 @UseGuards(JwtAuthGuard, RolesGuard)
