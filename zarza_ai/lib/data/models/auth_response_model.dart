@@ -10,7 +10,7 @@ class AuthResponseModel {
   });
 
   final String token;
-  final String refreshToken;
+  final String? refreshToken;
   final UserEntity user;
 
   factory AuthResponseModel.fromJson(
@@ -36,7 +36,7 @@ class AuthResponseModel {
 
     return AuthResponseModel._(
       token: json['token'] as String,
-      refreshToken: json['refreshToken'] as String? ?? '',
+      refreshToken: json['refreshToken'] as String?,
       user: user,
     );
   }

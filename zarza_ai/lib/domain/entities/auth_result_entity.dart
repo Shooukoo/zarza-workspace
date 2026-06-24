@@ -10,7 +10,7 @@ class AuthResultEntity extends Equatable {
   });
 
   final String token;
-  final String refreshToken;
+  final String? refreshToken;
   final UserEntity user;
 
   @override
