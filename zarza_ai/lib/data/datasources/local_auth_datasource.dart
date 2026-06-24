@@ -10,6 +10,7 @@ class LocalAuthDatasource {
   final FlutterSecureStorage _storage;
 
   static const _tokenKey = 'auth_token';
+  static const _refreshTokenKey = 'auth_refresh_token';
   static const _userKey = 'auth_user';
 
   Future<void> saveToken(String token) =>
@@ -18,6 +19,13 @@ class LocalAuthDatasource {
   Future<String?> getToken() => _storage.read(key: _tokenKey);
 
   Future<void> deleteToken() => _storage.delete(key: _tokenKey);
+
+  Future<void> saveRefreshToken(String token) =>
+      _storage.write(key: _refreshTokenKey, value: token);
+
+  Future<String?> getRefreshToken() => _storage.read(key: _refreshTokenKey);
+
+  Future<void> deleteRefreshToken() => _storage.delete(key: _refreshTokenKey);
 
   Future<void> saveUser(UserEntity user) async {
     final json = jsonEncode({
@@ -47,6 +55,7 @@ class LocalAuthDatasource {
 
   Future<void> clearAll() async {
     await deleteToken();
+    await deleteRefreshToken();
     await deleteUser();
   }
 }
