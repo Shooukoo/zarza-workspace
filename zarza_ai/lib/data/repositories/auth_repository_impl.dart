@@ -56,13 +56,14 @@ class AuthRepositoryImpl implements IAuthRepository {
   @override
   Future<void> logout() async {
     final refreshToken = await _local.getRefreshToken();
+    final body = refreshToken != null ? {'refreshToken': refreshToken} : <String, dynamic>{};
     try {
       await _dio.post<void>(
         '/api/auth/logout',
-        data: refreshToken != null ? {'refreshToken': refreshToken} : <String, dynamic>{},
+        data: body,
       );
-    } on Object catch (_) {
-      // Si el backend no responde, igual limpiamos el storage local
+    } on DioException catch (_) {
+      // Si la revocación falla (red, 4xx/5xx, timeout), igual limpiamos el storage local
     }
     await _local.clearAll();
   }
