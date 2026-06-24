@@ -133,7 +133,7 @@ describe('AuthService', () => {
         expiresAt: futureDate,
         revokedAt: null,
       });
-      mockRefreshRepo.revokeByTokenHash.mockResolvedValue(undefined);
+      mockRefreshRepo.revokeByTokenHash.mockResolvedValue(true);
       mockUserRepo.findUserById.mockResolvedValue(user);
       mockTokenService.generateToken.mockResolvedValue('new-access-jwt');
       mockRefreshRepo.create.mockResolvedValue(undefined);
@@ -147,6 +147,24 @@ describe('AuthService', () => {
       expect(mockRefreshRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({ familyId: FAMILY_ID }),
       );
+    });
+
+    it('detecta robo por carrera: revoca toda la familia si revokeByTokenHash pierde la carrera', async () => {
+      mockRefreshRepo.findByTokenHash.mockResolvedValue({
+        id: 'rt-1',
+        tokenHash: 'some-hash',
+        userId: 'user-1',
+        familyId: FAMILY_ID,
+        expiresAt: new Date(Date.now() + 60_000),
+        revokedAt: null,
+      });
+      mockRefreshRepo.revokeByTokenHash.mockResolvedValue(false);
+      mockRefreshRepo.revokeByFamilyId.mockResolvedValue(undefined);
+
+      await expect(service.refresh('raced-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
+      expect(mockRefreshRepo.revokeByFamilyId).toHaveBeenCalledWith(FAMILY_ID);
     });
 
     it('detecta robo: revoca toda la familia si el token ya estaba revocado', async () => {
@@ -185,7 +203,7 @@ describe('AuthService', () => {
 
   describe('logout()', () => {
     it('revoca el refresh token en la BD', async () => {
-      mockRefreshRepo.revokeByTokenHash.mockResolvedValue(undefined);
+      mockRefreshRepo.revokeByTokenHash.mockResolvedValue(true);
 
       await service.logout('some-refresh-token');
 

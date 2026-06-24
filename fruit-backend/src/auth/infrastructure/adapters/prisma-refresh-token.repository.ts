@@ -22,11 +22,12 @@ export class PrismaRefreshTokenRepository implements IRefreshTokenRepository {
     return this.prisma.refreshToken.findUnique({ where: { tokenHash: hash } });
   }
 
-  async revokeByTokenHash(hash: string): Promise<void> {
-    await this.prisma.refreshToken.updateMany({
-      where: { tokenHash: hash },
+  async revokeByTokenHash(hash: string): Promise<boolean> {
+    const result = await this.prisma.refreshToken.updateMany({
+      where: { tokenHash: hash, revokedAt: null },
       data: { revokedAt: new Date() },
     });
+    return result.count > 0;
   }
 
   async revokeByFamilyId(familyId: string): Promise<void> {

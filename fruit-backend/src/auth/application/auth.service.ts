@@ -121,7 +121,13 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token expirado');
     }
 
-    await this.refreshTokenRepo.revokeByTokenHash(hash);
+    const revoked = await this.refreshTokenRepo.revokeByTokenHash(hash);
+    if (!revoked) {
+      await this.refreshTokenRepo.revokeByFamilyId(record.familyId);
+      throw new UnauthorizedException(
+        'Refresh token reutilizado — sesión invalidada',
+      );
+    }
 
     const user = await this.userRepository.findUserById(record.userId);
     if (!user) throw new UnauthorizedException('Usuario no encontrado');

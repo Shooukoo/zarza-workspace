@@ -70,6 +70,29 @@ describe('PrismaRefreshTokenRepository', () => {
     });
   });
 
+  describe('revokeByTokenHash()', () => {
+    it('revoca el token activo y devuelve true', async () => {
+      mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 1 });
+
+      const result = await repo.revokeByTokenHash('abc123');
+
+      expect(result).toBe(true);
+      expect(mockPrisma.refreshToken.updateMany).toHaveBeenCalledWith({
+        where: { tokenHash: 'abc123', revokedAt: null },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        data: { revokedAt: expect.any(Date) },
+      });
+    });
+
+    it('devuelve false si el token ya estaba revocado (perdió la carrera)', async () => {
+      mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 0 });
+
+      const result = await repo.revokeByTokenHash('abc123');
+
+      expect(result).toBe(false);
+    });
+  });
+
   describe('revokeByFamilyId()', () => {
     it('marca como revocados todos los tokens activos de la familia', async () => {
       mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 3 });
