@@ -88,13 +88,7 @@ export class AuthController {
   ) {
     try {
       const result = await this.authService.login(loginDto.email, loginDto.password);
-      reply.setCookie(COOKIE_NAME, result.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-        path: '/',
-        maxAge: ACCESS_COOKIE_MAX_AGE,
-      });
+      this.setAccessTokenCookie(reply, result.token);
       return result; // { token, refreshToken, user }
     } catch (error) {
       if (error instanceof InvalidCredentialsError) {
@@ -112,13 +106,7 @@ export class AuthController {
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
     const result = await this.authService.refresh(body.refreshToken);
-    reply.setCookie(COOKIE_NAME, result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-      path: '/',
-      maxAge: ACCESS_COOKIE_MAX_AGE,
-    });
+    this.setAccessTokenCookie(reply, result.token);
     return result; // { token, refreshToken }
   }
 
@@ -158,5 +146,15 @@ export class AuthController {
     }
     reply.clearCookie(COOKIE_NAME, { path: '/' });
     return { message: 'Logged out' };
+  }
+
+  private setAccessTokenCookie(reply: FastifyReply, token: string): void {
+    reply.setCookie(COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      path: '/',
+      maxAge: ACCESS_COOKIE_MAX_AGE,
+    });
   }
 }
