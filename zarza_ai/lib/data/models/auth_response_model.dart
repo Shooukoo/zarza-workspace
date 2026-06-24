@@ -5,10 +5,12 @@ import '../../domain/enums/user_role.dart';
 class AuthResponseModel {
   const AuthResponseModel._({
     required this.token,
+    required this.refreshToken,
     required this.user,
   });
 
   final String token;
+  final String refreshToken;
   final UserEntity user;
 
   factory AuthResponseModel.fromJson(
@@ -34,9 +36,14 @@ class AuthResponseModel {
 
     return AuthResponseModel._(
       token: json['token'] as String,
+      refreshToken: json['refreshToken'] as String? ?? '',
       user: user,
     );
   }
 
-  AuthResultEntity toEntity() => AuthResultEntity(token: token, user: user);
+  AuthResultEntity toEntity() => AuthResultEntity(
+        token: token,
+        refreshToken: refreshToken,
+        user: user,
+      );
 }
