@@ -77,7 +77,10 @@
       "Bash(python -m pytest tests/test_image_preprocessor.py::test_red_dominant_image_reduces_red_channel -v)",
       "Bash(python -m pytest tests/test_image_preprocessor.py -v)",
       "Bash(python -m pytest tests/ -v)",
-      "Bash(python -c \"from main import app; print\\('OK'\\)\")"
+      "Bash(python -c \"from main import app; print\\('OK'\\)\")",
+      "Bash(git check-ignore *)",
+      "Bash(node -e ' *)",
+      "Bash(git status *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\shoxd\\Proyecto Dalet\\docs\\superpowers\\specs"
