@@ -22,7 +22,9 @@ import { PrismaRefreshTokenRepository } from './adapters/prisma-refresh-token.re
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_ACCESS_EXPIRES_IN'),
+          expiresIn: configService.get<string>(
+            'JWT_ACCESS_EXPIRES_IN',
+          ) as ms.StringValue,
         },
       }),
     }),
@@ -32,7 +34,10 @@ import { PrismaRefreshTokenRepository } from './adapters/prisma-refresh-token.re
     { provide: I_USER_REPOSITORY, useClass: PrismaUserRepository },
     { provide: I_HASHER_PORT, useClass: BcryptHasher },
     { provide: I_TOKEN_PORT, useClass: JwtTokenService },
-    { provide: I_REFRESH_TOKEN_REPOSITORY, useClass: PrismaRefreshTokenRepository },
+    {
+      provide: I_REFRESH_TOKEN_REPOSITORY,
+      useClass: PrismaRefreshTokenRepository,
+    },
     {
       provide: AUTH_SERVICE,
       useFactory: (
@@ -42,8 +47,17 @@ import { PrismaRefreshTokenRepository } from './adapters/prisma-refresh-token.re
         refreshTokenRepo,
         configService: ConfigService,
       ) => {
-        const rawExpiry = configService.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '7d';
-        return new AuthService(userRepo, hasher, tokenPort, refreshTokenRepo, ms(rawExpiry));
+        const rawExpiry =
+          (configService.get<string>(
+            'JWT_REFRESH_EXPIRES_IN',
+          ) as ms.StringValue) ?? '7d';
+        return new AuthService(
+          userRepo,
+          hasher,
+          tokenPort,
+          refreshTokenRepo,
+          ms(rawExpiry),
+        );
       },
       inject: [
         I_USER_REPOSITORY,
