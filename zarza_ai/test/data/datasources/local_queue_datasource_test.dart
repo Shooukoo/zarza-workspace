@@ -1,14 +1,30 @@
+import 'dart:io';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:zarza_ai/data/datasources/app_database.dart';
 import 'package:zarza_ai/data/datasources/local_queue_datasource.dart';
 import 'package:zarza_ai/domain/entities/pending_upload.dart' as domain;
+
+class FakePathProviderPlatform extends Fake
+    with MockPlatformInterfaceMixin
+    implements PathProviderPlatform {
+  @override
+  Future<String?> getTemporaryPath() async => Directory.systemTemp.path;
+
+  @override
+  Future<String?> getApplicationDocumentsPath() async =>
+      Directory.systemTemp.path;
+}
 
 void main() {
   late AppDatabase db;
   late LocalQueueDatasource datasource;
 
   setUp(() {
+    PathProviderPlatform.instance = FakePathProviderPlatform();
     db = AppDatabase.forTesting(NativeDatabase.memory());
     datasource = LocalQueueDatasource(db);
   });
@@ -203,6 +219,57 @@ void main() {
       await datasource.delete('nonexistent');
       final rows = await db.select(db.pendingUploads).get();
       expect(rows, isEmpty);
+    });
+
+    test('deletes the image file from disk when it exists', () async {
+      final imageFile = File(
+        '${Directory.systemTemp.path}/test_image_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      imageFile.writeAsBytesSync([0xFF, 0xD8, 0xFF]);
+      expect(imageFile.existsSync(), isTrue);
+
+      final item = domain.PendingUpload(
+        offlineSyncId: 'sync-001',
+        imagePath: imageFile.path,
+        campoId: 'campo-1',
+        capturedAt: DateTime(2026, 6, 25),
+        queuedAt: DateTime(2026, 6, 25),
+        status: domain.PendingUploadStatus.pending,
+      );
+      await datasource.enqueue(item);
+      await datasource.delete('sync-001');
+
+      expect(imageFile.existsSync(), isFalse);
+    });
+
+    test('does not throw when image file is already missing', () async {
+      final item = domain.PendingUpload(
+        offlineSyncId: 'sync-002',
+        imagePath: '/nonexistent/path/image.jpg',
+        campoId: 'campo-1',
+        capturedAt: DateTime(2026, 6, 25),
+        queuedAt: DateTime(2026, 6, 25),
+        status: domain.PendingUploadStatus.pending,
+      );
+      await datasource.enqueue(item);
+
+      await expectLater(datasource.delete('sync-002'), completes);
+    });
+
+    test('removes the DB row regardless of file state', () async {
+      final item = domain.PendingUpload(
+        offlineSyncId: 'sync-003',
+        imagePath: '/nonexistent/image.jpg',
+        campoId: 'campo-1',
+        capturedAt: DateTime(2026, 6, 25),
+        queuedAt: DateTime(2026, 6, 25),
+        status: domain.PendingUploadStatus.pending,
+      );
+      await datasource.enqueue(item);
+      await datasource.delete('sync-003');
+
+      final remaining = await datasource.getPending();
+      expect(remaining, isEmpty);
     });
   });
 

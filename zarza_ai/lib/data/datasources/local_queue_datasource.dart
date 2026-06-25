@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import '../../domain/entities/pending_upload.dart' as domain;
 import 'app_database.dart';
@@ -43,6 +45,15 @@ class LocalQueueDatasource {
   }
 
   Future<void> delete(String offlineSyncId) async {
+    final row = await (_db.select(_db.pendingUploads)
+          ..where((t) => t.offlineSyncId.equals(offlineSyncId)))
+        .getSingleOrNull();
+
+    if (row != null) {
+      final imageFile = File(row.imagePath);
+      if (imageFile.existsSync()) imageFile.deleteSync();
+    }
+
     await (_db.delete(_db.pendingUploads)
           ..where((t) => t.offlineSyncId.equals(offlineSyncId)))
         .go();
