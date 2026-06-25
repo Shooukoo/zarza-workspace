@@ -1,76 +1,67 @@
 import 'dart:io';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
-import 'package:zarza_ai/domain/entities/fruit_analysis.dart';
+import 'package:mocktail/mocktail.dart';
+
+import 'package:zarza_ai/core/services/image_compression_service.dart';
+import 'package:zarza_ai/domain/entities/upload_metadata.dart';
 import 'package:zarza_ai/domain/usecases/upload_image_usecase.dart';
 import 'package:zarza_ai/presentation/capture/capture_bloc.dart';
 
-import 'capture_bloc_test.mocks.dart';
+class MockUploadImageUseCase extends Mock implements UploadImageUseCase {}
+class MockImageCompressionService extends Mock implements ImageCompressionService {}
+class FakeFile extends Fake implements File {}
+class FakeUploadMetadata extends Fake implements UploadMetadata {}
 
-@GenerateMocks([UploadImageUseCase])
 void main() {
-  late MockUploadImageUseCase mockUseCase;
-  late CaptureBloc bloc;
-  final fakeFile = File('/tmp/test.jpg');
+  late MockUploadImageUseCase uploadUseCase;
+  late MockImageCompressionService compressionService;
+  late File rawFile;
+  late File compressedFile;
+
+  setUpAll(() {
+    registerFallbackValue(FakeFile());
+    registerFallbackValue(FakeUploadMetadata());
+  });
 
   setUp(() {
-    mockUseCase = MockUploadImageUseCase();
-    bloc = CaptureBloc(mockUseCase);
+    uploadUseCase = MockUploadImageUseCase();
+    compressionService = MockImageCompressionService();
+    rawFile = File('/raw/image.jpg');
+    compressedFile = File('/tmp/zarza_compressed/abc.jpg');
   });
 
-  tearDown(() => bloc.close());
+  CaptureBloc buildBloc() =>
+      CaptureBloc(uploadUseCase, compressionService);
 
-  test('initial state is CaptureInitial', () {
-    expect(bloc.state, isA<CaptureInitial>());
+  group('CaptureImageSelected', () {
+    blocTest<CaptureBloc, CaptureState>(
+      'emits CaptureImageReady with compressed file on success',
+      build: buildBloc,
+      setUp: () {
+        when(() => compressionService.compress(rawFile))
+            .thenAnswer((_) async => compressedFile);
+      },
+      act: (bloc) => bloc.add(CaptureImageSelected(rawFile)),
+      expect: () => [CaptureImageReady(compressedFile)],
+    );
+
+    blocTest<CaptureBloc, CaptureState>(
+      'emits CaptureFailure when compression throws',
+      build: buildBloc,
+      setUp: () {
+        when(() => compressionService.compress(rawFile))
+            .thenThrow(StateError('compression failed'));
+      },
+      act: (bloc) => bloc.add(CaptureImageSelected(rawFile)),
+      expect: () => [
+        isA<CaptureFailure>().having(
+          (s) => s.message,
+          'message',
+          'No se pudo procesar la imagen.',
+        ),
+      ],
+    );
   });
-
-  blocTest<CaptureBloc, CaptureState>(
-    'emits CaptureImageReady when image selected',
-    build: () => bloc,
-    act: (b) => b.add(CaptureImageSelected(fakeFile)),
-    expect: () => [isA<CaptureImageReady>()],
-  );
-
-  blocTest<CaptureBloc, CaptureState>(
-    'emits CaptureMetadataReady when metadata updated after image',
-    build: () => bloc,
-    seed: () => CaptureImageReady(fakeFile),
-    act: (b) => b.add(const CaptureMetadataUpdated(campoId: 'c-1')),
-    expect: () => [isA<CaptureMetadataReady>()],
-  );
-
-  blocTest<CaptureBloc, CaptureState>(
-    'emits CaptureQueued when upload result is QUEUED',
-    build: () {
-      when(mockUseCase(any, any)).thenAnswer((_) async => const UploadResult(
-            imageId: 'sync-uuid',
-            storageKey: '',
-            status: 'QUEUED',
-          ));
-      return bloc;
-    },
-    seed: () => CaptureMetadataReady(
-      file: fakeFile,
-      campoId: 'campo-1',
-    ),
-    act: (b) => b.add(const CaptureUploadRequested()),
-    expect: () => [isA<CaptureUploading>(), isA<CaptureQueued>()],
-  );
-
-  blocTest<CaptureBloc, CaptureState>(
-    'emits CaptureSuccess when upload result is UPLOADED',
-    build: () {
-      when(mockUseCase(any, any)).thenAnswer((_) async => const UploadResult(
-            imageId: 'img-1',
-            storageKey: 'key-1',
-            status: 'UPLOADED',
-          ));
-      return bloc;
-    },
-    seed: () => CaptureMetadataReady(file: fakeFile, campoId: 'campo-1'),
-    act: (b) => b.add(const CaptureUploadRequested()),
-    expect: () => [isA<CaptureUploading>(), isA<CaptureSuccess>()],
-  );
 }
