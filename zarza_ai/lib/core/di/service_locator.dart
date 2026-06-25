@@ -55,6 +55,7 @@ import '../../domain/usecases/watch_pending_uploads_usecase.dart';
 import '../services/auto_sync_service.dart';
 import '../services/connectivity_service.dart';
 import '../services/fcm_service.dart';
+import '../services/image_compression_service.dart';
 import '../services/sync_service.dart';
 // Presentation
 import '../../presentation/capture/capture_bloc.dart';
@@ -82,6 +83,10 @@ Future<void> setupServiceLocator() async {
     () => LocalNotificationsService(),
   );
   await sl<LocalNotificationsService>().init();
+
+  sl.registerLazySingleton<ImageCompressionService>(
+    () => const ImageCompressionServiceImpl(),
+  );
 
   sl.registerLazySingleton<FcmService>(() => FcmService(sl<Dio>()));
 
@@ -229,7 +234,10 @@ Future<void> setupServiceLocator() async {
       () => WatchNotificationsUseCase(sl<INotificationsRepository>()));
 
   // ── BLoCs (factories — instancia fresca por ruta) ─────────────────────────
-  sl.registerFactory<CaptureBloc>(() => CaptureBloc(sl<UploadImageUseCase>()));
+  sl.registerFactory<CaptureBloc>(() => CaptureBloc(
+        sl<UploadImageUseCase>(),
+        sl<ImageCompressionService>(),
+      ));
 
   sl.registerFactory<ResultsBloc>(
       () => ResultsBloc(sl<GetAnalysisUseCase>()));

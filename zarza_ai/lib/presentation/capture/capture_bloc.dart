@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../domain/entities/fruit_analysis.dart';
 import '../../domain/entities/upload_metadata.dart';
 import '../../domain/usecases/upload_image_usecase.dart';
+import '../../core/services/image_compression_service.dart';
 
 // ── Events ────────────────────────────────────────────────────────────────────
 
@@ -110,7 +111,8 @@ class CaptureFailure extends CaptureState {
 // ── BLoC ──────────────────────────────────────────────────────────────────────
 
 class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
-  CaptureBloc(this._uploadImageUseCase) : super(const CaptureInitial()) {
+  CaptureBloc(this._uploadImageUseCase, this._compressionService)
+      : super(const CaptureInitial()) {
     on<CaptureImageSelected>(_onImageSelected);
     on<CaptureMetadataUpdated>(_onMetadataUpdated);
     on<CaptureUploadRequested>(_onUploadRequested);
@@ -118,10 +120,20 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
   }
 
   final UploadImageUseCase _uploadImageUseCase;
+  final ImageCompressionService _compressionService;
   static const _uuid = Uuid();
 
-  void _onImageSelected(CaptureImageSelected event, Emitter<CaptureState> emit) {
-    emit(CaptureImageReady(event.file));
+  Future<void> _onImageSelected(
+    CaptureImageSelected event,
+    Emitter<CaptureState> emit,
+  ) async {
+    try {
+      final compressed = await _compressionService.compress(event.file);
+      emit(CaptureImageReady(compressed));
+    } on Object catch (e, stack) {
+      developer.log('[CaptureBloc] compression failed', error: e, stackTrace: stack);
+      emit(const CaptureFailure('No se pudo procesar la imagen.'));
+    }
   }
 
   void _onMetadataUpdated(CaptureMetadataUpdated event, Emitter<CaptureState> emit) {
@@ -161,6 +173,7 @@ class CaptureBloc extends Bloc<CaptureEvent, CaptureState> {
       if (result.status == 'QUEUED') {
         emit(CaptureQueued(result.imageId));
       } else {
+        if (await current.file.exists()) await current.file.delete();
         emit(CaptureSuccess(result));
       }
     } on Object catch (e, stack) {
