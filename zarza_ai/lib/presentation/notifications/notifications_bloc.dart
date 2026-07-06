@@ -56,7 +56,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
           status: NotificationsStatus.success,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       emit(
         state.copyWith(
           status: NotificationsStatus.failure,
@@ -81,7 +81,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
           hasMore: page.items.length == 20,
         ),
       );
-    } catch (e) {
+    } on Exception {
       // No-op on error
     }
   }
@@ -109,7 +109,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
     try {
       await _markRead(event.id);
-    } catch (e) {
+    } on Exception {
       emit(state.copyWith(unreadCount: state.unreadCount + 1, items: state.items));
     }
   }
@@ -121,7 +121,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     emit(state.copyWith(unreadCount: 0));
     try {
       await _markAllRead();
-    } catch (e) {
+    } on Exception {
       emit(state.copyWith(unreadCount: state.items.where((n) => !n.isRead).length));
     }
   }
@@ -134,7 +134,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     emit(state.copyWith(items: updatedItems));
     try {
       await _delete(event.id);
-    } catch (e) {
+    } on Exception {
       emit(state.copyWith(items: state.items));
     }
   }

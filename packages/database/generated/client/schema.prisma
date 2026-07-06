@@ -47,6 +47,7 @@ model User {
   analysesAsProductor  Analysis[]          @relation("AnalysisProductor")
   analysesValidadas    Analysis[]          @relation("AnalysisValidador")
   refreshTokens        RefreshToken[]
+  notifications        Notification[]
 
   @@map("users")
 }
@@ -161,4 +162,22 @@ model RefreshToken {
   @@index([userId])
   @@index([familyId])
   @@map("refresh_tokens")
+}
+
+model Notification {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  type      String
+  title     String
+  body      String
+  data      Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([expiresAt])
+  @@map("notifications")
 }

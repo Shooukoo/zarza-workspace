@@ -208,6 +208,18 @@ exports.Prisma.RefreshTokenScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  body: 'body',
+  data: 'data',
+  read: 'read',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -260,7 +272,8 @@ exports.Prisma.ModelName = {
   SolicitudMuestreo: 'SolicitudMuestreo',
   Analysis: 'Analysis',
   FenologiaEtapa: 'FenologiaEtapa',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  Notification: 'Notification'
 };
 
 /**

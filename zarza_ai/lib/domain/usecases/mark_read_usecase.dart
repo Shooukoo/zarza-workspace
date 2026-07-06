@@ -1,4 +1,3 @@
-// zarza_ai/lib/domain/usecases/mark_read_usecase.dart
 import '../repositories/i_notifications_repository.dart';
 
 class MarkReadUseCase {

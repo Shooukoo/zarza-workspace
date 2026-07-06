@@ -11,7 +11,7 @@ class RemoteNotificationsDatasource {
   final String _baseUrl = '${AppConstants.baseUrl}/api/v1/notifications';
 
   Future<NotificationsPage> fetchPage(int page, {int limit = 20}) async {
-    final response = await _dio.get(
+    final response = await _dio.get<Map<String, dynamic>>(
       _baseUrl,
       queryParameters: {'page': page, 'limit': limit},
     );
@@ -31,14 +31,14 @@ class RemoteNotificationsDatasource {
   }
 
   Future<void> markRead(String id) async {
-    await _dio.patch('$_baseUrl/$id/read');
+    await _dio.patch<void>('$_baseUrl/$id/read');
   }
 
   Future<void> markAllRead() async {
-    await _dio.patch('$_baseUrl/read-all');
+    await _dio.patch<void>('$_baseUrl/read-all');
   }
 
   Future<void> delete(String id) async {
-    await _dio.delete('$_baseUrl/$id');
+    await _dio.delete<void>('$_baseUrl/$id');
   }
 }

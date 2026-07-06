@@ -22,7 +22,7 @@ export class NotificationRepository {
         type,
         title,
         body,
-        data: data || null,
+        ...(data ? { data } : {}),
         expiresAt,
       },
     });

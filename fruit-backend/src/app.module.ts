@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@rubus/database';
+import { ScheduleModule } from '@nestjs/schedule';
 import { IngestionModule } from './ingestion/ingestion.module';
 import { FruitsQueryModule } from './fruits-query/fruits-query.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -17,6 +18,7 @@ import { FcmModule } from './fcm/fcm.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([
       { name: 'global', ttl: 60000, limit: 1000 },
       { name: 'auth',   ttl: 60000, limit: 10 },   // 10 intentos/min en endpoints de auth
