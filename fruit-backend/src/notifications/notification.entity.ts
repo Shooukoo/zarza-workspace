@@ -6,7 +6,7 @@ export class NotificationEntity {
     readonly title: string,
     readonly body: string,
     readonly data: Record<string, any> | null,
-    readonly isRead: boolean,
+    readonly read: boolean,
     readonly createdAt: Date,
     readonly expiresAt: Date,
   ) {}
