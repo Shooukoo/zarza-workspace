@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, Inject, Logger, Post, Headers, UnauthorizedException } from '@nestjs/common';
 import { NotificationsGateway } from './notifications.gateway';
+import { NotificationsService } from './notifications.service';
 import { FcmService, FcmTokenInvalidError } from '../fcm/fcm.service';
 import { I_USER_REPOSITORY, type IUserRepository } from '../auth/ports/user-repository.port';
 
@@ -11,6 +12,7 @@ export class InternalNotifyController {
     private readonly gateway: NotificationsGateway,
     private readonly fcmService: FcmService,
     @Inject(I_USER_REPOSITORY) private readonly userRepository: IUserRepository,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   @Post('notify')
@@ -23,12 +25,47 @@ export class InternalNotifyController {
     if (!expected || token !== expected) {
       throw new UnauthorizedException('Invalid internal token');
     }
+
     const userId = body.data?.userId as string | undefined;
-    if (userId) {
-      this.gateway.emitToUser(userId, body.event, body.data);
+    const eventType = body.event;
+
+    // Mapeo de evento → título/body (debe coincidir con el snackbar de Flutter)
+    let title = '';
+    let bodyText = '';
+    switch (eventType) {
+      case 'analisis_listo':
+        title = '¡Análisis listo!';
+        bodyText = 'Tu análisis ya está disponible en el historial.';
+        break;
+      case 'analysis_validated':
+        title =
+          (body.data?.action as string) === 'validado'
+            ? 'Análisis validado ✓'
+            : 'Análisis rechazado';
+        bodyText =
+          (body.data?.action as string) === 'validado'
+            ? 'Un agrónomo validó tu análisis.'
+            : 'Un agrónomo rechazó tu análisis. Revisa las observaciones.';
+        break;
+      case 'nueva_solicitud':
+        title = 'Nueva solicitud de muestreo';
+        bodyText = 'Tienes una nueva solicitud asignada. Revísala en Solicitudes.';
+        break;
+      default:
+        title = 'Notificación';
+        bodyText = '';
     }
 
-    if (body.event === 'analisis_listo') {
+    // Persiste en DB
+    if (userId && title) {
+      await this.notificationsService.create(userId, eventType, title, bodyText, body.data);
+    } else {
+      // Si no hay titulo mapeado, solo envía WS sin persistir
+      if (userId) this.gateway.emitToUser(userId, eventType, body.data);
+    }
+
+    // Envía push FCM
+    if (eventType === 'analisis_listo') {
       await this.sendAnalisisPush(body.data);
     }
   }
