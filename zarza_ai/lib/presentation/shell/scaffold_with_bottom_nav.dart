@@ -4,11 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../core/constants/ws_events.dart';
 import '../../core/services/local_notifications_service.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/enums/user_role.dart';
 import '../../domain/usecases/watch_notifications_usecase.dart';
+import '../notifications/notifications_bell_widget.dart';
+import '../notifications/notifications_bloc.dart';
+import '../notifications/notifications_event.dart';
 
 class ScaffoldWithBottomNav extends StatefulWidget {
   const ScaffoldWithBottomNav({
@@ -90,6 +95,11 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
         body: body,
       );
 
+      // Notifica al bloc que llegó una notificación WS
+      if (mounted) {
+        context.read<NotificationsBloc>().add(WsNotificationReceived());
+      }
+
       // Snackbar en pantalla (solo si la app está en primer plano)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -126,6 +136,11 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
     final selectedIndex = _selectedIndex(location);
 
     return Scaffold(
+      appBar: AppBar(
+        title: const SizedBox.shrink(), // Título vacío
+        actions: const [NotificationsBellWidget()],
+        elevation: 0,
+      ),
       body: widget.child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
