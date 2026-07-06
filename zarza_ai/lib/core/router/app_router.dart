@@ -29,6 +29,7 @@ import '../../presentation/solicitudes/solicitudes_screen.dart';
 import '../../presentation/solicitudes/solicitud_detail_screen.dart';
 import '../../presentation/solicitudes/solicitudes_bloc.dart';
 import '../../presentation/solicitudes/solicitud_detail_bloc.dart';
+import '../../presentation/notifications/notifications_screen.dart';
 import '../../core/models/capture_context.dart';
 import '../../domain/entities/solicitud_entity.dart';
 
@@ -141,6 +142,10 @@ class AppRouter {
           GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfileEditScreen(),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationsScreen(),
           ),
         ],
       ),
