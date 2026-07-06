@@ -13,6 +13,8 @@ import '../../data/datasources/remote_auth_datasource.dart';
 import '../../data/datasources/remote_ingestion_datasource.dart';
 import '../../data/datasources/remote_fruits_datasource.dart';
 import '../../data/datasources/websocket_datasource.dart';
+// Notifications — Data
+import '../../data/datasources/remote_notifications_datasource.dart';
 // Admin — Data
 import '../../data/datasources/remote_admin_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
@@ -43,6 +45,11 @@ import '../../domain/usecases/update_profile_usecase.dart';
 import '../../domain/usecases/upload_image_usecase.dart';
 import '../../domain/usecases/get_analysis_usecase.dart';
 import '../../domain/usecases/watch_notifications_usecase.dart';
+// Notifications — Use cases
+import '../../domain/usecases/get_notifications_usecase.dart';
+import '../../domain/usecases/mark_read_usecase.dart';
+import '../../domain/usecases/mark_all_read_usecase.dart';
+import '../../domain/usecases/delete_notification_usecase.dart';
 import '../../domain/usecases/get_users_usecase.dart';
 import '../../domain/usecases/update_user_role_usecase.dart';
 import '../../domain/usecases/get_admin_stats_usecase.dart';
@@ -64,6 +71,8 @@ import '../../presentation/history/history_bloc.dart';
 import '../../presentation/admin/admin_blocs/admin_bloc.dart';
 import '../../presentation/admin/admin_blocs/admin_dashboard_bloc.dart';
 import '../../presentation/queue/offline_queue_bloc.dart';
+// Notifications — Presentation
+import '../../presentation/notifications/notifications_bloc.dart';
 // Solicitudes — Data
 import '../../data/datasources/remote_solicitudes_datasource.dart';
 import '../../data/repositories/solicitudes_repository_impl.dart';
@@ -168,6 +177,11 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<RemoteFruitsDatasource>(
       () => RemoteFruitsDatasource(sl<Dio>()));
 
+  // ── Notifications — Data Source ────────────────────────────────────────────
+  sl.registerLazySingleton<RemoteNotificationsDatasource>(
+    () => RemoteNotificationsDatasource(sl<Dio>()),
+  );
+
   // ── Offline queue ──────────────────────────────────────────────────────────
   sl.registerLazySingleton<AppDatabase>(() => AppDatabase());
 
@@ -218,6 +232,7 @@ Future<void> setupServiceLocator() async {
       () => NotificationsRepositoryImpl(
             sl<WebSocketDatasource>(),
             sl<LocalAuthDatasource>(),
+            sl<RemoteNotificationsDatasource>(),
           ));
 
   // ── Use Cases (existentes) ─────────────────────────────────────────────────
@@ -233,6 +248,20 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<WatchNotificationsUseCase>(
       () => WatchNotificationsUseCase(sl<INotificationsRepository>()));
 
+  // ── Notifications — Use Cases ─────────────────────────────────────────────
+  sl.registerLazySingleton<GetNotificationsUseCase>(
+    () => GetNotificationsUseCase(sl<INotificationsRepository>()),
+  );
+  sl.registerLazySingleton<MarkReadUseCase>(
+    () => MarkReadUseCase(sl<INotificationsRepository>()),
+  );
+  sl.registerLazySingleton<MarkAllReadUseCase>(
+    () => MarkAllReadUseCase(sl<INotificationsRepository>()),
+  );
+  sl.registerLazySingleton<DeleteNotificationUseCase>(
+    () => DeleteNotificationUseCase(sl<INotificationsRepository>()),
+  );
+
   // ── BLoCs (factories — instancia fresca por ruta) ─────────────────────────
   sl.registerFactory<CaptureBloc>(() => CaptureBloc(
         sl<UploadImageUseCase>(),
@@ -244,6 +273,16 @@ Future<void> setupServiceLocator() async {
 
   sl.registerFactory<HistoryBloc>(
       () => HistoryBloc(sl<GetAnalysisListUseCase>(), sl<WatchNotificationsUseCase>()));
+
+  // ── Notifications — Bloc ───────────────────────────────────────────────────
+  sl.registerSingleton<NotificationsBloc>(
+    NotificationsBloc(
+      getNotifications: sl<GetNotificationsUseCase>(),
+      markRead: sl<MarkReadUseCase>(),
+      markAllRead: sl<MarkAllReadUseCase>(),
+      delete: sl<DeleteNotificationUseCase>(),
+    ),
+  );
 
   // ── Admin — Data Source ───────────────────────────────────────────────────
   sl.registerLazySingleton<RemoteAdminDatasource>(
