@@ -1,9 +1,22 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ForbiddenException,
+  Inject,
+} from '@nestjs/common';
 import { PrismaService, EstadoSolicitud } from '@rubus/database';
 import { CreateSolicitudDto } from './dto/create-solicitud.dto';
-import { NotificationsGateway } from '../notifications/notifications.gateway';
-import { FcmService, FcmTokenInvalidError, FcmNotification } from '../fcm/fcm.service';
-import { I_USER_REPOSITORY, type IUserRepository } from '../auth/ports/user-repository.port';
+import { NotificationsService } from '../notifications/notifications.service';
+import {
+  FcmService,
+  FcmTokenInvalidError,
+  FcmNotification,
+} from '../fcm/fcm.service';
+import {
+  I_USER_REPOSITORY,
+  type IUserRepository,
+} from '../auth/ports/user-repository.port';
 import { CamposService } from '../campos/campos.service';
 
 @Injectable()
@@ -12,7 +25,7 @@ export class SolicitudesService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly notificationsGateway: NotificationsGateway,
+    private readonly notificationsService: NotificationsService,
     private readonly fcmService: FcmService,
     @Inject(I_USER_REPOSITORY) private readonly userRepository: IUserRepository,
     private readonly camposService: CamposService,
@@ -40,34 +53,65 @@ export class SolicitudesService {
       campo_id: dto.campo_id,
       mensaje: dto.mensaje,
     };
-    this.notificationsGateway.emitToUser(solicitud.asignadoAId, 'nueva_solicitud', wsPayload);
+
+    // Notificar asignado principal
+    await this.notificationsService.create(
+      solicitud.asignadoAId,
+      'nueva_solicitud',
+      'Nueva solicitud de muestreo',
+      'Tienes una nueva solicitud asignada. Revísala en Solicitudes.',
+      wsPayload,
+    );
+
+    // Notificar agrónomos del campo
     try {
       const agronomoIds = await this.findAgronomos(solicitud.campoId);
       for (const id of agronomoIds) {
-        this.notificationsGateway.emitToUser(id, 'nueva_solicitud', wsPayload);
+        await this.notificationsService.create(
+          id,
+          'nueva_solicitud',
+          'Nueva solicitud de muestreo',
+          'Tienes una nueva solicitud asignada. Revísala en Solicitudes.',
+          wsPayload,
+        );
       }
     } catch (err) {
-      this.logger.warn(`[WS] No se pudo notificar agrónomos: ${(err as Error).message}`);
+      this.logger.warn(
+        `[Notifications] No se pudo notificar agrónomos: ${(err as Error).message}`,
+      );
     }
 
-    await this.sendSolicitudPush(dto.asignado_a, dto.campo_id, dto.fecha_limite ?? null, 'created');
+    await this.sendSolicitudPush(
+      dto.asignado_a,
+      dto.campo_id,
+      dto.fecha_limite ?? null,
+      'created',
+    );
     return solicitud;
   }
 
   async findAll(
     page = 1,
     limit = 20,
-    filters: { estado?: EstadoSolicitud; campo_id?: string; asignado_a?: string } = {},
+    filters: {
+      estado?: EstadoSolicitud;
+      campo_id?: string;
+      asignado_a?: string;
+    } = {},
   ) {
     const skip = (page - 1) * limit;
-    const where: { estado?: EstadoSolicitud; campoId?: string; asignadoAId?: string } = {};
+    const where: {
+      estado?: EstadoSolicitud;
+      campoId?: string;
+      asignadoAId?: string;
+    } = {};
 
-    if (filters.estado)    where.estado     = filters.estado;
-    if (filters.campo_id)  where.campoId    = filters.campo_id;
+    if (filters.estado) where.estado = filters.estado;
+    if (filters.campo_id) where.campoId = filters.campo_id;
     if (filters.asignado_a) where.asignadoAId = filters.asignado_a;
 
     const include = {
-      campo:    { select: { id: true, nombre: true, codigoCampo: true } },
+      campo: { select: { id: true, nombre: true, codigoCampo: true } },
       asignadoA: { select: { id: true, email: true } },
     };
 
@@ -85,19 +129,29 @@ export class SolicitudesService {
     return { data, total, page, limit };
   }
 
-  async updateEstado(id: string, estado: EstadoSolicitud, requesterId?: string, requesterRole?: string) {
-    const existing = await this.prisma.solicitudMuestreo.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException(`Solicitud con id "${id}" no encontrada`);
+  async updateEstado(
+    id: string,
+    estado: EstadoSolicitud,
+    requesterId?: string,
+    requesterRole?: string,
+  ) {
+    const existing = await this.prisma.solicitudMuestreo.findUnique({
+      where: { id },
+    });
+    if (!existing)
+      throw new NotFoundException(`Solicitud con id "${id}" no encontrada`);
 
     if (requesterRole === 'MONITOR' && existing.asignadoAId !== requesterId) {
-      throw new ForbiddenException('Solo puedes modificar solicitudes asignadas a ti');
+      throw new ForbiddenException(
+        'Solo puedes modificar solicitudes asignadas a ti',
+      );
     }
 
     const updated = await this.prisma.solicitudMuestreo.update({
       where: { id },
       data: { estado },
       include: {
-        campo:    { select: { id: true, nombre: true, codigoCampo: true } },
+        campo: { select: { id: true, nombre: true, codigoCampo: true } },
         asignadoA: { select: { id: true, email: true } },
       },
     });
@@ -105,11 +159,32 @@ export class SolicitudesService {
     this.logger.log(`Solicitud ${id} → estado: ${estado}`);
 
     if (estado === 'CANCELADO' || estado === 'COMPLETADO') {
+      const isCancelled = estado === 'CANCELADO';
+      const notificationType = isCancelled
+        ? 'solicitud_cancelada'
+        : 'solicitud_completada';
+      const title = isCancelled
+        ? `Solicitud cancelada: ${updated.campo.nombre}`
+        : `Solicitud completada: ${updated.campo.nombre}`;
+      const body = isCancelled
+        ? 'La solicitud de muestreo fue cancelada.'
+        : 'El análisis ha sido marcado como completado.';
+
+      // Persistir notificación in-app
+      await this.notificationsService.create(
+        updated.asignadoAId,
+        notificationType,
+        title,
+        body,
+        { solicitud_id: id },
+      );
+
+      // Enviar push FCM
       await this.sendSolicitudPush(
         updated.asignadoAId,
         updated.campoId,
         null,
-        estado === 'CANCELADO' ? 'cancelled' : 'completed',
+        isCancelled ? 'cancelled' : 'completed',
       );
     }
 
@@ -122,7 +197,9 @@ export class SolicitudesService {
     fechaLimite: string | Date | null | undefined,
     event: 'created' | 'cancelled' | 'completed',
   ): Promise<void> {
-    this.logger.log(`[FCM] sendSolicitudPush → event=${event} userId=${userId ?? 'none'}`);
+    this.logger.log(
+      `[FCM] sendSolicitudPush → event=${event} userId=${userId ?? 'none'}`,
+    );
     if (!userId) return;
 
     const fcmToken = await this.userRepository.findFcmTokenById(userId);
