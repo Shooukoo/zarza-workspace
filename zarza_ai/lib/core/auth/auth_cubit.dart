@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../core/services/fcm_service.dart';
+import '../../data/datasources/websocket_datasource.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
@@ -37,6 +38,7 @@ class AuthCubit extends Cubit<AuthState> {
       final user = await _getCurrentUser();
       if (user != null) {
         emit(AuthAuthenticated(user: user, token: ''));
+        _reconnectWebSocket();
       } else {
         emit(const AuthUnauthenticated());
       }
@@ -53,6 +55,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final result = await _login(email: email, password: password);
       emit(AuthAuthenticated(user: result.user, token: result.token));
+      _reconnectWebSocket();
       unawaited(GetIt.I<FcmService>().init().catchError((_) {}));
     } on Exception catch (e, stack) {
       developer.log('[AuthCubit] login error', error: e, stackTrace: stack);
@@ -75,6 +78,7 @@ class AuthCubit extends Cubit<AuthState> {
         lastName: lastName,
       );
       emit(AuthAuthenticated(user: result.user, token: result.token));
+      _reconnectWebSocket();
       unawaited(GetIt.I<FcmService>().init().catchError((_) {}));
     } on Exception catch (e, stack) {
       developer.log('[AuthCubit] register error', error: e, stackTrace: stack);
@@ -122,5 +126,18 @@ class AuthCubit extends Cubit<AuthState> {
       return 'Sin conexión con el servidor. Verifica tu red.';
     }
     return 'Ocurrió un error. Intenta de nuevo.';
+  }
+
+  void _reconnectWebSocket() {
+    try {
+      final ws = GetIt.I<WebSocketDatasource>();
+      final current = state;
+      if (current is AuthAuthenticated && current.token.isNotEmpty) {
+        ws.setToken(current.token);
+      }
+      ws.reconnect();
+    } on Object {
+      // WebSocketDatasource no está en GetIt aún
+    }
   }
 }
