@@ -1,6 +1,7 @@
 // zarza_ai/lib/data/datasources/websocket_datasource.dart
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../../core/constants/app_constants.dart';
 
@@ -20,11 +21,22 @@ class WebSocketDatasource {
 
   void setToken(String? token) {
     _token = token;
+    developer.log('[WebSocket] Token set: ${token != null ? 'YES' : 'NO'}');
   }
 
   void connect() {
     if (_disposed) return;
     _connectAsync();
+  }
+
+  void reconnect() {
+    developer.log('[WebSocket] Reconnecting...');
+    _subscription?.cancel();
+    _subscription = null;
+    _disposed = false;
+    _connecting = false;
+    _retryCount = 0;
+    connect();
   }
 
   Future<void> _connectAsync() async {
@@ -77,10 +89,13 @@ class WebSocketDatasource {
 
       // Send auth message immediately after connection is ready
       if (_token != null) {
+        developer.log('[WebSocket] Sending auth with token');
         channel.sink.add(jsonEncode({
           'event': 'auth',
           'data': {'token': _token},
         }));
+      } else {
+        developer.log('[WebSocket] No token available, skipping auth');
       }
     } on Object catch (_) {
       unawaited(_subscription?.cancel() ?? Future.value());
