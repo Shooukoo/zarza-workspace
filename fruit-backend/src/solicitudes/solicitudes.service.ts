@@ -63,10 +63,12 @@ export class SolicitudesService {
       wsPayload,
     );
 
-    // Notificar agrónomos del campo
+    // Notificar agrónomos del campo (solo si no es el mismo usuario asignado)
     try {
       const agronomoIds = await this.findAgronomos(solicitud.campoId);
-      for (const id of agronomoIds) {
+      // Filtrar para evitar duplicados: no notificar dos veces al mismo usuario
+      const uniqueAgronomoIds = agronomoIds.filter(id => id !== solicitud.asignadoAId);
+      for (const id of uniqueAgronomoIds) {
         await this.notificationsService.create(
           id,
           'nueva_solicitud',
@@ -127,6 +129,25 @@ export class SolicitudesService {
     ]);
 
     return { data, total, page, limit };
+  }
+
+  async findById(id: string, requesterId?: string, requesterRole?: string) {
+    const solicitud = await this.prisma.solicitudMuestreo.findUnique({
+      where: { id },
+      include: {
+        campo: { select: { id: true, nombre: true, codigoCampo: true } },
+        asignadoA: { select: { id: true, email: true } },
+      },
+    });
+
+    if (!solicitud)
+      throw new NotFoundException(`Solicitud con id "${id}" no encontrada`);
+
+    if (requesterRole === 'MONITOR' && solicitud.asignadoAId !== requesterId) {
+      throw new ForbiddenException('Solo puedes ver solicitudes asignadas a ti');
+    }
+
+    return solicitud;
   }
 
   async updateEstado(
@@ -256,6 +277,7 @@ export class SolicitudesService {
       where: { campoId, user: { role: 'AGRONOMO' } },
       select: { userId: true },
     });
-    return ucs.map((uc) => uc.userId);
+    // Usar Set para evitar duplicados si hay registros duplicados en userCampo
+    return [...new Set(ucs.map((uc) => uc.userId))];
   }
 }
