@@ -14,6 +14,7 @@ import { SolicitudesModule } from './solicitudes/solicitudes.module';
 import { AnalysesModule } from './analyses/analyses.module';
 import { FcmModule } from './fcm/fcm.module';
 import { HealthController } from './health/health.controller';
+import { CacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { HealthController } from './health/health.controller';
       { name: 'global', ttl: 60000, limit: 1000 },
       { name: 'auth', ttl: 60000, limit: 10 }, // 10 intentos/min en endpoints de auth
     ]),
+    CacheModule,
     FcmModule,
     AuthModule,
     AdminModule,
