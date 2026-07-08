@@ -5,8 +5,10 @@ import { AppModule } from './app.module';
 import { envs } from './config/envs';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
+  // App híbrida: consumidor RMQ + listener HTTP mínimo para healthcheck Docker
+  const app = await NestFactory.create(AppModule);
+
+  app.connectMicroservice<MicroserviceOptions>(
     {
       transport: Transport.RMQ,
       options: {
@@ -15,6 +17,7 @@ async function bootstrap() {
         queueOptions: { durable: true },
       },
     },
+    { inheritAppConfig: true },
   );
 
   app.useGlobalPipes(
@@ -25,8 +28,10 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen();
+  await app.startAllMicroservices();
+  await app.listen(envs.healthPort, '0.0.0.0');
   console.log(`fruit-ms listening on RabbitMQ queue: ${envs.rabbitmqQueue}`);
+  console.log(`fruit-ms health endpoint on port ${envs.healthPort}`);
 }
 bootstrap();
 

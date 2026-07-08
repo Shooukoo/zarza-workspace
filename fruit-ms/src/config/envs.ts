@@ -10,6 +10,7 @@ interface EnvVars {
   DATABASE_URL:           string;
   BACKEND_URL:            string;
   INTERNAL_NOTIFY_TOKEN:  string;
+  HEALTH_PORT:            number;
 }
 
 const envSchema = joi
@@ -20,6 +21,7 @@ const envSchema = joi
     DATABASE_URL:           joi.string().required(),
     BACKEND_URL:            joi.string().uri().default('http://fruit-backend:3000'),
     INTERNAL_NOTIFY_TOKEN:  joi.string().min(32).required(),
+    HEALTH_PORT:            joi.number().default(3002),
   })
   .unknown(true);
 
@@ -37,4 +39,5 @@ export const envs = {
   inferenceUrl:         envVars.INFERENCE_URL,
   backendUrl:           envVars.BACKEND_URL,
   internalNotifyToken:  envVars.INTERNAL_NOTIFY_TOKEN,
+  healthPort:           envVars.HEALTH_PORT,
 };

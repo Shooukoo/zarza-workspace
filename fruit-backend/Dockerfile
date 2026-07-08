@@ -40,6 +40,9 @@ COPY --from=builder /repo/packages/database/generated ./packages/database/genera
 COPY --from=builder /repo/fruit-backend/dist ./fruit-backend/dist
 COPY --from=builder /repo/fruit-backend/scripts ./fruit-backend/scripts
 
+# Copy environment configuration
+COPY fruit-backend/.env ./fruit-backend/.env
+
 WORKDIR /repo/fruit-backend
 
 EXPOSE 3000

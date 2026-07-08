@@ -13,6 +13,7 @@ import { CamposModule } from './campos/campos.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
 import { AnalysesModule } from './analyses/analyses.module';
 import { FcmModule } from './fcm/fcm.module';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { FcmModule } from './fcm/fcm.module';
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([
       { name: 'global', ttl: 60000, limit: 1000 },
-      { name: 'auth',   ttl: 60000, limit: 10 },   // 10 intentos/min en endpoints de auth
+      { name: 'auth', ttl: 60000, limit: 10 }, // 10 intentos/min en endpoints de auth
     ]),
     FcmModule,
     AuthModule,
@@ -33,7 +34,7 @@ import { FcmModule } from './fcm/fcm.module';
     SolicitudesModule,
     AnalysesModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
