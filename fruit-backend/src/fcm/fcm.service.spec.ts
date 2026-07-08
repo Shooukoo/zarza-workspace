@@ -5,9 +5,15 @@ jest.mock('firebase-admin', () => ({
 }));
 
 import * as admin from 'firebase-admin';
-import { FcmService, FcmTokenInvalidError, FcmNotification } from './fcm.service';
+import {
+  FcmService,
+  FcmTokenInvalidError,
+  FcmNotification,
+} from './fcm.service';
 
-const VALID_B64 = Buffer.from(JSON.stringify({ type: 'service_account' })).toString('base64');
+const VALID_B64 = Buffer.from(
+  JSON.stringify({ type: 'service_account' }),
+).toString('base64');
 
 function buildService(): FcmService {
   return new FcmService();
@@ -60,14 +66,16 @@ describe('FcmService', () => {
       mockSend.mockRejectedValue({
         errorInfo: { code: 'messaging/registration-token-not-registered' },
       });
-      await expect(service.sendToDevice('bad-token', notification)).rejects.toThrow(
-        FcmTokenInvalidError,
-      );
+      await expect(
+        service.sendToDevice('bad-token', notification),
+      ).rejects.toThrow(FcmTokenInvalidError);
     });
 
     it('does NOT throw for other Firebase errors (swallows them)', async () => {
       mockSend.mockRejectedValue(new Error('quota exceeded'));
-      await expect(service.sendToDevice('token-abc', notification)).resolves.toBeUndefined();
+      await expect(
+        service.sendToDevice('token-abc', notification),
+      ).resolves.toBeUndefined();
     });
   });
 });

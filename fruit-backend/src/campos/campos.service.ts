@@ -34,13 +34,15 @@ export class CamposService {
 
   async findById(id: string) {
     const campo = await this.prisma.campo.findUnique({ where: { id } });
-    if (!campo) throw new NotFoundException(`Campo con id "${id}" no encontrado`);
+    if (!campo)
+      throw new NotFoundException(`Campo con id "${id}" no encontrado`);
     return campo;
   }
 
   async delete(id: string): Promise<void> {
     const result = await this.prisma.campo.deleteMany({ where: { id } });
-    if (result.count === 0) throw new NotFoundException(`Campo con id "${id}" no encontrado`);
+    if (result.count === 0)
+      throw new NotFoundException(`Campo con id "${id}" no encontrado`);
     this.logger.log(`Campo eliminado: ${id}`);
   }
 }

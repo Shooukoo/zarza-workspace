@@ -16,7 +16,6 @@ import type { ParsedMultipartDto } from './dto/parsed-multipart.dto';
 import type { ProcessImageInput } from './dto/parsed-multipart.dto';
 import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard';
 
-
 @Controller('ingestion')
 @UseGuards(JwtAuthGuard)
 export class IngestionController {
@@ -42,12 +41,21 @@ export class IngestionController {
       offlineSyncId,
     }: ParsedMultipartDto = await this.pipe.transform(req);
 
-    const user = (req as any).user as { sub: string; email: string } | undefined;
+    const user = (req as any).user as
+      | { sub: string; email: string }
+      | undefined;
 
     try {
       const result = await this.ingestionService.processImageUpload({
-        file, filename, mimetype, capturedAt,
-        campoId, productorId, gpsLat, gpsLon, offlineSyncId,
+        file,
+        filename,
+        mimetype,
+        capturedAt,
+        campoId,
+        productorId,
+        gpsLat,
+        gpsLon,
+        offlineSyncId,
         userId: user?.sub,
         userEmail: user?.email,
       } satisfies ProcessImageInput);
@@ -60,4 +68,3 @@ export class IngestionController {
     }
   }
 }
-

@@ -48,10 +48,10 @@ function makeUser(overrides: Partial<User> = {}): User {
 
 function makeService(): AuthService {
   return new AuthService(
-    mockUserRepo as any,
-    mockHasher as any,
-    mockTokenService as any,
-    mockRefreshRepo as any,
+    mockUserRepo,
+    mockHasher,
+    mockTokenService,
+    mockRefreshRepo,
     SEVEN_DAYS_MS,
   );
 }
@@ -106,7 +106,9 @@ describe('AuthService', () => {
 
     it('lanza InvalidCredentialsError si el usuario no existe', async () => {
       mockUserRepo.findByEmail.mockResolvedValue(null);
-      await expect(service.login('no@user.com', 'pw')).rejects.toThrow(InvalidCredentialsError);
+      await expect(service.login('no@user.com', 'pw')).rejects.toThrow(
+        InvalidCredentialsError,
+      );
     });
 
     it('lanza InvalidCredentialsError si la contraseña es incorrecta', async () => {
@@ -178,13 +180,17 @@ describe('AuthService', () => {
       });
       mockRefreshRepo.revokeByFamilyId.mockResolvedValue(undefined);
 
-      await expect(service.refresh('stolen-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh('stolen-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
       expect(mockRefreshRepo.revokeByFamilyId).toHaveBeenCalledWith(FAMILY_ID);
     });
 
     it('lanza 401 si el token no existe en la BD', async () => {
       mockRefreshRepo.findByTokenHash.mockResolvedValue(null);
-      await expect(service.refresh('fake-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh('fake-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('lanza 401 si el token está expirado', async () => {
@@ -197,7 +203,9 @@ describe('AuthService', () => {
         revokedAt: null,
       });
 
-      await expect(service.refresh('expired-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh('expired-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 

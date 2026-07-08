@@ -54,7 +54,7 @@ export class MagicNumberValidator {
         }
 
         const validMagic = this.hasMagicBytes(buffer);
-        const validMime  = ALLOWED_MIMES.has(mimeType.toLowerCase());
+        const validMime = ALLOWED_MIMES.has(mimeType.toLowerCase());
 
         if (!validMagic && !validMime) {
           return reject(

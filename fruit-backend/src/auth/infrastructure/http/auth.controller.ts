@@ -28,7 +28,10 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../domain/enums/role.enum';
-import { I_USER_REPOSITORY, type IUserRepository } from '../../ports/user-repository.port';
+import {
+  I_USER_REPOSITORY,
+  type IUserRepository,
+} from '../../ports/user-repository.port';
 
 export const AUTH_SERVICE = Symbol('AUTH_SERVICE');
 
@@ -87,7 +90,10 @@ export class AuthController {
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
     try {
-      const result = await this.authService.login(loginDto.email, loginDto.password);
+      const result = await this.authService.login(
+        loginDto.email,
+        loginDto.password,
+      );
       this.setAccessTokenCookie(reply, result.token);
       return result; // { token, refreshToken, user }
     } catch (error) {

@@ -11,12 +11,16 @@ import { I_TOKEN_PORT } from '../../../ports/token.port';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(@Inject(I_TOKEN_PORT) private readonly tokenService: ITokenPort) {}
+  constructor(
+    @Inject(I_TOKEN_PORT) private readonly tokenService: ITokenPort,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context
       .switchToHttp()
-      .getRequest<FastifyRequest & { user?: any; cookies?: Record<string, string> }>();
+      .getRequest<
+        FastifyRequest & { user?: any; cookies?: Record<string, string> }
+      >();
     const token = this.extractToken(request);
 
     if (!token) {

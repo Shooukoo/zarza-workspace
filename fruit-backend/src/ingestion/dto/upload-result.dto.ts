@@ -64,4 +64,3 @@ export class UploadResultDto {
   @IsString()
   userEmail?: string;
 }
-

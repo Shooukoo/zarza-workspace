@@ -24,5 +24,8 @@ export interface IUserRepository {
   findFcmTokenById(userId: string): Promise<string | null>;
   clearFcmToken(userId: string): Promise<void>;
   saveFcmToken(userId: string, token: string): Promise<void>;
-  updateProfile(userId: string, data: { firstName?: string; lastName?: string }): Promise<void>;
+  updateProfile(
+    userId: string,
+    data: { firstName?: string; lastName?: string },
+  ): Promise<void>;
 }

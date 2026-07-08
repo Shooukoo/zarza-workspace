@@ -142,7 +142,10 @@ describe('NotificationsGateway', () => {
 
       gateway.emitToUser('user-1', 'analisis_listo', { id: 'abc' });
 
-      const expected = JSON.stringify({ event: 'analisis_listo', data: { id: 'abc' } });
+      const expected = JSON.stringify({
+        event: 'analisis_listo',
+        data: { id: 'abc' },
+      });
       expect(client1.send).toHaveBeenCalledWith(expected);
       expect(client2.send).toHaveBeenCalledWith(expected);
     });
@@ -151,8 +154,16 @@ describe('NotificationsGateway', () => {
       const clientA = makeSocket();
       const clientB = makeSocket();
       mockTokenService.verifyToken
-        .mockResolvedValueOnce({ sub: 'user-A', email: 'a@b.com', role: 'PRODUCTOR' })
-        .mockResolvedValueOnce({ sub: 'user-B', email: 'b@b.com', role: 'PRODUCTOR' });
+        .mockResolvedValueOnce({
+          sub: 'user-A',
+          email: 'a@b.com',
+          role: 'PRODUCTOR',
+        })
+        .mockResolvedValueOnce({
+          sub: 'user-B',
+          email: 'b@b.com',
+          role: 'PRODUCTOR',
+        });
 
       gateway.handleConnection(clientA);
       await gateway.handleAuth(clientA, { token: 'jwtA' });

@@ -28,7 +28,9 @@ export class NotificationsGateway
   // socket → handle del timeout de auth pendiente
   private readonly authTimeouts = new Map<WebSocket, NodeJS.Timeout>();
 
-  constructor(@Inject(I_TOKEN_PORT) private readonly tokenService: ITokenPort) {}
+  constructor(
+    @Inject(I_TOKEN_PORT) private readonly tokenService: ITokenPort,
+  ) {}
 
   handleConnection(client: WebSocket) {
     this.logger.log('Cliente WebSocket conectado, esperando auth...');

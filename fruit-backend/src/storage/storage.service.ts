@@ -24,7 +24,11 @@ export class StorageService implements IStoragePort {
     });
   }
 
-  async uploadBuffer(buffer: Buffer, filename: string, mimeType: string): Promise<string> {
+  async uploadBuffer(
+    buffer: Buffer,
+    filename: string,
+    mimeType: string,
+  ): Promise<string> {
     const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
     const key = `raw/${Date.now()}-${safeFilename}`;
     try {
@@ -50,7 +54,10 @@ export class StorageService implements IStoragePort {
 
   async getPresignedUrl(key: string, expiresIn: number): Promise<string> {
     try {
-      const command = new GetObjectCommand({ Bucket: this.bucketName, Key: key });
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      });
       return await getSignedUrl(this.s3Client, command, { expiresIn });
     } catch (error) {
       this.logger.error(`Failed to generate presigned URL for ${key}`, error);

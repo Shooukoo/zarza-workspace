@@ -14,21 +14,25 @@ import { ParsedMultipartDto } from '../dto/parsed-multipart.dto';
  * Responsabilidad: transformar Request → ParsedMultipartDto.
  */
 @Injectable()
-export class MultipartImagePipe
-  implements PipeTransform<FastifyRequest, Promise<ParsedMultipartDto>>
-{
+export class MultipartImagePipe implements PipeTransform<
+  FastifyRequest,
+  Promise<ParsedMultipartDto>
+> {
   private readonly logger = new Logger(MultipartImagePipe.name);
 
   async transform(req: FastifyRequest): Promise<ParsedMultipartDto> {
     const parts = req.parts();
     let capturedAt: Date | null = null;
-    let fileResult: Pick<ParsedMultipartDto, 'file' | 'filename' | 'mimetype'> | null = null;
+    let fileResult: Pick<
+      ParsedMultipartDto,
+      'file' | 'filename' | 'mimetype'
+    > | null = null;
 
     // V2 metadata
-    let campoId:       string | null = null;
-    let productorId:   string | null = null;
-    let gpsLat:        number | null = null;
-    let gpsLon:        number | null = null;
+    let campoId: string | null = null;
+    let productorId: string | null = null;
+    let gpsLat: number | null = null;
+    let gpsLon: number | null = null;
     let offlineSyncId: string | null = null;
 
     for await (const part of parts) {
@@ -44,7 +48,9 @@ export class MultipartImagePipe
               );
             }
             capturedAt = parsed;
-            this.logger.debug(`capturedAt received: ${capturedAt.toISOString()}`);
+            this.logger.debug(
+              `capturedAt received: ${capturedAt.toISOString()}`,
+            );
             break;
           }
           case 'campo_id':
@@ -77,7 +83,7 @@ export class MultipartImagePipe
 
       if (part.type === 'file') {
         fileResult = {
-          file:     part.file,
+          file: part.file,
           filename: part.filename,
           mimetype: part.mimetype,
         };
@@ -100,4 +106,3 @@ export class MultipartImagePipe
     };
   }
 }
-

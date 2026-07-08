@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService, User as PrismaUser } from '@rubus/database';
 import { User } from '../../domain/entities/user.entity';
-import { IUserRepository, CreateUserData, UserCampos } from '../../ports/user-repository.port';
+import {
+  IUserRepository,
+  CreateUserData,
+  UserCampos,
+} from '../../ports/user-repository.port';
 import { Role } from '../../domain/enums/role.enum';
 
 @Injectable()

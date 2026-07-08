@@ -1,8 +1,20 @@
-import { Body, Controller, HttpCode, Inject, Logger, Post, Headers, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Inject,
+  Logger,
+  Post,
+  Headers,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { NotificationsGateway } from './notifications.gateway';
 import { NotificationsService } from './notifications.service';
 import { FcmService, FcmTokenInvalidError } from '../fcm/fcm.service';
-import { I_USER_REPOSITORY, type IUserRepository } from '../auth/ports/user-repository.port';
+import {
+  I_USER_REPOSITORY,
+  type IUserRepository,
+} from '../auth/ports/user-repository.port';
 
 @Controller('internal')
 export class InternalNotifyController {
@@ -49,7 +61,8 @@ export class InternalNotifyController {
         break;
       case 'nueva_solicitud':
         title = 'Nueva solicitud de muestreo';
-        bodyText = 'Tienes una nueva solicitud asignada. Revísala en Solicitudes.';
+        bodyText =
+          'Tienes una nueva solicitud asignada. Revísala en Solicitudes.';
         break;
       default:
         title = 'Notificación';
@@ -58,7 +71,13 @@ export class InternalNotifyController {
 
     // Persiste en DB
     if (userId && title) {
-      await this.notificationsService.create(userId, eventType, title, bodyText, body.data);
+      await this.notificationsService.create(
+        userId,
+        eventType,
+        title,
+        bodyText,
+        body.data,
+      );
     } else {
       // Si no hay titulo mapeado, solo envía WS sin persistir
       if (userId) this.gateway.emitToUser(userId, eventType, body.data);

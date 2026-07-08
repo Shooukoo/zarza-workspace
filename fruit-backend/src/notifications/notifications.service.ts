@@ -20,7 +20,13 @@ export class NotificationsService {
     body: string,
     data?: Record<string, any>,
   ): Promise<NotificationEntity> {
-    const notification = await this.repository.create(userId, type, title, body, data);
+    const notification = await this.repository.create(
+      userId,
+      type,
+      title,
+      body,
+      data,
+    );
     // Envía WS inmediatamente
     this.gateway.emitToUser(userId, type, data);
     return notification;
@@ -30,7 +36,13 @@ export class NotificationsService {
     userId: string,
     page: number = 1,
     limit: number = 20,
-  ): Promise<{ items: NotificationEntity[]; total: number; unreadCount: number }> {
+  ): Promise<{
+    data: NotificationEntity[];
+    total: number;
+    page: number;
+    limit: number;
+    unreadCount: number;
+  }> {
     return this.repository.findByUserPaginated(userId, page, limit);
   }
 

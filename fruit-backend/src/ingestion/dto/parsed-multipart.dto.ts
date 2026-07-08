@@ -7,20 +7,19 @@ import { Readable } from 'stream';
  * de un contrato de datos, no de un artefacto de NestJS.
  */
 export type ParsedMultipartDto = {
-  file:       Readable;
-  filename:   string;
-  mimetype:   string;
+  file: Readable;
+  filename: string;
+  mimetype: string;
   capturedAt: Date | null;
   // V2: trazabilidad geoespacial y sincronización offline
-  campoId:        string | null;
-  productorId:    string | null;
-  gpsLat:         number | null;
-  gpsLon:         number | null;
-  offlineSyncId:  string | null;
+  campoId: string | null;
+  productorId: string | null;
+  gpsLat: number | null;
+  gpsLon: number | null;
+  offlineSyncId: string | null;
 };
 
 export type ProcessImageInput = ParsedMultipartDto & {
-  userId?:    string;
+  userId?: string;
   userEmail?: string;
 };
-

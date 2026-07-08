@@ -45,7 +45,7 @@ async function bootstrap() {
 
   app.useWebSocketAdapter(new WsAdapter(app));
 
-  await app.register(multipart as any, {
+  await app.register(multipart, {
     limits: {
       fieldNameSize: 100,
       fieldSize: 1000000,

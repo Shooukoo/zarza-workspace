@@ -18,7 +18,10 @@ import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
 import { Role } from '../auth/domain/enums/role.enum';
 import { type JwtPayload } from '../auth/domain/types/jwt-payload.type';
-import { I_USER_REPOSITORY, type IUserRepository } from '../auth/ports/user-repository.port';
+import {
+  I_USER_REPOSITORY,
+  type IUserRepository,
+} from '../auth/ports/user-repository.port';
 
 @Controller('campos')
 @UseGuards(JwtAuthGuard, RolesGuard)

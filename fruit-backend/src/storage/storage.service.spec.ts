@@ -3,7 +3,9 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 
 jest.mock('@aws-sdk/s3-request-presigner', () => ({
-  getSignedUrl: jest.fn().mockResolvedValue('https://r2.example.com/raw/test.jpg?signed=1'),
+  getSignedUrl: jest
+    .fn()
+    .mockResolvedValue('https://r2.example.com/raw/test.jpg?signed=1'),
 }));
 
 jest.mock('@aws-sdk/client-s3', () => ({

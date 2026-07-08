@@ -1,5 +1,9 @@
 import { User } from '../../domain/entities/user.entity';
-import { IUserRepository, CreateUserData, UserCampos } from '../../ports/user-repository.port';
+import {
+  IUserRepository,
+  CreateUserData,
+  UserCampos,
+} from '../../ports/user-repository.port';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 
@@ -58,4 +62,3 @@ export class InMemoryUserRepository implements IUserRepository {
     // No-op in tests — User is immutable; test state is verified through the array directly
   }
 }
-

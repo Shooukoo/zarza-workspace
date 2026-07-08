@@ -16,15 +16,30 @@ export class IngestionService {
     private readonly validator: MagicNumberValidator,
   ) {}
 
-
   async processImageUpload(input: ProcessImageInput): Promise<UploadResultDto> {
-    const { file, filename, mimetype, capturedAt, campoId, productorId, gpsLat, gpsLon, offlineSyncId, userId, userEmail } = input;
+    const {
+      file,
+      filename,
+      mimetype,
+      capturedAt,
+      campoId,
+      productorId,
+      gpsLat,
+      gpsLon,
+      offlineSyncId,
+      userId,
+      userEmail,
+    } = input;
     this.logger.log(`Processing upload: ${filename}`);
 
     const buffer = await this.validator.readAndValidate(file, mimetype);
     this.logger.log(`File validated: ${filename} (${buffer.length} bytes)`);
 
-    const storageKey = await this.storage.uploadBuffer(buffer, filename, mimetype);
+    const storageKey = await this.storage.uploadBuffer(
+      buffer,
+      filename,
+      mimetype,
+    );
 
     const processedAt = new Date();
     const resolvedCapturedAt = capturedAt ?? processedAt;
@@ -39,10 +54,10 @@ export class IngestionService {
       },
       status: 'UPLOADED',
       // V2 fields
-      campoId:       campoId ?? null,
-      productorId:   productorId ?? null,
-      gpsLat:        gpsLat ?? null,
-      gpsLon:        gpsLon ?? null,
+      campoId: campoId ?? null,
+      productorId: productorId ?? null,
+      gpsLat: gpsLat ?? null,
+      gpsLon: gpsLon ?? null,
       offlineSyncId: offlineSyncId ?? null,
       userId,
       userEmail,
@@ -55,4 +70,3 @@ export class IngestionService {
     return result;
   }
 }
-
