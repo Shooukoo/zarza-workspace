@@ -10,6 +10,11 @@ import { Role } from '../auth/domain/enums/role.enum';
 import { I_HASHER_PORT } from '../auth/ports/hasher.port';
 import type { IHasherPort } from '../auth/ports/hasher.port';
 import { UserAlreadyExistsError } from '../auth/domain/errors/auth.errors';
+import { RedisCacheService } from '../cache/redis-cache.service';
+
+/** TTL del cache de stats; red de seguridad además de la invalidación por mutación. */
+const STATS_TTL_SECONDS = 300;
+const STATS_CACHE_KEY = 'admin:stats';
 
 export interface UserSummary {
   id: string;
@@ -32,6 +37,7 @@ export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(I_HASHER_PORT) private readonly hasher: IHasherPort,
+    private readonly cache: RedisCacheService,
   ) {}
 
   async findAllUsers(
@@ -89,6 +95,7 @@ export class AdminService {
       data: { role: role },
       select: { id: true, email: true, role: true, createdAt: true },
     });
+    await this.cache.invalidatePrefix(STATS_CACHE_KEY);
     return {
       id: doc.id,
       email: doc.email,
@@ -98,7 +105,13 @@ export class AdminService {
     };
   }
 
-  async getStats(): Promise<AdminStats> {
+  getStats(): Promise<AdminStats> {
+    return this.cache.getOrSet(STATS_CACHE_KEY, STATS_TTL_SECONDS, () =>
+      this.computeStats(),
+    );
+  }
+
+  private async computeStats(): Promise<AdminStats> {
     const roleCounts = await this.prisma.user.groupBy({
       by: ['role'],
       _count: { id: true },
@@ -140,6 +153,7 @@ export class AdminService {
         lastName: lastName?.trim() || null,
       },
     });
+    await this.cache.invalidatePrefix(STATS_CACHE_KEY);
     return {
       id: created.id,
       email: created.email,
@@ -216,6 +230,7 @@ export class AdminService {
     if (userId === requesterId)
       throw new BadRequestException('No puedes eliminar tu propio usuario');
     await this.prisma.user.delete({ where: { id: userId } });
+    await this.cache.invalidatePrefix(STATS_CACHE_KEY);
   }
 
   async updatePassword(userId: string, plainPassword: string): Promise<void> {
