@@ -15,6 +15,7 @@ import {
   I_USER_REPOSITORY,
   type IUserRepository,
 } from '../auth/ports/user-repository.port';
+import { RedisCacheService } from '../cache/redis-cache.service';
 
 @Controller('internal')
 export class InternalNotifyController {
@@ -25,6 +26,7 @@ export class InternalNotifyController {
     private readonly fcmService: FcmService,
     @Inject(I_USER_REPOSITORY) private readonly userRepository: IUserRepository,
     private readonly notificationsService: NotificationsService,
+    private readonly cache: RedisCacheService,
   ) {}
 
   @Post('notify')
@@ -36,6 +38,11 @@ export class InternalNotifyController {
     const expected = process.env.INTERNAL_NOTIFY_TOKEN;
     if (!expected || token !== expected) {
       throw new UnauthorizedException('Invalid internal token');
+    }
+
+    // Un análisis nuevo cambia las métricas del dashboard: invalida su cache.
+    if (body.event === 'analisis_listo') {
+      await this.cache.invalidatePrefix('dash:');
     }
 
     const userId = body.data?.userId as string | undefined;

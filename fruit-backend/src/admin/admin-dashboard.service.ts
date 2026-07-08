@@ -1,11 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@rubus/database';
+import { RedisCacheService } from '../cache/redis-cache.service';
+
+/** TTL de las métricas del dashboard; red de seguridad además de la invalidación por evento. */
+const DASHBOARD_TTL_SECONDS = 300;
 
 @Injectable()
 export class AdminDashboardService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: RedisCacheService,
+  ) {}
 
-  async getYieldForecast(productorId?: string) {
+  getYieldForecast(productorId?: string) {
+    return this.cache.getOrSet(
+      `dash:yield:${productorId ?? 'global'}`,
+      DASHBOARD_TTL_SECONDS,
+      () => this.computeYieldForecast(productorId),
+    );
+  }
+
+  getHealthMetrics(productorId?: string) {
+    return this.cache.getOrSet(
+      `dash:health:${productorId ?? 'global'}`,
+      DASHBOARD_TTL_SECONDS,
+      () => this.computeHealthMetrics(productorId),
+    );
+  }
+
+  getPhenologyDistribution(productorId?: string) {
+    return this.cache.getOrSet(
+      `dash:phenology:${productorId ?? 'global'}`,
+      DASHBOARD_TTL_SECONDS,
+      () => this.computePhenologyDistribution(productorId),
+    );
+  }
+
+  private async computeYieldForecast(productorId?: string) {
     type Row = { daysToHarvest: number; estimatedWeightGrams: number };
     const rows: Row[] = productorId
       ? await this.prisma.$queryRaw`
@@ -31,7 +62,7 @@ export class AdminDashboardService {
     }));
   }
 
-  async getHealthMetrics(productorId?: string) {
+  private async computeHealthMetrics(productorId?: string) {
     const result = await this.prisma.analysis.aggregate({
       where: productorId ? { productorId } : undefined,
       _avg: { porcentajeMermaGeneral: true },
@@ -49,7 +80,7 @@ export class AdminDashboardService {
     };
   }
 
-  async getPhenologyDistribution(productorId?: string) {
+  private async computePhenologyDistribution(productorId?: string) {
     type Row = { stage: string; count: number };
     const rows: Row[] = productorId
       ? await this.prisma.$queryRaw`
