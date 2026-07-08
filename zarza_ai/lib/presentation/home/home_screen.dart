@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -9,9 +8,6 @@ import '../../core/auth/auth_cubit.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/fruit_analysis.dart';
-import '../../domain/entities/pending_upload.dart';
-import '../../domain/usecases/watch_pending_uploads_usecase.dart';
-import '../help/help_screen.dart';
 import '../history/history_bloc.dart';
 import '../widgets/help_tooltip.dart';
 import '../widgets/ring_progress.dart';
@@ -37,95 +33,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _pendingCount = 0;
-  StreamSubscription<List<PendingUpload>>? _queueSub;
-
-  @override
-  void initState() {
-    super.initState();
-    _queueSub = GetIt.I<WatchPendingUploadsUseCase>()().listen((items) {
-      if (mounted) setState(() => _pendingCount = items.length);
-    });
-  }
-
   @override
   void dispose() {
-    _queueSub?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/images/logo-rubus.png',
-                width: 30,
-                height: 30,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 10),
-            RichText(
-              text: const TextSpan(
-                style: TextStyle(
-                  fontFamily: 'Lexend',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.frost,
-                ),
-                children: [
-                  TextSpan(text: 'RubusAI'),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          if (_pendingCount > 0)
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.cloud_upload_outlined),
-                  tooltip: 'Capturas pendientes',
-                  onPressed: () => context.push('/queue'),
-                ),
-                Positioned(
-                  right: 6,
-                  top: 6,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppTheme.warn,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '$_pendingCount',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
-      drawer: BlocBuilder<AuthCubit, AuthState>(
-        bloc: GetIt.I<AuthCubit>(),
-        builder: (context, authState) {
-          final user = authState is AuthAuthenticated ? authState.user : null;
-          final userName = user?.displayName ?? '';
-          return _AppDrawer(userName: userName);
-        },
-      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -919,143 +834,3 @@ class _AnalysisListTile extends StatelessWidget {
   }
 }
 
-// ── App Drawer ────────────────────────────────────────────────────────────────
-
-class _AppDrawer extends StatelessWidget {
-  const _AppDrawer({required this.userName});
-  final String userName;
-
-  @override
-  Widget build(BuildContext context) {
-    final authState = GetIt.I<AuthCubit>().state;
-    final email =
-        authState is AuthAuthenticated ? authState.user.email : '';
-
-    return Drawer(
-      child: Column(
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF1A0535), AppTheme.obsidian2],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.rubus.withValues(alpha: 0.4),
-                        blurRadius: 12,
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: Image.asset(
-                      'assets/images/logo-rubus.png',
-                      width: 48,
-                      height: 48,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RichText(
-                        text: const TextSpan(
-                          style: TextStyle(
-                            fontFamily: 'Lexend',
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.frost,
-                          ),
-                          children: [
-                            TextSpan(text: 'RubusAI'),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        email,
-                        style: const TextStyle(
-                          color: AppTheme.frostDim,
-                          fontSize: 12,
-                          fontFamily: 'Lexend',
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.history_rounded,
-                color: AppTheme.frostDim),
-            title: const Text('Historial',
-                style: TextStyle(
-                    color: AppTheme.frost, fontFamily: 'Lexend')),
-            onTap: () {
-              Navigator.of(context).pop();
-              context.push('/history');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.cloud_upload_outlined,
-                color: AppTheme.frostDim),
-            title: const Text('Capturas pendientes',
-                style: TextStyle(
-                    color: AppTheme.frost, fontFamily: 'Lexend')),
-            onTap: () {
-              Navigator.of(context).pop();
-              context.push('/queue');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.help_outline_rounded,
-                color: AppTheme.frostDim),
-            title: const Text('Manual de Usuario',
-                style: TextStyle(
-                    color: AppTheme.frost, fontFamily: 'Lexend')),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push<void>(
-                MaterialPageRoute<void>(
-                  builder: (context) => const HelpScreen(),
-                ),
-              );
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout_rounded,
-                color: AppTheme.danger),
-            title: const Text(
-              'Cerrar sesión',
-              style: TextStyle(
-                  color: AppTheme.danger, fontFamily: 'Lexend'),
-            ),
-            onTap: () {
-              Navigator.of(context).pop();
-              GetIt.I<AuthCubit>().logout();
-            },
-          ),
-          const Spacer(),
-        ],
-      ),
-    );
-  }
-}

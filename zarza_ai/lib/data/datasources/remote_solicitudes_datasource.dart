@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import '../../core/constants/app_constants.dart';
+import '../../domain/entities/paginated_list.dart';
+import '../models/paginated_response.dart';
 import '../models/solicitud_model.dart';
 
 class RemoteSolicitudesDatasource {
   RemoteSolicitudesDatasource(this._dio);
   final Dio _dio;
 
-  Future<List<SolicitudModel>> getSolicitudes({
+  Future<PaginatedList<SolicitudModel>> getSolicitudes({
     int page = 1,
     int limit = 20,
     String? estado,
@@ -19,19 +21,19 @@ class RemoteSolicitudesDatasource {
       queryParameters: query,
     );
 
-    final data = response.data;
-    List<dynamic> items;
-    if (data is Map && data['data'] is List) {
-      items = data['data'] as List;
-    } else if (data is List) {
-      items = data;
-    } else {
-      items = [];
-    }
+    return parsePaginated(
+      response.data,
+      SolicitudModel.fromJson,
+      page: page,
+      limit: limit,
+    );
+  }
 
-    return items
-        .map((e) => SolicitudModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+  Future<SolicitudModel> getById(String id) async {
+    final response = await _dio.get<dynamic>(
+      '${AppConstants.solicitudesEndpoint}/$id',
+    );
+    return SolicitudModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<SolicitudModel> updateEstado(String id, String estado) async {

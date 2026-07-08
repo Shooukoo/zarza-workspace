@@ -1,3 +1,4 @@
+import '../../domain/entities/paginated_list.dart';
 import '../../domain/entities/solicitud_entity.dart';
 import '../../domain/enums/estado_solicitud.dart';
 import '../../domain/repositories/i_solicitudes_repository.dart';
@@ -8,17 +9,23 @@ class SolicitudesRepositoryImpl implements ISolicitudesRepository {
   final RemoteSolicitudesDatasource _datasource;
 
   @override
-  Future<List<SolicitudEntity>> getSolicitudes({
+  Future<PaginatedList<SolicitudEntity>> getSolicitudes({
     int page = 1,
     int limit = 20,
     EstadoSolicitud? estado,
   }) async {
-    final models = await _datasource.getSolicitudes(
+    final result = await _datasource.getSolicitudes(
       page: page,
       limit: limit,
       estado: estado?.name,
     );
-    return models.map((m) => m.toEntity()).toList();
+    return result.map((m) => m.toEntity());
+  }
+
+  @override
+  Future<SolicitudEntity> getById(String id) async {
+    final model = await _datasource.getById(id);
+    return model.toEntity();
   }
 
   @override

@@ -12,6 +12,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'core/auth/auth_cubit.dart';
 import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
+import 'presentation/notifications/notifications_bloc.dart';
 import 'core/services/auto_sync_service.dart';
 import 'core/services/fcm_service.dart';
 import 'core/services/sync_service.dart';
@@ -72,8 +73,15 @@ class ZarzaAiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthCubit>(
-      create: (_) => GetIt.I<AuthCubit>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthCubit>(
+          create: (_) => GetIt.I<AuthCubit>(),
+        ),
+        BlocProvider<NotificationsBloc>(
+          create: (_) => GetIt.I<NotificationsBloc>(),
+        ),
+      ],
       child: MaterialApp.router(
         title: 'RubusAI',
         debugShowCheckedModeBanner: false,

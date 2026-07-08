@@ -79,6 +79,7 @@ import '../../data/repositories/solicitudes_repository_impl.dart';
 // Solicitudes — Domain
 import '../../domain/repositories/i_solicitudes_repository.dart';
 import '../../domain/usecases/get_solicitudes_usecase.dart';
+import '../../domain/usecases/get_solicitud_by_id_usecase.dart';
 import '../../domain/usecases/update_solicitud_estado_usecase.dart';
 // Solicitudes — Presentation
 import '../../presentation/solicitudes/solicitudes_bloc.dart';
@@ -351,6 +352,10 @@ Future<void> setupServiceLocator() async {
 
   sl.registerLazySingleton<GetSolicitudesUseCase>(
     () => GetSolicitudesUseCase(sl<ISolicitudesRepository>()),
+  );
+
+  sl.registerLazySingleton<GetSolicitudByIdUseCase>(
+    () => GetSolicitudByIdUseCase(sl<ISolicitudesRepository>()),
   );
 
   sl.registerLazySingleton<UpdateSolicitudEstadoUseCase>(

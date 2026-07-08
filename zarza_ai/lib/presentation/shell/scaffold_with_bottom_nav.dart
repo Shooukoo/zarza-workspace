@@ -6,11 +6,16 @@ import 'package:go_router/go_router.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../core/auth/auth_cubit.dart';
+import '../../core/auth/auth_state.dart';
 import '../../core/constants/ws_events.dart';
 import '../../core/services/local_notifications_service.dart';
+import '../../core/theme/app_theme.dart';
 import '../../domain/entities/user_entity.dart';
+import '../../domain/entities/notification_entity.dart';
 import '../../domain/enums/user_role.dart';
 import '../../domain/usecases/watch_notifications_usecase.dart';
+import '../help/help_screen.dart';
 import '../notifications/notifications_bell_widget.dart';
 import '../notifications/notifications_bloc.dart';
 import '../notifications/notifications_event.dart';
@@ -35,6 +40,7 @@ const int _kNotifAnalysisValidated = 201;
 const int _kNotifNuevaSolicitud   = 202;
 
 class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
+  late final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   StreamSubscription<String>? _wsSub;
   final _notifications = GetIt.I<LocalNotificationsService>();
 
@@ -95,12 +101,24 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
         body: body,
       );
 
-      // Notifica al bloc que llegó una notificación WS
+      // Crea la notificación y la añade al bloc
       if (mounted) {
-        context.read<NotificationsBloc>().add(WsNotificationReceived());
+        final notification = NotificationEntity(
+          id: '${DateTime.now().millisecondsSinceEpoch}',
+          type: event ?? '',
+          title: title,
+          body: body,
+          data: map['data'] as Map<String, dynamic>? ?? {},
+          isRead: false,
+          createdAt: DateTime.now(),
+          expiresAt: DateTime.now().add(const Duration(days: 7)),
+        );
+        context.read<NotificationsBloc>().add(WsNotificationReceived(notification));
       }
 
-      // Snackbar en pantalla (solo si la app está en primer plano)
+      // Snackbar en pantalla (solo si la app está en primer plano).
+      // clearSnackBars evita que se apilen si llegan eventos duplicados.
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -136,10 +154,43 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
     final selectedIndex = _selectedIndex(location);
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: const SizedBox.shrink(), // Título vacío
+        leading: IconButton(
+          icon: const Icon(Icons.menu_rounded),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
+        title: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/images/logo-rubus.png',
+                width: 30,
+                height: 30,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'RubusAI',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
         actions: const [NotificationsBellWidget()],
         elevation: 0,
+      ),
+      drawer: BlocBuilder<AuthCubit, AuthState>(
+        bloc: GetIt.I<AuthCubit>(),
+        builder: (context, authState) {
+          final user = authState is AuthAuthenticated ? authState.user : null;
+          final userName = user?.displayName ?? '';
+          return _AppDrawer(userName: userName);
+        },
       ),
       body: widget.child,
       bottomNavigationBar: NavigationBar(
@@ -196,5 +247,146 @@ class _ScaffoldWithBottomNavState extends State<ScaffoldWithBottomNav> {
           context.go('/history');
       }
     }
+  }
+}
+
+// ── App Drawer ────────────────────────────────────────────────────────────────
+
+class _AppDrawer extends StatelessWidget {
+  const _AppDrawer({required this.userName});
+  final String userName;
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = GetIt.I<AuthCubit>().state;
+    final email =
+        authState is AuthAuthenticated ? authState.user.email : '';
+
+    return Drawer(
+      child: Column(
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1A0535), AppTheme.obsidian2],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.rubus.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: Image.asset(
+                      'assets/images/logo-rubus.png',
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: const TextSpan(
+                          style: TextStyle(
+                            fontFamily: 'Lexend',
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.frost,
+                          ),
+                          children: [
+                            TextSpan(text: 'RubusAI'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        email,
+                        style: const TextStyle(
+                          color: AppTheme.frostDim,
+                          fontSize: 12,
+                          fontFamily: 'Lexend',
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.history_rounded,
+                color: AppTheme.frostDim),
+            title: const Text('Historial',
+                style: TextStyle(
+                    color: AppTheme.frost, fontFamily: 'Lexend')),
+            onTap: () {
+              Navigator.of(context).pop();
+              context.push('/history');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.cloud_upload_outlined,
+                color: AppTheme.frostDim),
+            title: const Text('Capturas pendientes',
+                style: TextStyle(
+                    color: AppTheme.frost, fontFamily: 'Lexend')),
+            onTap: () {
+              Navigator.of(context).pop();
+              context.push('/queue');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.help_outline_rounded,
+                color: AppTheme.frostDim),
+            title: const Text('Manual de Usuario',
+                style: TextStyle(
+                    color: AppTheme.frost, fontFamily: 'Lexend')),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push<void>(
+                MaterialPageRoute<void>(
+                  builder: (context) => const HelpScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout_rounded,
+                color: AppTheme.danger),
+            title: const Text(
+              'Cerrar sesión',
+              style: TextStyle(
+                  color: AppTheme.danger, fontFamily: 'Lexend'),
+            ),
+            onTap: () {
+              Navigator.of(context).pop();
+              GetIt.I<AuthCubit>().logout();
+            },
+          ),
+          const Spacer(),
+        ],
+      ),
+    );
   }
 }

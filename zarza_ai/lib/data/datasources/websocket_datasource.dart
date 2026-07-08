@@ -13,8 +13,10 @@ class WebSocketDatasource {
 
   bool _disposed = false;
   bool _connecting = false;
+  bool _reconnectScheduled = false;
   int _retryCount = 0;
   String? _token;
+  WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _subscription;
 
   Stream<String> get stream => _controller.stream;
@@ -29,18 +31,33 @@ class WebSocketDatasource {
     _connectAsync();
   }
 
+  /// Cierra la conexión actual (si existe) y abre una nueva.
+  /// El StreamController NO se cierra: los listeners siguen vivos.
   void reconnect() {
     developer.log('[WebSocket] Reconnecting...');
-    _subscription?.cancel();
-    _subscription = null;
     _disposed = false;
-    _connecting = false;
     _retryCount = 0;
+    _teardownConnection();
     connect();
   }
 
+  void _teardownConnection() {
+    unawaited(_subscription?.cancel() ?? Future.value());
+    _subscription = null;
+    try {
+      _channel?.sink.close();
+    } on Object {
+      // El sink puede fallar si el socket ya está cerrado
+    }
+    _channel = null;
+    _connecting = false;
+  }
+
   Future<void> _connectAsync() async {
-    if (_disposed || _connecting) return;
+    // Nunca abrir una segunda conexión: si ya hay canal activo o un
+    // intento en curso, este llamado (p. ej. un timer de reintento
+    // rezagado) no debe crear un socket duplicado.
+    if (_disposed || _connecting || _channel != null) return;
     _connecting = true;
 
     WebSocketChannel channel;
@@ -51,6 +68,7 @@ class WebSocketDatasource {
       _scheduleReconnect();
       return;
     }
+    _channel = channel;
 
     // Subscribe FIRST so handshake errors land in onError instead of
     // becoming unhandled async exceptions (web_socket_channel v3 quirk).
@@ -69,15 +87,11 @@ class WebSocketDatasource {
         if (!_controller.isClosed) _controller.add(decoded);
       },
       onError: (Object _) {
-        unawaited(_subscription?.cancel() ?? Future.value());
-        _subscription = null;
-        _connecting = false;
+        _teardownConnection();
         _scheduleReconnect();
       },
       onDone: () {
-        unawaited(_subscription?.cancel() ?? Future.value());
-        _subscription = null;
-        _connecting = false;
+        _teardownConnection();
         _scheduleReconnect();
       },
       cancelOnError: true,
@@ -98,25 +112,26 @@ class WebSocketDatasource {
         developer.log('[WebSocket] No token available, skipping auth');
       }
     } on Object catch (_) {
-      unawaited(_subscription?.cancel() ?? Future.value());
-      _subscription = null;
-      _connecting = false;
+      _teardownConnection();
       _scheduleReconnect();
     }
   }
 
   void _scheduleReconnect() {
-    if (_disposed) return;
+    // Un solo timer de reintento pendiente a la vez.
+    if (_disposed || _reconnectScheduled) return;
+    _reconnectScheduled = true;
     _retryCount++;
     final seconds = (_retryCount * 5).clamp(5, 60);
     unawaited(Future.delayed(Duration(seconds: seconds), () async {
+      _reconnectScheduled = false;
       if (!_disposed) await _connectAsync();
     }));
   }
 
   void dispose() {
     _disposed = true;
-    unawaited(_subscription?.cancel() ?? Future.value());
+    _teardownConnection();
     if (!_controller.isClosed) _controller.close();
   }
 }

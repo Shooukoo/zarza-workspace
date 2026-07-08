@@ -1,4 +1,5 @@
 import '../../domain/entities/fruit_analysis.dart';
+import '../../domain/entities/paginated_list.dart';
 import '../../domain/repositories/i_fruits_repository.dart';
 import '../datasources/remote_fruits_datasource.dart';
 
@@ -13,20 +14,20 @@ class FruitsRepositoryImpl implements IFruitsRepository {
   }
 
   @override
-  Future<List<FruitAnalysis>> getAnalysisList({
+  Future<PaginatedList<FruitAnalysis>> getAnalysisList({
     int page = 1,
     int limit = 20,
     String? userId,
     String? startDate,
     String? endDate,
   }) async {
-    final models = await _datasource.getAnalysisList(
+    final result = await _datasource.getAnalysisList(
       page: page,
       limit: limit,
       userId: userId,
       startDate: startDate,
       endDate: endDate,
     );
-    return models.map((m) => m.toEntity()).toList();
+    return result.map((m) => m.toEntity());
   }
 }

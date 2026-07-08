@@ -141,10 +141,10 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         startDate: _currentStartDate?.toIso8601String(),
         endDate: _currentEndDate?.toIso8601String(),
       );
-      _items.addAll(result);
+      _items.addAll(result.items);
       emit(HistoryLoaded(
         analyses: List.unmodifiable(_items),
-        hasMore: result.length == AppConstants.defaultPageSize,
+        hasMore: result.hasMore,
         page: _currentPage,
       ));
     } on Object catch (e) {
@@ -167,10 +167,10 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         startDate: _currentStartDate?.toIso8601String(),
         endDate: _currentEndDate?.toIso8601String(),
       );
-      _items.addAll(result);
+      _items.addAll(result.items);
       emit(HistoryLoaded(
         analyses: List.unmodifiable(_items),
-        hasMore: result.length == AppConstants.defaultPageSize,
+        hasMore: result.hasMore,
         page: _currentPage,
       ));
     } on Object catch (_) {
@@ -197,14 +197,14 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         startDate: _currentStartDate?.toIso8601String(),
         endDate: _currentEndDate?.toIso8601String(),
       );
-      if (result.isEmpty) return;
+      if (result.items.isEmpty) return;
       _currentPage = 1;
       _items
         ..clear()
-        ..addAll(result);
+        ..addAll(result.items);
       emit(HistoryLoaded(
         analyses: List.unmodifiable(_items),
-        hasMore: result.length == AppConstants.defaultPageSize,
+        hasMore: result.hasMore,
         page: _currentPage,
       ));
     } on Object catch (e, stack) {

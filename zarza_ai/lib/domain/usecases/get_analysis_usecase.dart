@@ -1,4 +1,5 @@
 import '../entities/fruit_analysis.dart';
+import '../entities/paginated_list.dart';
 import '../repositories/i_fruits_repository.dart';
 
 class GetAnalysisUseCase {
@@ -12,7 +13,7 @@ class GetAnalysisListUseCase {
   const GetAnalysisListUseCase(this._repository);
   final IFruitsRepository _repository;
 
-  Future<List<FruitAnalysis>> call({
+  Future<PaginatedList<FruitAnalysis>> call({
     int page = 1,
     int limit = 20,
     String? userId,

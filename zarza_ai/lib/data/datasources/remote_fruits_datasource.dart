@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import '../../core/constants/app_constants.dart';
+import '../../domain/entities/paginated_list.dart';
 import '../models/fruit_analysis_model.dart';
+import '../models/paginated_response.dart';
 
 class RemoteFruitsDatasource {
   RemoteFruitsDatasource(this._dio);
@@ -13,7 +15,7 @@ class RemoteFruitsDatasource {
         response.data as Map<String, dynamic>);
   }
 
-  Future<List<FruitAnalysisModel>> getAnalysisList({
+  Future<PaginatedList<FruitAnalysisModel>> getAnalysisList({
     int page = 1,
     int limit = AppConstants.defaultPageSize,
     String? userId,
@@ -30,20 +32,11 @@ class RemoteFruitsDatasource {
       queryParameters: query,
     );
 
-    final data = response.data;
-    List<dynamic> items;
-    if (data is List) {
-      items = data;
-    } else if (data is Map && data['data'] is List) {
-      items = data['data'] as List;
-    } else if (data is Map && data['items'] is List) {
-      items = data['items'] as List;
-    } else {
-      items = [];
-    }
-
-    return items
-        .map((e) => FruitAnalysisModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return parsePaginated(
+      response.data,
+      FruitAnalysisModel.fromJson,
+      page: page,
+      limit: limit,
+    );
   }
 }

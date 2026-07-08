@@ -43,21 +43,31 @@ class AdminUsersPageModel {
     required this.total,
     required this.page,
     required this.limit,
+    required this.totalPages,
+    required this.hasMore,
   });
 
   final List<AdminUserModel> data;
   final int total;
   final int page;
   final int limit;
+  final int totalPages;
+  final bool hasMore;
 
   factory AdminUsersPageModel.fromJson(Map<String, dynamic> json) {
+    final total = (json['total'] as num).toInt();
+    final page = (json['page'] as num).toInt();
+    final limit = (json['limit'] as num).toInt();
     return AdminUsersPageModel(
       data: (json['data'] as List<dynamic>)
           .map((e) => AdminUserModel.fromJson(e as Map<String, dynamic>))
           .toList(),
-      total: json['total'] as int,
-      page: json['page'] as int,
-      limit: json['limit'] as int,
+      total: total,
+      page: page,
+      limit: limit,
+      totalPages: (json['totalPages'] as num?)?.toInt() ??
+          (limit > 0 ? (total / limit).ceil() : 1),
+      hasMore: json['hasMore'] as bool? ?? page * limit < total,
     );
   }
 }

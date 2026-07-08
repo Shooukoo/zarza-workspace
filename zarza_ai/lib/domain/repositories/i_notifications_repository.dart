@@ -6,12 +6,14 @@ class NotificationsPage {
   final int total;
   final int unreadCount;
   final int page;
+  final bool hasMore;
 
   NotificationsPage({
     required this.items,
     required this.total,
     required this.unreadCount,
     required this.page,
+    required this.hasMore,
   });
 }
 

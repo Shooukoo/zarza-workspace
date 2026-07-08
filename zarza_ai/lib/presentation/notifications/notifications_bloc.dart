@@ -52,7 +52,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
           items: page.items,
           unreadCount: page.unreadCount,
           page: 1,
-          hasMore: page.items.length == 20,
+          hasMore: page.hasMore,
           status: NotificationsStatus.success,
         ),
       );
@@ -78,7 +78,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
         state.copyWith(
           items: [...state.items, ...page.items],
           page: nextPage,
-          hasMore: page.items.length == 20,
+          hasMore: page.hasMore,
         ),
       );
     } on Exception {
@@ -118,11 +118,23 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     MarkAllNotificationsRead event,
     Emitter<NotificationsState> emit,
   ) async {
-    emit(state.copyWith(unreadCount: 0));
+    final updatedItems = state.items.map((n) {
+      return NotificationEntity(
+        id: n.id,
+        type: n.type,
+        title: n.title,
+        body: n.body,
+        data: n.data,
+        isRead: true,
+        createdAt: n.createdAt,
+        expiresAt: n.expiresAt,
+      );
+    }).toList();
+    emit(state.copyWith(unreadCount: 0, items: updatedItems));
     try {
       await _markAllRead();
     } on Exception {
-      emit(state.copyWith(unreadCount: state.items.where((n) => !n.isRead).length));
+      emit(state.copyWith(unreadCount: state.items.where((n) => !n.isRead).length, items: state.items));
     }
   }
 
@@ -143,6 +155,10 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     WsNotificationReceived event,
     Emitter<NotificationsState> emit,
   ) async {
-    emit(state.copyWith(unreadCount: state.unreadCount + 1));
+    final newItems = [event.notification, ...state.items];
+    emit(state.copyWith(
+      items: newItems,
+      unreadCount: state.unreadCount + 1,
+    ));
   }
 }

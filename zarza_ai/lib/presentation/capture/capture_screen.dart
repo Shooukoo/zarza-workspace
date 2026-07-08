@@ -297,28 +297,31 @@ class _CaptureBodyState extends State<_CaptureBody> {
                       }
                     }
 
-                    return DropdownButtonFormField<CampoEntity>(
-                      initialValue: _selectedCampo,
-                      hint: const Text('Selecciona un campo'),
-                      dropdownColor: _surface,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.location_on_rounded),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    return SizedBox(
+                      width: double.infinity,
+                      child: DropdownButtonFormField<CampoEntity>(
+                        initialValue: _selectedCampo,
+                        hint: const Text('Selecciona un campo'),
+                        dropdownColor: _surface,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.location_on_rounded),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 14),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 14),
+                        items: campos
+                            .map((c) => DropdownMenuItem(
+                                  value: c,
+                                  child: Text(
+                                    '${c.codigoCampo} — ${c.nombre}',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ))
+                            .toList(),
+                        onChanged: _onCampoSelected,
                       ),
-                      items: campos
-                          .map((c) => DropdownMenuItem(
-                                value: c,
-                                child: Text(
-                                  '${c.codigoCampo} — ${c.nombre}',
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ))
-                          .toList(),
-                      onChanged: _onCampoSelected,
                     );
                   },
                 ),

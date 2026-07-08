@@ -135,10 +135,10 @@ class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
         limit: AppConstants.defaultPageSize,
         estado: _currentEstado,
       );
-      _items.addAll(result);
+      _items.addAll(result.items);
       emit(SolicitudesLoaded(
         items: List.unmodifiable(_items),
-        hasMore: result.length == AppConstants.defaultPageSize,
+        hasMore: result.hasMore,
         page: _currentPage,
       ));
     } on Object catch (e) {
@@ -159,10 +159,10 @@ class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
         limit: AppConstants.defaultPageSize,
         estado: _currentEstado,
       );
-      _items.addAll(result);
+      _items.addAll(result.items);
       emit(SolicitudesLoaded(
         items: List.unmodifiable(_items),
-        hasMore: result.length == AppConstants.defaultPageSize,
+        hasMore: result.hasMore,
         page: _currentPage,
       ));
     } on Object catch (_) {
@@ -203,14 +203,14 @@ class SolicitudesBloc extends Bloc<SolicitudesEvent, SolicitudesState> {
         limit: AppConstants.defaultPageSize,
         estado: _currentEstado,
       );
-      if (result.isEmpty) return;
+      if (result.items.isEmpty) return;
       _currentPage = 1;
       _items
         ..clear()
-        ..addAll(result);
+        ..addAll(result.items);
       emit(SolicitudesLoaded(
         items: List.unmodifiable(_items),
-        hasMore: result.length == AppConstants.defaultPageSize,
+        hasMore: result.hasMore,
         page: _currentPage,
       ));
     } on Object catch (e, stack) {

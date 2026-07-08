@@ -17,16 +17,22 @@ class RemoteNotificationsDatasource {
     );
 
     final data = response.data as Map<String, dynamic>;
-    final itemsJson = (data['items'] as List<dynamic>)
-        .cast<Map<String, dynamic>>();
+    // Envelope unificado: { data, total, page, limit, totalPages, hasMore, unreadCount }
+    final itemsJson =
+        (data['data'] as List<dynamic>).cast<Map<String, dynamic>>();
+
+    final total = (data['total'] as num).toInt();
+    final currentPage = (data['page'] as num).toInt();
+    final effLimit = (data['limit'] as num?)?.toInt() ?? limit;
 
     return NotificationsPage(
       items: itemsJson
           .map((json) => NotificationModel.fromJson(json).toEntity())
           .toList(),
-      total: data['total'] as int,
-      unreadCount: data['unreadCount'] as int,
-      page: data['page'] as int,
+      total: total,
+      unreadCount: (data['unreadCount'] as num).toInt(),
+      page: currentPage,
+      hasMore: data['hasMore'] as bool? ?? currentPage * effLimit < total,
     );
   }
 
