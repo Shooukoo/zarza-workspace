@@ -100,7 +100,7 @@ core/             ← utilidades, constantes, DI con GetIt
 
 Cada servicio tiene su propio `.env`. Variables clave:
 
-**fruit-backend/.env**: `MONGO_URI`, `JWT_SECRET`, `R2_BUCKET_NAME`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `RABBITMQ_URL`, `FCM_SERVER_KEY`
+**fruit-backend/.env**: `MONGO_URI`, `JWT_SECRET`, `R2_BUCKET_NAME`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `RABBITMQ_URL`, `FCM_SERVER_KEY`, `REDIS_URL` (cache del dashboard; default `redis://localhost:6379`)
 
 **fruit-ms/.env**: `RABBITMQ_URL`, `INFERENCE_URL` (URL interna de fruit-inference), `MONGO_URI`
 
