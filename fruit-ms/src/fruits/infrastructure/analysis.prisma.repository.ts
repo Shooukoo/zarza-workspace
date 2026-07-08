@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@rubus/database';
+import { PrismaService, clampPagination, buildPaginated } from '@rubus/database';
 import { ANALYSIS_REPOSITORY } from '../ports';
 import type { IAnalysisRepository, FindAllFilter, PaginatedResult } from '../ports';
 import type { AnalysisDomain, EtapaFenologica } from '../domain/analysis.entity';
@@ -58,11 +58,11 @@ export class PrismaAnalysisRepository implements IAnalysisRepository {
   }
 
   async findAll(
-    page: number,
-    limit: number,
+    pageParam: number,
+    limitParam: number,
     filter: FindAllFilter,
   ): Promise<PaginatedResult<AnalysisDomain>> {
-    const skip = (page - 1) * limit;
+    const { page, limit, skip, take } = clampPagination(pageParam, limitParam);
     const where: Record<string, unknown> = {};
 
     if (filter.imageId)    where.imageId         = filter.imageId;
@@ -82,13 +82,13 @@ export class PrismaAnalysisRepository implements IAnalysisRepository {
         where,
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit,
+        take,
         include: { fenologiaEtapas: true },
       }),
       this.prisma.analysis.count({ where }),
     ]);
 
-    return { data: docs.map((d) => this.toDomain(d)), total, page, limit };
+    return buildPaginated(docs.map((d) => this.toDomain(d)), total, page, limit);
   }
 
   async findById(id: string): Promise<AnalysisDomain | null> {

@@ -10,9 +10,7 @@ import {
   Req,
   HttpCode,
   HttpStatus,
-  ParseIntPipe,
   ParseUUIDPipe,
-  DefaultValuePipe,
   UseGuards,
   BadRequestException,
   NotFoundException,
@@ -31,10 +29,17 @@ import {
   IsArray,
   IsUUID,
 } from 'class-validator';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 class UpdateRoleDto {
   @IsEnum(Role)
   role: Role;
+}
+
+class ListUsersQueryDto extends PaginationQueryDto {
+  @IsOptional()
+  @IsEnum(Role)
+  rol?: Role;
 }
 
 class CreateUserDto {
@@ -102,22 +107,20 @@ export class AdminController {
   ) {}
 
   @Get('users')
-  findAllUsers(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
-    @Query('rol') rol?: string,
-  ) {
-    const role =
-      rol && Object.values(Role).includes(rol as Role)
-        ? (rol as Role)
-        : undefined;
-    return this.adminService.findAllUsers(page, limit, role);
+  findAllUsers(@Query() query: ListUsersQueryDto) {
+    return this.adminService.findAllUsers(query.page, query.limit, query.rol);
   }
 
   @Post('users')
   async createUser(@Body() dto: CreateUserDto) {
     try {
-      return await this.adminService.createUser(dto.email, dto.password, dto.role, dto.firstName, dto.lastName);
+      return await this.adminService.createUser(
+        dto.email,
+        dto.password,
+        dto.role,
+        dto.firstName,
+        dto.lastName,
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       throw new BadRequestException(msg);
@@ -130,7 +133,11 @@ export class AdminController {
     @Body() dto: UpdateNameDto,
   ) {
     try {
-      return await this.adminService.updateName(id, dto.firstName, dto.lastName);
+      return await this.adminService.updateName(
+        id,
+        dto.firstName,
+        dto.lastName,
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes('not found')) throw new NotFoundException(msg);

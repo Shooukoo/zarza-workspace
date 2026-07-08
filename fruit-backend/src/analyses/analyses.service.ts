@@ -1,5 +1,10 @@
 import { Injectable, Logger, NotFoundException, Inject } from '@nestjs/common';
-import { PrismaService, EstadoValidacion, Prisma } from '@rubus/database';
+import {
+  PrismaService,
+  Prisma,
+  clampPagination,
+  buildPaginated,
+} from '@rubus/database';
 import { ValidateAnalysisDto } from './dto/validate-analysis.dto';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
 import { type UserScope } from '../auth/domain/types/user-scope.type';
@@ -16,17 +21,17 @@ export class AnalysesService {
   ) {}
 
   async findAll(
-    page: number,
-    limit: number,
+    pageParam: number,
+    limitParam: number,
     estado: 'pendiente' | 'validado' | 'rechazado' | 'all',
     scope: UserScope,
     campoId?: string,
   ) {
-    const skip = (page - 1) * limit;
+    const { page, limit, skip, take } = clampPagination(pageParam, limitParam);
     const where: Record<string, unknown> = {};
 
     if (estado !== 'all') {
-      where.validacionEstado = estado as EstadoValidacion;
+      where.validacionEstado = estado;
     }
 
     if (scope.role === Role.PRODUCTOR) {
@@ -45,7 +50,7 @@ export class AnalysesService {
         where,
         orderBy: { fechaAnalisis: 'desc' },
         skip,
-        take: limit,
+        take,
         include: {
           fenologiaEtapas: true,
           campo: { select: { id: true, codigoCampo: true, nombre: true } },
@@ -54,7 +59,7 @@ export class AnalysesService {
       this.prisma.analysis.count({ where }),
     ]);
 
-    return { data, total, page, limit };
+    return buildPaginated(data, total, page, limit);
   }
 
   async findById(id: string) {
@@ -65,7 +70,8 @@ export class AnalysesService {
         campo: { select: { id: true, codigoCampo: true, nombre: true } },
       },
     });
-    if (!analysis) throw new NotFoundException(`Análisis con id "${id}" no encontrado`);
+    if (!analysis)
+      throw new NotFoundException(`Análisis con id "${id}" no encontrado`);
     return analysis;
   }
 
@@ -87,13 +93,14 @@ export class AnalysesService {
     const updated = await this.prisma.analysis.update({
       where: { id },
       data: {
-        validacionEstado: dto.action as EstadoValidacion,
+        validacionEstado: dto.action,
         validacionCorregidoPorId: corregidoPorId,
         ...(dto.action === 'rechazado' && dto.cronograma_corregido?.length
           ? {
               validacionFueCorregido: true,
               validacionDiagnosticoOriginal: diagnosticoOriginal,
-              validacionCronogramaCorregido: dto.cronograma_corregido as unknown as Prisma.InputJsonValue,
+              validacionCronogramaCorregido:
+                dto.cronograma_corregido as unknown as Prisma.InputJsonValue,
               validacionObservaciones: dto.observaciones ?? '',
             }
           : {}),
@@ -104,7 +111,9 @@ export class AnalysesService {
       },
     });
 
-    this.logger.log(`Análisis ${id} ${dto.action} por usuario ${corregidoPorId}`);
+    this.logger.log(
+      `Análisis ${id} ${dto.action} por usuario ${corregidoPorId}`,
+    );
     return updated;
   }
 }

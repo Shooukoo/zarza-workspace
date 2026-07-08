@@ -49,9 +49,9 @@ async function buildModule(): Promise<SolicitudesService> {
   return module.get(SolicitudesService);
 }
 
-const CAMPO_ID   = 'a1a1a1a1-0000-0000-0000-000000000001';
+const CAMPO_ID = 'a1a1a1a1-0000-0000-0000-000000000001';
 const MONITOR_ID = 'b2b2b2b2-0000-0000-0000-000000000001';
-const SOL_ID     = 'c3c3c3c3-0000-0000-0000-000000000001';
+const SOL_ID = 'c3c3c3c3-0000-0000-0000-000000000001';
 
 describe('SolicitudesService — FCM integration', () => {
   let service: SolicitudesService;
@@ -68,12 +68,19 @@ describe('SolicitudesService — FCM integration', () => {
       mensaje: 'Muestreo urgente',
       fecha_limite: '2026-05-10',
     };
-    const fakeSolicitud = { id: SOL_ID, campoId: CAMPO_ID, asignadoAId: MONITOR_ID, estado: 'PENDIENTE' };
+    const fakeSolicitud = {
+      id: SOL_ID,
+      campoId: CAMPO_ID,
+      asignadoAId: MONITOR_ID,
+      estado: 'PENDIENTE',
+    };
 
     beforeEach(() => {
       mockPrisma.solicitudMuestreo.create.mockResolvedValue(fakeSolicitud);
       mockPrisma.userCampo.findMany.mockResolvedValue([]);
-      mockCamposService.findById.mockResolvedValue({ nombre: 'Finca El Rosal' });
+      mockCamposService.findById.mockResolvedValue({
+        nombre: 'Finca El Rosal',
+      });
     });
 
     it('sends push with campo nombre and fecha_limite when user has fcm_token', async () => {
@@ -81,10 +88,13 @@ describe('SolicitudesService — FCM integration', () => {
 
       await service.create('admin-id', dto);
 
-      expect(mockFcmService.sendToDevice).toHaveBeenCalledWith('token-monitor', {
-        title: 'Nueva solicitud: Finca El Rosal',
-        body: 'Fecha límite: 10/05/2026. Abre la app para ver detalles.',
-      });
+      expect(mockFcmService.sendToDevice).toHaveBeenCalledWith(
+        'token-monitor',
+        {
+          title: 'Nueva solicitud: Finca El Rosal',
+          body: 'Fecha límite: 10/05/2026. Abre la app para ver detalles.',
+        },
+      );
     });
 
     it('logs warning and does NOT send push when user has no fcm_token', async () => {
@@ -118,7 +128,9 @@ describe('SolicitudesService — FCM integration', () => {
 
       expect(mockFcmService.sendToDevice).toHaveBeenCalledWith(
         'token-monitor',
-        expect.objectContaining({ title: expect.stringContaining(dto.campo_id) }),
+        expect.objectContaining({
+          title: expect.stringContaining(dto.campo_id),
+        }),
       );
     });
 
@@ -163,32 +175,46 @@ describe('SolicitudesService — FCM integration', () => {
     beforeEach(() => {
       mockPrisma.solicitudMuestreo.findUnique.mockResolvedValue(fakeSolicitud);
       mockPrisma.solicitudMuestreo.update.mockResolvedValue(fakeSolicitud);
-      mockCamposService.findById.mockResolvedValue({ nombre: 'Finca El Rosal' });
+      mockCamposService.findById.mockResolvedValue({
+        nombre: 'Finca El Rosal',
+      });
       mockUserRepo.findFcmTokenById.mockResolvedValue('token-monitor');
     });
 
     it('sends push on CANCELADO', async () => {
       await service.updateEstado(SOL_ID, 'CANCELADO');
 
-      expect(mockFcmService.sendToDevice).toHaveBeenCalledWith('token-monitor', {
-        title: 'Solicitud cancelada: Finca El Rosal',
-        body: 'La solicitud de muestreo fue cancelada.',
-      });
+      expect(mockFcmService.sendToDevice).toHaveBeenCalledWith(
+        'token-monitor',
+        {
+          title: 'Solicitud cancelada: Finca El Rosal',
+          body: 'La solicitud de muestreo fue cancelada.',
+        },
+      );
     });
 
     it('sends push on COMPLETADO', async () => {
-      mockPrisma.solicitudMuestreo.update.mockResolvedValue({ ...fakeSolicitud, estado: 'COMPLETADO' });
+      mockPrisma.solicitudMuestreo.update.mockResolvedValue({
+        ...fakeSolicitud,
+        estado: 'COMPLETADO',
+      });
 
       await service.updateEstado(SOL_ID, 'COMPLETADO');
 
-      expect(mockFcmService.sendToDevice).toHaveBeenCalledWith('token-monitor', {
-        title: 'Solicitud completada: Finca El Rosal',
-        body: 'El análisis ha sido marcado como completado.',
-      });
+      expect(mockFcmService.sendToDevice).toHaveBeenCalledWith(
+        'token-monitor',
+        {
+          title: 'Solicitud completada: Finca El Rosal',
+          body: 'El análisis ha sido marcado como completado.',
+        },
+      );
     });
 
     it('does NOT send push on EN_PROGRESO', async () => {
-      mockPrisma.solicitudMuestreo.update.mockResolvedValue({ ...fakeSolicitud, estado: 'EN_PROGRESO' });
+      mockPrisma.solicitudMuestreo.update.mockResolvedValue({
+        ...fakeSolicitud,
+        estado: 'EN_PROGRESO',
+      });
 
       await service.updateEstado(SOL_ID, 'EN_PROGRESO');
 
@@ -196,7 +222,10 @@ describe('SolicitudesService — FCM integration', () => {
     });
 
     it('does NOT send push on PENDIENTE', async () => {
-      mockPrisma.solicitudMuestreo.update.mockResolvedValue({ ...fakeSolicitud, estado: 'PENDIENTE' });
+      mockPrisma.solicitudMuestreo.update.mockResolvedValue({
+        ...fakeSolicitud,
+        estado: 'PENDIENTE',
+      });
 
       await service.updateEstado(SOL_ID, 'PENDIENTE');
 

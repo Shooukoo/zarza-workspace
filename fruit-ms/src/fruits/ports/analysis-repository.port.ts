@@ -1,4 +1,5 @@
 import { AnalysisDomain } from '../domain/analysis.entity';
+import type { Paginated } from '@rubus/database';
 
 export const ANALYSIS_REPOSITORY = Symbol('ANALYSIS_REPOSITORY');
 
@@ -11,13 +12,8 @@ export type FindAllFilter = {
   campoIds?: string[];
 };
 
-export type PaginatedResult<T> = {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-};
-
+/** Envelope unificado de paginación — contrato compartido vía @rubus/database */
+export type PaginatedResult<T> = Paginated<T>;
 
 /**
  * Puerto (interfaz) que define el contrato para el adaptador de persistencia.

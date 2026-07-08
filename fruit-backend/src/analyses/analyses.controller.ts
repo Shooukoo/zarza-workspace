@@ -7,22 +7,23 @@ import {
   Query,
   UseGuards,
   Req,
-  ParseIntPipe,
   ParseUUIDPipe,
-  DefaultValuePipe,
-  BadRequestException,
   NotFoundException,
   Inject,
 } from '@nestjs/common';
 import { AnalysesService } from './analyses.service';
 import { ValidateAnalysisDto } from './dto/validate-analysis.dto';
+import { ListAnalysesQueryDto } from './dto/list-analyses-query.dto';
 import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
 import { Role } from '../auth/domain/enums/role.enum';
 import { type JwtPayload } from '../auth/domain/types/jwt-payload.type';
 import { type UserScope } from '../auth/domain/types/user-scope.type';
-import { I_USER_REPOSITORY, type IUserRepository } from '../auth/ports/user-repository.port';
+import {
+  I_USER_REPOSITORY,
+  type IUserRepository,
+} from '../auth/ports/user-repository.port';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Controller('analyses')
@@ -39,20 +40,16 @@ export class AnalysesController {
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR)
   async findAll(
     @Req() req: { user: JwtPayload },
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
-    @Query('estado') estadoParam?: string,
-    @Query('campo_id') campoId?: string,
+    @Query() query: ListAnalysesQueryDto,
   ) {
-    let estado: 'pendiente' | 'validado' | 'rechazado' | 'all' = 'pendiente';
-    if (estadoParam === 'validado') estado = 'validado';
-    else if (estadoParam === 'rechazado') estado = 'rechazado';
-    else if (estadoParam === 'all') estado = 'all';
-    else if (estadoParam !== undefined && estadoParam !== 'pendiente') {
-      throw new BadRequestException('estado must be pendiente, validado, rechazado, or all');
-    }
     const scope = await this.buildScope(req.user);
-    return this.analysesService.findAll(page, limit, estado, scope, campoId);
+    return this.analysesService.findAll(
+      query.page,
+      query.limit,
+      query.estado,
+      scope,
+      query.campo_id,
+    );
   }
 
   @Get(':id/image')
@@ -64,7 +61,10 @@ export class AnalysesController {
 
   @Get(':id')
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR)
-  async findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req: { user: JwtPayload }) {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: { user: JwtPayload },
+  ) {
     const scope = await this.buildScope(req.user);
     const analysis = await this.analysesService.findById(id);
     if (scope.role === Role.PRODUCTOR && analysis.productorId !== scope.sub) {
@@ -89,12 +89,16 @@ export class AnalysesController {
   ) {
     const result = await this.analysesService.validate(id, req.user.sub, dto);
     if (result.productorId) {
-      this.notificationsGateway.emitToUser(result.productorId, 'analysis_validated', {
-        analysisId: id,
-        action: dto.action,
-        validatedBy: req.user.email,
-        productorId: result.productorId,
-      });
+      this.notificationsGateway.emitToUser(
+        result.productorId,
+        'analysis_validated',
+        {
+          analysisId: id,
+          action: dto.action,
+          validatedBy: req.user.email,
+          productorId: result.productorId,
+        },
+      );
     }
     return result;
   }

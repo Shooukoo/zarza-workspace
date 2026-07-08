@@ -8,20 +8,19 @@ import {
   Query,
   UseGuards,
   Req,
-  ParseIntPipe,
   ParseUUIDPipe,
-  DefaultValuePipe,
-  BadRequestException,
 } from '@nestjs/common';
 import { SolicitudesService } from './solicitudes.service';
-import { CreateSolicitudDto, UpdateEstadoDto } from './dto/create-solicitud.dto';
+import {
+  CreateSolicitudDto,
+  UpdateEstadoDto,
+} from './dto/create-solicitud.dto';
 import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
 import { Role } from '../auth/domain/enums/role.enum';
 import { type EstadoSolicitud } from '@rubus/database';
-
-const ESTADO_VALUES = ['PENDIENTE', 'EN_PROGRESO', 'COMPLETADO', 'CANCELADO'] as const;
+import { ListSolicitudesQueryDto } from './dto/list-solicitudes-query.dto';
 
 /**
  * POST   /api/v1/solicitudes              → Crear solicitud de muestreo (ADMIN, AGRONOMO)
@@ -39,28 +38,37 @@ export class SolicitudesController {
     return this.solicitudesService.create(req.user.sub, dto);
   }
 
+  @Get(':id')
+  @Roles(Role.ADMIN, Role.AGRONOMO, Role.MONITOR)
+  findById(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
+    return this.solicitudesService.findById(id, req.user.sub, req.user.role);
+  }
+
   @Get()
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.MONITOR)
-  findAll(
-    @Req() req: any,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
-    @Query('estado') estado?: string,
-    @Query('campo_id') campo_id?: string,
-  ) {
-    if (estado !== undefined && !(ESTADO_VALUES as readonly string[]).includes(estado)) {
-      throw new BadRequestException(`estado must be one of: ${ESTADO_VALUES.join(', ')}`);
-    }
+  findAll(@Req() req: any, @Query() query: ListSolicitudesQueryDto) {
     const user = req.user;
-    const asignado_a =
-      user.role === Role.MONITOR ? user.sub : undefined;
+    const asignado_a = user.role === Role.MONITOR ? user.sub : undefined;
 
-    return this.solicitudesService.findAll(page, limit, { estado: estado as EstadoSolicitud, campo_id, asignado_a });
+    return this.solicitudesService.findAll(query.page, query.limit, {
+      estado: query.estado,
+      campo_id: query.campo_id,
+      asignado_a,
+    });
   }
 
   @Patch(':id/estado')
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.MONITOR)
-  updateEstado(@Req() req: any, @Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateEstadoDto) {
-    return this.solicitudesService.updateEstado(id, dto.estado, req.user.sub, req.user.role);
+  updateEstado(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateEstadoDto,
+  ) {
+    return this.solicitudesService.updateEstado(
+      id,
+      dto.estado,
+      req.user.sub,
+      req.user.role,
+    );
   }
 }

@@ -40,7 +40,9 @@ describe('ValidateAnalysisDto', () => {
       cronograma_corregido: [{ etapa: '', cantidad: -1 }],
     });
     const errors = await validate(dto, { skipMissingProperties: false });
-    const nestedErrors = errors.find((e) => e.property === 'cronograma_corregido');
+    const nestedErrors = errors.find(
+      (e) => e.property === 'cronograma_corregido',
+    );
     expect(nestedErrors?.children?.length).toBeGreaterThan(0);
   });
 });

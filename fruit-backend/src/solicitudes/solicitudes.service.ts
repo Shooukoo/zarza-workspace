@@ -5,7 +5,12 @@ import {
   ForbiddenException,
   Inject,
 } from '@nestjs/common';
-import { PrismaService, EstadoSolicitud } from '@rubus/database';
+import {
+  PrismaService,
+  EstadoSolicitud,
+  clampPagination,
+  buildPaginated,
+} from '@rubus/database';
 import { CreateSolicitudDto } from './dto/create-solicitud.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import {
@@ -67,7 +72,9 @@ export class SolicitudesService {
     try {
       const agronomoIds = await this.findAgronomos(solicitud.campoId);
       // Filtrar para evitar duplicados: no notificar dos veces al mismo usuario
-      const uniqueAgronomoIds = agronomoIds.filter(id => id !== solicitud.asignadoAId);
+      const uniqueAgronomoIds = agronomoIds.filter(
+        (id) => id !== solicitud.asignadoAId,
+      );
       for (const id of uniqueAgronomoIds) {
         await this.notificationsService.create(
           id,
@@ -93,15 +100,15 @@ export class SolicitudesService {
   }
 
   async findAll(
-    page = 1,
-    limit = 20,
+    pageParam = 1,
+    limitParam = 20,
     filters: {
       estado?: EstadoSolicitud;
       campo_id?: string;
       asignado_a?: string;
     } = {},
   ) {
-    const skip = (page - 1) * limit;
+    const { page, limit, skip, take } = clampPagination(pageParam, limitParam);
     const where: {
       estado?: EstadoSolicitud;
       campoId?: string;
@@ -122,13 +129,13 @@ export class SolicitudesService {
         where,
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit,
+        take,
         include,
       }),
       this.prisma.solicitudMuestreo.count({ where }),
     ]);
 
-    return { data, total, page, limit };
+    return buildPaginated(data, total, page, limit);
   }
 
   async findById(id: string, requesterId?: string, requesterRole?: string) {
@@ -144,7 +151,9 @@ export class SolicitudesService {
       throw new NotFoundException(`Solicitud con id "${id}" no encontrada`);
 
     if (requesterRole === 'MONITOR' && solicitud.asignadoAId !== requesterId) {
-      throw new ForbiddenException('Solo puedes ver solicitudes asignadas a ti');
+      throw new ForbiddenException(
+        'Solo puedes ver solicitudes asignadas a ti',
+      );
     }
 
     return solicitud;

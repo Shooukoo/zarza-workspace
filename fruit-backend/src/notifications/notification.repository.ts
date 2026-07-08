@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@rubus/database';
+import { PrismaService, clampPagination } from '@rubus/database';
 import { NotificationEntity } from './notification.entity';
 
 @Injectable()
@@ -32,25 +32,33 @@ export class NotificationRepository {
 
   async findByUserPaginated(
     userId: string,
-    page: number,
-    limit: number,
-  ): Promise<{ items: NotificationEntity[]; total: number; unreadCount: number }> {
-    const skip = (page - 1) * limit;
+    pageParam: number,
+    limitParam: number,
+  ): Promise<{
+    data: NotificationEntity[];
+    total: number;
+    page: number;
+    limit: number;
+    unreadCount: number;
+  }> {
+    const { page, limit, skip, take } = clampPagination(pageParam, limitParam);
 
     const [docs, total, unreadCount] = await Promise.all([
       this.prisma.notification.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit,
+        take,
       }),
       this.prisma.notification.count({ where: { userId } }),
       this.prisma.notification.count({ where: { userId, read: false } }),
     ]);
 
     return {
-      items: docs.map((d) => this.toDomain(d)),
+      data: docs.map((d) => this.toDomain(d)),
       total,
+      page,
+      limit,
       unreadCount,
     };
   }

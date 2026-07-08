@@ -8,6 +8,7 @@ type FindAllParams = {
   page: number;
   limit: number;
   imageId?: string;
+  userId?: string;
   startDate?: string;
   endDate?: string;
 };
