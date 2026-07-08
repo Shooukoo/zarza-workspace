@@ -12,7 +12,9 @@ describe('AdminDashboardService', () => {
     // Passthrough: ejecuta compute() para poder verificar la lógica interna,
     // y a la vez permite asertar clave y TTL.
     cache = {
-      getOrSet: jest.fn((_key: string, _ttl: number, fn: () => Promise<unknown>) => fn()),
+      getOrSet: jest.fn(
+        (_key: string, _ttl: number, fn: () => Promise<unknown>) => fn(),
+      ),
     };
     service = new AdminDashboardService(
       prisma as unknown as PrismaService,
@@ -45,7 +47,9 @@ describe('AdminDashboardService', () => {
         300,
         expect.any(Function),
       );
-      expect(result).toEqual([{ daysToHarvest: 3, estimatedWeightGrams: 1500 }]);
+      expect(result).toEqual([
+        { daysToHarvest: 3, estimatedWeightGrams: 1500 },
+      ]);
     });
   });
 

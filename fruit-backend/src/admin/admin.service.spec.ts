@@ -29,10 +29,15 @@ describe('AdminService — cache de stats', () => {
       },
     };
     cache = {
-      getOrSet: jest.fn((_key: string, _ttl: number, fn: () => Promise<unknown>) => fn()),
+      getOrSet: jest.fn(
+        (_key: string, _ttl: number, fn: () => Promise<unknown>) => fn(),
+      ),
       invalidatePrefix: jest.fn().mockResolvedValue(undefined),
     };
-    hasher = { hash: jest.fn().mockResolvedValue('hashed'), compare: jest.fn() };
+    hasher = {
+      hash: jest.fn().mockResolvedValue('hashed'),
+      compare: jest.fn(),
+    };
     service = new AdminService(
       prisma as unknown as PrismaService,
       hasher,

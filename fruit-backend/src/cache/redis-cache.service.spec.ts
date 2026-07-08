@@ -59,7 +59,9 @@ describe('RedisCacheService', () => {
       redis.get.mockRejectedValue(new Error('ECONNREFUSED'));
       const compute = jest.fn().mockResolvedValue('fallback');
 
-      await expect(service.getOrSet('k', 300, compute)).resolves.toBe('fallback');
+      await expect(service.getOrSet('k', 300, compute)).resolves.toBe(
+        'fallback',
+      );
       expect(redis.set).not.toHaveBeenCalled();
     });
 
@@ -82,14 +84,34 @@ describe('RedisCacheService', () => {
   describe('invalidatePrefix()', () => {
     it('recorre SCAN hasta cursor 0 y borra todas las claves encontradas', async () => {
       redis.scan
-        .mockResolvedValueOnce(['5', ['dash:yield:global', 'dash:health:global']])
+        .mockResolvedValueOnce([
+          '5',
+          ['dash:yield:global', 'dash:health:global'],
+        ])
         .mockResolvedValueOnce(['0', ['dash:phenology:abc']]);
 
       await service.invalidatePrefix('dash:');
 
-      expect(redis.scan).toHaveBeenNthCalledWith(1, '0', 'MATCH', 'dash:*', 'COUNT', 100);
-      expect(redis.scan).toHaveBeenNthCalledWith(2, '5', 'MATCH', 'dash:*', 'COUNT', 100);
-      expect(redis.del).toHaveBeenCalledWith('dash:yield:global', 'dash:health:global');
+      expect(redis.scan).toHaveBeenNthCalledWith(
+        1,
+        '0',
+        'MATCH',
+        'dash:*',
+        'COUNT',
+        100,
+      );
+      expect(redis.scan).toHaveBeenNthCalledWith(
+        2,
+        '5',
+        'MATCH',
+        'dash:*',
+        'COUNT',
+        100,
+      );
+      expect(redis.del).toHaveBeenCalledWith(
+        'dash:yield:global',
+        'dash:health:global',
+      );
       expect(redis.del).toHaveBeenCalledWith('dash:phenology:abc');
     });
 
