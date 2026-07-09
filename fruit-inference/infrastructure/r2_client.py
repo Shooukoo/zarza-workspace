@@ -23,6 +23,31 @@ def create_r2_client():
     )
 
 
+def check_object_size(s3_client, bucket: str, storage_key: str, max_bytes: int) -> None:
+    """
+    Verifica el tamaño del objeto en R2 antes de descargarlo, sin traerlo a memoria.
+
+    Raises:
+        HTTPException 404 si el objeto no existe o no se puede verificar.
+        HTTPException 400 si el tamaño excede max_bytes.
+    """
+    try:
+        head = s3_client.head_object(Bucket=bucket, Key=storage_key)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No se pudo verificar la imagen '{storage_key}': {exc}",
+        )
+    if head["ContentLength"] > max_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"La imagen '{storage_key}' excede el tamaño máximo permitido "
+                f"({max_bytes} bytes)"
+            ),
+        )
+
+
 def download_image_bytes(s3_client, bucket: str, storage_key: str) -> bytes:
     """
     Descarga una imagen de Cloudflare R2 y retorna sus bytes.

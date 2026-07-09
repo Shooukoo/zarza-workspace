@@ -17,6 +17,7 @@ interface EnvVars {
   CORS_ORIGIN: string;
   FIREBASE_SERVICE_ACCOUNT_B64: string;
   INTERNAL_NOTIFY_TOKEN: string;
+  FCM_TOKEN_ENCRYPTION_KEY: string;
 }
 
 const envSchema = joi
@@ -34,6 +35,15 @@ const envSchema = joi
     CORS_ORIGIN: joi.string().optional().default('http://localhost:5173'),
     FIREBASE_SERVICE_ACCOUNT_B64: joi.string().required(),
     INTERNAL_NOTIFY_TOKEN: joi.string().min(32).required(),
+    FCM_TOKEN_ENCRYPTION_KEY: joi
+      .string()
+      .required()
+      .custom((value: string, helpers: joi.CustomHelpers) => {
+        if (Buffer.from(value, 'base64').length !== 32) {
+          return helpers.error('any.invalid');
+        }
+        return value;
+      }, 'clave base64 de 32 bytes'),
   })
   .unknown(true);
 
@@ -59,4 +69,5 @@ export const envs = {
   corsOrigin: envVars.CORS_ORIGIN,
   firebaseServiceAccountB64: envVars.FIREBASE_SERVICE_ACCOUNT_B64,
   internalNotifyToken: envVars.INTERNAL_NOTIFY_TOKEN,
+  fcmTokenEncryptionKey: envVars.FCM_TOKEN_ENCRYPTION_KEY,
 };

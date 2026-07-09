@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService, User as PrismaUser } from '@rubus/database';
 import { User } from '../../domain/entities/user.entity';
 import {
@@ -7,10 +7,14 @@ import {
   UserCampos,
 } from '../../ports/user-repository.port';
 import { Role } from '../../domain/enums/role.enum';
+import { I_CRYPTO_PORT, type ICryptoPort } from '../../ports/crypto.port';
 
 @Injectable()
 export class PrismaUserRepository implements IUserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(I_CRYPTO_PORT) private readonly crypto: ICryptoPort,
+  ) {}
 
   async findByEmail(email: string): Promise<User | null> {
     const doc = await this.prisma.user.findUnique({
@@ -63,7 +67,8 @@ export class PrismaUserRepository implements IUserRepository {
       where: { id: userId },
       select: { fcmToken: true },
     });
-    return doc?.fcmToken ?? null;
+    if (!doc?.fcmToken) return null;
+    return this.crypto.decrypt(doc.fcmToken);
   }
 
   async clearFcmToken(userId: string): Promise<void> {
@@ -76,7 +81,7 @@ export class PrismaUserRepository implements IUserRepository {
   async saveFcmToken(userId: string, token: string): Promise<void> {
     await this.prisma.user.update({
       where: { id: userId },
-      data: { fcmToken: token },
+      data: { fcmToken: this.crypto.encrypt(token) },
     });
   }
 

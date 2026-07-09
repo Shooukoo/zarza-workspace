@@ -17,22 +17,27 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+
+# Cargar .env ANTES de importar infrastructure.auth, que valida
+# INFERENCE_AUTH_TOKEN a nivel de módulo (fail-fast).
+load_dotenv()
+
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from ultralytics import YOLO
 
-from infrastructure.r2_client import create_r2_client, download_image_bytes
+from infrastructure.auth import verify_inference_token
+from infrastructure.r2_client import create_r2_client, download_image_bytes, check_object_size
 from infrastructure.yolo_client import run_inference, bytes_to_bgr
 from infrastructure.image_preprocessor import preprocess
 from domain.analysis import build_report
-
-load_dotenv()
 
 MODEL_PATH          = os.getenv("MODEL_PATH", "model.pt")
 R2_BUCKET           = os.getenv("R2_BUCKET_NAME", "")
 CONF_THRESHOLD      = float(os.getenv("CONF_THRESHOLD", "0.25"))
 PREPROCESSING_DEBUG = os.getenv("PREPROCESSING_DEBUG", "false").lower() == "true"
+MAX_IMAGE_SIZE_BYTES = int(os.getenv("MAX_IMAGE_SIZE_MB", "5")) * 1_000_000
 
 state: dict = {"model": None, "s3": None}
 
@@ -68,20 +73,23 @@ def health():
     }
 
 
-@app.post("/analyze")
+@app.post("/analyze", dependencies=[Depends(verify_inference_token)])
 def analyze(req: AnalyzeRequest):
     if state["model"] is None:
         raise HTTPException(status_code=503, detail="Modelo aún no está cargado.")
 
     image_id = req.image_id or req.storage_key
 
-    # 1. Descargar imagen desde R2
+    # 1. Verificar tamaño antes de descargar
+    check_object_size(state["s3"], R2_BUCKET, req.storage_key, MAX_IMAGE_SIZE_BYTES)
+
+    # 2. Descargar imagen desde R2
     image_bytes = download_image_bytes(state["s3"], R2_BUCKET, req.storage_key)
 
-    # 2. Decodificar una sola vez a BGR
+    # 3. Decodificar una sola vez a BGR
     bgr_img = bytes_to_bgr(image_bytes)
 
-    # 3. Preprocesar (fallback a imagen original si algo falla)
+    # 4. Preprocesar (fallback a imagen original si algo falla)
     debug_meta = None
     try:
         if PREPROCESSING_DEBUG:
@@ -92,10 +100,10 @@ def analyze(req: AnalyzeRequest):
         print(f"[preprocess] warning: preprocesado falló, usando imagen original. {e}")
         bgr_preprocessed = bgr_img
 
-    # 4. Inferencia YOLO
+    # 5. Inferencia YOLO
     detections = run_inference(state["model"], bgr_preprocessed, CONF_THRESHOLD)
 
-    # 5. Construir reporte fenológico
+    # 6. Construir reporte fenológico
     report = build_report(detections, bgr_preprocessed, image_id, req.variedad)
 
     if debug_meta is not None:
