@@ -17,11 +17,12 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from ultralytics import YOLO
 
+from infrastructure.auth import verify_inference_token
 from infrastructure.r2_client import create_r2_client, download_image_bytes
 from infrastructure.yolo_client import run_inference, bytes_to_bgr
 from infrastructure.image_preprocessor import preprocess
@@ -68,7 +69,7 @@ def health():
     }
 
 
-@app.post("/analyze")
+@app.post("/analyze", dependencies=[Depends(verify_inference_token)])
 def analyze(req: AnalyzeRequest):
     if state["model"] is None:
         raise HTTPException(status_code=503, detail="Modelo aún no está cargado.")
