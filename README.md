@@ -552,3 +552,38 @@ Los documentos técnicos del proyecto se encuentran en la carpeta `docs/`:
 
 **Santiago Antonio Mora Nuñez**
 Proyecto: Robótica, Control Inteligente y Sistemas de Percepción
+
+---
+
+## Mensajería: reintentos y cola de muertos (DLQ)
+
+`fruit-ms` procesa `nueva_fruta` con ack manual y reintentos (3 intentos,
+backoff exponencial 2 s / 8 s, configurable con `NUEVA_FRUTA_MAX_ATTEMPTS` y
+`NUEVA_FRUTA_BACKOFF_BASE_MS`). Si se agotan, el mensaje va al exchange
+`fruit.dlx` y termina en la cola `ingestion_queue.dlq`, donde queda a la
+espera de inspección manual.
+
+### Despliegue inicial (una vez por entorno)
+
+La cola existente se declaró sin argumentos DLX y RabbitMQ no permite
+redeclararla distinta (`PRECONDITION_FAILED`). Con `fruit-backend` y
+`fruit-ms` detenidos:
+
+```bash
+docker compose exec rabbitmq rabbitmqctl delete_queue ingestion_queue
+```
+
+Al arrancar de nuevo, `fruit-ms` recrea la cola con los argumentos DLX y
+declara `fruit.dlx` + `ingestion_queue.dlq`. Los mensajes encolados en el
+momento del borrado se pierden: hacerlo en ventana de baja actividad.
+
+### Inspeccionar y recuperar mensajes muertos
+
+- Management UI (`http://localhost:15672`, guest/guest) → Queues →
+  `ingestion_queue.dlq` → *Get messages*. El payload identifica la imagen
+  (`image_id`, `storage_key`) y el header `x-death` registra motivo, cola de
+  origen y timestamp.
+- Para reprocesar: una vez resuelta la causa raíz, re-publicar el payload en
+  la cola `ingestion_queue` desde la UI (*Publish message*, propiedad
+  `delivery_mode: 2`). El índice único sparse de `offline_sync_id` protege
+  contra duplicados si el análisis llegó a persistirse.
