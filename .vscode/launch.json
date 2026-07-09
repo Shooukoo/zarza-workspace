@@ -1,0 +1,49 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "zarza_ai (dev)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "zarza_ai",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "dev"]
+    },
+    {
+      "name": "zarza_ai (dev · LAN)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "zarza_ai",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "dev",
+        "--dart-define=SERVER_HOST=${input:serverHost}"
+      ]
+    },
+    {
+      "name": "zarza_ai (staging)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "zarza_ai",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "staging"]
+    },
+    {
+      "name": "zarza_ai (prod)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "zarza_ai",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "prod"]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "serverHost",
+      "type": "promptString",
+      "description": "IP del backend en la LAN",
+      "default": "192.168.100.26"
+    }
+  ]
+}

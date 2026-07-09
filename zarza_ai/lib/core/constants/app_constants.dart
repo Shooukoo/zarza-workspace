@@ -1,30 +1,15 @@
-import 'dart:io';
+import '../config/env_config.dart';
 
 /// Central configuration for RubusAI.
 ///
-/// El host se puede sobreescribir con `--dart-define=SERVER_HOST=<ip>`
-///   `flutter run --dart-define=SERVER_HOST=192.168.100.26`
-///
-/// Si no se pasa, el default es:
-///   - Android → 10.0.2.2 (emulador)
-///   - Desktop → 127.0.0.1
+/// Las URLs dependen del flavor activo (`flutter run --flavor dev|staging|prod`);
+/// ver [EnvConfig]. En dev se puede sobreescribir el host con
+/// `--dart-define=SERVER_HOST=<ip>` (ej. dispositivo físico en LAN).
 class AppConstants {
   AppConstants._();
 
-  static const String _envHost = String.fromEnvironment('SERVER_HOST');
-
-  static String get _host {
-    if (_envHost.isNotEmpty) return _envHost;
-    if (Platform.isAndroid) return '10.0.2.2';
-    return '127.0.0.1';
-  }
-
-  static const bool _isDev = bool.fromEnvironment('IS_DEV', defaultValue: true);
-
-  static String get baseUrl =>
-      _isDev ? 'http://$_host:3001' : 'https://$_host';
-  static String get wsUrl =>
-      _isDev ? 'ws://$_host:3001/ws' : 'wss://$_host/ws';
+  static String get baseUrl => EnvConfig.baseUrl;
+  static String get wsUrl => EnvConfig.wsUrl;
 
   // Endpoints
   static const String uploadEndpoint = '/api/v1/ingestion/upload';
