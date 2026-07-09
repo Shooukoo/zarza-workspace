@@ -4,6 +4,7 @@ import { FruitsQueryController } from './fruits-query.controller';
 import { FruitsQueryService } from './fruits-query.service';
 import { envs } from '../config/envs';
 import { AuthModule } from '../auth/infrastructure/auth.module';
+import { fruitsQueueOptions } from '../config/rmq-queue-options';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { AuthModule } from '../auth/infrastructure/auth.module';
         options: {
           urls: [envs.rabbitmqUrl],
           queue: envs.rabbitmqQueue,
-          queueOptions: { durable: true },
+          queueOptions: fruitsQueueOptions,
         },
       },
     ]),

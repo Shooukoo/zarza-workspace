@@ -116,3 +116,4 @@ Cada servicio tiene su propio `.env`. Variables clave:
 - **Índice geoespacial**: `ubicacion_gps` en collection `analyses` es índice 2dsphere para queries geográficas
 - **Docker**: imágenes multi-stage con usuario no-root (`user: node`); `fruit-inference` solo accesible en red interna Docker
 - **Tests**: los specs E2E existen como plantilla; los tests unitarios están pendientes de implementar
+- **Mensajería resiliente**: `nueva_fruta` se consume con ack manual (`noAck: false`, prefetch 5), 3 reintentos con backoff exponencial y dead-lettering a `fruit.dlx` → `<queue>.dlq`; los clientes de fruit-backend declaran la cola con los mismos argumentos DLX (deben coincidir siempre)

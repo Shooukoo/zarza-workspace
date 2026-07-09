@@ -25,10 +25,10 @@ export class FruitsService {
 
     // V2 context: pass metadata from ingestion event to the inference adapter
     const context = {
-      campoId:       data.campoId,
-      productorId:   data.productorId,
-      gpsLat:        data.gpsLat,
-      gpsLon:        data.gpsLon,
+      campoId: data.campoId,
+      productorId: data.productorId,
+      gpsLat: data.gpsLat,
+      gpsLon: data.gpsLon,
       offlineSyncId: data.offlineSyncId,
     };
 
@@ -45,7 +45,7 @@ export class FruitsService {
       this.logger.error(
         `Error al procesar inferencia: ${(err as Error).message}`,
       );
-      return;
+      throw err;
     }
 
     // 2. Loguear resumen usando la entidad de dominio
@@ -67,10 +67,14 @@ export class FruitsService {
     let savedId: string | null = null;
     try {
       savedId = await this.analysisRepo.save(analysis);
-      this.logger.log(`Análisis guardado | id=${savedId} | campo=${analysis.campo_id ?? 'N/A'}`);
+      this.logger.log(
+        `Análisis guardado | id=${savedId} | campo=${analysis.campo_id ?? 'N/A'}`,
+      );
     } catch (err) {
-      this.logger.error(`Error al guardar el análisis: ${(err as Error).message}`);
-      return;
+      this.logger.error(
+        `Error al guardar el análisis: ${(err as Error).message}`,
+      );
+      throw err;
     }
 
     // 4. Notificar al backend para que haga broadcast por WebSocket
@@ -122,5 +126,3 @@ export class FruitsService {
     return result;
   }
 }
-
-
