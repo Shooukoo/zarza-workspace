@@ -1,0 +1,107 @@
+import { RmqContext } from '@nestjs/microservices';
+import { FruitsController } from './fruits.controller';
+import { NuevaFrutaDto } from './dto/nueva-fruta.dto';
+
+jest.mock('../config/envs', () => ({
+  envs: {
+    nuevaFrutaMaxAttempts: 3,
+    nuevaFrutaBackoffBaseMs: 0,
+  },
+}));
+
+const makeCtx = () => {
+  const channel = { ack: jest.fn(), nack: jest.fn() };
+  const message = { content: Buffer.from('{}') };
+  const context = {
+    getChannelRef: () => channel,
+    getMessage: () => message,
+  } as unknown as RmqContext;
+  return { channel, message, context };
+};
+
+describe('FruitsController', () => {
+  const dto = { image_id: 'img-1', storage_key: 'k1' } as NuevaFrutaDto;
+
+  let service: {
+    process: jest.Mock;
+    findAll: jest.Mock;
+    findById: jest.Mock;
+  };
+  let controller: FruitsController;
+
+  beforeEach(() => {
+    service = { process: jest.fn(), findAll: jest.fn(), findById: jest.fn() };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    controller = new FruitsController(service as any);
+  });
+
+  describe('handleNuevaFruta', () => {
+    it('hace ack al primer intento exitoso', async () => {
+      service.process.mockResolvedValue(undefined);
+      const { channel, message, context } = makeCtx();
+
+      await controller.handleNuevaFruta(dto, context);
+
+      expect(service.process).toHaveBeenCalledTimes(1);
+      expect(channel.ack).toHaveBeenCalledWith(message);
+      expect(channel.nack).not.toHaveBeenCalled();
+    });
+
+    it('reintenta y hace ack si un intento posterior tiene éxito', async () => {
+      service.process
+        .mockRejectedValueOnce(new Error('intento 1'))
+        .mockRejectedValueOnce(new Error('intento 2'))
+        .mockResolvedValueOnce(undefined);
+      const { channel, message, context } = makeCtx();
+
+      await controller.handleNuevaFruta(dto, context);
+
+      expect(service.process).toHaveBeenCalledTimes(3);
+      expect(channel.ack).toHaveBeenCalledWith(message);
+      expect(channel.nack).not.toHaveBeenCalled();
+    });
+
+    it('hace nack sin requeue tras agotar los intentos y no relanza', async () => {
+      service.process.mockRejectedValue(new Error('siempre falla'));
+      const { channel, message, context } = makeCtx();
+
+      await expect(
+        controller.handleNuevaFruta(dto, context),
+      ).resolves.toBeUndefined();
+
+      expect(service.process).toHaveBeenCalledTimes(3);
+      expect(channel.nack).toHaveBeenCalledWith(message, false, false);
+      expect(channel.ack).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('handlers request-reply', () => {
+    it('get_fruits hace ack y devuelve el resultado', async () => {
+      service.findAll.mockResolvedValue({ data: [], total: 0 });
+      const { channel, message, context } = makeCtx();
+
+      const result = await controller.getAll({}, context);
+
+      expect(result).toEqual({ data: [], total: 0 });
+      expect(channel.ack).toHaveBeenCalledWith(message);
+    });
+
+    it('get_fruits hace ack aunque el service lance', async () => {
+      service.findAll.mockRejectedValue(new Error('boom'));
+      const { channel, message, context } = makeCtx();
+
+      await expect(controller.getAll({}, context)).rejects.toThrow('boom');
+      expect(channel.ack).toHaveBeenCalledWith(message);
+    });
+
+    it('get_fruit_by_id hace ack y devuelve null si no existe', async () => {
+      service.findById.mockRejectedValue(new Error('not found'));
+      const { channel, message, context } = makeCtx();
+
+      const result = await controller.getById({ id: 'x' }, context);
+
+      expect(result).toBeNull();
+      expect(channel.ack).toHaveBeenCalledWith(message);
+    });
+  });
+});

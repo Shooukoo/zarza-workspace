@@ -1,7 +1,18 @@
 import { Controller, Logger } from '@nestjs/common';
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import {
+  Ctx,
+  EventPattern,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
+import type { Channel } from 'amqplib';
 import { FruitsService } from './fruits.service';
 import { NuevaFrutaDto } from './dto/nueva-fruta.dto';
+import { envs } from '../config/envs';
+
+const sleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 @Controller()
 export class FruitsController {
@@ -9,20 +20,52 @@ export class FruitsController {
 
   constructor(private readonly fruitsService: FruitsService) {}
 
+  /**
+   * Reintenta process() con backoff exponencial. El resultado es siempre
+   * un ack o un nack explícito (noAck: false): nack sin requeue enruta el
+   * mensaje al DLX fruit.dlx → cola <queue>.dlq.
+   */
   @EventPattern('nueva_fruta')
-  async handleNuevaFruta(@Payload() data: NuevaFrutaDto) {
-    try {
-      await this.fruitsService.process(data);
-    } catch (err) {
-      this.logger.error(`Error procesando nueva_fruta id=${data.image_id}: ${(err as Error).message}`);
-      throw err;
+  async handleNuevaFruta(
+    @Payload() data: NuevaFrutaDto,
+    @Ctx() context: RmqContext,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const channel = context.getChannelRef() as Channel;
+
+    const originalMsg = context.getMessage() as Parameters<Channel['ack']>[0];
+    const maxAttempts = envs.nuevaFrutaMaxAttempts;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        await this.fruitsService.process(data);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        channel.ack(originalMsg);
+        return;
+      } catch (err) {
+        const message = (err as Error).message;
+        if (attempt === maxAttempts) {
+          this.logger.error(
+            `nueva_fruta agotó ${maxAttempts} intentos, enviando a DLQ | id=${data.image_id} | ${message}`,
+          );
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+          channel.nack(originalMsg, false, false);
+          return;
+        }
+        const delayMs = envs.nuevaFrutaBackoffBaseMs * 4 ** (attempt - 1);
+        this.logger.warn(
+          `nueva_fruta intento ${attempt}/${maxAttempts} falló, reintento en ${delayMs} ms | id=${data.image_id} | ${message}`,
+        );
+        await sleep(delayMs);
+      }
     }
   }
 
   /** Devuelve todos los análisis almacenados (paginado, 20 por página) */
   @MessagePattern('get_fruits')
   async getAll(
-    @Payload() payload: {
+    @Payload()
+    payload: {
       page?: number;
       limit?: number;
       imageId?: string;
@@ -32,41 +75,67 @@ export class FruitsController {
       productorId?: string;
       campoIds?: string[];
     },
+    @Ctx() context: RmqContext,
   ) {
-    this.logger.debug(`get_fruits page=${payload.page ?? 1} limit=${payload.limit ?? 20}`);
-    const sDate = payload.startDate ? new Date(payload.startDate) : undefined;
+    try {
+      this.logger.debug(
+        `get_fruits page=${payload.page ?? 1} limit=${payload.limit ?? 20}`,
+      );
+      const sDate = payload.startDate ? new Date(payload.startDate) : undefined;
 
-    let eDate = payload.endDate ? new Date(payload.endDate) : undefined;
-    if (eDate) {
-      eDate.setHours(23, 59, 59, 999);
+      const eDate = payload.endDate ? new Date(payload.endDate) : undefined;
+      if (eDate) {
+        eDate.setHours(23, 59, 59, 999);
+      }
+
+      return await this.fruitsService.findAll(
+        payload?.page ?? 1,
+        payload?.limit ?? 20,
+        payload?.imageId,
+        payload?.userId,
+        sDate,
+        eDate,
+        { productorId: payload.productorId, campoIds: payload.campoIds },
+      );
+    } finally {
+      this.ackRequest(context);
     }
-
-    return this.fruitsService.findAll(
-      payload?.page ?? 1,
-      payload?.limit ?? 20,
-      payload?.imageId,
-      payload?.userId,
-      sDate,
-      eDate,
-      { productorId: payload.productorId, campoIds: payload.campoIds },
-    );
   }
 
   /** Devuelve un análisis por su _id de MongoDB */
   @MessagePattern('get_fruit_by_id')
-  async getById(@Payload() payload: { id: string; productorId?: string; campoIds?: string[] }) {
+  async getById(
+    @Payload()
+    payload: { id: string; productorId?: string; campoIds?: string[] },
+    @Ctx() context: RmqContext,
+  ) {
     try {
       const analysis = await this.fruitsService.findById(payload.id);
-      if (payload.productorId && analysis.productor_id?.toString() !== payload.productorId) {
+      if (
+        payload.productorId &&
+        analysis.productor_id?.toString() !== payload.productorId
+      ) {
         return null;
       }
-      if (payload.campoIds?.length && !payload.campoIds.includes(analysis.campo_id?.toString() ?? '')) {
+      if (
+        payload.campoIds?.length &&
+        !payload.campoIds.includes(analysis.campo_id?.toString() ?? '')
+      ) {
         return null;
       }
       return analysis;
     } catch {
       return null;
+    } finally {
+      this.ackRequest(context);
     }
   }
-}
 
+  /** Los request-reply se ackean siempre: si fallan, el error viaja en la respuesta. */
+  private ackRequest(context: RmqContext) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const channel = context.getChannelRef() as Channel;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    channel.ack(context.getMessage() as Parameters<Channel['ack']>[0]);
+  }
+}
