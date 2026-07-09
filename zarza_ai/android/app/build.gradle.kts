@@ -46,6 +46,24 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            resValue("string", "app_name", "RubusAI Dev")
+        }
+        create("staging") {
+            dimension = "env"
+            applicationIdSuffix = ".stg"
+            resValue("string", "app_name", "RubusAI Stg")
+        }
+        create("prod") {
+            dimension = "env"
+            resValue("string", "app_name", "RubusAI")
+        }
+    }
 }
 
 flutter {
