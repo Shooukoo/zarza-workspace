@@ -41,10 +41,11 @@ class SolicitudModel {
       mensaje: json['mensaje'] as String? ?? '',
       estado: EstadoSolicitud.fromString(json['estado'] as String? ?? 'PENDIENTE'),
       fechaLimite: json['fechaLimite'] != null
-          ? DateTime.tryParse(json['fechaLimite'] as String)
+          ? DateTime.tryParse(json['fechaLimite'] as String)?.toLocal()
           : null,
       createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
+          ? DateTime.tryParse(json['createdAt'] as String)?.toLocal() ??
+              DateTime.now()
           : DateTime.now(),
     );
   }

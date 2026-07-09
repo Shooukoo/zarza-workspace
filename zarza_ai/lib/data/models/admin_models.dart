@@ -22,7 +22,7 @@ class AdminUserModel {
       id: json['id'] as String,
       email: json['email'] as String,
       role: UserRole.fromString(json['role'] as String? ?? 'MONITOR'),
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '')?.toLocal() ??
           DateTime.now(),
       totalAnalyses: json['totalAnalyses'] as int?,
     );

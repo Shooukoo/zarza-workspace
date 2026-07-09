@@ -85,7 +85,7 @@ class FruitAnalysisModel {
           (proyeccion['peso_sano_gramos'] as num?)?.toDouble() ?? 0.0,
       cronograma: cronograma,
       createdAt: rawCreatedAt != null
-          ? DateTime.tryParse(rawCreatedAt.toString())
+          ? DateTime.tryParse(rawCreatedAt.toString())?.toLocal()
           : null,
     );
   }

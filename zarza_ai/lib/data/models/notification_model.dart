@@ -30,8 +30,8 @@ class NotificationModel {
       body: json['body'] as String,
       data: json['data'] as Map<String, dynamic>?,
       isRead: json['isRead'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      expiresAt: DateTime.parse(json['expiresAt'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
+      expiresAt: DateTime.parse(json['expiresAt'] as String).toLocal(),
     );
   }
 
