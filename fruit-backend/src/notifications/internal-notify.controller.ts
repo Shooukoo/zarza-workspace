@@ -6,8 +6,10 @@ import {
   Logger,
   Post,
   Headers,
+  Req,
   UnauthorizedException,
 } from '@nestjs/common';
+import type { FastifyRequest } from 'fastify';
 import { NotificationsGateway } from './notifications.gateway';
 import { NotificationsService } from './notifications.service';
 import { FcmService, FcmTokenInvalidError } from '../fcm/fcm.service';
@@ -34,11 +36,16 @@ export class InternalNotifyController {
   async notify(
     @Headers('x-internal-token') token: string,
     @Body() body: { event: string; data: Record<string, unknown> },
+    @Req() req: FastifyRequest,
   ) {
+    const origin = this.requestOrigin(req);
     const expected = process.env.INTERNAL_NOTIFY_TOKEN;
     if (!expected || token !== expected) {
+      this.logger.warn(`[notify] token inválido ${origin}`);
       throw new UnauthorizedException('Invalid internal token');
     }
+
+    this.logger.log(`[notify] event=${body.event} ${origin}`);
 
     // Un análisis nuevo cambia las métricas del dashboard: invalida su cache.
     if (body.event === 'analisis_listo') {
@@ -94,6 +101,14 @@ export class InternalNotifyController {
     if (eventType === 'analisis_listo') {
       await this.sendAnalisisPush(body.data);
     }
+  }
+
+  // Sin trustProxy, req.ip es la IP de la conexión directa (el proxy si lo
+  // hay); se registra también x-forwarded-for para conservar la IP original.
+  private requestOrigin(req: FastifyRequest): string {
+    const xff = req.headers?.['x-forwarded-for'];
+    const xffValue = Array.isArray(xff) ? xff.join(',') : xff;
+    return `ip=${req.ip ?? '-'} xff=${xffValue ?? '-'}`;
   }
 
   private async sendAnalisisPush(data: Record<string, unknown>): Promise<void> {

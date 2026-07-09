@@ -178,7 +178,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 10. Logging de `/internal/notify` con IP de origen y rotación del secreto
+### 10. Logging de `/internal/notify` con IP de origen y rotación del secreto — ✅ Completada (2026-07-09)
+
+> Resuelta: el endpoint loguea evento + IP de origen (`ip=`/`xff=`) en cada llamada, incluidos intentos con token inválido; `.gitignore` verificado en ambos servicios; proceso de rotación documentado en `SECURITY.md` (raíz) y `INTERNAL_NOTIFY_TOKEN` añadido a `fruit-backend/.env.example`. El gestor de secretos (punto 4) queda como mejora futura documentada.
 
 **Qué es:** El endpoint interno `/internal/notify` de `fruit-backend` (que usa `fruit-ms` para disparar notificaciones WebSocket/push) ya registra el `userId` de cada llamada, pero no queda registro de la IP de origen, y el token compartido (`INTERNAL_NOTIFY_TOKEN`) no tiene ningún mecanismo de rotación.
 
@@ -274,3 +276,4 @@ Para que quede claro de dónde partimos, esto ya está completado desde la audit
 - **Panel web (`zarza-web`)** — ya tiene una implementación real en React/TypeScript (gestión de usuarios, análisis, solicitudes), no solo un directorio vacío como decía la auditoría original.
 - **Corrección de vulnerabilidades de dependencias** reportadas por Dependabot en todo el monorepo.
 - **Versionado de API (`/v1/`)** — `fruit-backend` usa URI Versioning de NestJS (`/api/v1/...`) con `defaultVersion: '1'`; permite añadir `/v2/` a futuro sin romper clientes. Actualizado `fruit-ms`, `zarza_ai` y `zarza-web` para apuntar a las rutas versionadas.
+- **Auditoría de `/internal/notify` y rotación de `INTERNAL_NOTIFY_TOKEN`** (tarea #10, 2026-07-09) — log de evento + IP de origen en cada llamada (y en rechazos por token inválido), proceso de rotación manual documentado en `SECURITY.md`.

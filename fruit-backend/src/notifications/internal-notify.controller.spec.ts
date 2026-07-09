@@ -4,6 +4,9 @@ import { NotificationsService } from './notifications.service';
 import { FcmService } from '../fcm/fcm.service';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import type { IUserRepository } from '../auth/ports/user-repository.port';
+import type { FastifyRequest } from 'fastify';
+
+const mockReq = { ip: '127.0.0.1', headers: {} } as FastifyRequest;
 
 describe('InternalNotifyController — invalidación de cache', () => {
   const TOKEN = 'test-internal-token';
@@ -34,26 +37,32 @@ describe('InternalNotifyController — invalidación de cache', () => {
   });
 
   it('analisis_listo invalida el prefijo dash:', async () => {
-    await controller.notify(TOKEN, {
-      event: 'analisis_listo',
-      data: { userId: 'u1' },
-    });
+    await controller.notify(
+      TOKEN,
+      { event: 'analisis_listo', data: { userId: 'u1' } },
+      mockReq,
+    );
 
     expect(cache.invalidatePrefix).toHaveBeenCalledWith('dash:');
   });
 
   it('otros eventos no tocan el cache', async () => {
-    await controller.notify(TOKEN, {
-      event: 'nueva_solicitud',
-      data: { userId: 'u1' },
-    });
+    await controller.notify(
+      TOKEN,
+      { event: 'nueva_solicitud', data: { userId: 'u1' } },
+      mockReq,
+    );
 
     expect(cache.invalidatePrefix).not.toHaveBeenCalled();
   });
 
   it('token inválido: rechaza sin invalidar', async () => {
     await expect(
-      controller.notify('token-malo', { event: 'analisis_listo', data: {} }),
+      controller.notify(
+        'token-malo',
+        { event: 'analisis_listo', data: {} },
+        mockReq,
+      ),
     ).rejects.toThrow();
 
     expect(cache.invalidatePrefix).not.toHaveBeenCalled();
