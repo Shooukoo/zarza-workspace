@@ -17,6 +17,11 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from dotenv import load_dotenv
+
+# Cargar .env ANTES de importar infrastructure.auth, que valida
+# INFERENCE_AUTH_TOKEN a nivel de módulo (fail-fast).
+load_dotenv()
+
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -27,8 +32,6 @@ from infrastructure.r2_client import create_r2_client, download_image_bytes
 from infrastructure.yolo_client import run_inference, bytes_to_bgr
 from infrastructure.image_preprocessor import preprocess
 from domain.analysis import build_report
-
-load_dotenv()
 
 MODEL_PATH          = os.getenv("MODEL_PATH", "model.pt")
 R2_BUCKET           = os.getenv("R2_BUCKET_NAME", "")
