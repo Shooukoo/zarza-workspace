@@ -336,11 +336,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           final usecase = GetIt.I<GetSolicitudByIdUseCase>();
           final solicitud = await usecase(solicitudId);
 
-          if (!mounted) return;
+          if (!context.mounted) return;
           ScaffoldMessenger.of(context).clearSnackBars();
-          context.push('/solicitudes/$solicitudId', extra: solicitud);
+          unawaited(context.push('/solicitudes/$solicitudId', extra: solicitud));
         } on Exception catch (e) {
-          if (!mounted) return;
+          if (!context.mounted) return;
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -351,7 +351,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               duration: const Duration(seconds: 3),
             ),
           );
-          if (mounted) context.go('/solicitudes');
+          context.go('/solicitudes');
         }
         break;
     }
