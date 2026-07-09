@@ -30,7 +30,6 @@ export class FruitsController {
     @Payload() data: NuevaFrutaDto,
     @Ctx() context: RmqContext,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const channel = context.getChannelRef() as Channel;
 
     const originalMsg = context.getMessage() as Parameters<Channel['ack']>[0];
@@ -39,7 +38,6 @@ export class FruitsController {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         await this.fruitsService.process(data);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         channel.ack(originalMsg);
         return;
       } catch (err) {
@@ -48,7 +46,6 @@ export class FruitsController {
           this.logger.error(
             `nueva_fruta agotó ${maxAttempts} intentos, enviando a DLQ | id=${data.image_id} | ${message}`,
           );
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
           channel.nack(originalMsg, false, false);
           return;
         }
@@ -133,9 +130,7 @@ export class FruitsController {
 
   /** Los request-reply se ackean siempre: si fallan, el error viaja en la respuesta. */
   private ackRequest(context: RmqContext) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const channel = context.getChannelRef() as Channel;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     channel.ack(context.getMessage() as Parameters<Channel['ack']>[0]);
   }
 }
