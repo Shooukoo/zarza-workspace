@@ -34,7 +34,10 @@ export class InferenceHttpAdapter implements IInferencePort {
         this.httpService.post<AnalysisResponseDto>(
           `${envs.inferenceUrl}/analyze`,
           { storage_key: storageKey, image_id: imageId },
-          { timeout: 60_000 },
+          {
+            timeout: 60_000,
+            headers: { 'x-inference-token': envs.inferenceAuthToken },
+          },
         ),
       );
       inferenceDto = response.data;
