@@ -8,10 +8,12 @@ import { I_USER_REPOSITORY } from '../ports/user-repository.port';
 import { I_HASHER_PORT } from '../ports/hasher.port';
 import { I_TOKEN_PORT } from '../ports/token.port';
 import { I_REFRESH_TOKEN_REPOSITORY } from '../ports/refresh-token-repository.port';
+import { I_CRYPTO_PORT } from '../ports/crypto.port';
 import { PrismaUserRepository } from './adapters/prisma-user.repository';
 import { BcryptHasher } from './adapters/bcrypt-hasher.adapter';
 import { JwtTokenService } from './adapters/jwt-token.adapter';
 import { PrismaRefreshTokenRepository } from './adapters/prisma-refresh-token.repository';
+import { AesGcmCrypto } from './adapters/aes-gcm-crypto.adapter';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { PrismaRefreshTokenRepository } from './adapters/prisma-refresh-token.re
     { provide: I_USER_REPOSITORY, useClass: PrismaUserRepository },
     { provide: I_HASHER_PORT, useClass: BcryptHasher },
     { provide: I_TOKEN_PORT, useClass: JwtTokenService },
+    { provide: I_CRYPTO_PORT, useClass: AesGcmCrypto },
     {
       provide: I_REFRESH_TOKEN_REPOSITORY,
       useClass: PrismaRefreshTokenRepository,
