@@ -1,7 +1,21 @@
 # zarza_ai (RubusAI)
 
 Aplicación Flutter para análisis fenológico de zarzamora con visión artificial.
-Parte del workspace Zarza AI (ver `CLAUDE.md` en la raíz del workspace).
+Parte del workspace Zarza AI (ver el [README raíz](../README.md) y `CLAUDE.md` en la raíz del workspace).
+
+## Arquitectura
+
+Clean Architecture por capas, con BLoC para el estado de presentación:
+
+```
+lib/
+├── domain/           # Entidades y casos de uso
+├── data/             # Repositorios y datasources (remote/local, incl. caché offline SQLite)
+├── presentation/      # BLoCs y pantallas UI
+└── core/              # Utilidades, constantes, DI con GetIt, env_config.dart (flavors)
+```
+
+Consume la API REST y el WebSocket de [`fruit-backend`](../fruit-backend/README.md) (ver el flujo completo de análisis y el modo offline en el [README raíz](../README.md#flujo-completo-de-un-análisis)).
 
 ## Entornos (flavors)
 

@@ -1,98 +1,102 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# fruit-ms
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Microservicio consumidor de eventos de Zarza AI. NestJS 11, sin puertos HTTP públicos: se comunica **únicamente vía RabbitMQ** (salvo un healthcheck interno en `HEALTH_PORT`). Orquesta la llamada al worker de inferencia (`fruit-inference`) y persiste el resultado en PostgreSQL.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Ver también el [README raíz](../README.md) para la arquitectura completa del sistema.
 
-## Description
+## Responsabilidades
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Consumir el evento `nueva_fruta` publicado por `fruit-backend` (ack manual, reintentos con backoff exponencial, dead-lettering a `fruit.dlx`/`<queue>.dlq` si se agotan los intentos).
+- Llamar a `fruit-inference` (`POST /analyze`) para obtener el reporte fenológico.
+- Persistir el análisis y sus etapas fenológicas en PostgreSQL (`@rubus/database` / Prisma).
+- Responder consultas de solo lectura (`get_fruits`, `get_fruit_by_id`) usadas por `fruit-backend`.
+- Notificar a `fruit-backend` (`/internal/notify`) cuando termina un análisis, para que este dispare WebSocket + FCM.
 
-## Project setup
+## Stack
 
-```bash
-$ pnpm install
+NestJS 11 · `@nestjs/microservices` (Transport.RMQ) · `amqp-connection-manager`/`amqplib` · `@nestjs/axios` (llamada HTTP a `fruit-inference` y a `fruit-backend`) · `@rubus/database` (Prisma/PostgreSQL) · `joi` (validación de entorno) · `class-validator`/`class-transformer`.
+
+## Arquitectura interna (Clean Architecture)
+
+```
+src/
+├── fruits/
+│   ├── domain/            # analysis.entity.ts — AnalysisDomain, EtapaFenologica
+│   ├── ports/             # analysis-repository.port.ts, inference.port.ts (tokens de DI)
+│   ├── infrastructure/     # analysis.prisma.repository.ts, inference-http.adapter.ts, inference.mapper.ts
+│   ├── dto/                # analyze-request, analysis-response, nueva-fruta
+│   ├── fruits.controller.ts
+│   ├── fruits.service.ts
+│   └── fruits.module.ts
+├── config/                 # envs.ts (Joi), rabbitmq-topology.ts (declaración de DLX/DLQ)
+├── database/                # DatabaseModule (re-exporta PrismaDatabaseModule de @rubus/database)
+└── health/                  # health.controller.ts (healthcheck interno)
 ```
 
-## Compile and run the project
+## Arranque y transporte (`main.ts`)
 
-```bash
-# development
-$ pnpm run start
+Aplicación híbrida: un app HTTP mínimo para el healthcheck (`HEALTH_PORT`) más un microservicio RMQ conectado con `app.connectMicroservice`.
 
-# watch mode
-$ pnpm run start:dev
+Antes de conectar el microservicio, `setupDeadLetterTopology()` declara `fruit.dlx` y `<queue>.dlq` de forma idempotente (deben existir antes de declarar la cola principal con argumentos DLX que coincidan).
 
-# production mode
-$ pnpm run start:prod
+Config de la cola: `Transport.RMQ`, `queue: RABBITMQ_QUEUE`, **`noAck: false`** (ack manual), **`prefetchCount: 5`**, `durable: true` con argumentos dead-letter.
+
+`ValidationPipe` global (`whitelist`, `forbidNonWhitelisted`, `transform`).
+
+## Patrones de mensajería
+
+| Patrón | Tipo | Comportamiento |
+|---|---|---|
+| `nueva_fruta` | `EventPattern` | `fruits.controller.ts` reintenta `fruitsService.process(data)` hasta `NUEVA_FRUTA_MAX_ATTEMPTS` veces con backoff (`NUEVA_FRUTA_BACKOFF_BASE_MS * 4^(intento-1)`). Éxito → `channel.ack`; agotados los intentos → `channel.nack(msg, false, false)` (va a la DLQ). |
+| `get_fruits` | `MessagePattern` | Lista paginada con filtros (`imageId`, `userId`, rango de fechas, `productorId`, `campoIds`). Ack siempre en `finally`. |
+| `get_fruit_by_id` | `MessagePattern` | Busca por `id` o `imageId`; aplica scope por `productorId`/`campoIds`; retorna `null` si no hay match o está fuera de scope. Ack siempre en `finally`. |
+
+## Persistencia
+
+`fruits/infrastructure/analysis.prisma.repository.ts` implementa `IAnalysisRepository` sobre `PrismaService` (transacción que crea `Analysis` + `FenologiaEtapa[]`, y consultas `findMany`/`findFirst`/`count`), mapeando de vuelta a `AnalysisDomain`. Es PostgreSQL, no MongoDB — algún comentario legado en el código todavía menciona "_id de MongoDB"; ignorarlo, la búsqueda real es contra Postgres.
+
+## Variables de entorno (`.env.example`)
+
+```env
+# RabbitMQ
+RABBITMQ_URL=amqp://guest:guest@localhost:5672
+RABBITMQ_QUEUE=ingestion_queue
+
+# Base de datos (compartida con fruit-backend, vía @rubus/database)
+DATABASE_URL=postgresql://user:password@localhost:5432/zarza
+
+# fruit-inference
+INFERENCE_URL=http://fruit-inference:8000
+INFERENCE_AUTH_TOKEN=
+
+# fruit-backend (notificaciones internas al terminar un análisis)
+BACKEND_URL=http://fruit-backend:3000
+INTERNAL_NOTIFY_TOKEN=
+
+# Health check
+HEALTH_PORT=3002
+
+# Reintentos del consumidor nueva_fruta (opcionales)
+NUEVA_FRUTA_MAX_ATTEMPTS=3
+NUEVA_FRUTA_BACKOFF_BASE_MS=2000
 ```
 
-## Run tests
+> `INTERNAL_NOTIFY_TOKEN` debe coincidir exactamente con el de `fruit-backend/.env`.
+
+## Comandos
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+pnpm install
+pnpm run start:dev      # Modo desarrollo con watch
+pnpm run build          # Compilar TypeScript → dist/
+pnpm run lint
+pnpm run test           # Unit tests (Jest)
+pnpm run test:e2e
+pnpm run test:cov
 ```
 
-## Deployment
+Cobertura de tests real en: `fruits.controller` (reintentos/ack/nack), `fruits.service`, `rabbitmq-topology` (declaración DLX/DLQ), `inference-http.adapter`. El e2e (`test/app.e2e-spec.ts`) sigue siendo la plantilla por defecto de Nest, sin adaptar.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Docker
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Build multi-stage desde el contexto raíz del monorepo: instala el workspace completo, ejecuta `pnpm --filter @rubus/database run build` (genera el cliente Prisma) y luego compila `fruit-ms`. El runner hace instalación solo de producción, copia `packages/database/dist` + el cliente Prisma generado y `fruit-ms/dist`, corre como usuario no-root (`node`). No expone puertos públicos en `docker-compose.yml`.

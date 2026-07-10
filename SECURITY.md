@@ -26,7 +26,7 @@ se te notificará antes de hacer cualquier divulgación pública.
 
 Este proyecto es desarrollado con fines académicos. Las áreas de
 mayor sensibilidad son la autenticación JWT, el control de acceso
-RBAC y las credenciales de Cloudflare R2 y MongoDB.
+RBAC y las credenciales de Cloudflare R2 y PostgreSQL.
 
 ## Rotación de secretos internos
 
@@ -58,3 +58,23 @@ sospecha de filtración.
 **Mejora futura:** migrar este y otros secretos estáticos (`JWT_SECRET`,
 credenciales R2) a un gestor de secretos (HashiCorp Vault, AWS Secrets
 Manager) en lugar de variables de entorno planas.
+
+### `INFERENCE_AUTH_TOKEN`
+
+Token compartido entre `fruit-ms` (cliente) y `fruit-inference` (endpoint
+`POST /analyze`, header `x-inference-token`). `fruit-inference` no arranca
+sin este valor configurado (`infrastructure/auth.py` lanza `RuntimeError`
+al importarse si falta).
+
+**Proceso de rotación (manual):**
+
+1. Generar un nuevo valor: `openssl rand -hex 32`.
+2. Actualizar `INFERENCE_AUTH_TOKEN` en el `.env` de **ambos** servicios
+   (`fruit-ms` y `fruit-inference`); los valores deben coincidir.
+3. Redesplegar/reiniciar ambos servicios juntos, ej.
+   `docker compose up -d --build fruit-ms fruit-inference`.
+4. Verificar que `POST /analyze` vuelve a responder `200` y que no hay
+   `401` por token inválido en los logs de `fruit-inference`.
+
+**Cadencia recomendada:** la misma que `INTERNAL_NOTIFY_TOKEN` (cada 90
+días, o de inmediato ante sospecha de filtración).
