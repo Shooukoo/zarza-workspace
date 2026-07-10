@@ -15,3 +15,4 @@ key.properties
 
 # Firebase config — contains API keys, do not commit
 app/google-services.json
+app/src/*/google-services.json
