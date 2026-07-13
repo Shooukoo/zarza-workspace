@@ -25,15 +25,13 @@ ehthumbs.db
 !.vscode/extensions.json
 
 # ── Large binary files (use Git LFS or external storage) ────────────────────
+# NOTA: no incluir *.jpg/*.png/*.gif aquí — bloquea assets pequeños necesarios
+# (íconos de app, logos) que sí deben ir en el repo. Ver commit que agregó esta nota.
 *.pt
 *.pth
 *.onnx
 *.h5
 *.weights
-*.jpg
-*.jpeg
-*.png
-*.gif
 *.mp4
 *.zip
 
