@@ -6,7 +6,7 @@ import {
   IsDateString,
   IsString,
 } from 'class-validator';
-import type { EstadoSolicitud } from '@rubus/database';
+import { EstadoSolicitud } from '@rubus/database';
 
 export class CreateSolicitudDto {
   @IsUUID()
@@ -25,6 +25,6 @@ export class CreateSolicitudDto {
 }
 
 export class UpdateEstadoDto {
-  @IsEnum(['PENDIENTE', 'EN_PROGRESO', 'COMPLETADO', 'CANCELADO'])
+  @IsEnum(EstadoSolicitud)
   estado: EstadoSolicitud;
 }
