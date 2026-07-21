@@ -17,7 +17,7 @@ class SolicitudesRepositoryImpl implements ISolicitudesRepository {
     final result = await _datasource.getSolicitudes(
       page: page,
       limit: limit,
-      estado: estado?.name,
+      estado: estado?.apiValue,
     );
     return result.map((m) => m.toEntity());
   }
