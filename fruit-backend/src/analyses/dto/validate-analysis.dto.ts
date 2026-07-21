@@ -5,7 +5,7 @@ import {
   IsString,
   IsNumber,
   Min,
-  IsEnum,
+  IsIn,
   IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -21,7 +21,7 @@ export class CronogramaCorregidoItemDto {
 }
 
 export class ValidateAnalysisDto {
-  @IsEnum(['validado', 'rechazado'])
+  @IsIn(['validado', 'rechazado'])
   action: 'validado' | 'rechazado';
 
   @IsOptional()

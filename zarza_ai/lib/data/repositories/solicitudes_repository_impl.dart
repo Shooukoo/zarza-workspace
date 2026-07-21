@@ -30,7 +30,7 @@ class SolicitudesRepositoryImpl implements ISolicitudesRepository {
 
   @override
   Future<SolicitudEntity> updateEstado(String id, EstadoSolicitud estado) async {
-    final model = await _datasource.updateEstado(id, estado.name);
+    final model = await _datasource.updateEstado(id, estado.apiValue);
     return model.toEntity();
   }
 }
