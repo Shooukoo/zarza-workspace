@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
@@ -7,7 +7,8 @@ import { AnalysisResponseDto } from '../dto/analysis-response.dto';
 import { AnalysisDomain, UserSnapshot } from '../domain/analysis.entity';
 import type { IInferencePort, InferenceContext } from '../ports/inference.port';
 import { InferenceMapper } from './inference.mapper';
-
+import { traceContext } from '../../common/logging/trace-context';
+import { AppLogger } from '../../common/logging/app.logger';
 /**
  * Adaptador de infraestructura que implementa IInferencePort usando HTTP.
  * Encapsula TODA la comunicación con fruit-inference: URL, timeout,
@@ -17,18 +18,22 @@ import { InferenceMapper } from './inference.mapper';
  */
 @Injectable()
 export class InferenceHttpAdapter implements IInferencePort {
-  private readonly logger = new Logger(InferenceHttpAdapter.name);
-
-  constructor(private readonly httpService: HttpService) {}
+  
+  constructor(private readonly httpService: HttpService, private readonly logger: AppLogger,) {}
 
   async analyze(
     imageId: string,
     storageKey: string,
     requester: UserSnapshot,
     context?: InferenceContext,
+  
   ): Promise<AnalysisDomain> {
     let inferenceDto: AnalysisResponseDto;
+    const traceId = traceContext.getStore()?.traceId;
 
+    if (!traceId) {
+      throw new Error('TraceId no disponible');
+    }
     try {
       const response = await firstValueFrom(
         this.httpService.post<AnalysisResponseDto>(
@@ -36,21 +41,35 @@ export class InferenceHttpAdapter implements IInferencePort {
           { storage_key: storageKey, image_id: imageId },
           {
             timeout: 60_000,
-            headers: { 'x-inference-token': envs.inferenceAuthToken },
+            headers: { 
+              'x-inference-token': envs.inferenceAuthToken, 
+              'x-trace-id': traceId, },
           },
         ),
       );
       inferenceDto = response.data;
+      this.logger.info(
+        'Respuesta de inferencia recibida',
+        {
+          imageId,
+          storageKey,
+        },
+      );
     } catch (err) {
       const axiosErr = err as AxiosError;
       this.logger.error(
-        `[InferenceHttpAdapter] Error al llamar a fruit-inference: ${axiosErr.message}`,
-        axiosErr.response?.data,
+        'Error al llamar al servicio de inferencia',
+        {
+          imageId,
+          storageKey,
+          error: axiosErr.message,
+          statusCode: axiosErr.response?.status,
+        },
       );
       throw new Error(`Inference service unavailable: ${axiosErr.message}`);
     }
 
     // Transformar DTO de red → entidad de dominio (el mapper vive en infraestructura)
-    return InferenceMapper.toDomain(inferenceDto, storageKey, requester, context);
+    return InferenceMapper.toDomain(inferenceDto, imageId, storageKey, requester, context);
   }
 }

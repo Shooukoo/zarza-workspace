@@ -1,16 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { NotificationRepository } from './notification.repository';
 import { NotificationsGateway } from './notifications.gateway';
 import { NotificationEntity } from './notification.entity';
+import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class NotificationsService {
-  private readonly logger = new Logger(NotificationsService.name);
-
+  
   constructor(
     private readonly repository: NotificationRepository,
     private readonly gateway: NotificationsGateway,
+    private readonly logger: AppLogger,
   ) {}
 
   async create(
@@ -61,6 +62,8 @@ export class NotificationsService {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async cleanupExpired(): Promise<void> {
     const count = await this.repository.deleteExpired();
-    this.logger.log(`[Cron] Cleaned up ${count} expired notifications`);
+    this.logger.info('Notificaciones expiradas eliminadas', {
+      deletedCount: count,
+    });
   }
 }

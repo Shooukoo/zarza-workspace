@@ -27,5 +27,6 @@ export interface IInferencePort {
     storageKey: string,
     requester: UserSnapshot,
     context?: InferenceContext,
+   
   ): Promise<AnalysisDomain>;
 }

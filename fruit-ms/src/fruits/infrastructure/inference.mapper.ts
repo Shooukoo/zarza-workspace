@@ -8,6 +8,7 @@ import { AnalysisDomain, GeoJsonPoint, UserSnapshot } from '../domain/analysis.e
 export class InferenceMapper {
   static toDomain(
     dto: AnalysisResponseDto,
+    imageId: string,
     storageKey: string,
     requester: UserSnapshot,
     context?: {
@@ -28,7 +29,7 @@ export class InferenceMapper {
     }
 
     return {
-      image_id:    storageKey,
+      image_id: imageId,
       storage_key: storageKey,
       requester,
       variedad:    dto.variedad ?? null,

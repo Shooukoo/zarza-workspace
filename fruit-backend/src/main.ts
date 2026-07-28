@@ -10,13 +10,18 @@ import multipart from '@fastify/multipart';
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import { envs } from './config/envs';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
+    {
+      bufferLogs: true,
+    },
   );
 
+  app.useLogger(app.get(Logger));
   app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,
@@ -56,7 +61,9 @@ async function bootstrap() {
     },
   });
 
+ 
   await app.listen(envs.port, '0.0.0.0');
-  console.log(`App running on port ${envs.port}`);
+  const logger = app.get(Logger);
+  logger.log(`App running on port ${envs.port}`);
 }
 bootstrap();

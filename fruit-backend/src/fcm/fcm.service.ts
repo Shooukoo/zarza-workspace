@@ -1,5 +1,6 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
+import { AppLogger } from '../common/logging/app.logger';
 
 export interface FcmNotification {
   title: string;
@@ -7,7 +8,7 @@ export interface FcmNotification {
 }
 
 export class FcmTokenInvalidError extends Error {
-  constructor(public readonly token: string) {
+  constructor(public readonly token: string,) {
     super(`FCM token invalid: ${token}`);
     this.name = 'FcmTokenInvalidError';
   }
@@ -15,8 +16,9 @@ export class FcmTokenInvalidError extends Error {
 
 @Injectable()
 export class FcmService implements OnModuleInit {
-  private readonly logger = new Logger(FcmService.name);
-
+  constructor(
+      private readonly logger: AppLogger,
+    ) {}
   onModuleInit(): void {
     const b64 = process.env.FIREBASE_SERVICE_ACCOUNT_B64;
     if (!b64) {
@@ -34,7 +36,9 @@ export class FcmService implements OnModuleInit {
     fcmToken: string,
     notification: FcmNotification,
   ): Promise<void> {
-    this.logger.log(`[FCM] Enviando push → title="${notification.title}"`);
+    this.logger.info('Enviando notificación push', {
+      title: notification.title,
+    });
     try {
       const msgId = await admin.messaging().send({
         token: fcmToken,
@@ -43,12 +47,15 @@ export class FcmService implements OnModuleInit {
         android: { priority: 'high' },
         apns: { headers: { 'apns-priority': '10' } },
       });
-      this.logger.log(`[FCM] Push enviado OK → messageId=${msgId}`);
+      this.logger.info('Notificación push enviada', {
+        messageId: msgId,
+      });
     } catch (error: any) {
       const code: string = error?.errorInfo?.code ?? error?.code ?? '';
-      this.logger.error(
-        `[FCM] Error al enviar push: code=${code} msg=${error?.message ?? error}`,
-      );
+      this.logger.error('Error al enviar notificación push', {
+        code,
+        error: error?.message ?? error,
+      });
       if (code === 'messaging/registration-token-not-registered') {
         throw new FcmTokenInvalidError(fcmToken);
       }

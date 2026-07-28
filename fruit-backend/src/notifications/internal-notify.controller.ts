@@ -3,7 +3,6 @@ import {
   Controller,
   HttpCode,
   Inject,
-  Logger,
   Post,
   Headers,
   Req,
@@ -18,17 +17,18 @@ import {
   type IUserRepository,
 } from '../auth/ports/user-repository.port';
 import { RedisCacheService } from '../cache/redis-cache.service';
+import { AppLogger } from '../common/logging/app.logger';
 
 @Controller('internal')
 export class InternalNotifyController {
-  private readonly logger = new Logger(InternalNotifyController.name);
-
+  
   constructor(
     private readonly gateway: NotificationsGateway,
     private readonly fcmService: FcmService,
     @Inject(I_USER_REPOSITORY) private readonly userRepository: IUserRepository,
     private readonly notificationsService: NotificationsService,
     private readonly cache: RedisCacheService,
+    private readonly logger: AppLogger,
   ) {}
 
   @Post('notify')
@@ -41,11 +41,16 @@ export class InternalNotifyController {
     const origin = this.requestOrigin(req);
     const expected = process.env.INTERNAL_NOTIFY_TOKEN;
     if (!expected || token !== expected) {
-      this.logger.warn(`[notify] token inválido ${origin}`);
+      this.logger.warn('Token interno inválido', {
+        origin,
+      });
       throw new UnauthorizedException('Invalid internal token');
     }
 
-    this.logger.log(`[notify] event=${body.event} ${origin}`);
+    this.logger.info('Notificación interna recibida', {
+      event: body.event,
+      origin,
+    });
 
     // Un análisis nuevo cambia las métricas del dashboard: invalida su cache.
     if (body.event === 'analisis_listo') {
@@ -113,7 +118,9 @@ export class InternalNotifyController {
 
   private async sendAnalisisPush(data: Record<string, unknown>): Promise<void> {
     const userId = data?.userId as string | undefined;
-    this.logger.log(`[notify] analisis_listo → userId=${userId ?? 'none'}`);
+    this.logger.info('Notificación de análisis procesada', {
+      userId: userId ?? null,
+    });
     if (!userId) return;
 
     const fcmToken = await this.userRepository.findFcmTokenById(userId);
@@ -127,7 +134,9 @@ export class InternalNotifyController {
     } catch (e) {
       if (e instanceof FcmTokenInvalidError) {
         await this.userRepository.clearFcmToken(userId);
-        this.logger.log(`[FCM] Token inválido limpiado para usuario ${userId}`);
+        this.logger.info('Token FCM inválido eliminado', {
+          userId,
+        });
       }
     }
   }
