@@ -62,19 +62,6 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.62.0"
   },
-  "pnpm": {
-    "overrides": {
-      "handlebars": ">=4.7.9",
-      "minimatch": ">=10.2.3",
-      "qs": ">=6.14.2",
-      "serialize-javascript": ">=7.0.3",
-      "flatted": ">=3.4.2",
-      "picomatch": ">=4.0.4",
-      "lodash": ">=4.18.0",
-      "follow-redirects": ">=1.16.0",
-      "ajv": ">=8.18.0"
-    }
-  },
   "jest": {
     "moduleFileExtensions": [
       "js",

@@ -15,7 +15,9 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    {/* Los flags v7_startTransition y v7_relativeSplatPath eran opt-ins de v6:
+        en react-router v7 son el comportamiento por defecto y la prop ya no existe. */}
+    <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <ConfigProvider
           locale={esES}
