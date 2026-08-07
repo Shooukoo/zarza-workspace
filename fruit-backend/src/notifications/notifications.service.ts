@@ -7,7 +7,6 @@ import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class NotificationsService {
-  
   constructor(
     private readonly repository: NotificationRepository,
     private readonly gateway: NotificationsGateway,

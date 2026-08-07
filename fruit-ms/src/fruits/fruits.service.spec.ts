@@ -27,6 +27,14 @@ describe('FruitsService.process', () => {
   let inference: { analyze: jest.Mock };
   let repo: { save: jest.Mock; findAll: jest.Mock; findById: jest.Mock };
   let http: { axiosRef: { post: jest.Mock } };
+
+  const logger = {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  };
+
   let service: FruitsService;
 
   beforeEach(() => {
@@ -37,7 +45,12 @@ describe('FruitsService.process', () => {
       findById: jest.fn(),
     };
     http = { axiosRef: { post: jest.fn().mockResolvedValue({}) } };
-    service = new FruitsService(inference, repo, http as any);
+    service = new FruitsService(
+      inference as any,
+      repo as any,
+      http as any,
+      logger as any,
+    );
   });
 
   it('propaga el error cuando la inferencia falla y no intenta guardar', async () => {

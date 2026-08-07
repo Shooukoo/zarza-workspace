@@ -61,7 +61,6 @@ async function bootstrap() {
     },
   });
 
- 
   await app.listen(envs.port, '0.0.0.0');
   const logger = app.get(Logger);
   logger.log(`App running on port ${envs.port}`);

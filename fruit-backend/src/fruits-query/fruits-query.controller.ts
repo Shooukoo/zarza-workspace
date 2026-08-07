@@ -34,9 +34,11 @@ export class FruitsQueryController {
   @Get()
   async findAll(@Req() req: any, @Query() query: GetFruitsQueryDto) {
     const scope = await this.buildScope(req.user);
-    this.logger.debug(
-      `GET /fruits page=${query.page} limit=${query.limit} role=${scope.role}`,
-    );
+    this.logger.debug('GET /fruits', {
+      page: query.page,
+      limit: query.limit,
+      role: scope.role,
+    });
     return this.fruitsQueryService.findAll(
       {
         page: query.page,

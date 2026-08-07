@@ -9,8 +9,8 @@
  * Se almacena junto al análisis para trazabilidad histórica.
  */
 export type UserSnapshot = {
-  userId: string;  // ID canónico en fruit-backend
-  email: string;   // Snapshot al momento del análisis
+  userId: string; // ID canónico en fruit-backend
+  email: string; // Snapshot al momento del análisis
 };
 
 export type Prediccion = {
@@ -32,7 +32,6 @@ export type MetricasSalud = {
   porcentaje_merma_general: number;
 };
 
-
 export type ProyeccionFinanciera = {
   peso_sano_gramos: number;
 };
@@ -45,7 +44,7 @@ export type GeoJsonPoint = {
 
 export type ValidacionExperto = {
   fue_corregido: boolean;
-  corregido_por: string | null;        // ObjectId como string
+  corregido_por: string | null; // ObjectId como string
   diagnostico_original: string | null;
 };
 
@@ -75,4 +74,3 @@ export interface AnalysisDomain {
   /** Datos de auditoría de corrección humana (Agrónomo). */
   validacion_experto?: ValidacionExperto | null;
 }
-

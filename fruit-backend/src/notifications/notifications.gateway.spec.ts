@@ -3,8 +3,16 @@ import { Test } from '@nestjs/testing';
 import { WebSocket } from 'ws';
 import { NotificationsGateway } from './notifications.gateway';
 import { I_TOKEN_PORT } from '../auth/ports/token.port';
+import { AppLogger } from '../common/logging/app.logger';
 
 const mockTokenService = { verifyToken: jest.fn() };
+
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
 
 function makeSocket(readyState: number = WebSocket.OPEN): WebSocket {
   return {
@@ -22,6 +30,7 @@ describe('NotificationsGateway', () => {
       providers: [
         NotificationsGateway,
         { provide: I_TOKEN_PORT, useValue: mockTokenService },
+        { provide: AppLogger, useValue: mockLogger },
       ],
     }).compile();
     gateway = module.get(NotificationsGateway);

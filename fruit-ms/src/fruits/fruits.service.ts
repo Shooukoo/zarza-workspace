@@ -6,11 +6,10 @@ import type { IAnalysisRepository } from './ports';
 import type { IInferencePort } from './ports/inference.port';
 import { envs } from '../config/envs';
 import { AppLogger } from '../common/logging/app.logger';
+import { traceContext } from '../common/logging/trace-context';
 
 @Injectable()
 export class FruitsService {
-  
-
   constructor(
     @Inject(I_INFERENCE_PORT)
     private readonly inference: IInferencePort,
@@ -20,18 +19,12 @@ export class FruitsService {
     private readonly logger: AppLogger,
   ) {}
 
-  async process(
-    data: NuevaFrutaDto,
-  ): Promise<void> {
-
-    this.logger.info(
-        'Nueva fruta recibida',
-        {
-            imageId: data.image_id,
-            storageKey: data.storage_key,
-            userId: data.userId,
-        },
-    );
+  async process(data: NuevaFrutaDto): Promise<void> {
+    this.logger.info('Nueva fruta recibida', {
+      imageId: data.image_id,
+      storageKey: data.storage_key,
+      userId: data.userId,
+    });
 
     // V2 context: pass metadata from ingestion event to the inference adapter
     const context = {
@@ -99,6 +92,7 @@ export class FruitsService {
     }
 
     // 4. Notificar al backend para que haga broadcast por WebSocket
+    const traceId = traceContext.getStore()?.traceId;
     try {
       await this.http.axiosRef.post(
         `${envs.backendUrl}/api/v1/internal/notify`,
@@ -112,7 +106,10 @@ export class FruitsService {
         },
         {
           timeout: 3000,
-          headers: { 'x-internal-token': envs.internalNotifyToken },
+          headers: {
+            'x-internal-token': envs.internalNotifyToken,
+            ...(traceId && { 'x-trace-id': traceId }),
+          },
         },
       );
     } catch {

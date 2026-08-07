@@ -1,8 +1,4 @@
-import {
-  PipeTransform,
-  Injectable,
-  BadRequestException,
-} from '@nestjs/common';
+import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import '@fastify/multipart';
 import { ParsedMultipartDto } from '../dto/parsed-multipart.dto';
@@ -17,7 +13,6 @@ export class MultipartImagePipe implements PipeTransform<
   FastifyRequest,
   Promise<ParsedMultipartDto>
 > {
-  
   async transform(req: FastifyRequest): Promise<ParsedMultipartDto> {
     const parts = req.parts();
     let capturedAt: Date | null = null;
@@ -46,7 +41,7 @@ export class MultipartImagePipe implements PipeTransform<
               );
             }
             capturedAt = parsed;
-            
+
             break;
           }
           case 'campo_id':

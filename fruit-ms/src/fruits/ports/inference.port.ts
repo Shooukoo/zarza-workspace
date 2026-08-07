@@ -3,10 +3,10 @@ import { AnalysisDomain, UserSnapshot } from '../domain/analysis.entity';
 export const I_INFERENCE_PORT = Symbol('I_INFERENCE_PORT');
 
 export type InferenceContext = {
-  campoId?:       string | null;
-  productorId?:   string | null;
-  gpsLat?:        number | null;
-  gpsLon?:        number | null;
+  campoId?: string | null;
+  productorId?: string | null;
+  gpsLat?: number | null;
+  gpsLon?: number | null;
   offlineSyncId?: string | null;
 };
 
@@ -27,6 +27,5 @@ export interface IInferencePort {
     storageKey: string,
     requester: UserSnapshot,
     context?: InferenceContext,
-   
   ): Promise<AnalysisDomain>;
 }

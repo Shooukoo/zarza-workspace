@@ -11,7 +11,14 @@ jest.mock('../config/envs', () => ({
 
 const makeCtx = () => {
   const channel = { ack: jest.fn(), nack: jest.fn() };
-  const message = { content: Buffer.from('{}') };
+  const message = {
+    content: Buffer.from('{}'),
+    properties: {
+      headers: {
+        'x-trace-id': 'test-trace-id',
+      },
+    },
+  };
   const context = {
     getChannelRef: () => channel,
     getMessage: () => message,
@@ -32,7 +39,14 @@ describe('FruitsController', () => {
   beforeEach(() => {
     service = { process: jest.fn(), findAll: jest.fn(), findById: jest.fn() };
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    controller = new FruitsController(service as any);
+    const logger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
+    };
+
+    controller = new FruitsController(service as any, logger as any);
   });
 
   describe('handleNuevaFruta', () => {

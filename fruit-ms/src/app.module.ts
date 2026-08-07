@@ -3,29 +3,32 @@ import { FruitsModule } from './fruits/fruits.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthController } from './health/health.controller';
 import { LoggerModule } from 'nestjs-pino';
+import { envs } from './config/envs';
+import { LoggingModule } from './common/logging/logging.module';
 
 @Module({
   imports: [
     LoggerModule.forRoot({
       pinoHttp: {
-        level: process.env.LOG_LEVEL ?? 'info',
+        level: envs.logLevel,
         autoLogging: false,
+        base: {
+          service: 'fruit-ms',
+        },
         messageKey: 'message',
         timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
 
         formatters: {
-          bindings() {
-            return {};
-          },
           level(label) {
-            return {level: label.toUpperCase(),};
+            return { level: label.toUpperCase() };
           },
         },
-
       },
     }),
-    DatabaseModule, FruitsModule],
+    LoggingModule,
+    DatabaseModule,
+    FruitsModule,
+  ],
   controllers: [HealthController],
 })
 export class AppModule {}
-

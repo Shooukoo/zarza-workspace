@@ -1,8 +1,4 @@
-import {
-  Module,
-  NestModule,
-  MiddlewareConsumer,
-} from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TraceMiddleware } from './common/logging/trace.middleware';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@rubus/database';
@@ -22,26 +18,25 @@ import { HealthController } from './health/health.controller';
 import { CacheModule } from './cache/cache.module';
 import { LoggerModule } from 'nestjs-pino';
 import { LoggingModule } from './common/logging/logging.module';
+import { envs } from './config/envs';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     LoggerModule.forRoot({
       pinoHttp: {
-        level: process.env.LOG_LEVEL ?? 'info',
+        level: envs.logLevel,
         autoLogging: false,
-
+        base: {
+          service: 'fruit-backend',
+        },
         messageKey: 'message',
-        
 
         timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
 
         formatters: {
-          bindings() {
-            return {};
-          },
           level(label) {
-            return {level: label.toUpperCase(),};
+            return { level: label.toUpperCase() };
           },
         },
         serializers: {
@@ -67,7 +62,6 @@ import { LoggingModule } from './common/logging/logging.module';
     CamposModule,
     SolicitudesModule,
     AnalysesModule,
-    IngestionModule,
     LoggingModule,
   ],
   controllers: [HealthController],
@@ -75,6 +69,6 @@ import { LoggingModule } from './common/logging/logging.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(TraceMiddleware).forRoutes('*');
+    consumer.apply(TraceMiddleware).forRoutes('{*path}');
   }
 }

@@ -10,8 +10,8 @@ import { AppLogger } from '../common/logging/app.logger';
 export class StorageService implements IStoragePort {
   private s3Client: S3Client;
   private bucketName: string;
-  
-  constructor(private readonly logger: AppLogger,) {
+
+  constructor(private readonly logger: AppLogger) {
     this.bucketName = envs.r2BucketName;
     this.s3Client = new S3Client({
       region: 'us-east-1',

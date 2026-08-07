@@ -9,8 +9,6 @@ import type { ProcessImageInput } from './dto/parsed-multipart.dto';
 import { AppLogger } from '../common/logging/app.logger';
 @Injectable()
 export class IngestionService {
-  
-
   constructor(
     @Inject(STORAGE_PORT) private readonly storage: IStoragePort,
     private readonly validator: MagicNumberValidator,

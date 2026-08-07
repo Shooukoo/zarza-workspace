@@ -52,7 +52,9 @@ describe('PrismaUserRepository — cifrado de fcmToken', () => {
   });
 
   it('findFcmTokenById devuelve un token legado en texto plano tal cual', async () => {
-    mockPrisma.user.findUnique.mockResolvedValue({ fcmToken: 'token-legado-plano' });
+    mockPrisma.user.findUnique.mockResolvedValue({
+      fcmToken: 'token-legado-plano',
+    });
 
     const result = await repo.findFcmTokenById('user-1');
 

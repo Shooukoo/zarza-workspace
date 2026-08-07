@@ -8,7 +8,7 @@ export interface FcmNotification {
 }
 
 export class FcmTokenInvalidError extends Error {
-  constructor(public readonly token: string,) {
+  constructor(public readonly token: string) {
     super(`FCM token invalid: ${token}`);
     this.name = 'FcmTokenInvalidError';
   }
@@ -16,9 +16,7 @@ export class FcmTokenInvalidError extends Error {
 
 @Injectable()
 export class FcmService implements OnModuleInit {
-  constructor(
-      private readonly logger: AppLogger,
-    ) {}
+  constructor(private readonly logger: AppLogger) {}
   onModuleInit(): void {
     const b64 = process.env.FIREBASE_SERVICE_ACCOUNT_B64;
     if (!b64) {

@@ -21,7 +21,6 @@ import { AppLogger } from '../common/logging/app.logger';
 
 @Controller('internal')
 export class InternalNotifyController {
-  
   constructor(
     private readonly gateway: NotificationsGateway,
     private readonly fcmService: FcmService,

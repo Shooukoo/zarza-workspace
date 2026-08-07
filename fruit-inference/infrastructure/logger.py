@@ -11,16 +11,36 @@ class JsonFormatter(logging.Formatter):
             "level": record.levelname,
             "message": record.getMessage(),
         }
+        reserved = {
+            "name",
+            "msg",
+            "args",
+            "levelname",
+            "levelno",
+            "pathname",
+            "filename",
+            "module",
+            "exc_info",
+            "exc_text",
+            "stack_info",
+            "lineno",
+            "funcName",
+            "created",
+            "msecs",
+            "relativeCreated",
+            "thread",
+            "threadName",
+            "processName",
+            "process",
+            "message",
+            "asctime",
+        }
+        for key, value in record.__dict__.items():
+            if key not in reserved:
+                log[key] = value
 
-        for field in [
-            "traceId",
-            "imageId",
-            "storageKey",
-            "detections",
-            "exception",
-        ]:
-            if hasattr(record, field):
-                log[field] = getattr(record, field)
+        if record.exc_info:
+            log["exception"] = self.formatException(record.exc_info)
 
         return json.dumps(log)
 

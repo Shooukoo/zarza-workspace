@@ -5,14 +5,13 @@ import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class CamposService {
-
-  constructor(private readonly prisma: PrismaService, private readonly logger: AppLogger,) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly logger: AppLogger,
+  ) {}
 
   async create(dto: CreateCampoDto) {
-    this.logger.info('Campo creado', {
-      codigoCampo: dto.codigo_campo,
-    });
-    return this.prisma.campo.create({
+    const campo = await this.prisma.campo.create({
       data: {
         codigoCampo: dto.codigo_campo,
         nombre: dto.nombre,
@@ -20,6 +19,13 @@ export class CamposService {
         poligonoGps: dto.poligono_gps ?? [],
       },
     });
+
+    this.logger.info('Campo creado', {
+      campoId: campo.id,
+      codigoCampo: campo.codigoCampo,
+    });
+
+    return campo;
   }
 
   async findAll(productorId?: string) {

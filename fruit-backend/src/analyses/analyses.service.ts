@@ -13,7 +13,6 @@ import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class AnalysesService {
-  
   constructor(
     private readonly prisma: PrismaService,
     @Inject(STORAGE_PORT)

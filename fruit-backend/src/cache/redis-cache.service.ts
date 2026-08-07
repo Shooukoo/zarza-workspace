@@ -16,7 +16,9 @@ export class RedisCacheService implements OnModuleDestroy {
   constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {
     // Sin listener, un error de conexión emitido por ioredis tumba el proceso.
     this.redis.on('error', (err: Error) => {
-      this.logger.warn(`Redis no disponible: ${err.message}`);
+      this.logger.warn('Redis no disponible', {
+        error: err.message,
+      });
     });
   }
 
@@ -29,9 +31,10 @@ export class RedisCacheService implements OnModuleDestroy {
       const cached = await this.redis.get(key);
       if (cached !== null) return JSON.parse(cached) as T;
     } catch (err) {
-      this.logger.warn(
-        `Cache GET falló para "${key}", se calcula desde DB: ${(err as Error).message}`,
-      );
+      this.logger.warn('Cache GET falló, se calculará desde la base de datos', {
+        key,
+        error: (err as Error).message,
+      });
       return compute();
     }
 
@@ -39,9 +42,10 @@ export class RedisCacheService implements OnModuleDestroy {
     try {
       await this.redis.set(key, JSON.stringify(value), 'EX', ttlSeconds);
     } catch (err) {
-      this.logger.warn(
-        `Cache SET falló para "${key}": ${(err as Error).message}`,
-      );
+      this.logger.warn('Cache SET falló', {
+        key,
+        error: (err as Error).message,
+      });
     }
     return value;
   }
@@ -61,9 +65,10 @@ export class RedisCacheService implements OnModuleDestroy {
         if (keys.length > 0) await this.redis.del(...keys);
       } while (cursor !== '0');
     } catch (err) {
-      this.logger.warn(
-        `Invalidación de cache falló para prefijo "${prefix}": ${(err as Error).message}`,
-      );
+      this.logger.warn('Invalidación de cache falló', {
+        prefix,
+        error: (err as Error).message,
+      });
     }
   }
 

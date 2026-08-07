@@ -26,7 +26,6 @@ import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class SolicitudesService {
-  
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
@@ -37,11 +36,6 @@ export class SolicitudesService {
   ) {}
 
   async create(creadoPorId: string, dto: CreateSolicitudDto) {
-    this.logger.info('Solicitud creada para campo', {
-      campoId: dto.campo_id,
-      assignedTo: dto.asignado_a,
-    });
-
     const solicitud = await this.prisma.solicitudMuestreo.create({
       data: {
         creadoPorId,
@@ -51,6 +45,12 @@ export class SolicitudesService {
         fechaLimite: dto.fecha_limite ? new Date(dto.fecha_limite) : null,
         estado: 'PENDIENTE',
       },
+    });
+
+    this.logger.info('Solicitud creada para campo', {
+      solicitudId: solicitud.id,
+      campoId: solicitud.campoId,
+      assignedTo: solicitud.asignadoAId,
     });
 
     const wsPayload = {
@@ -239,7 +239,9 @@ export class SolicitudesService {
 
     const fcmToken = await this.userRepository.findFcmTokenById(userId);
     if (!fcmToken) {
-      this.logger.warn(`[FCM] Monitor ${userId} sin token registrado`);
+      this.logger.warn('Monitor sin token FCM registrado', {
+        userId,
+      });
       return;
     }
 

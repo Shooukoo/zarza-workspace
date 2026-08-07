@@ -9,7 +9,6 @@ export class AppLogger {
   info(message: string, extra: object = {}) {
     this.logger.info(
       {
-        service: 'fruit-backend',
         traceId: traceContext.getStore()?.traceId,
         ...extra,
       },
@@ -20,7 +19,6 @@ export class AppLogger {
   warn(message: string, extra: object = {}) {
     this.logger.warn(
       {
-        service: 'fruit-backend',
         traceId: traceContext.getStore()?.traceId,
         ...extra,
       },
@@ -31,7 +29,6 @@ export class AppLogger {
   error(message: string, extra: object = {}) {
     this.logger.error(
       {
-        service: 'fruit-backend',
         traceId: traceContext.getStore()?.traceId,
         ...extra,
       },
@@ -42,7 +39,6 @@ export class AppLogger {
   debug(message: string, extra: object = {}) {
     this.logger.debug(
       {
-        service: 'fruit-backend',
         traceId: traceContext.getStore()?.traceId,
         ...extra,
       },

@@ -18,6 +18,7 @@ interface EnvVars {
   FIREBASE_SERVICE_ACCOUNT_B64: string;
   INTERNAL_NOTIFY_TOKEN: string;
   FCM_TOKEN_ENCRYPTION_KEY: string;
+  LOG_LEVEL: string;
 }
 
 const envSchema = joi
@@ -44,6 +45,10 @@ const envSchema = joi
         }
         return value;
       }, 'clave base64 de 32 bytes'),
+    LOG_LEVEL: joi
+      .string()
+      .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
+      .default('info'),
   })
   .unknown(true);
 
@@ -70,4 +75,5 @@ export const envs = {
   firebaseServiceAccountB64: envVars.FIREBASE_SERVICE_ACCOUNT_B64,
   internalNotifyToken: envVars.INTERNAL_NOTIFY_TOKEN,
   fcmTokenEncryptionKey: envVars.FCM_TOKEN_ENCRYPTION_KEY,
+  logLevel: envVars.LOG_LEVEL,
 };

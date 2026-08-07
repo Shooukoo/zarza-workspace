@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Logger } from '@nestjs/common';
 import { PrismaService } from '@rubus/database';
 import { SolicitudesService } from './solicitudes.service';
-import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { FcmService, FcmTokenInvalidError } from '../fcm/fcm.service';
 import { I_USER_REPOSITORY } from '../auth/ports/user-repository.port';
 import { CamposService } from '../campos/campos.service';
+import { AppLogger } from '../common/logging/app.logger';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const mockPrisma = {
   solicitudMuestreo: {
@@ -20,8 +20,6 @@ const mockPrisma = {
   },
 };
 
-const mockGateway = { emitToUser: jest.fn() };
-
 const mockFcmService = {
   sendToDevice: jest.fn(),
 };
@@ -35,15 +33,33 @@ const mockCamposService = {
   findById: jest.fn(),
 };
 
+const mockNotificationsService = {
+  create: jest.fn(),
+};
+
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
+
 async function buildModule(): Promise<SolicitudesService> {
   const module: TestingModule = await Test.createTestingModule({
     providers: [
       SolicitudesService,
+
       { provide: PrismaService, useValue: mockPrisma },
-      { provide: NotificationsGateway, useValue: mockGateway },
+
+      { provide: NotificationsService, useValue: mockNotificationsService },
+
       { provide: FcmService, useValue: mockFcmService },
+
       { provide: I_USER_REPOSITORY, useValue: mockUserRepo },
+
       { provide: CamposService, useValue: mockCamposService },
+
+      { provide: AppLogger, useValue: mockLogger },
     ],
   }).compile();
   return module.get(SolicitudesService);
@@ -70,9 +86,20 @@ describe('SolicitudesService — FCM integration', () => {
     };
     const fakeSolicitud = {
       id: SOL_ID,
-      campoId: CAMPO_ID,
       asignadoAId: MONITOR_ID,
-      estado: 'PENDIENTE',
+      campoId: CAMPO_ID,
+      estado: 'CANCELADO',
+
+      campo: {
+        id: CAMPO_ID,
+        nombre: 'Finca El Rosal',
+        codigoCampo: 'CAM-001',
+      },
+
+      asignadoA: {
+        id: MONITOR_ID,
+        email: 'monitor@test.com',
+      },
     };
 
     beforeEach(() => {
@@ -99,13 +126,15 @@ describe('SolicitudesService — FCM integration', () => {
 
     it('logs warning and does NOT send push when user has no fcm_token', async () => {
       mockUserRepo.findFcmTokenById.mockResolvedValue(null);
-      const warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation();
 
       await service.create('admin-id', dto);
 
       expect(mockFcmService.sendToDevice).not.toHaveBeenCalled();
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('sin token registrado'),
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'Monitor sin token FCM registrado',
+        expect.objectContaining({
+          userId: expect.any(String),
+        }),
       );
     });
 
@@ -140,10 +169,14 @@ describe('SolicitudesService — FCM integration', () => {
 
       await service.create('admin-id', dto);
 
-      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+      expect(mockNotificationsService.create).toHaveBeenCalledWith(
         MONITOR_ID,
         'nueva_solicitud',
-        expect.objectContaining({ solicitud_id: SOL_ID }),
+        expect.any(String),
+        expect.any(String),
+        expect.objectContaining({
+          solicitud_id: SOL_ID,
+        }),
       );
     });
 
@@ -156,10 +189,14 @@ describe('SolicitudesService — FCM integration', () => {
 
       await service.create('admin-id', dto);
 
-      expect(mockGateway.emitToUser).toHaveBeenCalledWith(
+      expect(mockNotificationsService.create).toHaveBeenCalledWith(
         AGRONOMO_ID,
         'nueva_solicitud',
-        expect.objectContaining({ solicitud_id: SOL_ID }),
+        expect.any(String),
+        expect.any(String),
+        expect.objectContaining({
+          solicitud_id: SOL_ID,
+        }),
       );
     });
   });
@@ -170,6 +207,17 @@ describe('SolicitudesService — FCM integration', () => {
       asignadoAId: MONITOR_ID,
       campoId: CAMPO_ID,
       estado: 'CANCELADO',
+
+      campo: {
+        id: CAMPO_ID,
+        nombre: 'Finca El Rosal',
+        codigoCampo: 'CAM-001',
+      },
+
+      asignadoA: {
+        id: MONITOR_ID,
+        email: 'monitor@test.com',
+      },
     };
 
     beforeEach(() => {

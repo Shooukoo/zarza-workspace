@@ -18,4 +18,3 @@ export type {
 } from './analysis-repository.port';
 
 export type { IInferencePort } from './inference.port';
-

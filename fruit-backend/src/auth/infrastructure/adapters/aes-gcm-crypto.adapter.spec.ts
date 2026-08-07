@@ -53,7 +53,8 @@ describe('AesGcmCrypto', () => {
   });
 
   it('el constructor lanza si la clave no decodifica a 32 bytes', () => {
-    process.env.FCM_TOKEN_ENCRYPTION_KEY = Buffer.from('muy-corta').toString('base64');
+    process.env.FCM_TOKEN_ENCRYPTION_KEY =
+      Buffer.from('muy-corta').toString('base64');
 
     expect(() => new AesGcmCrypto()).toThrow('32 bytes');
   });

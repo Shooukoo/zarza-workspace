@@ -6,11 +6,9 @@ import { traceContext } from './trace-context';
 export class AppLogger {
   constructor(private readonly logger: PinoLogger) {}
 
-  info( message: string, extra: Record<string, unknown> = {}) {
+  info(message: string, extra: Record<string, unknown> = {}) {
     this.logger.info(
       {
-        
-        service:'fruit-ms',
         traceId: traceContext.getStore()?.traceId,
         ...extra,
       },
@@ -18,10 +16,9 @@ export class AppLogger {
     );
   }
 
-  warn( message: string, extra: Record<string, unknown> = {}) {
+  warn(message: string, extra: Record<string, unknown> = {}) {
     this.logger.warn(
       {
-        service:'fruit-ms',
         traceId: traceContext.getStore()?.traceId,
         ...extra,
       },
@@ -32,7 +29,6 @@ export class AppLogger {
   error(message: string, extra: Record<string, unknown> = {}) {
     this.logger.error(
       {
-        service:'fruit-ms',
         traceId: traceContext.getStore()?.traceId,
         ...extra,
       },
@@ -40,10 +36,9 @@ export class AppLogger {
     );
   }
 
-  debug( message: string, extra: Record<string, unknown> = {}) {
+  debug(message: string, extra: Record<string, unknown> = {}) {
     this.logger.debug(
       {
-        service:'fruit-ms',
         traceId: traceContext.getStore()?.traceId,
         ...extra,
       },

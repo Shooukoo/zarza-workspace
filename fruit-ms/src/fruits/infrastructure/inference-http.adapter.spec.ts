@@ -10,6 +10,13 @@ jest.mock('../../config/envs', () => ({
   },
 }));
 
+const logger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
+
 describe('InferenceHttpAdapter', () => {
   let httpService: { post: jest.Mock };
   let adapter: InferenceHttpAdapter;
@@ -32,7 +39,8 @@ describe('InferenceHttpAdapter', () => {
 
   beforeEach(() => {
     httpService = { post: jest.fn() };
-    adapter = new InferenceHttpAdapter(httpService as any);
+
+    adapter = new InferenceHttpAdapter(httpService as any, logger as any);
   });
 
   it('envía el header x-inference-token en la llamada a /analyze', async () => {
@@ -45,7 +53,10 @@ describe('InferenceHttpAdapter', () => {
       { storage_key: 'storage-key-1', image_id: 'img-1' },
       {
         timeout: 60_000,
-        headers: { 'x-inference-token': 'test-inference-token' },
+        headers: {
+          'x-inference-token': 'test-inference-token',
+          'x-trace-id': expect.any(String),
+        },
       },
     );
   });

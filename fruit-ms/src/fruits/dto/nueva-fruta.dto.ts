@@ -65,5 +65,3 @@ export class NuevaFrutaDto {
   @IsString()
   offlineSyncId?: string | null;
 }
-
-
