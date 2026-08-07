@@ -91,6 +91,7 @@ import { AdminDashboardService } from './admin-dashboard.service';
  * Todos requieren JWT válido + rol ADMIN.
  *
  * GET  /api/v1/admin/users              → Lista paginada de usuarios
+ * GET  /api/v1/admin/users/monitores    → Lista mínima de MONITORES (ADMIN + AGRONOMO)
  * PATCH /api/v1/admin/users/:id/role    → Cambia el rol de un usuario
  * GET  /api/v1/admin/stats              → Estadísticas globales del sistema
  * GET  /api/v1/admin/dashboard/yield    → Proyección de Cosecha
@@ -109,6 +110,18 @@ export class AdminController {
   @Get('users')
   findAllUsers(@Query() query: ListUsersQueryDto) {
     return this.adminService.findAllUsers(query.page, query.limit, query.rol);
+  }
+
+  /**
+   * Lista de solo lectura sin datos sensibles, para poblar selectores
+   * (p.ej. "Asignar a" en Nueva Solicitud). AGRONOMO también puede crear
+   * solicitudes y necesita ver los monitores disponibles, pero el resto
+   * de /admin/users sigue siendo exclusivo de ADMIN.
+   */
+  @Get('users/monitores')
+  @Roles(Role.ADMIN, Role.AGRONOMO)
+  findMonitores() {
+    return this.adminService.findMonitores();
   }
 
   @Post('users')
