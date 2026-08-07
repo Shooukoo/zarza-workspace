@@ -12,6 +12,7 @@ describe('AdminService — cache de stats', () => {
       create: jest.Mock;
       delete: jest.Mock;
       findUnique: jest.Mock;
+      findMany: jest.Mock;
     };
   };
   let cache: { getOrSet: jest.Mock; invalidatePrefix: jest.Mock };
@@ -26,6 +27,7 @@ describe('AdminService — cache de stats', () => {
         create: jest.fn(),
         delete: jest.fn().mockResolvedValue({}),
         findUnique: jest.fn().mockResolvedValue(null),
+        findMany: jest.fn(),
       },
     };
     cache = {
@@ -61,6 +63,27 @@ describe('AdminService — cache de stats', () => {
       );
       expect(result.totalUsers).toBe(5);
       expect(result.usersByRole.PRODUCTOR).toBe(4);
+    });
+  });
+
+  describe('findMonitores()', () => {
+    it('consulta usuarios con role MONITOR y devuelve solo campos mínimos', async () => {
+      prisma.user.findMany.mockResolvedValue([
+        { id: 'm1', email: 'monitor1@b.c', firstName: 'Ana', lastName: 'Ruiz' },
+        { id: 'm2', email: 'monitor2@b.c', firstName: null, lastName: null },
+      ]);
+
+      const result = await service.findMonitores();
+
+      expect(prisma.user.findMany).toHaveBeenCalledWith({
+        where: { role: 'MONITOR' },
+        select: { id: true, email: true, firstName: true, lastName: true },
+        orderBy: { email: 'asc' },
+      });
+      expect(result).toEqual([
+        { id: 'm1', email: 'monitor1@b.c', firstName: 'Ana', lastName: 'Ruiz' },
+        { id: 'm2', email: 'monitor2@b.c', firstName: null, lastName: null },
+      ]);
     });
   });
 

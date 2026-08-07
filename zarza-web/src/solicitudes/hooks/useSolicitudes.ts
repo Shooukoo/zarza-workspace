@@ -85,11 +85,11 @@ export function useCamposOptions() {
 
 export function useMonitores(enabled = false) {
   return useQuery<MonitorOption[]>({
-    queryKey: ['admin', 'users', 'MONITOR'],
+    queryKey: ['admin', 'users', 'monitores'],
     queryFn: () =>
       apiClient
-        .get<{ data: MonitorOption[] }>('/admin/users?rol=MONITOR&limit=200')
-        .then((r) => r.data.data),
+        .get<MonitorOption[]>('/admin/users/monitores')
+        .then((r) => r.data),
     enabled,
   });
 }

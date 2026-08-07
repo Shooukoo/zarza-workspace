@@ -32,6 +32,13 @@ export interface AdminStats {
   usersByRole: Record<Role, number>;
 }
 
+export interface MonitorSummary {
+  id: string;
+  email: string;
+  firstName?: string | null;
+  lastName?: string | null;
+}
+
 @Injectable()
 export class AdminService {
   constructor(
@@ -87,6 +94,19 @@ export class AdminService {
     }));
 
     return buildPaginated(data, total, page, limit);
+  }
+
+  /**
+   * Lista mínima de usuarios con rol MONITOR, sin datos sensibles.
+   * Pensado para selectores (p.ej. "Asignar a" en Nueva Solicitud),
+   * accesible a ADMIN y AGRONOMO — a diferencia de findAllUsers().
+   */
+  async findMonitores(): Promise<MonitorSummary[]> {
+    return this.prisma.user.findMany({
+      where: { role: PrismaRole.MONITOR },
+      select: { id: true, email: true, firstName: true, lastName: true },
+      orderBy: { email: 'asc' },
+    });
   }
 
   async updateUserRole(userId: string, role: Role): Promise<UserSummary> {
