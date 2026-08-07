@@ -8,9 +8,10 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Inject, Logger } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { Server, WebSocket } from 'ws';
 import { I_TOKEN_PORT, type ITokenPort } from '../auth/ports/token.port';
+import { AppLogger } from '../common/logging/app.logger';
 
 @WebSocketGateway({ path: '/ws' })
 export class NotificationsGateway
@@ -18,8 +19,6 @@ export class NotificationsGateway
 {
   @WebSocketServer()
   server: Server;
-
-  private readonly logger = new Logger(NotificationsGateway.name);
 
   // socket → userId autenticado
   private readonly authenticated = new Map<WebSocket, string>();
@@ -30,10 +29,11 @@ export class NotificationsGateway
 
   constructor(
     @Inject(I_TOKEN_PORT) private readonly tokenService: ITokenPort,
+    private readonly logger: AppLogger,
   ) {}
 
   handleConnection(client: WebSocket) {
-    this.logger.log('Cliente WebSocket conectado, esperando auth...');
+    this.logger.info('Cliente WebSocket conectado, esperando auth...');
     const timeout = setTimeout(() => {
       this.logger.warn('Timeout de auth — cerrando socket');
       client.close(4001, 'Auth timeout');
@@ -56,9 +56,9 @@ export class NotificationsGateway
         if (room.size === 0) this.rooms.delete(userId);
       }
     }
-    this.logger.log(
-      `Cliente desconectado${userId ? ` (userId=${userId})` : ' (no autenticado)'}`,
-    );
+    this.logger.info('Cliente WebSocket desconectado', {
+      userId: userId ?? null,
+    });
   }
 
   @SubscribeMessage('auth')
@@ -78,7 +78,9 @@ export class NotificationsGateway
       if (!this.rooms.has(sub)) this.rooms.set(sub, new Set());
       this.rooms.get(sub)!.add(client);
       client.send(JSON.stringify({ event: 'auth_ok' }));
-      this.logger.log(`Socket autenticado: userId=${sub}`);
+      this.logger.info('Cliente WebSocket autenticado', {
+        userId: sub,
+      });
     } catch {
       this.logger.warn('Token inválido — cerrando socket');
       client.close(4001, 'Invalid token');
@@ -99,9 +101,10 @@ export class NotificationsGateway
         try {
           client.send(payload);
         } catch (err) {
-          this.logger.warn(
-            `Error enviando a userId=${userId}: ${(err as Error).message}`,
-          );
+          this.logger.warn('Error al enviar notificación WebSocket', {
+            userId,
+            error: (err as Error).message,
+          });
         }
       }
     }

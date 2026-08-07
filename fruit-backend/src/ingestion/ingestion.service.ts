@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { STORAGE_PORT } from '../storage/ports';
 import type { IStoragePort } from '../storage/ports';
 
@@ -6,14 +6,13 @@ import { MagicNumberValidator } from './validators/magic-number.validator';
 import { Readable } from 'stream';
 import { UploadResultDto } from './dto/upload-result.dto';
 import type { ProcessImageInput } from './dto/parsed-multipart.dto';
-
+import { AppLogger } from '../common/logging/app.logger';
 @Injectable()
 export class IngestionService {
-  private readonly logger = new Logger(IngestionService.name);
-
   constructor(
     @Inject(STORAGE_PORT) private readonly storage: IStoragePort,
     private readonly validator: MagicNumberValidator,
+    private readonly logger: AppLogger,
   ) {}
 
   async processImageUpload(input: ProcessImageInput): Promise<UploadResultDto> {
@@ -30,10 +29,15 @@ export class IngestionService {
       userId,
       userEmail,
     } = input;
-    this.logger.log(`Processing upload: ${filename}`);
+    this.logger.info('Procesando carga de imagen', {
+      imageId: filename,
+    });
 
     const buffer = await this.validator.readAndValidate(file, mimetype);
-    this.logger.log(`File validated: ${filename} (${buffer.length} bytes)`);
+    this.logger.info('Archivo validado', {
+      imageId: filename,
+      sizeBytes: buffer.length,
+    });
 
     const storageKey = await this.storage.uploadBuffer(
       buffer,
@@ -63,9 +67,14 @@ export class IngestionService {
       userEmail,
     };
 
-    this.logger.log(
-      `Upload complete: ${filename} | ${buffer.length} bytes | capturedAt=${result.metadata.capturedAt} | campo=${campoId ?? 'N/A'}`,
-    );
+    this.logger.info('Carga de imagen finalizada', {
+      imageId: filename,
+      sizeBytes: buffer.length,
+      capturedAt: result.metadata.capturedAt,
+      campoId: campoId ?? null,
+      storageKey,
+      userId,
+    });
 
     return result;
   }

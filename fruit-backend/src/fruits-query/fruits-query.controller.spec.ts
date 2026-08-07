@@ -6,9 +6,17 @@ import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard'
 import { I_USER_REPOSITORY } from '../auth/ports/user-repository.port';
 import { Role } from '../auth/domain/enums/role.enum';
 import { GetFruitsQueryDto } from './dto/get-fruits-query.dto';
+import { AppLogger } from '../common/logging/app.logger';
 
 const query = (page = 1, limit = 20): GetFruitsQueryDto =>
   Object.assign(new GetFruitsQueryDto(), { page, limit });
+
+const logger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
 
 describe('FruitsQueryController — scope enforcement', () => {
   let controller: FruitsQueryController;
@@ -24,6 +32,7 @@ describe('FruitsQueryController — scope enforcement', () => {
       providers: [
         { provide: FruitsQueryService, useValue: service },
         { provide: I_USER_REPOSITORY, useValue: userRepo },
+        { provide: AppLogger, useValue: logger },
       ],
     })
       .overrideGuard(JwtAuthGuard)

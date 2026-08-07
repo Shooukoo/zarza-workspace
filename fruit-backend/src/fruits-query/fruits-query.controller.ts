@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Logger,
   Param,
   Query,
   UseGuards,
@@ -19,24 +18,26 @@ import {
 import { type JwtPayload } from '../auth/domain/types/jwt-payload.type';
 import { type UserScope } from '../auth/domain/types/user-scope.type';
 import { Role } from '../auth/domain/enums/role.enum';
+import { AppLogger } from '../common/logging/app.logger';
 
 @Controller('fruits')
 @UseGuards(JwtAuthGuard)
 export class FruitsQueryController {
-  private readonly logger = new Logger(FruitsQueryController.name);
-
   constructor(
     private readonly fruitsQueryService: FruitsQueryService,
     @Inject(I_USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
+    private readonly logger: AppLogger,
   ) {}
 
   @Get()
   async findAll(@Req() req: any, @Query() query: GetFruitsQueryDto) {
     const scope = await this.buildScope(req.user);
-    this.logger.debug(
-      `GET /fruits page=${query.page} limit=${query.limit} role=${scope.role}`,
-    );
+    this.logger.debug('GET /fruits', {
+      page: query.page,
+      limit: query.limit,
+      role: scope.role,
+    });
     return this.fruitsQueryService.findAll(
       {
         page: query.page,

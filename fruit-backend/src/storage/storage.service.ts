@@ -1,17 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { envs } from '../config/envs';
 import type { IStoragePort } from './ports';
+import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class StorageService implements IStoragePort {
   private s3Client: S3Client;
   private bucketName: string;
-  private readonly logger = new Logger(StorageService.name);
 
-  constructor() {
+  constructor(private readonly logger: AppLogger) {
     this.bucketName = envs.r2BucketName;
     this.s3Client = new S3Client({
       region: 'us-east-1',
@@ -42,12 +42,20 @@ export class StorageService implements IStoragePort {
           ContentLength: buffer.length,
         },
       });
-      this.logger.log(`Starting upload for ${key} (${buffer.length} bytes)`);
+      this.logger.info('Iniciando carga a almacenamiento', {
+        storageKey: key,
+        sizeBytes: buffer.length,
+      });
       await upload.done();
-      this.logger.log(`Upload completed for ${key}`);
+      this.logger.info('Archivo almacenado', {
+        storageKey: key,
+      });
       return key;
     } catch (error) {
-      this.logger.error(`Upload failed for ${key}`, error);
+      this.logger.error('Error al cargar archivo', {
+        storageKey: key,
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }
@@ -60,7 +68,10 @@ export class StorageService implements IStoragePort {
       });
       return await getSignedUrl(this.s3Client, command, { expiresIn });
     } catch (error) {
-      this.logger.error(`Failed to generate presigned URL for ${key}`, error);
+      this.logger.error('Error al generar URL prefirmada', {
+        storageKey: key,
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw error;
     }
   }

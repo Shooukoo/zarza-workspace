@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 # INFERENCE_AUTH_TOKEN a nivel de módulo (fail-fast).
 load_dotenv()
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from ultralytics import YOLO
@@ -33,6 +33,8 @@ from infrastructure.yolo_client import run_inference, bytes_to_bgr
 from infrastructure.image_preprocessor import preprocess
 from domain.analysis import build_report
 
+from infrastructure.logger import AppLogger
+
 MODEL_PATH          = os.getenv("MODEL_PATH", "model.pt")
 R2_BUCKET           = os.getenv("R2_BUCKET_NAME", "")
 CONF_THRESHOLD      = float(os.getenv("CONF_THRESHOLD", "0.25"))
@@ -40,19 +42,24 @@ PREPROCESSING_DEBUG = os.getenv("PREPROCESSING_DEBUG", "false").lower() == "true
 MAX_IMAGE_SIZE_BYTES = int(os.getenv("MAX_IMAGE_SIZE_MB", "5")) * 1_000_000
 
 state: dict = {"model": None, "s3": None}
-
+startup_logger = AppLogger()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    
     """Carga el modelo YOLO y el cliente R2 una sola vez al arrancar."""
-    print(f"[startup] Cargando modelo desde: {MODEL_PATH}")
+    startup_logger.info(
+        "Cargando modelo YOLO",
+        modelPath=MODEL_PATH,
+    )
+
     state["model"] = YOLO(MODEL_PATH)
-    print("[startup] Modelo cargado correctamente.")
+    startup_logger.info("Modelo YOLO cargado")
 
     state["s3"] = create_r2_client()
-    print("[startup] Cliente R2 listo.")
+    startup_logger.info("Cliente R2 inicializado")
     yield
-    print("[shutdown] Servicio detenido.")
+    startup_logger.info("Servicio detenido")
 
 
 app = FastAPI(title="fruit-inference", lifespan=lifespan)
@@ -74,12 +81,21 @@ def health():
 
 
 @app.post("/analyze", dependencies=[Depends(verify_inference_token)])
-def analyze(req: AnalyzeRequest):
+def analyze(request: Request, req: AnalyzeRequest):
+
+    trace_id = request.headers.get("x-trace-id")
+    logger = AppLogger(trace_id)
+    
+    
     if state["model"] is None:
         raise HTTPException(status_code=503, detail="Modelo aún no está cargado.")
 
     image_id = req.image_id or req.storage_key
-
+    logger.info(
+            "Solicitud de inferencia recibida",
+            imageId=image_id,
+            storageKey=req.storage_key,
+        )
     # 1. Verificar tamaño antes de descargar
     check_object_size(state["s3"], R2_BUCKET, req.storage_key, MAX_IMAGE_SIZE_BYTES)
 
@@ -97,7 +113,10 @@ def analyze(req: AnalyzeRequest):
         else:
             bgr_preprocessed = preprocess(bgr_img)
     except Exception as e:
-        print(f"[preprocess] warning: preprocesado falló, usando imagen original. {e}")
+        logger.warn(
+            "Preprocesamiento falló, usando imagen original",
+            error=str(e),
+        )
         bgr_preprocessed = bgr_img
 
     # 5. Inferencia YOLO
@@ -108,5 +127,11 @@ def analyze(req: AnalyzeRequest):
 
     if debug_meta is not None:
         report["debug_preprocessing"] = debug_meta
+
+    logger.info(
+        "Inferencia completada",
+        imageId=image_id,
+        detections=len(detections),
+    )
 
     return JSONResponse(content=report)

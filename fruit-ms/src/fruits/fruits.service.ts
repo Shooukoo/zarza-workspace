@@ -1,27 +1,30 @@
-import { Injectable, Logger, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { NuevaFrutaDto } from './dto/nueva-fruta.dto';
 import { ANALYSIS_REPOSITORY, I_INFERENCE_PORT } from './ports';
 import type { IAnalysisRepository } from './ports';
 import type { IInferencePort } from './ports/inference.port';
 import { envs } from '../config/envs';
+import { AppLogger } from '../common/logging/app.logger';
+import { traceContext } from '../common/logging/trace-context';
 
 @Injectable()
 export class FruitsService {
-  private readonly logger = new Logger(FruitsService.name);
-
   constructor(
     @Inject(I_INFERENCE_PORT)
     private readonly inference: IInferencePort,
     @Inject(ANALYSIS_REPOSITORY)
     private readonly analysisRepo: IAnalysisRepository,
     private readonly http: HttpService,
+    private readonly logger: AppLogger,
   ) {}
 
   async process(data: NuevaFrutaDto): Promise<void> {
-    this.logger.log(
-      `Nueva fruta recibida | id=${data.image_id} | key=${data.storage_key} | user=${data.userId ?? 'anon'}`,
-    );
+    this.logger.info('Nueva fruta recibida', {
+      imageId: data.image_id,
+      storageKey: data.storage_key,
+      userId: data.userId,
+    });
 
     // V2 context: pass metadata from ingestion event to the inference adapter
     const context = {
@@ -42,42 +45,54 @@ export class FruitsService {
         context,
       );
     } catch (err) {
-      this.logger.error(
-        `Error al procesar inferencia: ${(err as Error).message}`,
-      );
+      this.logger.error('Error al procesar inferencia', {
+        imageId: data.image_id,
+        storageKey: data.storage_key,
+        error: (err as Error).message,
+      });
       throw err;
     }
 
     // 2. Loguear resumen usando la entidad de dominio
     const m = analysis.metricas_salud;
-    this.logger.log(
-      `Análisis completado | total=${m.total_elementos_detectados} | sanos=${m.elementos_sanos} | merma=${m.porcentaje_merma_general}%`,
-    );
-    this.logger.log(
-      `Peso sano estimado: ${analysis.proyeccion_financiera.peso_sano_gramos} g`,
-    );
+    this.logger.info('Análisis completado', {
+      imageId: analysis.image_id,
+      totalDetectados: m.total_elementos_detectados,
+      elementosSanos: m.elementos_sanos,
+      porcentajeMerma: m.porcentaje_merma_general,
+    });
+    this.logger.info('Proyección de peso calculada', {
+      imageId: analysis.image_id,
+      pesoSanoGramos: analysis.proyeccion_financiera.peso_sano_gramos,
+    });
 
     for (const etapa of analysis.cronograma_fenologico) {
-      this.logger.log(
-        `  [${etapa.etapa}] ${etapa.cantidad} elemento(s) → cosecha en ${etapa.prediccion.dias_para_cosecha} días`,
-      );
+      this.logger.info('Etapa fenológica calculada', {
+        imageId: analysis.image_id,
+        etapa: etapa.etapa,
+        cantidad: etapa.cantidad,
+        diasParaCosecha: etapa.prediccion.dias_para_cosecha,
+      });
     }
 
     // 3. Persistir usando el repositorio
     let savedId: string | null = null;
     try {
       savedId = await this.analysisRepo.save(analysis);
-      this.logger.log(
-        `Análisis guardado | id=${savedId} | campo=${analysis.campo_id ?? 'N/A'}`,
-      );
+      this.logger.info('Análisis guardado', {
+        analysisId: savedId,
+        campoId: analysis.campo_id,
+      });
     } catch (err) {
-      this.logger.error(
-        `Error al guardar el análisis: ${(err as Error).message}`,
-      );
+      this.logger.error('Error al guardar el análisis', {
+        imageId: analysis.image_id,
+        error: (err as Error).message,
+      });
       throw err;
     }
 
     // 4. Notificar al backend para que haga broadcast por WebSocket
+    const traceId = traceContext.getStore()?.traceId;
     try {
       await this.http.axiosRef.post(
         `${envs.backendUrl}/api/v1/internal/notify`,
@@ -91,7 +106,10 @@ export class FruitsService {
         },
         {
           timeout: 3000,
-          headers: { 'x-internal-token': envs.internalNotifyToken },
+          headers: {
+            'x-internal-token': envs.internalNotifyToken,
+            ...(traceId && { 'x-trace-id': traceId }),
+          },
         },
       );
     } catch {

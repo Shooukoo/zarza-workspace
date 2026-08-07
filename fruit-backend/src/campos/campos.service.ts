@@ -1,16 +1,17 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@rubus/database';
 import { CreateCampoDto } from './dto/create-campo.dto';
+import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class CamposService {
-  private readonly logger = new Logger(CamposService.name);
-
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly logger: AppLogger,
+  ) {}
 
   async create(dto: CreateCampoDto) {
-    this.logger.log(`Creando campo: ${dto.codigo_campo}`);
-    return this.prisma.campo.create({
+    const campo = await this.prisma.campo.create({
       data: {
         codigoCampo: dto.codigo_campo,
         nombre: dto.nombre,
@@ -18,6 +19,13 @@ export class CamposService {
         poligonoGps: dto.poligono_gps ?? [],
       },
     });
+
+    this.logger.info('Campo creado', {
+      campoId: campo.id,
+      codigoCampo: campo.codigoCampo,
+    });
+
+    return campo;
   }
 
   async findAll(productorId?: string) {
@@ -43,6 +51,8 @@ export class CamposService {
     const result = await this.prisma.campo.deleteMany({ where: { id } });
     if (result.count === 0)
       throw new NotFoundException(`Campo con id "${id}" no encontrado`);
-    this.logger.log(`Campo eliminado: ${id}`);
+    this.logger.info('Campo eliminado', {
+      campoId: id,
+    });
   }
 }

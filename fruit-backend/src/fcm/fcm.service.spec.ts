@@ -10,13 +10,21 @@ import {
   FcmTokenInvalidError,
   FcmNotification,
 } from './fcm.service';
+import { AppLogger } from '../common/logging/app.logger';
 
 const VALID_B64 = Buffer.from(
   JSON.stringify({ type: 'service_account' }),
 ).toString('base64');
 
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
+
 function buildService(): FcmService {
-  return new FcmService();
+  return new FcmService(mockLogger as AppLogger);
 }
 
 describe('FcmService', () => {
@@ -56,10 +64,15 @@ describe('FcmService', () => {
     it('calls messaging().send with correct token and notification', async () => {
       mockSend.mockResolvedValue('msg-id');
       await service.sendToDevice('token-abc', notification);
-      expect(mockSend).toHaveBeenCalledWith({
-        token: 'token-abc',
-        notification: { title: 'Test', body: 'Cuerpo' },
-      });
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          token: 'token-abc',
+          data: {
+            title: 'Test',
+            body: 'Cuerpo',
+          },
+        }),
+      );
     });
 
     it('throws FcmTokenInvalidError when Firebase returns registration-token-not-registered', async () => {

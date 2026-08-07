@@ -7,11 +7,12 @@ import {
   deadLetterQueueArguments,
   setupDeadLetterTopology,
 } from './config/rabbitmq-topology';
-
+import { Logger } from 'nestjs-pino';
 async function bootstrap() {
   // App híbrida: consumidor RMQ + listener HTTP mínimo para healthcheck Docker
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
+  app.useLogger(app.get(Logger));
   // La topología DLX debe existir antes de que Nest declare la cola principal
   // con argumentos que apuntan a ella.
   await setupDeadLetterTopology(envs.rabbitmqUrl, envs.rabbitmqQueue);
@@ -46,8 +47,10 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
   await app.listen(envs.healthPort, '0.0.0.0');
-  console.log(`fruit-ms listening on RabbitMQ queue: ${envs.rabbitmqQueue}`);
-  console.log(`fruit-ms health endpoint on port ${envs.healthPort}`);
+  const logger = app.get(Logger);
+  logger.log(`App running on port ${envs.healthPort}`);
+  logger.log(`fruit-ms listening on RabbitMQ queue: ${envs.rabbitmqQueue}`);
+  logger.log(`fruit-ms health endpoint on port ${envs.healthPort}`);
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();

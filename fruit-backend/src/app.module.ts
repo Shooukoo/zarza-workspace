@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { TraceMiddleware } from './common/logging/trace.middleware';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@rubus/database';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -15,10 +16,36 @@ import { AnalysesModule } from './analyses/analyses.module';
 import { FcmModule } from './fcm/fcm.module';
 import { HealthController } from './health/health.controller';
 import { CacheModule } from './cache/cache.module';
+import { LoggerModule } from 'nestjs-pino';
+import { LoggingModule } from './common/logging/logging.module';
+import { envs } from './config/envs';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: envs.logLevel,
+        autoLogging: false,
+        base: {
+          service: 'fruit-backend',
+        },
+        messageKey: 'message',
+
+        timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
+
+        formatters: {
+          level(label) {
+            return { level: label.toUpperCase() };
+          },
+        },
+        serializers: {
+          req: () => undefined,
+          res: () => undefined,
+          err: () => undefined,
+        },
+      },
+    }),
     DatabaseModule,
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([
@@ -35,8 +62,13 @@ import { CacheModule } from './cache/cache.module';
     CamposModule,
     SolicitudesModule,
     AnalysesModule,
+    LoggingModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(TraceMiddleware).forRoutes('{*path}');
+  }
+}

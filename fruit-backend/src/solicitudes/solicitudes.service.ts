@@ -1,6 +1,5 @@
 import {
   Injectable,
-  Logger,
   NotFoundException,
   ForbiddenException,
   Inject,
@@ -23,24 +22,20 @@ import {
   type IUserRepository,
 } from '../auth/ports/user-repository.port';
 import { CamposService } from '../campos/campos.service';
+import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class SolicitudesService {
-  private readonly logger = new Logger(SolicitudesService.name);
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
     private readonly fcmService: FcmService,
     @Inject(I_USER_REPOSITORY) private readonly userRepository: IUserRepository,
     private readonly camposService: CamposService,
+    private readonly logger: AppLogger,
   ) {}
 
   async create(creadoPorId: string, dto: CreateSolicitudDto) {
-    this.logger.log(
-      `Creando solicitud para campo=${dto.campo_id} asignado_a=${dto.asignado_a}`,
-    );
-
     const solicitud = await this.prisma.solicitudMuestreo.create({
       data: {
         creadoPorId,
@@ -50,6 +45,12 @@ export class SolicitudesService {
         fechaLimite: dto.fecha_limite ? new Date(dto.fecha_limite) : null,
         estado: 'PENDIENTE',
       },
+    });
+
+    this.logger.info('Solicitud creada para campo', {
+      solicitudId: solicitud.id,
+      campoId: solicitud.campoId,
+      assignedTo: solicitud.asignadoAId,
     });
 
     const wsPayload = {
@@ -85,9 +86,9 @@ export class SolicitudesService {
         );
       }
     } catch (err) {
-      this.logger.warn(
-        `[Notifications] No se pudo notificar agrónomos: ${(err as Error).message}`,
-      );
+      this.logger.warn('No se pudo notificar a los agrónomos', {
+        error: (err as Error).message,
+      });
     }
 
     await this.sendSolicitudPush(
@@ -186,7 +187,10 @@ export class SolicitudesService {
       },
     });
 
-    this.logger.log(`Solicitud ${id} → estado: ${estado}`);
+    this.logger.info('Estado de solicitud actualizado', {
+      solicitudId: id,
+      estado,
+    });
 
     if (estado === 'CANCELADO' || estado === 'COMPLETADO') {
       const isCancelled = estado === 'CANCELADO';
@@ -227,14 +231,17 @@ export class SolicitudesService {
     fechaLimite: string | Date | null | undefined,
     event: 'created' | 'cancelled' | 'completed',
   ): Promise<void> {
-    this.logger.log(
-      `[FCM] sendSolicitudPush → event=${event} userId=${userId ?? 'none'}`,
-    );
+    this.logger.info('Enviando notificación de solicitud', {
+      event,
+      userId: userId ?? null,
+    });
     if (!userId) return;
 
     const fcmToken = await this.userRepository.findFcmTokenById(userId);
     if (!fcmToken) {
-      this.logger.warn(`[FCM] Monitor ${userId} sin token registrado`);
+      this.logger.warn('Monitor sin token FCM registrado', {
+        userId,
+      });
       return;
     }
 
@@ -276,7 +283,9 @@ export class SolicitudesService {
     } catch (e) {
       if (e instanceof FcmTokenInvalidError) {
         await this.userRepository.clearFcmToken(userId);
-        this.logger.log(`[FCM] Token inválido limpiado para usuario ${userId}`);
+        this.logger.info('Token FCM inválido eliminado', {
+          userId,
+        });
       }
     }
   }

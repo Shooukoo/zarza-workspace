@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import {
   PrismaService,
   Prisma,
@@ -9,15 +9,15 @@ import { ValidateAnalysisDto } from './dto/validate-analysis.dto';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
 import { type UserScope } from '../auth/domain/types/user-scope.type';
 import { Role } from '../auth/domain/enums/role.enum';
+import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class AnalysesService {
-  private readonly logger = new Logger(AnalysesService.name);
-
   constructor(
     private readonly prisma: PrismaService,
     @Inject(STORAGE_PORT)
     private readonly storage: IStoragePort,
+    private readonly logger: AppLogger,
   ) {}
 
   async findAll(
@@ -111,9 +111,11 @@ export class AnalysesService {
       },
     });
 
-    this.logger.log(
-      `Análisis ${id} ${dto.action} por usuario ${corregidoPorId}`,
-    );
+    this.logger.info('Análisis actualizado', {
+      analysisId: id,
+      action: dto.action,
+      userId: corregidoPorId,
+    });
     return updated;
   }
 }

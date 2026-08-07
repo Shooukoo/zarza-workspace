@@ -14,6 +14,7 @@ interface EnvVars {
   HEALTH_PORT: number;
   NUEVA_FRUTA_MAX_ATTEMPTS: number;
   NUEVA_FRUTA_BACKOFF_BASE_MS: number;
+  LOG_LEVEL: string;
 }
 
 const envSchema = joi
@@ -28,6 +29,10 @@ const envSchema = joi
     HEALTH_PORT: joi.number().default(3002),
     NUEVA_FRUTA_MAX_ATTEMPTS: joi.number().integer().min(1).default(3),
     NUEVA_FRUTA_BACKOFF_BASE_MS: joi.number().integer().min(0).default(2000),
+    LOG_LEVEL: joi
+      .string()
+      .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
+      .default('info'),
   })
   .unknown(true);
 
@@ -49,4 +54,5 @@ export const envs = {
   healthPort: envVars.HEALTH_PORT,
   nuevaFrutaMaxAttempts: envVars.NUEVA_FRUTA_MAX_ATTEMPTS,
   nuevaFrutaBackoffBaseMs: envVars.NUEVA_FRUTA_BACKOFF_BASE_MS,
+  logLevel: envVars.LOG_LEVEL,
 };

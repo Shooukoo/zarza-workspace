@@ -5,8 +5,15 @@ import { FcmService } from '../fcm/fcm.service';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import type { IUserRepository } from '../auth/ports/user-repository.port';
 import type { FastifyRequest } from 'fastify';
+import { AppLogger } from '../common/logging/app.logger';
 
 const mockReq = { ip: '127.0.0.1', headers: {} } as FastifyRequest;
+const mockLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
 
 describe('InternalNotifyController — invalidación de cache', () => {
   const TOKEN = 'test-internal-token';
@@ -28,11 +35,12 @@ describe('InternalNotifyController — invalidación de cache', () => {
     notificationsService = { create: jest.fn().mockResolvedValue(undefined) };
     cache = { invalidatePrefix: jest.fn().mockResolvedValue(undefined) };
     controller = new InternalNotifyController(
-      gateway as unknown as NotificationsGateway,
-      fcmService as unknown as FcmService,
-      userRepository as unknown as IUserRepository,
-      notificationsService as unknown as NotificationsService,
-      cache as unknown as RedisCacheService,
+      gateway as NotificationsGateway,
+      fcmService as FcmService,
+      userRepository as IUserRepository,
+      notificationsService as NotificationsService,
+      cache as RedisCacheService,
+      mockLogger as AppLogger,
     );
   });
 

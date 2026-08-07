@@ -1,5 +1,6 @@
-import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import type Redis from 'ioredis';
+import { AppLogger } from '../common/logging/app.logger';
 
 /** Token de inyección del cliente ioredis (permite mockearlo en tests). */
 export const REDIS_CLIENT = Symbol('REDIS_CLIENT');
@@ -11,12 +12,15 @@ export const REDIS_CLIENT = Symbol('REDIS_CLIENT');
  */
 @Injectable()
 export class RedisCacheService implements OnModuleDestroy {
-  private readonly logger = new Logger(RedisCacheService.name);
-
-  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {
+  constructor(
+    @Inject(REDIS_CLIENT) private readonly redis: Redis,
+    private readonly logger: AppLogger,
+  ) {
     // Sin listener, un error de conexión emitido por ioredis tumba el proceso.
     this.redis.on('error', (err: Error) => {
-      this.logger.warn(`Redis no disponible: ${err.message}`);
+      this.logger.warn('Redis no disponible', {
+        error: err.message,
+      });
     });
   }
 
@@ -29,9 +33,10 @@ export class RedisCacheService implements OnModuleDestroy {
       const cached = await this.redis.get(key);
       if (cached !== null) return JSON.parse(cached) as T;
     } catch (err) {
-      this.logger.warn(
-        `Cache GET falló para "${key}", se calcula desde DB: ${(err as Error).message}`,
-      );
+      this.logger.warn('Cache GET falló, se calculará desde la base de datos', {
+        key,
+        error: (err as Error).message,
+      });
       return compute();
     }
 
@@ -39,9 +44,10 @@ export class RedisCacheService implements OnModuleDestroy {
     try {
       await this.redis.set(key, JSON.stringify(value), 'EX', ttlSeconds);
     } catch (err) {
-      this.logger.warn(
-        `Cache SET falló para "${key}": ${(err as Error).message}`,
-      );
+      this.logger.warn('Cache SET falló', {
+        key,
+        error: (err as Error).message,
+      });
     }
     return value;
   }
@@ -61,9 +67,10 @@ export class RedisCacheService implements OnModuleDestroy {
         if (keys.length > 0) await this.redis.del(...keys);
       } while (cursor !== '0');
     } catch (err) {
-      this.logger.warn(
-        `Invalidación de cache falló para prefijo "${prefix}": ${(err as Error).message}`,
-      );
+      this.logger.warn('Invalidación de cache falló', {
+        prefix,
+        error: (err as Error).message,
+      });
     }
   }
 

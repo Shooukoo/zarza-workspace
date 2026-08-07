@@ -1,4 +1,4 @@
-import { Controller, Logger } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import {
   Ctx,
   EventPattern,
@@ -10,52 +10,83 @@ import type { Channel } from 'amqplib';
 import { FruitsService } from './fruits.service';
 import { NuevaFrutaDto } from './dto/nueva-fruta.dto';
 import { envs } from '../config/envs';
-
+import { traceContext } from '../common/logging/trace-context';
+import { randomUUID } from 'crypto';
+import { AppLogger } from '../common/logging/app.logger';
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 @Controller()
 export class FruitsController {
-  private readonly logger = new Logger(FruitsController.name);
-
-  constructor(private readonly fruitsService: FruitsService) {}
+  constructor(
+    private readonly fruitsService: FruitsService,
+    private readonly logger: AppLogger,
+  ) {}
 
   /**
    * Reintenta process() con backoff exponencial. El resultado es siempre
    * un ack o un nack explícito (noAck: false): nack sin requeue enruta el
    * mensaje al DLX fruit.dlx → cola <queue>.dlq.
    */
+
   @EventPattern('nueva_fruta')
   async handleNuevaFruta(
     @Payload() data: NuevaFrutaDto,
     @Ctx() context: RmqContext,
   ) {
-    const channel = context.getChannelRef() as Channel;
+    const traceId =
+      context.getMessage().properties.headers?.['x-trace-id'] ?? randomUUID();
 
-    const originalMsg = context.getMessage() as Parameters<Channel['ack']>[0];
-    const maxAttempts = envs.nuevaFrutaMaxAttempts;
+    return traceContext.run({ traceId }, async () => {
+      this.logger.info('Mensaje recibido desde RabbitMQ', {
+        imageId: data.image_id,
+        storageKey: data.storage_key,
+        userId: data.userId,
+      });
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        await this.fruitsService.process(data);
-        channel.ack(originalMsg);
-        return;
-      } catch (err) {
-        const message = (err as Error).message;
-        if (attempt === maxAttempts) {
-          this.logger.error(
-            `nueva_fruta agotó ${maxAttempts} intentos, enviando a DLQ | id=${data.image_id} | ${message}`,
-          );
-          channel.nack(originalMsg, false, false);
+      const channel = context.getChannelRef() as Channel;
+      const originalMsg = context.getMessage() as Parameters<Channel['ack']>[0];
+
+      const maxAttempts = envs.nuevaFrutaMaxAttempts;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          await this.fruitsService.process(data);
+
+          channel.ack(originalMsg);
           return;
+        } catch (err) {
+          const message = (err as Error).message;
+
+          if (attempt === maxAttempts) {
+            this.logger.error(
+              'nueva_fruta agotó los intentos, enviando a DLQ',
+              {
+                imageId: data.image_id,
+                attempt,
+                maxAttempts,
+                error: message,
+              },
+            );
+
+            channel.nack(originalMsg, false, false);
+            return;
+          }
+
+          const delayMs = envs.nuevaFrutaBackoffBaseMs * 4 ** (attempt - 1);
+
+          this.logger.warn('Reintentando procesamiento de nueva_fruta', {
+            imageId: data.image_id,
+            attempt,
+            maxAttempts,
+            delayMs,
+            error: message,
+          });
+
+          await sleep(delayMs);
         }
-        const delayMs = envs.nuevaFrutaBackoffBaseMs * 4 ** (attempt - 1);
-        this.logger.warn(
-          `nueva_fruta intento ${attempt}/${maxAttempts} falló, reintento en ${delayMs} ms | id=${data.image_id} | ${message}`,
-        );
-        await sleep(delayMs);
       }
-    }
+    });
   }
 
   /** Devuelve todos los análisis almacenados (paginado, 20 por página) */
@@ -75,9 +106,10 @@ export class FruitsController {
     @Ctx() context: RmqContext,
   ) {
     try {
-      this.logger.debug(
-        `get_fruits page=${payload.page ?? 1} limit=${payload.limit ?? 20}`,
-      );
+      this.logger.debug('Consultando análisis', {
+        page: payload.page ?? 1,
+        limit: payload.limit ?? 20,
+      });
       const sDate = payload.startDate ? new Date(payload.startDate) : undefined;
 
       const eDate = payload.endDate ? new Date(payload.endDate) : undefined;
