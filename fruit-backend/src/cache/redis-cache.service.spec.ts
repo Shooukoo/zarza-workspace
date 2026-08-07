@@ -18,13 +18,20 @@ const makeRedis = (): MockRedis => ({
   quit: jest.fn().mockResolvedValue('OK'),
 });
 
+const logger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
+
 describe('RedisCacheService', () => {
   let redis: MockRedis;
   let service: RedisCacheService;
 
   beforeEach(() => {
     redis = makeRedis();
-    service = new RedisCacheService(redis as never);
+    service = new RedisCacheService(redis as never, logger as never);
   });
 
   describe('getOrSet()', () => {

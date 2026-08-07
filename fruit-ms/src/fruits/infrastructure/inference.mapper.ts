@@ -12,7 +12,6 @@ import {
 export class InferenceMapper {
   static toDomain(
     dto: AnalysisResponseDto,
-    imageId: string,
     storageKey: string,
     requester: UserSnapshot,
     context?: {

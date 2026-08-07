@@ -67,7 +67,6 @@ export class InferenceHttpAdapter implements IInferencePort {
     // Transformar DTO de red → entidad de dominio (el mapper vive en infraestructura)
     return InferenceMapper.toDomain(
       inferenceDto,
-      imageId,
       storageKey,
       requester,
       context,
