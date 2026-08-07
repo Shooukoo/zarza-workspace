@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { notification } from 'antd';
 import {
   DashboardOutlined,
@@ -116,10 +116,11 @@ export function AppShell() {
           {visibleItems.map(item => {
             const active = location.pathname === item.key;
             return (
-              <button
+              <Link
                 key={item.key}
-                onClick={() => navigate(item.key)}
+                to={item.key}
                 title={collapsed ? item.label : undefined}
+                aria-current={active ? 'page' : undefined}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center',
                   gap: collapsed ? 0 : 10, justifyContent: collapsed ? 'center' : 'flex-start',
@@ -132,6 +133,7 @@ export function AppShell() {
                   fontSize: 13, fontWeight: active ? 600 : 400,
                   transition: 'all 0.15s ease',
                   position: 'relative',
+                  textDecoration: 'none',
                 }}>
                 {active && !collapsed && (
                   <div style={{
@@ -143,7 +145,7 @@ export function AppShell() {
                   {item.icon}
                 </span>
                 {!collapsed && item.label}
-              </button>
+              </Link>
             );
           })}
         </nav>
