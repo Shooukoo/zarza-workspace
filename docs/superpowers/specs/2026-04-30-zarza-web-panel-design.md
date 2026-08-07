@@ -1,5 +1,7 @@
 # Zarza AI — Panel Web: Diseño
 
+**Plan relacionado:** [[2026-04-30-zarza-web-panel]]
+
 **Fecha:** 2026-04-30
 **Estado:** Aprobado
 

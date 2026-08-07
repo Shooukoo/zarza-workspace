@@ -1,5 +1,7 @@
 # Diseño: Validación de Análisis por Agrónomo
 
+**Plan relacionado:** [[2026-05-05-analisis-validacion]]
+
 **Fecha:** 2026-05-05  
 **Feature:** `PATCH /api/analyses/:id/validate` + pantalla de revisión en zarza-web
 

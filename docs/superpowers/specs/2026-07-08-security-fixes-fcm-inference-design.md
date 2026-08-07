@@ -1,5 +1,7 @@
 # Cierre de hallazgos de seguridad de bajo riesgo (SEG-05, SEG-06, SEG-07) — Diseño
 
+**Plan relacionado:** [[2026-07-08-security-fixes-fcm-inference]]
+
 **Fecha:** 2026-07-08
 **Alcance:** `fruit-backend` (cifrado `fcmToken`), `fruit-inference` (autenticación + validación de tamaño), `fruit-ms` (envío del header de autenticación hacia `fruit-inference`).
 

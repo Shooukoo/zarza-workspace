@@ -1,5 +1,7 @@
 # Flavors de entorno (dev/staging/prod) en zarza_ai — Diseño
 
+**Plan relacionado:** [[2026-07-09-flutter-flavors]]
+
 **Fecha:** 2026-07-09
 **Servicio:** `zarza_ai` (Flutter)
 **Estado:** Aprobado

@@ -1,5 +1,7 @@
 # Diseño: Pestaña de Solicitudes en zarza_ai
 
+**Plan relacionado:** [[2026-05-07-solicitudes-tab]]
+
 **Fecha:** 2026-05-07  
 **Autor:** Santiago Nuñez  
 **Estado:** Aprobado

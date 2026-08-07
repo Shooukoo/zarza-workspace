@@ -1,5 +1,7 @@
 # Análisis Validation Implementation Plan
 
+**Spec relacionado:** [[2026-05-05-analisis-validacion-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Allow users with role AGRONOMO to review AI-generated analyses, correct phenological stage counts and add observations, and save the correction with `fue_corregido: true`.

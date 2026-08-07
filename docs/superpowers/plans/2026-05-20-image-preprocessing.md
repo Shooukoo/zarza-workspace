@@ -1,5 +1,7 @@
 # Image Preprocessing Pipeline Implementation Plan
 
+**Spec relacionado:** [[2026-05-20-image-preprocessing-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Agregar preprocesado Gray World White Balance + CLAHE a `fruit-inference` para mejorar las predicciones del modelo YOLOv8 sin reentrenarlo.

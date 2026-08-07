@@ -7,6 +7,8 @@ metadata:
 
 # WebSocket Auth + Scoping — Diseño Técnico
 
+**Plan relacionado:** [[2026-05-31-websocket-auth-scoping]]
+
 **Fecha:** 2026-05-31
 **Servicios afectados:** `fruit-backend`, `zarza_ai`
 **Auditoría:** SEG-01 (WebSocket sin autenticación) + SEG-02 (broadcast sin scoping)

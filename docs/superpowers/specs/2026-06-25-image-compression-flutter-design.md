@@ -1,5 +1,7 @@
 # Image Compression Before Upload — Design Spec
 
+**Plan relacionado:** [[2026-06-25-image-compression-flutter]]
+
 **Date:** 2026-06-25
 **Scope:** `zarza_ai` (Flutter client only)
 **Goal:** Reduce upload time and Cloudflare R2 storage cost by compressing images on-device before sending them to `fruit-backend`.

@@ -3,6 +3,8 @@
 **Audiencia:** Equipo técnico  
 **Alcance:** Todos los servicios (fruit-backend, fruit-ms, fruit-inference, zarza_ai)
 
+**Ver también:** [[2026-06-24-roadmap-tareas-pendientes]] — roadmap derivado de esta auditoría
+
 ---
 
 ## Tabla de Contenidos
@@ -192,6 +194,8 @@ Estas funcionalidades tienen infraestructura creada pero la implementación est�
 
 **Falta:** Implementar la aplicación web (presumiblemente React/Next.js o Flutter Web) que consuma los mismos endpoints del backend.
 
+**Ver:** [[2026-04-30-zarza-web-panel]]
+
 ---
 
 ### 3.5 Documentación de API (Swagger/OpenAPI)
@@ -230,6 +234,8 @@ Estas funcionalidades tienen infraestructura creada pero la implementación est�
 
 **Falta:** Implementar Flutter flavors (`dev`, `staging`, `prod`) con archivos `.env` separados usando `flutter_dotenv` o la flag `--dart-define`.
 
+**Resuelto en:** [[2026-07-09-flutter-flavors]]
+
 ---
 
 ## 4. Mejoras Sugeridas
@@ -248,6 +254,8 @@ Gráfica de evolución de un campo en el tiempo (etapas fenológicas semana a se
 #### Gestión de Notificaciones In-App
 Actualmente las notificaciones llegan por WebSocket/FCM pero no se persisten. Agregar una campana con historial de notificaciones leídas/no leídas. Requiere tabla `Notification` en BD y endpoint `GET /notifications`.
 
+**Resuelto en:** [[2026-06-25-persistent-notifications-implementation]]
+
 #### Soporte Multi-Campo en Captura
 La pantalla de captura actualmente asocia la imagen a un solo campo. Permitir al usuario ver sus campos asignados en un selector antes de capturar mejoraría el flujo del monitor en campo.
 
@@ -258,8 +266,12 @@ La pantalla de captura actualmente asocia la imagen a un solo campo. Permitir al
 #### Cache de Consultas Frecuentes
 Las métricas de dashboard (`/admin/dashboard/*`) son costosas y se calculan en cada request. Implementar cache en Redis (TTL 5-15 min) reduciría carga en PostgreSQL. La infraestructura de Redis ya está mencionada como opcional en el stack.
 
+**Resuelto en:** [[2026-07-08-redis-dashboard-cache]]
+
 #### Retry con Dead Letter Queue en RabbitMQ
 Si `fruit-ms` falla al procesar un evento `nueva_fruta` (e.g., inferencia timeout), el mensaje se pierde. Configurar una DLQ en RabbitMQ con política de reintento (3x con backoff) y una cola de mensajes muertos para inspección manual.
+
+**Resuelto en:** [[2026-07-09-fruit-ms-retries-dlx]]
 
 #### Paginación Consistente
 `fruit-backend` usa paginación offset (`page`, `limit`) y `fruit-ms` usa cursor-based. Unificar a cursor-based en todos los endpoints de listado para mejor performance en tablas grandes.
@@ -269,6 +281,8 @@ El timeout HTTP de `fruit-ms` a `fruit-inference` está hardcoded en 3s en el no
 
 #### Compresión de Imágenes Antes del Upload
 Comprimir la imagen en Flutter antes de subir (max 1920px, calidad 85%) para reducir tiempo de upload y costo de almacenamiento en R2. El backend ya valida magic numbers, la compresión no rompe eso.
+
+**Resuelto en:** [[2026-06-25-image-compression-flutter]]
 
 ---
 
@@ -322,6 +336,8 @@ Añadir prefijo `/v1/` a todos los endpoints del backend para facilitar migracio
 **Impacto:** Un productor puede ver notificaciones de análisis de otro productor si ambos están conectados simultáneamente.  
 **Recomendación:** Implementar rooms en el gateway (una room por `userId`). Al conectar, unir el socket a `room:${userId}`. Emitir eventos solo a la room correspondiente: `server.to(\`room:${userId}\`).emit(...)`.
 
+**Resuelto en:** [[2026-05-31-websocket-auth-scoping]]
+
 ---
 
 ### SEG-03 — JWT con Expiración Larga sin Refresh Token
@@ -329,6 +345,8 @@ Añadir prefijo `/v1/` a todos los endpoints del backend para facilitar migracio
 **Descripción:** Los JWT tienen expiración de 7 días y no hay mecanismo de refresh token. Un token robado es válido durante toda su vida sin posibilidad de revocación.  
 **Impacto:** Si un token se filtra (device robado, log inadvertido), el atacante tiene acceso válido por hasta 7 días.  
 **Recomendación:** Implementar refresh token con expiración corta (15 min access + 7 días refresh). Alternativamente, añadir una blacklist de tokens revocados en Redis con TTL igual a la expiración del JWT.
+
+**Resuelto en:** [[2026-06-01-refresh-tokens]]
 
 ---
 
@@ -361,6 +379,8 @@ Añadir prefijo `/v1/` a todos los endpoints del backend para facilitar migracio
 **Descripción:** El backend limita el tamaño del archivo en el upload multipart, pero `fruit-inference` descarga la imagen directamente de R2 sin validar el tamaño antes de procesarla con OpenCV/YOLO.  
 **Impacto:** Una imagen muy grande (>50MB si alguien sube directamente a R2) podría causar OOM en el contenedor de inferencia.  
 **Recomendación:** Añadir validación de tamaño del objeto R2 antes de descargarlo (usando `HeadObject` de S3/R2) y rechazar con error 400 si excede el límite (ej. 10MB).
+
+**Resuelto en (SEG-05/06/07):** [[2026-07-08-security-fixes-fcm-inference]]
 
 ---
 

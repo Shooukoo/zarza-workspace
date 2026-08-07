@@ -1,5 +1,7 @@
 # Cache Redis para métricas de admin — Diseño
 
+**Plan relacionado:** [[2026-07-08-redis-dashboard-cache]]
+
 **Fecha:** 2026-07-08
 **Alcance:** `fruit-backend` — endpoints `GET /admin/dashboard/yield`, `GET /admin/dashboard/health`, `GET /admin/dashboard/phenology` y `GET /admin/stats`.
 

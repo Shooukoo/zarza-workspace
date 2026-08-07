@@ -1,5 +1,7 @@
 # Mobile UI Improvements Implementation Plan
 
+**Spec relacionado:** [[2026-05-18-mobile-ui-improvements-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Improve visual clarity and UX on the RubusAI home screen by adding exact dates, sharpening ring progress indicators, and simplifying connection error messages.

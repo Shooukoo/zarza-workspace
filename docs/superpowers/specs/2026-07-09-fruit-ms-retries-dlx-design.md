@@ -1,5 +1,7 @@
 # Reintentos y Dead Letter Exchange para `nueva_fruta` — Diseño
 
+**Plan relacionado:** [[2026-07-09-fruit-ms-retries-dlx]]
+
 **Fecha:** 2026-07-09
 **Alcance:** `fruit-ms` (consumidor RMQ), `fruit-backend` (publicador de ingestion), topología RabbitMQ.
 

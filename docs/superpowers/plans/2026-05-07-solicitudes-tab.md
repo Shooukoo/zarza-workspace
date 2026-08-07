@@ -1,5 +1,7 @@
 # Solicitudes Tab Implementation Plan
 
+**Spec relacionado:** [[2026-05-07-solicitudes-tab-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Agregar una pestaña de Solicitudes a zarza_ai para que monitores y agrónomos vean sus solicitudes de muestreo asignadas y suban el análisis desde ahí.

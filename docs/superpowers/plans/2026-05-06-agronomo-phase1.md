@@ -1,5 +1,7 @@
 # AGRONOMO Phase 1 Implementation Plan
 
+**Spec relacionado:** [[2026-05-06-agronomo-phase1-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Fix el 403 del AGRONOMO, agregar scoping por campos asignados en `/analyses` y `/campos`, extender la validación de análisis con estado enum + acción rápida Validar/Rechazar, columna Agrónomo en CamposPage, y notificación WebSocket al Productor.

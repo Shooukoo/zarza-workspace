@@ -1,5 +1,7 @@
 # Zarza AI Web Panel Implementation Plan
 
+**Spec relacionado:** [[2026-04-30-zarza-web-panel-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build `zarza-web/`, a React + Vite SPA with Ant Design covering Dashboard, Campos, and Solicitudes modules with role-based access for all four system roles, plus 5 targeted changes to `fruit-backend` to support httpOnly cookie auth, a `/auth/me` endpoint, productor-scoped dashboard, and a role filter on the users list.

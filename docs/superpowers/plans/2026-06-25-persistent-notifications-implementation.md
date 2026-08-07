@@ -1,5 +1,7 @@
 # Notificaciones In-App Persistentes — Plan de Implementación
 
+**Spec relacionado:** [[2026-06-25-persistent-notifications-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Agregar persistencia server-side a notificaciones, exponer endpoints REST, mostrar campana con historial en Flutter con badge de no leídas y pantalla de historial completo.

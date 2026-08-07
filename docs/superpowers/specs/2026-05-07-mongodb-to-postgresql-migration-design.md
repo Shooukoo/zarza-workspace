@@ -1,5 +1,7 @@
 # Diseño: Migración MongoDB → PostgreSQL (RubusAI)
 
+**Plan relacionado:** [[2026-05-08-mongodb-to-postgresql-migration]]
+
 **Fecha:** 2026-05-07
 **Autor:** Santiago Nuñez
 **Estado:** Aprobado

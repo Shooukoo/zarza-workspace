@@ -258,7 +258,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\shoxd\\Proyectos\\zarza-workspace\\packages\\database\\generated\\client",
+      "value": "/home/san/Proyectos/zarza-workspace/packages/database/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -267,12 +267,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\shoxd\\Proyectos\\zarza-workspace\\packages\\database\\prisma\\schema.prisma",
+    "sourceFilePath": "/home/san/Proyectos/zarza-workspace/packages/database/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

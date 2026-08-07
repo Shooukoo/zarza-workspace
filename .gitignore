@@ -24,6 +24,9 @@ ehthumbs.db
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# ── Obsidian (vault en docs/) ────────────────────────────────────────────────
+**/.obsidian/
+
 # ── Large binary files (use Git LFS or external storage) ────────────────────
 # NOTA: no incluir *.jpg/*.png/*.gif aquí — bloquea assets pequeños necesarios
 # (íconos de app, logos) que sí deben ir en el repo. Ver commit que agregó esta nota.

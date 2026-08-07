@@ -7,6 +7,8 @@ metadata:
 
 # Refresh Tokens con Rotación — Diseño Técnico
 
+**Plan relacionado:** [[2026-06-01-refresh-tokens]]
+
 **Fecha:** 2026-06-01
 **Servicios afectados:** `fruit-backend`, `zarza_ai`
 **Auditoría:** SEG-03 (JWT con expiración larga sin refresh token)

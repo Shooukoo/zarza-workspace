@@ -1,5 +1,7 @@
 # Reintentos + DLX para `nueva_fruta` — Implementation Plan
 
+**Spec relacionado:** [[2026-07-09-fruit-ms-retries-dlx-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Que un fallo al procesar `nueva_fruta` en `fruit-ms` se reintente con backoff y, si se agota, el mensaje termine en una cola de muertos inspeccionable en vez de perderse.

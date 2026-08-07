@@ -1,5 +1,7 @@
 # Vista por Productor — Privacidad de datos entre productores
 
+**Plan relacionado:** [[2026-05-05-vista-por-productor]]
+
 **Fecha:** 2026-05-05
 **Estado:** Aprobado
 

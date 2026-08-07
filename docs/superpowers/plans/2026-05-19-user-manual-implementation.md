@@ -1,5 +1,7 @@
 # User Manual + Contextual Help Implementation Plan
 
+**Spec relacionado:** [[2026-05-19-user-manual-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build an in-app help system with 6 content sections, role-based filtering, a manual screen accessible from drawer, and contextual tooltips on key UI elements.

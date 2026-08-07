@@ -1,5 +1,7 @@
 # WebSocket Auth + Scoping — Implementation Plan
 
+**Spec relacionado:** [[2026-05-31-websocket-auth-scoping-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Añadir autenticación JWT por primer mensaje y scoping por usuario al gateway WebSocket de fruit-backend, y actualizar zarza_ai para enviar el token al conectar.

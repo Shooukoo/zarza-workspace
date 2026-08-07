@@ -1,5 +1,7 @@
 # Flavors dev/staging/prod en zarza_ai — Implementation Plan
 
+**Spec relacionado:** [[2026-07-09-flutter-flavors-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Flavors nativos de Android (dev/staging/prod) que determinan applicationId, nombre de app y URLs de backend con un solo flag `--flavor`, eliminando los defines manuales `IS_DEV`/host de producción.

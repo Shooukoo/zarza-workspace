@@ -1,5 +1,7 @@
 # Gestión de Usuarios — Implementation Plan
 
+**Spec relacionado:** [[2026-05-05-gestion-usuarios-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Agregar CRUD completo de usuarios en zarza-web (tabla + drawer) con tres nuevos endpoints en fruit-backend.

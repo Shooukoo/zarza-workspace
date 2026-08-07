@@ -1,5 +1,7 @@
 # Refresh Tokens con Rotación — Implementation Plan
 
+**Spec relacionado:** [[2026-06-01-refresh-tokens-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Reemplazar el JWT de 7 días por access tokens de 15 min + refresh tokens rotativos con detección de robo por familia, resolviendo SEG-03.

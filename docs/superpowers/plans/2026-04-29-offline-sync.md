@@ -1,5 +1,7 @@
 # Offline Sync Implementation Plan
 
+**Spec relacionado:** [[2026-04-29-offline-sync-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Implementar sincronización offline en `zarza_ai` Flutter: guardar imágenes + metadatos localmente con Isar cuando no hay red, sincronizarlas al abrir la app, mostrar notificación persistente y pantalla de cola con gestión de items.

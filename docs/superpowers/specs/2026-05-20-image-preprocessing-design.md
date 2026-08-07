@@ -1,5 +1,7 @@
 # Image Preprocessing Pipeline — fruit-inference
 
+**Plan relacionado:** [[2026-05-20-image-preprocessing]]
+
 **Fecha:** 2026-05-20  
 **Servicio afectado:** `fruit-inference`  
 **Objetivo:** Mejorar las predicciones del modelo YOLOv8 (detecciones perdidas, clasificación errónea de etapa fenológica, falsos positivos) aplicando preprocesado de imágenes antes de la inferencia, sin reentrenar el modelo.

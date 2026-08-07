@@ -1,5 +1,7 @@
 # Firebase Push Notifications — Design Spec
 
+**Plan relacionado:** [[2026-05-07-firebase-push-notifications]]
+
 **Date:** 2026-05-07  
 **Author:** Santiago Nuñez  
 **Status:** Approved

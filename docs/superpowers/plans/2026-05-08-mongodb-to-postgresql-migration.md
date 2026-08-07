@@ -1,5 +1,7 @@
 # MongoDB → PostgreSQL Migration (RubusAI) — Implementation Plan
 
+**Spec relacionado:** [[2026-05-07-mongodb-to-postgresql-migration-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace all MongoDB/Mongoose code with PostgreSQL/Prisma across `fruit-backend` and `fruit-ms`, using a shared `@rubus/database` package that owns the Prisma schema and generated client.

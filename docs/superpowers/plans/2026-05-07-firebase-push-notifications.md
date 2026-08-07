@@ -1,5 +1,7 @@
 # Firebase Push Notifications Implementation Plan
 
+**Spec relacionado:** [[2026-05-07-firebase-push-notifications-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Integrar Firebase Admin SDK en `fruit-backend` para enviar push notifications reales al Monitor asignado cuando se crea o actualiza el estado de una `SolicitudMuestreo`.

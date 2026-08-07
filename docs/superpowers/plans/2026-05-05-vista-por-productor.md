@@ -1,5 +1,7 @@
 # Vista por Productor — Privacidad de datos entre productores — Implementation Plan
 
+**Spec relacionado:** [[2026-05-05-vista-por-productor-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Enforce role-based data scoping on `GET /fruits`, `GET /fruits/:id`, `GET /analyses`, and `GET /analyses/:id` so PRODUCTORs see only their own data, MONITORs see only data from their `campos_asignados`, and ADMIN/AGRONOMO retain full access.

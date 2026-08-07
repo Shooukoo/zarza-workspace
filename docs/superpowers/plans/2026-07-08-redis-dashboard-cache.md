@@ -1,5 +1,7 @@
 # Cache Redis para métricas de admin — Implementation Plan
 
+**Spec relacionado:** [[2026-07-08-redis-dashboard-cache-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Cachear en Redis las respuestas de `GET /admin/dashboard/{yield,health,phenology}` y `GET /admin/stats` de `fruit-backend`, con TTL de 300 s e invalidación inmediata por evento.

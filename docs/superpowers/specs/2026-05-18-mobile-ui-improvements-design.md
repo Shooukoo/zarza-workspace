@@ -1,5 +1,7 @@
 # Mobile UI Improvements — RubusAI Flutter
 
+**Plan relacionado:** [[2026-05-18-mobile-ui-improvements]]
+
 **Date**: 2026-05-18  
 **Status**: Design approved  
 **Scope**: Three focused UI/UX improvements to the Home screen

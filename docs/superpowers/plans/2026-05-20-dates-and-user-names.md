@@ -1,5 +1,7 @@
 # Dates Bug Fix + User Names Implementation Plan
 
+**Spec relacionado:** [[2026-05-20-dates-and-user-names-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Fix invisible analysis dates in home cards and add firstName/lastName to users for personalized greetings, stored in PostgreSQL and editable from the app.

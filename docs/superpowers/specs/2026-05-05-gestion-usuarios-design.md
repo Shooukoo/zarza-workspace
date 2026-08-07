@@ -1,5 +1,7 @@
 # Gestión de Usuarios — Design Spec
 
+**Plan relacionado:** [[2026-05-05-gestion-usuarios]]
+
 **Fecha:** 2026-05-05
 **Feature:** Pantalla de administración de usuarios en zarza-web
 **Scope:** Backend (fruit-backend) + Frontend (zarza-web)

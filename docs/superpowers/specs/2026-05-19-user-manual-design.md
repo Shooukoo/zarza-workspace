@@ -1,5 +1,7 @@
 # Manual de Usuario Dinámico + Tooltips Contextuales
 
+**Plan relacionado:** [[2026-05-19-user-manual-implementation]]
+
 **Date:** 2026-05-19  
 **Feature:** In-app user help system  
 **Status:** Design Approved

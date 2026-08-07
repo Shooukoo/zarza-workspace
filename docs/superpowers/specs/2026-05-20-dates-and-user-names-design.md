@@ -1,5 +1,7 @@
 # Design: Fechas en Cards + Nombres de Usuario
 
+**Plan relacionado:** [[2026-05-20-dates-and-user-names]]
+
 **Fecha**: 2026-05-20  
 **Estado**: Aprobado
 

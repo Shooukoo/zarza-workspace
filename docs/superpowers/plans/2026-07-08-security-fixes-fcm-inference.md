@@ -1,5 +1,7 @@
 # Cierre de hallazgos de seguridad SEG-05/06/07 Implementation Plan
 
+**Spec relacionado:** [[2026-07-08-security-fixes-fcm-inference-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Cerrar tres hallazgos de seguridad de bajo riesgo de la auditoría del 2026-05-22: cifrar el `fcmToken` en `fruit-backend` (SEG-05), autenticar las llamadas a `fruit-inference` (SEG-06), y validar el tamaño de la imagen antes de descargarla de R2 en `fruit-inference` (SEG-07).

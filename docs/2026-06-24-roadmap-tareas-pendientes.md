@@ -1,6 +1,6 @@
 # RubusAI — Roadmap de Tareas Pendientes
 **Fecha:** 2026-06-24
-**Origen:** Cruce entre la auditoría técnica del 2026-05-22 (`docs/2026-05-22-audit-estado-proyecto.md`) y la lista de tareas pendientes del equipo.
+**Origen:** Cruce entre la auditoría técnica del 2026-05-22 ([[2026-05-22-audit-estado-proyecto]]) y la lista de tareas pendientes del equipo.
 ---
 
 ## Cómo está organizado
@@ -124,6 +124,8 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 **Esfuerzo estimado:** Medio.
 
+**Plan/spec:** [[2026-07-09-fruit-ms-retries-dlx]]
+
 ---
 
 ### 7. Cronograma de cosecha diferenciado por variedad
@@ -176,6 +178,8 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 **Esfuerzo estimado:** Bajo.
 
+**Plan/spec:** [[2026-07-09-flutter-flavors]]
+
 ---
 
 ### 10. Logging de `/internal/notify` con IP de origen y rotación del secreto — ✅ Completada (2026-07-09)
@@ -215,6 +219,8 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 **Esfuerzo estimado:** Investigación primero (spike); la implementación dependerá de qué opción se elija.
 
+**Spike:** [[2026-08-04-spike-entrega-solicitudes-monitor-offline]]
+
 ---
 
 ### 12. Mejoras de diseño (UX/UI en Flutter)
@@ -250,6 +256,8 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 **Esfuerzo estimado:** Bajo cada uno.
 
+**Plan/spec:** [[2026-07-08-security-fixes-fcm-inference]]
+
 ---
 
 ### 14. Backlog sin trabajar todavía
@@ -258,11 +266,11 @@ Estas ideas están documentadas en la auditoría original pero no han tenido nin
 
 - **Mapa geográfico de análisis** — visualizar en un mapa (Google Maps/Mapbox) la ubicación de los análisis por campo, usando los datos GPS que ya existen.
 - **Exportación de reportes PDF/Excel** — endpoint para que un agrónomo exporte los análisis de un campo.
-- **Cache en Redis para el dashboard** — las métricas de `/admin/dashboard/*` son costosas de calcular en cada request.
+- **Cache en Redis para el dashboard** — las métricas de `/admin/dashboard/*` son costosas de calcular en cada request. Resuelto en [[2026-07-08-redis-dashboard-cache]].
 - **Healthchecks en `docker-compose.yml`** — para que los servicios esperen correctamente a sus dependencias (ej. `fruit-ms` no debe procesar hasta que `fruit-inference` esté listo).
-- **Compresión de imágenes antes del upload** — reducir tiempo de subida y costo de almacenamiento en R2.
+- **Compresión de imágenes antes del upload** — reducir tiempo de subida y costo de almacenamiento en R2. Resuelto en [[2026-06-25-image-compression-flutter]].
 - **Paginación consistente** — unificar `fruit-backend` (offset) y `fruit-ms` (cursor) a un solo esquema.
-- **Notificaciones in-app persistentes** — una campana con historial de notificaciones leídas/no leídas, en vez de solo WebSocket/push efímero.
+- **Notificaciones in-app persistentes** — una campana con historial de notificaciones leídas/no leídas, en vez de solo WebSocket/push efímero. Resuelto en [[2026-06-25-persistent-notifications-implementation]].
 - **Soporte multi-campo en captura** — permitir elegir entre varios campos asignados antes de tomar la foto, en vez de uno fijo.
 
 ---
@@ -271,9 +279,9 @@ Estas ideas están documentadas en la auditoría original pero no han tenido nin
 
 Para que quede claro de dónde partimos, esto ya está completado desde la auditoría del 2026-05-22:
 
-- **Autenticación y scoping de WebSocket por usuario** — el gateway valida el JWT al conectar y separa los eventos por "room" de usuario, en vez de transmitir a todos los conectados.
-- **Refresh tokens con rotación** — access token de 15 minutos, refresh token de 7 días, con detección de robo de token (rotación por familia) y revocación al hacer logout.
-- **Panel web (`zarza-web`)** — ya tiene una implementación real en React/TypeScript (gestión de usuarios, análisis, solicitudes), no solo un directorio vacío como decía la auditoría original.
+- **Autenticación y scoping de WebSocket por usuario** — el gateway valida el JWT al conectar y separa los eventos por "room" de usuario, en vez de transmitir a todos los conectados. Ver [[2026-05-31-websocket-auth-scoping]].
+- **Refresh tokens con rotación** — access token de 15 minutos, refresh token de 7 días, con detección de robo de token (rotación por familia) y revocación al hacer logout. Ver [[2026-06-01-refresh-tokens]].
+- **Panel web (`zarza-web`)** — ya tiene una implementación real en React/TypeScript (gestión de usuarios, análisis, solicitudes), no solo un directorio vacío como decía la auditoría original. Ver [[2026-04-30-zarza-web-panel]].
 - **Corrección de vulnerabilidades de dependencias** reportadas por Dependabot en todo el monorepo.
 - **Versionado de API (`/v1/`)** — `fruit-backend` usa URI Versioning de NestJS (`/api/v1/...`) con `defaultVersion: '1'`; permite añadir `/v2/` a futuro sin romper clientes. Actualizado `fruit-ms`, `zarza_ai` y `zarza-web` para apuntar a las rutas versionadas.
 - **Auditoría de `/internal/notify` y rotación de `INTERNAL_NOTIFY_TOKEN`** (tarea #10, 2026-07-09) — log de evento + IP de origen en cada llamada (y en rechazos por token inválido), proceso de rotación manual documentado en `SECURITY.md`.

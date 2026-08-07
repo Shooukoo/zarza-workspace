@@ -1,5 +1,7 @@
 # Sincronización Offline — Spec de Diseño
 
+**Plan relacionado:** [[2026-04-29-offline-sync]]
+
 **Fecha:** 2026-04-29  
 **Proyecto:** Zarza AI — `zarza_ai` (Flutter)  
 **Autor:** Santiago Nuñez  

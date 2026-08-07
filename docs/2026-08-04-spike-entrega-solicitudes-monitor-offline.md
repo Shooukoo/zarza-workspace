@@ -1,7 +1,7 @@
 # Spike: entrega de solicitudes de muestreo a monitores sin internet en campo
 
 **Fecha:** 2026-08-04
-**Origen:** Roadmap de tareas pendientes (`docs/2026-06-24-roadmap-tareas-pendientes.md`), punto 11, prioridad Baja/Investigación.
+**Origen:** [[2026-06-24-roadmap-tareas-pendientes|Roadmap de tareas pendientes]], punto 11, prioridad Baja/Investigación.
 **Tipo:** Investigación (spike), sin código.
 
 ## Problema
@@ -10,7 +10,7 @@ Un monitor en campo sin señal de datos no recibe una solicitud de muestreo hast
 
 ## Punto de partida: lo que ya existe
 
-La app (`zarza_ai`) ya resuelve un problema simétrico — subida de imágenes sin conexión — con una cola offline local: `ConnectivityService` (paquete `connectivity_plus`) detecta el cambio de conectividad, `AutoSyncService` dispara la sincronización, y `SyncService` reintenta contra el backend con `offlineSyncId` como clave idempotente, todo persistido en SQLite (Drift). Es un mecanismo **reactivo del propio dispositivo**: nadie empuja nada, el device "tira" de la cola cuando reconecta. No existe hoy nada de Bluetooth, mesh o P2P en ningún servicio del repo.
+La app (`zarza_ai`) ya resuelve un problema simétrico — subida de imágenes sin conexión — con una cola offline local: `ConnectivityService` (paquete `connectivity_plus`) detecta el cambio de conectividad, `AutoSyncService` dispara la sincronización, y `SyncService` reintenta contra el backend con `offlineSyncId` como clave idempotente, todo persistido en SQLite (Drift). Es un mecanismo **reactivo del propio dispositivo**: nadie empuja nada, el device "tira" de la cola cuando reconecta. No existe hoy nada de Bluetooth, mesh o P2P en ningún servicio del repo. Ver [[2026-04-29-offline-sync]].
 
 ## Opción 1 — Relay Bluetooth tipo Find My
 

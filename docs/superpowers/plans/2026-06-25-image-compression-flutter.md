@@ -1,5 +1,7 @@
 # Image Compression Before Upload — Implementation Plan
 
+**Spec relacionado:** [[2026-06-25-image-compression-flutter-design]]
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Compress camera images client-side in Flutter (max 1280 px / JPEG Q85) before uploading to `fruit-backend`, reducing upload time and Cloudflare R2 storage cost.

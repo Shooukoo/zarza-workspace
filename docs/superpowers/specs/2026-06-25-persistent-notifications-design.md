@@ -1,5 +1,7 @@
 # Notificaciones In-App Persistentes
 
+**Plan relacionado:** [[2026-06-25-persistent-notifications-implementation]]
+
 **Fecha:** 2026-06-25  
 **Estado:** Aprobado  
 

@@ -1,5 +1,7 @@
 # Diseño Fase 1 — AGRONOMO: Fix 403 + Assignment Model + Validación de Análisis
 
+**Plan relacionado:** [[2026-05-06-agronomo-phase1]]
+
 **Fecha:** 2026-05-06  
 **Estado:** Aprobado  
 **Autor:** Santiago Nuñez
