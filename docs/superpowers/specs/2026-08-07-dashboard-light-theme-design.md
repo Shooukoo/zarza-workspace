@@ -113,8 +113,8 @@ para ser legibles.
 ### 3. Gráficas (recharts)
 
 - `Tooltip.contentStyle`: `background: surface`, `border: 1px solid grayLine`,
-  `color: ink`, sombra suave (`boxShadow` vía CSS del contenedor, recharts
-  permite estilos arbitrarios en `contentStyle`).
+  `color: ink`, `boxShadow: '0 8px 24px rgba(17,17,40,0.10)'` (recharts
+  acepta estilos arbitrarios en `contentStyle`, incluido `boxShadow`).
 - `XAxis`/`YAxis` `tick.fill`: `gray`; `axisLine.stroke`: `grayLine`.
 - `Bar` `cursor.fill` (hover): `rgba(17,17,40,0.04)` (antes
   `rgba(255,255,255,0.04)`, invertido para fondo claro).
