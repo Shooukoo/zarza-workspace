@@ -38,7 +38,7 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
   const isProductor = user?.role === Role.PRODUCTOR;
 
   const detailQuery = useAnalisisDetail(analysisId);
-  const imageQuery = useAnalisisImage(analysisId);
+  const imageQuery = useAnalisisImage(analysisId, !isProductor);
   const validateMutation = useValidateAnalisis();
   const [form] = Form.useForm<FormValues>();
 
@@ -99,7 +99,23 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
         <Form form={form} layout="vertical" onFinish={onFinish}>
           <Row gutter={24}>
             <Col xs={24} md={10}>
-              {imageQuery.isLoading ? (
+              {isProductor ? (
+                <div
+                  style={{
+                    width: '100%',
+                    height: 280,
+                    background: '#f0f0f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 8,
+                    textAlign: 'center',
+                    padding: 16,
+                  }}
+                >
+                  <Text type="secondary">Vista de imagen no disponible para tu rol</Text>
+                </div>
+              ) : imageQuery.isLoading ? (
                 <Skeleton.Image style={{ width: '100%', height: 280 }} active />
               ) : imageQuery.data?.url ? (
                 <Image

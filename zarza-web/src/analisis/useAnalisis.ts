@@ -33,14 +33,14 @@ export function useAnalisisDetail(id: string | null) {
   });
 }
 
-export function useAnalisisImage(id: string | null) {
+export function useAnalisisImage(id: string | null, enabled = true) {
   return useQuery<{ url: string }>({
     queryKey: ['analisis-image', id],
     queryFn: () =>
       apiClient
         .get<{ url: string }>(`/analyses/${id}/image`)
         .then((r) => r.data),
-    enabled: !!id,
+    enabled: enabled && !!id,
     staleTime: 0,
     gcTime: 0,
   });
