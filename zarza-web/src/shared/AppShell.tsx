@@ -48,6 +48,7 @@ function TopBar({ user, activePath, scrolled, onLogout }: {
   scrolled: boolean;
   onLogout: () => void;
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? '?';
 
   return (
@@ -58,10 +59,10 @@ function TopBar({ user, activePath, scrolled, onLogout }: {
       boxShadow: scrolled ? '0 2px 12px rgba(17,17,40,0.06)' : 'none',
       transition: 'background 180ms ease, box-shadow 180ms ease',
     }}>
-      {NAV_GROUPS.map((group, gi) => {
-        const visible = user ? group.filter((item) => item.roles.includes(user.role)) : [];
-        if (visible.length === 0) return null;
-        return (
+      {NAV_GROUPS
+        .map((group) => (user ? group.filter((item) => item.roles.includes(user.role)) : []))
+        .filter((visible) => visible.length > 0)
+        .map((visible, gi) => (
           <div key={gi} style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             {gi > 0 && <Divider />}
             <div style={{ display: 'flex', gap: 16 }}>
@@ -87,19 +88,23 @@ function TopBar({ user, activePath, scrolled, onLogout }: {
               })}
             </div>
           </div>
-        );
-      })}
+        ))}
 
       <Divider height={24} />
 
       <Dropdown
         trigger={['click']}
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
         popupRender={() => (
-          <div style={{
-            width: 200, background: T.surface, borderRadius: 12,
-            boxShadow: '0 12px 32px rgba(17,17,40,0.14)',
-            border: `1px solid ${T.grayLine}`, overflow: 'hidden',
-          }}>
+          <div
+            role="menu"
+            style={{
+              width: 200, background: T.surface, borderRadius: 12,
+              boxShadow: '0 12px 32px rgba(17,17,40,0.14)',
+              border: `1px solid ${T.grayLine}`, overflow: 'hidden',
+            }}
+          >
             <div style={{ padding: '12px 14px', borderBottom: `1px solid ${T.grayLine}` }}>
               <div style={{
                 fontSize: 12, fontWeight: 600, color: T.ink,
@@ -121,11 +126,19 @@ function TopBar({ user, activePath, scrolled, onLogout }: {
           </div>
         )}
       >
-        <div style={{ padding: 6, cursor: 'pointer', lineHeight: 0 }}>
+        <button
+          type="button"
+          aria-haspopup="true"
+          aria-expanded={menuOpen}
+          style={{
+            padding: 6, cursor: 'pointer', lineHeight: 0,
+            background: 'none', border: 'none',
+          }}
+        >
           <Avatar size={32} style={{ background: T.rubus, color: '#fff', fontSize: 12, fontWeight: 700 }}>
             {initials}
           </Avatar>
-        </div>
+        </button>
       </Dropdown>
     </div>
   );
