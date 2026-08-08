@@ -1,3 +1,130 @@
+# Dashboard Light Theme (Login-Based) Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Migrate `DashboardPage.tsx` in `zarza-web` to a light theme matching `LoginPage.tsx`'s visual language, while `AppShell.tsx` and the rest of the panel stay dark, plus fold in the accessibility fixes approved alongside the redesign.
+
+**Architecture:** Extract the light color tokens `LoginPage.tsx` already hardcodes into a shared `src/shared/lightTheme.ts` module. Import it from both `LoginPage.tsx` (zero visual change) and `DashboardPage.tsx` (the actual redesign — replaces the dark "obsidian" glass tokens, the `GlassCard` glass effect, and alpha-tinted badges with solid pastel chips + full-saturation data marks). `AppShell.tsx` gets one unrelated fix: nav items become `<Link>` instead of `<button onClick={navigate}>`. Every antd component in the app runs under a global **dark** `ConfigProvider` set in `main.tsx` (`algorithm: theme.darkAlgorithm`) — `LoginPage.tsx` already overrides this locally with its own light `ConfigProvider`; `DashboardPage.tsx` needs the same local override for its `<Spin/>` to render in the brand purple instead of dark-theme colors.
+
+**Tech Stack:** React 18 + TypeScript, antd 5 (`ConfigProvider`/`theme` algorithms), recharts 2, react-router-dom 7. No test runner exists in `zarza-web` (no Jest/Vitest/RTL) — verification is `tsc` type-checking (`npm run build`) plus manual visual/DOM checks in the browser, per the approved spec.
+
+**Spec:** `docs/superpowers/specs/2026-08-07-dashboard-light-theme-design.md`
+
+---
+
+### Task 1: Shared light theme tokens
+
+**Files:**
+- Create: `zarza-web/src/shared/lightTheme.ts`
+
+- [ ] **Step 1: Create the token module**
+
+```ts
+// zarza-web/src/shared/lightTheme.ts
+export const lightTheme = {
+  canvas:    '#EEF0F5',
+  surface:   '#FFFFFF',
+  ink:       '#13102B',
+  gray:      '#6B7280',
+  grayLine:  '#E5E7EB',
+  rubus:     '#7B00D4',
+  rubusLt:   '#A030F0',
+  pink:      '#E85DB0',
+  emerald:   '#10B981',
+  warn:      '#F59E0B',
+  danger:    '#EF4444',
+} as const;
+```
+
+- [ ] **Step 2: Type-check**
+
+Run: `cd zarza-web && npx tsc --noEmit`
+Expected: no errors (the file has no consumers yet, this just confirms valid syntax).
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add zarza-web/src/shared/lightTheme.ts
+git commit -m "feat(zarza-web): add shared light theme tokens"
+```
+
+---
+
+### Task 2: Migrate `LoginPage.tsx` to the shared tokens
+
+**Files:**
+- Modify: `zarza-web/src/auth/LoginPage.tsx:1-22`
+
+- [ ] **Step 1: Replace the local token object with the shared import**
+
+`LoginPage.tsx` currently defines its own `T` object with the same values now living in `lightTheme.ts`, plus an unused `obsidian` key (verified with `grep -n "T\.obsidian\b" zarza-web/src/auth/LoginPage.tsx` — zero matches, safe to drop). Replace:
+
+```tsx
+import { useAuth } from './useAuth';
+import { defaultRouteForRole } from './defaultRoute';
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
+const T = {
+  obsidian:  '#0D0221',
+  ink:       '#13102B',
+  gray:      '#6B7280',
+  grayLine:  '#E5E7EB',
+  rubus:     '#7B00D4',
+  rubusLt:   '#A030F0',
+  pink:      '#E85DB0',
+  emerald:   '#10B981',
+  canvas:    '#EEF0F5',
+};
+```
+
+with:
+
+```tsx
+import { useAuth } from './useAuth';
+import { defaultRouteForRole } from './defaultRoute';
+import { lightTheme as T } from '../shared/lightTheme';
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+```
+
+Every other line in the file keeps referencing `T.canvas`, `T.ink`, `T.gray`, `T.grayLine`, `T.rubus`, `T.rubusLt`, `T.pink`, `T.emerald` unchanged — no other edits needed in this file.
+
+- [ ] **Step 2: Type-check**
+
+Run: `cd zarza-web && npx tsc --noEmit`
+Expected: no errors.
+
+- [ ] **Step 3: Visual smoke check**
+
+Run: `cd zarza-web && npm run dev`, open `/login` in the browser.
+Expected: pixel-identical to before this change (same hex values, just re-sourced).
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add zarza-web/src/auth/LoginPage.tsx
+git commit -m "refactor(zarza-web): source LoginPage colors from shared lightTheme"
+```
+
+---
+
+### Task 3: Rewrite `DashboardPage.tsx` to the light theme
+
+**Files:**
+- Modify: `zarza-web/src/dashboard/DashboardPage.tsx` (full rewrite)
+
+This is the core task. It replaces every dark "obsidian" token with the light equivalent, drops the `GlassCard` glass effect for a solid white card (renamed `SurfaceCard` since it no longer uses glass — the name was actively misleading otherwise), converts alpha-tinted badges to solid pastel chips, keeps chart/data marks (bars, donut, sparklines, ring, dots) at full saturation since pastel is for surfaces only, wraps the page in a local light `ConfigProvider` (the whole app runs under a **dark** `ConfigProvider` from `main.tsx`, confirmed by reading it — `algorithm: theme.darkAlgorithm` — so without a local override `<Spin/>` would render with dark-theme colors, exactly why `LoginPage.tsx` already does the same override), and folds in the approved accessibility fixes (`aria-hidden` on decorative SVGs, `tabular-nums`, `Intl.NumberFormat`, `role="status"` on loading spinners, and a screen-reader-only parcel status list so hiding the map SVG doesn't drop real information).
+
+- [ ] **Step 1: Replace the full file contents**
+
+```tsx
 import React from 'react';
 import { Spin, ConfigProvider, theme } from 'antd';
 import {
@@ -18,8 +145,6 @@ import {
   usePhenologyDistribution,
 } from './hooks/useDashboard';
 import { lightTheme } from '../shared/lightTheme';
-import { useAuth } from '../auth/useAuth';
-import { displayName } from '../auth/types';
 
 // ── Design tokens ──────────────────────────────────────────────────
 const T = lightTheme;
@@ -139,7 +264,6 @@ function GradientBar(props: React.SVGProps<SVGRectElement> & { x?: number; y?: n
 
 // ── Main component ─────────────────────────────────────────────────
 export function DashboardPage() {
-  const { user } = useAuth();
   const yieldQuery = useYieldForecast();
   const healthQuery = useHealthMetrics();
   const phenologyQuery = usePhenologyDistribution();
@@ -222,14 +346,14 @@ export function DashboardPage() {
       }}
     >
       <div style={{
-        fontFamily: "'Lexend', sans-serif", color: T.ink,
-        background: T.canvas, minHeight: '100%', fontVariantNumeric: 'tabular-nums',
+        padding: '28px 32px', fontFamily: "'Lexend', sans-serif", color: T.ink,
+        background: T.canvas, minHeight: '100vh', fontVariantNumeric: 'tabular-nums',
       }}>
         {/* ── Page header ── */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: T.ink, margin: 0, marginBottom: 4 }}>
-              Hola, {user ? displayName(user) : ''} 👋
+              Dashboard
             </h1>
             <p style={{ fontSize: 13, color: T.gray, margin: 0 }}>
               Vista general de la salud del cultivo · <span style={{ color: T.emerald }}>● En línea</span>
@@ -473,3 +597,174 @@ export function DashboardPage() {
     </ConfigProvider>
   );
 }
+```
+
+- [ ] **Step 2: Grep for leftover dark-only tokens**
+
+Run: `grep -nE "T\.(obsidian|frost|rubusDim|emeraldDim)" zarza-web/src/dashboard/DashboardPage.tsx`
+Expected: no output (those keys no longer exist on `lightTheme`; any match means a spot was missed).
+
+- [ ] **Step 3: Type-check**
+
+Run: `cd zarza-web && npx tsc --noEmit`
+Expected: no errors.
+
+- [ ] **Step 4: Visual check**
+
+Run: `cd zarza-web && npm run dev`, log in as a user with `/dashboard` access (ADMIN or PRODUCTOR — see `AppShell.tsx` `NAV_ITEMS`), open the dashboard.
+Expected: light canvas (`#EEF0F5`) content area inside the still-dark sidebar/shell, white cards with soft shadows (no blur/glass), pastel chips behind KPI icons and in the "N activas"/"Salud global" badges, light tooltips on both charts, and the field map showing pastel parcel rectangles with solid-colored borders/labels on a light grid.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add zarza-web/src/dashboard/DashboardPage.tsx
+git commit -m "feat(zarza-web): light theme for DashboardPage matching login styles"
+```
+
+---
+
+### Task 4: `AppShell.tsx` — nav items as `<Link>`
+
+**Files:**
+- Modify: `zarza-web/src/shared/AppShell.tsx:2` (import), `zarza-web/src/shared/AppShell.tsx:115-149` (nav render)
+
+`AppShell.tsx` stays dark — only the navigation markup changes, from `<button onClick={() => navigate(item.key)}>` to `<Link to={item.key}>`, so it supports Cmd/Ctrl-click and middle-click, plus `aria-current="page"` on the active item.
+
+- [ ] **Step 1: Add the `Link` import**
+
+Change:
+```tsx
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+```
+to:
+```tsx
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+```
+(`useNavigate` stays imported — `handleLogout` still calls `navigate('/login', { replace: true })`.)
+
+- [ ] **Step 2: Replace the nav item `<button>` with `<Link>`**
+
+Replace:
+```tsx
+        {/* Nav */}
+        <nav style={{ padding: collapsed ? '16px 8px' : '16px 10px', flex: 1 }}>
+          {visibleItems.map(item => {
+            const active = location.pathname === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => navigate(item.key)}
+                title={collapsed ? item.label : undefined}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center',
+                  gap: collapsed ? 0 : 10, justifyContent: collapsed ? 'center' : 'flex-start',
+                  padding: collapsed ? '10px' : '10px 12px',
+                  borderRadius: 10, border: 'none', cursor: 'pointer',
+                  marginBottom: 2,
+                  background: active ? T.rubusDim : 'transparent',
+                  color: active ? T.frost : T.gray,
+                  fontFamily: "'Lexend', sans-serif",
+                  fontSize: 13, fontWeight: active ? 600 : 400,
+                  transition: 'all 0.15s ease',
+                  position: 'relative',
+                }}>
+                {active && !collapsed && (
+                  <div style={{
+                    position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
+                    width: 3, height: 20, background: T.rubus, borderRadius: '0 4px 4px 0',
+                  }}/>
+                )}
+                <span style={{ color: active ? T.rubusLt : T.gray, display: 'flex' }}>
+                  {item.icon}
+                </span>
+                {!collapsed && item.label}
+              </button>
+            );
+          })}
+        </nav>
+```
+with:
+```tsx
+        {/* Nav */}
+        <nav style={{ padding: collapsed ? '16px 8px' : '16px 10px', flex: 1 }}>
+          {visibleItems.map(item => {
+            const active = location.pathname === item.key;
+            return (
+              <Link
+                key={item.key}
+                to={item.key}
+                title={collapsed ? item.label : undefined}
+                aria-current={active ? 'page' : undefined}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center',
+                  gap: collapsed ? 0 : 10, justifyContent: collapsed ? 'center' : 'flex-start',
+                  padding: collapsed ? '10px' : '10px 12px',
+                  borderRadius: 10, border: 'none', cursor: 'pointer',
+                  marginBottom: 2,
+                  background: active ? T.rubusDim : 'transparent',
+                  color: active ? T.frost : T.gray,
+                  fontFamily: "'Lexend', sans-serif",
+                  fontSize: 13, fontWeight: active ? 600 : 400,
+                  transition: 'all 0.15s ease',
+                  position: 'relative',
+                  textDecoration: 'none',
+                }}>
+                {active && !collapsed && (
+                  <div style={{
+                    position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
+                    width: 3, height: 20, background: T.rubus, borderRadius: '0 4px 4px 0',
+                  }}/>
+                )}
+                <span style={{ color: active ? T.rubusLt : T.gray, display: 'flex' }}>
+                  {item.icon}
+                </span>
+                {!collapsed && item.label}
+              </Link>
+            );
+          })}
+        </nav>
+```
+
+(`textDecoration: 'none'` is added because `<a>`/`<Link>` gets a default underline that `<button>` never had — everything else is an unchanged copy of the existing inline style object.)
+
+- [ ] **Step 3: Type-check**
+
+Run: `cd zarza-web && npx tsc --noEmit`
+Expected: no errors.
+
+- [ ] **Step 4: Visual + keyboard check**
+
+Run: `cd zarza-web && npm run dev`, log in, click between nav items, then Cmd-click (or Ctrl-click) one to confirm it opens in a new tab, and inspect the active item's DOM node for `aria-current="page"`.
+Expected: same visual appearance as before (no underline, same active-state styling), new-tab open works, active item carries `aria-current="page"`.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add zarza-web/src/shared/AppShell.tsx
+git commit -m "fix(zarza-web): nav items use Link instead of button+navigate"
+```
+
+---
+
+### Task 5: Full build verification
+
+**Files:** none (verification only)
+
+- [ ] **Step 1: Full production build**
+
+Run: `cd zarza-web && npm run build`
+Expected: `tsc -b && vite build` completes with no type errors and no build errors.
+
+- [ ] **Step 2: End-to-end manual pass**
+
+Run: `cd zarza-web && npm run dev`, then in the browser:
+1. Load `/login` — confirm it looks unchanged (Task 2 was a pure refactor).
+2. Log in, land on `/dashboard` — confirm the light canvas + white cards described in Task 3 Step 4.
+3. Resize the browser to check the KPI grid doesn't overflow (unchanged layout, just re-themed).
+4. Open DevTools, select the parcel map `<ul>` (the `srOnly`-styled one) and confirm it lists `P1: Saludable`, `P2: Saludable`, `P3: Alerta`, `P4: Monitoreada`.
+5. Tab through the sidebar nav with the keyboard — confirm focus is visible and Enter navigates.
+6. Collapse the sidebar (click the logo) — confirm nav `Link`s still render correctly collapsed.
+
+Expected: all six checks pass with no visual regressions and no console errors.
+
+No commit — this task only verifies work already committed in Tasks 1–4.

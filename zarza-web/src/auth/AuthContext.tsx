@@ -17,6 +17,24 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+type BackendUserProfile = {
+  id: string;
+  email: string;
+  role: Role;
+  firstName: string | null;
+  lastName: string | null;
+};
+
+function toAuthUser(u: BackendUserProfile): AuthUser {
+  return {
+    sub: u.id,
+    email: u.email,
+    role: u.role,
+    firstName: u.firstName,
+    lastName: u.lastName,
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,19 +42,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Hydrate session from existing cookie on mount
   useEffect(() => {
     apiClient
-      .get<AuthUser>('/auth/me')
-      .then((res) => setUser(res.data))
+      .get<BackendUserProfile>('/auth/me')
+      .then((res) => setUser(toAuthUser(res.data)))
       .catch(() => setUser(null))
       .finally(() => setIsLoading(false));
   }, []);
 
   async function login(email: string, password: string): Promise<AuthUser> {
-    // Backend returns { user: { id, email, role } } — normalize id → sub to match AuthUser
-    const res = await apiClient.post<{
-      user: { id: string; email: string; role: Role };
-    }>('/auth/login', { email, password });
-    const u = res.data.user;
-    const authUser: AuthUser = { sub: u.id, email: u.email, role: u.role };
+    // Backend devuelve { user: { id, email, role, firstName, lastName } }
+    const res = await apiClient.post<{ user: BackendUserProfile }>(
+      '/auth/login',
+      { email, password },
+    );
+    const authUser = toAuthUser(res.data.user);
     setUser(authUser);
     return authUser;
   }

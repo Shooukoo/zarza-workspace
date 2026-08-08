@@ -3,23 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, ConfigProvider, theme, notification } from 'antd';
 import { useAuth } from './useAuth';
 import { defaultRouteForRole } from './defaultRoute';
+import { lightTheme as T } from '../shared/lightTheme';
 
 interface LoginFormValues {
   email: string;
   password: string;
 }
-
-const T = {
-  obsidian:  '#0D0221',
-  ink:       '#13102B',
-  gray:      '#6B7280',
-  grayLine:  '#E5E7EB',
-  rubus:     '#7B00D4',
-  rubusLt:   '#A030F0',
-  pink:      '#E85DB0',
-  emerald:   '#10B981',
-  canvas:    '#EEF0F5',
-};
 
 export function LoginPage() {
   const { login } = useAuth();
