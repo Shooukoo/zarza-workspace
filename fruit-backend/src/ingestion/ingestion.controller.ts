@@ -10,7 +10,18 @@ import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard'
 import { traceContext } from '../common/logging/trace-context';
 import { AppLogger } from '../common/logging/app.logger';
 import { randomUUID } from 'crypto';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { UploadResultDto } from './dto/upload-result.dto';
 
+@ApiTags('Ingestion')
+@ApiBearerAuth()
 @Controller('ingestion')
 @UseGuards(JwtAuthGuard)
 export class IngestionController {
@@ -22,6 +33,65 @@ export class IngestionController {
   ) {}
 
   @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Upload fruit image',
+    description: 'Uploads a fruit image and sends it for processing.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Fruit image to upload.',
+        },
+        capturedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Date and time when the image was captured.',
+        },
+        campoId: {
+          type: 'string',
+          description: 'ID of the field where the image was captured.',
+        },
+        productorId: {
+          type: 'string',
+          description: 'ID of the producer associated with the image.',
+        },
+        gpsLat: {
+          type: 'number',
+          format: 'double',
+          description: 'Latitude where the image was captured.',
+        },
+        gpsLon: {
+          type: 'number',
+          format: 'double',
+          description: 'Longitude where the image was captured.',
+        },
+        offlineSyncId: {
+          type: 'string',
+          description:
+            'Identifier used to correlate an offline synchronization.',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Image successfully uploaded.',
+    type: UploadResultDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid image or multipart data.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Authentication required.',
+  })
   async upload(
     @Req() req: FastifyRequest & { id: string },
     @Res() res: FastifyReply,

@@ -18,7 +18,16 @@ import {
 } from '../auth/ports/user-repository.port';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { AppLogger } from '../common/logging/app.logger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Internal')
 @Controller('internal')
 export class InternalNotifyController {
   constructor(
@@ -32,6 +41,46 @@ export class InternalNotifyController {
 
   @Post('notify')
   @HttpCode(204)
+  @ApiOperation({
+    summary: 'Send an internal notification',
+    description:
+      'Receives an internal event and processes WebSocket, database, and FCM notifications.',
+  })
+  @ApiHeader({
+    name: 'x-internal-token',
+    required: true,
+    description:
+      'Internal token used to authorize service-to-service notifications.',
+    example: 'your-internal-token',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        event: {
+          type: 'string',
+          example: 'analisis_listo',
+          description: 'Notification event type.',
+        },
+        data: {
+          type: 'object',
+          example: {
+            userId: '37f839ab-b831-4346-a2a5-cdd1ebf9c929',
+          },
+          description: 'Event-specific notification data.',
+        },
+      },
+      required: ['event', 'data'],
+    },
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Notification processed successfully.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or missing internal token.',
+  })
   async notify(
     @Headers('x-internal-token') token: string,
     @Body() body: { event: string; data: Record<string, unknown> },

@@ -11,6 +11,7 @@ import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import { envs } from './config/envs';
 import { Logger } from 'nestjs-pino';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -23,6 +24,23 @@ async function bootstrap() {
 
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('api');
+
+  const config = new DocumentBuilder()
+    .setTitle('Zarza API')
+    .setDescription('API documentation for Zarza backend')
+    .setVersion('1.0')
+    .addServer('/api/v1')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config, {
+    ignoreGlobalPrefix: true,
+  });
+
+  SwaggerModule.setup('docs', app, document, {
+    useGlobalPrefix: true,
+  });
+
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
