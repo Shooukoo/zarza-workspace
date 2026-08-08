@@ -156,6 +156,12 @@ export class AuthService {
     await this.refreshTokenRepo.revokeByTokenHash(hash);
   }
 
+  async getProfile(userId: string): Promise<UserProfile> {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) throw new UnauthorizedException('Usuario no encontrado');
+    return this._toProfile(user);
+  }
+
   private _generateRefreshToken(): string {
     return randomBytes(32).toString('base64url');
   }
