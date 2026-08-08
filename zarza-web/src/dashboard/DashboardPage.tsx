@@ -219,8 +219,8 @@ export function DashboardPage() {
       }}
     >
       <div style={{
-        padding: '28px 32px', fontFamily: "'Lexend', sans-serif", color: T.ink,
-        background: T.canvas, minHeight: '100vh', fontVariantNumeric: 'tabular-nums',
+        fontFamily: "'Lexend', sans-serif", color: T.ink,
+        background: T.canvas, minHeight: '100%', fontVariantNumeric: 'tabular-nums',
       }}>
         {/* ── Page header ── */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
