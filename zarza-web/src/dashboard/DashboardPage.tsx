@@ -18,6 +18,8 @@ import {
   usePhenologyDistribution,
 } from './hooks/useDashboard';
 import { lightTheme } from '../shared/lightTheme';
+import { useAuth } from '../auth/useAuth';
+import { displayName } from '../auth/types';
 
 // ── Design tokens ──────────────────────────────────────────────────
 const T = lightTheme;
@@ -137,6 +139,7 @@ function GradientBar(props: React.SVGProps<SVGRectElement> & { x?: number; y?: n
 
 // ── Main component ─────────────────────────────────────────────────
 export function DashboardPage() {
+  const { user } = useAuth();
   const yieldQuery = useYieldForecast();
   const healthQuery = useHealthMetrics();
   const phenologyQuery = usePhenologyDistribution();
@@ -226,7 +229,7 @@ export function DashboardPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: T.ink, margin: 0, marginBottom: 4 }}>
-              Dashboard
+              Hola, {user ? displayName(user) : ''} 👋
             </h1>
             <p style={{ fontSize: 13, color: T.gray, margin: 0 }}>
               Vista general de la salud del cultivo · <span style={{ color: T.emerald }}>● En línea</span>
