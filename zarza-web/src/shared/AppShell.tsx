@@ -116,13 +116,18 @@ function TopBar({ user, activePath, scrolled, onLogout }: {
                 {user ? ROLE_LABEL[user.role] : ''}
               </div>
             </div>
-            <div
+            <button
+              type="button"
               role="menuitem"
               onClick={onLogout}
-              style={{ padding: '10px 14px', fontSize: 13, color: T.danger, cursor: 'pointer' }}
+              style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '10px 14px', fontSize: 13, color: T.danger, cursor: 'pointer',
+                background: 'none', border: 'none', font: 'inherit',
+              }}
             >
               Cerrar sesión
-            </div>
+            </button>
           </div>
         )}
       >
