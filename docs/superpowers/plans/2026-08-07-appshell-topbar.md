@@ -18,7 +18,7 @@
 - Modify: `fruit-backend/src/auth/application/auth.service.ts`
 - Modify: `fruit-backend/src/auth/application/auth.service.spec.ts`
 
-- [ ] **Step 1: Extend the `makeUser()` test helper to respect `firstName`/`lastName` overrides**
+- [x] **Step 1: Extend the `makeUser()` test helper to respect `firstName`/`lastName` overrides**
 
 `fruit-backend/src/auth/application/auth.service.spec.ts` currently hardcodes `null, null` for these fields regardless of what's passed in `overrides`, so a new test can't construct a user with a name. Replace:
 
@@ -50,7 +50,7 @@ function makeUser(overrides: Partial<User> = {}): User {
 }
 ```
 
-- [ ] **Step 2: Write the failing tests for `getProfile()`**
+- [x] **Step 2: Write the failing tests for `getProfile()`**
 
 Add this `describe` block at the end of the outer `describe('AuthService', ...)` block, right after the closing `});` of `describe('logout()', ...)`:
 
@@ -82,12 +82,12 @@ Add this `describe` block at the end of the outer `describe('AuthService', ...)`
   });
 ```
 
-- [ ] **Step 3: Run the tests to verify they fail**
+- [x] **Step 3: Run the tests to verify they fail**
 
 Run: `cd fruit-backend && pnpm exec jest src/auth/application/auth.service.spec.ts`
 Expected: FAIL — `TypeError: service.getProfile is not a function` (2 failing tests in the new `getProfile()` block, all prior tests still pass).
 
-- [ ] **Step 4: Implement `getProfile()`**
+- [x] **Step 4: Implement `getProfile()`**
 
 In `fruit-backend/src/auth/application/auth.service.ts`, add this public method to the `AuthService` class, right after `logout()` and before the `private _generateRefreshToken()` method:
 
@@ -99,12 +99,12 @@ In `fruit-backend/src/auth/application/auth.service.ts`, add this public method 
   }
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `cd fruit-backend && pnpm exec jest src/auth/application/auth.service.spec.ts`
 Expected: PASS — all tests in the file green, including the 2 new `getProfile()` tests.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add fruit-backend/src/auth/application/auth.service.ts fruit-backend/src/auth/application/auth.service.spec.ts
@@ -118,7 +118,7 @@ git commit -m "feat(fruit-backend): add AuthService.getProfile() to fetch full u
 **Files:**
 - Modify: `fruit-backend/src/auth/infrastructure/http/auth.controller.ts:119-123`
 
-- [ ] **Step 1: Replace the `me()` handler**
+- [x] **Step 1: Replace the `me()` handler**
 
 `GET /auth/me` currently returns `req.user` directly — the raw JWT payload (`{sub, email, role}`), with no name data. Replace:
 
@@ -142,12 +142,12 @@ with:
 
 No other line in the file changes. Note the response shape changes from `{sub, email, role}` to `{id, email, role, firstName, lastName}` (the `UserProfile` shape from `_toProfile`) — this is intentional and handled on the frontend in Task 4.
 
-- [ ] **Step 2: Type-check the backend**
+- [x] **Step 2: Type-check the backend**
 
 Run: `cd fruit-backend && pnpm exec tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add fruit-backend/src/auth/infrastructure/http/auth.controller.ts
@@ -161,7 +161,7 @@ git commit -m "fix(fruit-backend): GET /auth/me returns full profile (name) inst
 **Files:**
 - Modify: `zarza-web/src/auth/types.ts`
 
-- [ ] **Step 1: Replace the file contents**
+- [x] **Step 1: Replace the file contents**
 
 Replace the entire contents of `zarza-web/src/auth/types.ts` with:
 
@@ -188,12 +188,12 @@ export function displayName(user: AuthUser): string {
 }
 ```
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `cd zarza-web && npx tsc --noEmit`
 Expected: errors in `AuthContext.tsx` (object literals missing `firstName`/`lastName` on `AuthUser`) — this is expected at this point, fixed in Task 4. Confirm the errors are specifically about the two `AuthUser` literals in `AuthContext.tsx` and nothing else, to make sure this step's own change is otherwise correct.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add zarza-web/src/auth/types.ts
@@ -207,7 +207,7 @@ git commit -m "feat(zarza-web): add firstName/lastName to AuthUser and a display
 **Files:**
 - Modify: `zarza-web/src/auth/AuthContext.tsx` (full rewrite)
 
-- [ ] **Step 1: Replace the full file contents**
+- [x] **Step 1: Replace the full file contents**
 
 `login()` already receives `firstName`/`lastName` from the backend but discards them. Separately, the session-hydration effect (`GET /auth/me`) typed its response directly as `AuthUser` and relied on the backend happening to return a `sub` field — true only because the old `/auth/me` returned the raw JWT payload. After Task 2, `/auth/me` returns `{id, email, role, firstName, lastName}` (`id`, not `sub`), so hydration needs the same `id → sub` normalization `login()` already does. Both paths are unified through one shared mapper:
 
@@ -292,12 +292,12 @@ export function useAuthContext() {
 }
 ```
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `cd zarza-web && npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add zarza-web/src/auth/AuthContext.tsx
@@ -313,7 +313,7 @@ git commit -m "fix(zarza-web): propagate real user name and normalize id->sub fo
 
 This is the core task. It replaces the entire `sidebar + main` layout with `top bar + main`, removes the logo/collapse feature, and adds the role-grouped, scroll-aware top bar with an avatar dropdown.
 
-- [ ] **Step 1: Replace the full file contents**
+- [x] **Step 1: Replace the full file contents**
 
 ```tsx
 import { useState } from 'react';
@@ -518,12 +518,12 @@ export function AppShell() {
 }
 ```
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `cd zarza-web && npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 3: Visual + role check**
+- [x] **Step 3: Visual + role check**
 
 Run: `cd zarza-web && npm run dev`, open the app, and log in as each of the 4 roles in turn (create temporary test users via `fruit-backend/scripts/seed-admin.js <email> <password>` if you don't have credentials handy for a role — remember to delete them from the `users` table afterward).
 
@@ -535,7 +535,7 @@ Expected per role:
 
 Also confirm: no logo/RubusAI text anywhere in the panel, top bar is transparent at the top of any page, gains white background + shadow when scrolling a page with enough content to scroll (e.g. a long Usuarios/Campos list), clicking the avatar opens the dropdown (email + role, then "Cerrar sesión"), clicking outside or pressing `Escape` closes it, and "Cerrar sesión" logs out correctly.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add zarza-web/src/shared/AppShell.tsx
@@ -549,7 +549,7 @@ git commit -m "feat(zarza-web): replace sidebar with role-grouped top bar"
 **Files:**
 - Modify: `zarza-web/src/dashboard/DashboardPage.tsx:1-20` (imports), `:139-144` (component body), `:228-230` (header)
 
-- [ ] **Step 1: Add the imports**
+- [x] **Step 1: Add the imports**
 
 Change:
 
@@ -575,7 +575,7 @@ import { useAuth } from '../auth/useAuth';
 import { displayName } from '../auth/types';
 ```
 
-- [ ] **Step 2: Read the authenticated user**
+- [x] **Step 2: Read the authenticated user**
 
 Change:
 
@@ -600,7 +600,7 @@ export function DashboardPage() {
   const h = healthQuery.data;
 ```
 
-- [ ] **Step 3: Replace the header text**
+- [x] **Step 3: Replace the header text**
 
 Change:
 
@@ -620,16 +620,16 @@ to:
 
 No other line in the file changes.
 
-- [ ] **Step 4: Type-check**
+- [x] **Step 4: Type-check**
 
 Run: `cd zarza-web && npx tsc --noEmit`
 Expected: no errors.
 
-- [ ] **Step 5: Visual check**
+- [x] **Step 5: Visual check**
 
 Run: `cd zarza-web && npm run dev`, log in as a user with a `firstName` set, open `/dashboard`, confirm the header reads "Hola, {firstName} 👋". Log in as a user with no `firstName` set (or check via `psql`: `SELECT email, first_name FROM users;`) and confirm it falls back to the part of the email before `@`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add zarza-web/src/dashboard/DashboardPage.tsx
@@ -642,24 +642,24 @@ git commit -m "feat(zarza-web): greet the logged-in user by name on the Dashboar
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Backend build + full auth test suite**
+- [x] **Step 1: Backend build + full auth test suite**
 
 Run: `cd fruit-backend && pnpm exec tsc --noEmit && pnpm exec jest src/auth`
 Expected: no type errors, all auth tests pass (including the 2 new `getProfile()` tests from Task 1).
 
-- [ ] **Step 2: Rebuild and restart the backend container**
+- [x] **Step 2: Rebuild and restart the backend container**
 
 The running `fruit-backend` Docker container is a built image (no source volume mount, no watch mode) — code changes need a rebuild to actually take effect for the manual browser check below.
 
 Run: `docker compose up --build -d fruit-backend`
 Expected: image rebuilds, container reports healthy (`docker compose ps` shows `fruit-backend` as `Up ... (healthy)`).
 
-- [ ] **Step 3: Frontend production build**
+- [x] **Step 3: Frontend production build**
 
 Run: `cd zarza-web && npm run build`
 Expected: `tsc -b && vite build` completes with no type errors and no build errors.
 
-- [ ] **Step 4: End-to-end manual pass**
+- [x] **Step 4: End-to-end manual pass**
 
 With the stack running (`docker compose ps` shows all services healthy) and `cd zarza-web && npm run dev`:
 
@@ -670,3 +670,38 @@ With the stack running (`docker compose ps` shows all services healthy) and `cd 
 Expected: all checks pass with no regressions.
 
 No commit — this task only verifies work already committed in Tasks 1–6.
+
+---
+
+## Verification results (2026-08-08)
+
+- **Step 1** — `pnpm exec jest src/auth`: 4 suites / 30 tests en verde, incluidos los 2 nuevos de
+  `getProfile()`. `pnpm exec tsc --noEmit` **falla con 7 errores preexistentes y ajenos a este
+  trabajo** (TS2352/TS2554 en los specs de `fcm`, `notifications` y `storage`, últimos tocados en
+  `f94991c`); nada en `auth/`. `tsconfig.build.json` excluye `**/*spec.ts`, así que `pnpm run
+  build` pasa limpio. Arreglar esos mocks queda como trabajo aparte.
+- **Steps 2 y 3** — contenedor `fruit-backend` reconstruido y `healthy`; `npm run build` de
+  `zarza-web` sin errores.
+- **Contrato de la API** — `POST /auth/login` y `GET /auth/me` devuelven ambos
+  `{id, email, role, firstName, lastName}`.
+- **Step 4 (pase manual)** — hecho en un `git worktree` aparte, porque otra sesión estaba usando
+  el árbol de trabajo principal:
+  - ADMIN: los 3 grupos (Dashboard · Campos/Huertas, Solicitudes, Revisión IA · Usuarios), sin
+    logo, "Hola, Ana 👋"; **F5 conserva el nombre** (ejercita el fix de `/auth/me`).
+  - PRODUCTOR: Dashboard · Campos/Huertas, Revisión IA — sin Solicitudes ni Usuarios, tal como
+    predice la tabla de la Tarea 5.
+  - Avatar: abre con click, contenido correcto (email + rol + "Cerrar sesión"), cierra con
+    `Escape` y con click fuera; "Cerrar sesión" redirige a `/login`.
+  - Scroll: la barra pasa de transparente a `#fff` con sombra `rgba(17,17,40,0.06) 0 2px 12px`.
+  - `/campos` como PRODUCTOR, **con F5 antes de crear**: campo creado correctamente → el
+    `user!.sub` de `CreateCampoModal` funciona por la vía de hidratación, no solo por login.
+  - Consola: sin errores reales; solo 3 avisos de deprecación de antd preexistentes
+    (`destroyOnClose`, `notification` estática fuera de `App`).
+
+### Pendiente detectado, fuera del alcance de este plan
+
+Las páginas que no se migraron al tema claro (`/usuarios`, `/campos`, y presumiblemente
+`/solicitudes` y `/analisis`) siguen con la paleta oscura y ahora chocan contra el canvas claro:
+sus tablas se ven como bloques morado oscuro y **los títulos de página quedan ilegibles** (texto
+claro sobre fondo claro). Es la consecuencia esperada de que el tema claro solo se hubiera
+aplicado a Login + Dashboard + AppShell, pero conviene atacarlo pronto.
