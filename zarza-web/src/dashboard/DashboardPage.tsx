@@ -83,51 +83,6 @@ function SurfaceCard({ children, style, glow }: {
   );
 }
 
-function Sparkline({ data, color = T.brand, height = 36 }: { data: number[]; color?: string; height?: number }) {
-  const w = 100;
-  const h = height;
-  const max = Math.max(...data), min = Math.min(...data);
-  const range = max - min || 1;
-  const pts = data.map((v, i) => {
-    const x = (i / (data.length - 1)) * w;
-    const y = h - ((v - min) / range) * (h - 4) - 2;
-    return `${x},${y}`;
-  }).join(' ');
-  const areaD = `M0,${h} L${pts.split(' ').join(' L')} L${w},${h} Z`;
-  const id = `sg${color.replace('#', '')}`;
-  return (
-    <svg aria-hidden="true" width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
-          <stop offset="100%" stopColor={color} stopOpacity="0"/>
-        </linearGradient>
-      </defs>
-      <path d={areaD} fill={`url(#${id})`}/>
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-}
-
-function RingProgress({ value, color = T.emerald, size = 68, strokeWidth = 6 }: {
-  value: number; color?: string; size?: number; strokeWidth?: number;
-}) {
-  const r = (size - strokeWidth) / 2;
-  const circ = 2 * Math.PI * r;
-  const dash = (Math.min(value, 100) / 100) * circ;
-  return (
-    <svg aria-hidden="true" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={T.grayLine} strokeWidth={strokeWidth}/>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none"
-        stroke={color} strokeWidth={strokeWidth}
-        strokeDasharray={`${dash} ${circ - dash}`}
-        strokeLinecap="round"
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-      />
-    </svg>
-  );
-}
-
 // Custom bar shape with gradient
 function GradientBar(props: React.SVGProps<SVGRectElement> & { x?: number; y?: number; width?: number; height?: number }) {
   const { x = 0, y = 0, width = 0, height = 0 } = props;
@@ -135,6 +90,71 @@ function GradientBar(props: React.SVGProps<SVGRectElement> & { x?: number; y?: n
   return (
     <rect x={x} y={y} width={width} height={height} rx={4}
       fill="url(#barGradient)"/>
+  );
+}
+
+// Tarjeta KPI horizontal: ícono a la izquierda, número + label a la derecha.
+// Sin sparkline — el layout compacto no deja espacio legible para uno.
+function KpiCardHorizontal({ icon, value, label, color, loading }: {
+  icon: React.ReactNode;
+  value: number | string;
+  label: string;
+  color: string;
+  loading?: boolean;
+}) {
+  const chip = chipFor(color);
+  return (
+    <SurfaceCard style={{ cursor: 'default', display: 'flex', alignItems: 'center' }}>
+      {loading ? (
+        <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%' }}>
+          <Spin/>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+            background: chip.bg,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: chip.fg,
+          }}>
+            {icon}
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: T.ink, lineHeight: 1 }}>{value}</div>
+            <div style={{ fontSize: 12, color: T.gray, marginTop: 3 }}>{label}</div>
+          </div>
+        </div>
+      )}
+    </SurfaceCard>
+  );
+}
+
+// Tarjeta "spotlight": bloque sólido T.brand, resalta la métrica más
+// relevante (Salud Global %) en vez de una alerta.
+function SpotlightCard({ value, label, loading }: {
+  value: number;
+  label: string;
+  loading?: boolean;
+}) {
+  return (
+    <div style={{
+      background: T.brand, borderRadius: 16, padding: 24,
+      boxShadow: '0 12px 32px rgba(6,78,59,0.28)',
+      display: 'flex', alignItems: 'center',
+    }}>
+      {loading ? (
+        <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%' }}>
+          <Spin/>
+        </div>
+      ) : (
+        <div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#FFFFFF', lineHeight: 1 }}>
+            {value}<span style={{ fontSize: 14, fontWeight: 400, marginLeft: 2 }}>%</span>
+          </div>
+          <div style={{ fontSize: 12, color: T.champagne, marginTop: 4 }}>{label}</div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -151,56 +171,50 @@ export function DashboardPage() {
     {
       label: 'Elementos Sanos',
       value: h?.totalHealthyCount ?? 0,
-      unit: '',
       color: T.emerald,
       icon: (
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
           <path d="M12 2C6 2 2 9 2 14c0 3.3 2.7 6 6 6 2.2 0 4.2-1.2 5.3-3A6 6 0 0021 11c0-5-4-9-9-9z"/>
         </svg>
       ),
-      sparkData: [30, 45, 52, 48, 60, 72, h?.totalHealthyCount ?? 70],
       loading: healthQuery.isLoading,
     },
     {
       label: 'Total Detectados',
       value: h?.totalDetected ?? 0,
-      unit: '',
       color: T.brand,
       icon: (
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
           <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
         </svg>
       ),
-      sparkData: [50, 60, 65, 70, 68, 80, h?.totalDetected ?? 80],
-      loading: healthQuery.isLoading,
-    },
-    {
-      label: 'Merma Promedio',
-      value: h?.avgLossPercent ?? 0,
-      unit: '%',
-      color: T.warn,
-      icon: (
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/>
-        </svg>
-      ),
-      sparkData: [8, 6, 9, 7, 5, 7, Math.round((h?.avgLossPercent ?? 7) * 10) / 10],
       loading: healthQuery.isLoading,
     },
     {
       label: 'Elementos Enfermos',
       value: h?.totalSickCount ?? 0,
-      unit: '',
       color: T.danger,
       icon: (
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
         </svg>
       ),
-      sparkData: [5, 8, 6, 10, 7, 9, h?.totalSickCount ?? 9],
       loading: healthQuery.isLoading,
     },
   ];
+
+  const mermaCard = {
+    label: 'Merma Promedio',
+    value: h?.avgLossPercent ?? 0,
+    unit: '%',
+    color: T.warn,
+    icon: (
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/>
+      </svg>
+    ),
+    loading: healthQuery.isLoading,
+  };
 
   const phenoColors = [T.brand, T.emerald, T.champagne, T.warn, T.danger, T.gray, T.terracotta];
 
@@ -214,71 +228,25 @@ export function DashboardPage() {
         background: T.canvas, minHeight: '100%', fontVariantNumeric: 'tabular-nums',
       }}>
         {/* ── Page header ── */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
-          <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: T.ink, margin: 0, marginBottom: 4 }}>
-              Hola, {user ? displayName(user) : ''} 👋
-            </h1>
-            <p style={{ fontSize: 13, color: T.gray, margin: 0 }}>
-              Vista general de la salud del cultivo · <span style={{ color: T.emerald }}>● En línea</span>
-            </p>
-          </div>
-          {!healthQuery.isLoading && h && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              background: chipFor(T.emerald).bg,
-              borderRadius: 12, padding: '8px 16px',
-            }}>
-              <RingProgress value={healthPct} color={T.emerald} size={40} strokeWidth={4}/>
-              <div>
-                <div style={{ fontSize: 11, color: T.gray }}>Salud global</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: T.ink }}>{healthPct}%</div>
-              </div>
-            </div>
-          )}
+        <div style={{ marginBottom: 28 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: T.ink, margin: 0, marginBottom: 4 }}>
+            Hola, {user ? displayName(user) : ''} 👋
+          </h1>
+          <p style={{ fontSize: 13, color: T.gray, margin: 0 }}>
+            Vista general de la salud del cultivo · <span style={{ color: T.emerald }}>● En línea</span>
+          </p>
         </div>
 
         {/* ── KPI Cards ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
-          {kpiCards.map((c, i) => {
-            const chip = chipFor(c.color);
-            return (
-              <SurfaceCard key={i} style={{ cursor: 'default' }}>
-                {c.loading ? (
-                  <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 100 }}>
-                    <Spin/>
-                  </div>
-                ) : (
-                  <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-                      <div style={{
-                        width: 36, height: 36, borderRadius: 10,
-                        background: chip.bg,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: chip.fg,
-                      }}>
-                        {c.icon}
-                      </div>
-                    </div>
-                    <div style={{ marginBottom: 12 }}>
-                      <div style={{ fontSize: 28, fontWeight: 700, color: T.ink, lineHeight: 1 }}>
-                        {typeof c.value === 'number' && c.unit === '%'
-                          ? formatPercent(c.value)
-                          : c.value}
-                        <span style={{ fontSize: 14, fontWeight: 400, color: T.gray, marginLeft: 2 }}>{c.unit}</span>
-                      </div>
-                      <div style={{ fontSize: 12, color: T.gray, marginTop: 4 }}>{c.label}</div>
-                    </div>
-                    <Sparkline data={c.sparkData} color={c.color} height={36}/>
-                  </>
-                )}
-              </SurfaceCard>
-            );
-          })}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr) 1.3fr', gap: 16, marginBottom: 24 }}>
+          {kpiCards.map((c, i) => (
+            <KpiCardHorizontal key={i} icon={c.icon} value={c.value} label={c.label} color={c.color} loading={c.loading}/>
+          ))}
+          <SpotlightCard value={healthPct} label="Salud global" loading={healthQuery.isLoading}/>
         </div>
 
         {/* ── Charts row ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
           {/* Yield bar chart */}
           <SurfaceCard>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -368,39 +336,37 @@ export function DashboardPage() {
               </ResponsiveContainer>
             )}
           </SurfaceCard>
-        </div>
 
-        {/* ── Bottom row ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          {/* Health summary */}
-          <SurfaceCard>
-            <div style={{ fontSize: 15, fontWeight: 600, color: T.ink, marginBottom: 16 }}>Resumen de Salud</div>
-            {healthQuery.isLoading ? (
-              <div role="status" aria-label="Cargando…" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 100 }}><Spin/></div>
+          {/* Merma promedio */}
+          <SurfaceCard style={{ cursor: 'default', display: 'flex', alignItems: 'center' }}>
+            {mermaCard.loading ? (
+              <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%' }}>
+                <Spin/>
+              </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[
-                  { label: 'Total detectados', value: h?.totalDetected ?? 0, color: T.brand },
-                  { label: 'Elementos sanos', value: h?.totalHealthyCount ?? 0, color: T.emerald },
-                  { label: 'Elementos enfermos', value: h?.totalSickCount ?? 0, color: T.danger },
-                  { label: 'Merma promedio', value: `${formatPercent(h?.avgLossPercent ?? 0)}%`, color: T.warn },
-                ].map((row, i) => (
-                  <div key={i} style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '10px 14px', borderRadius: 10,
-                    background: T.canvas, border: `1px solid ${T.grayLine}`,
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: row.color }}/>
-                      <span style={{ fontSize: 13, color: T.gray }}>{row.label}</span>
-                    </div>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: row.color }}>{row.value}</span>
+              <div style={{ width: '100%' }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: 10, marginBottom: 14,
+                  background: chipFor(mermaCard.color).bg,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: chipFor(mermaCard.color).fg,
+                }}>
+                  {mermaCard.icon}
+                </div>
+                <div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: T.ink, lineHeight: 1 }}>
+                    {formatPercent(mermaCard.value)}
+                    <span style={{ fontSize: 14, fontWeight: 400, color: T.gray, marginLeft: 2 }}>{mermaCard.unit}</span>
                   </div>
-                ))}
+                  <div style={{ fontSize: 12, color: T.gray, marginTop: 4 }}>{mermaCard.label}</div>
+                </div>
               </div>
             )}
           </SurfaceCard>
+        </div>
 
+        {/* ── Bottom row ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
           {/* Field map placeholder */}
           <SurfaceCard>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
