@@ -130,13 +130,13 @@ function KpiCardHorizontal({ icon, value, label, color, loading }: {
 }) {
   const chip = chipFor(color);
   return (
-    <SurfaceCard style={{ cursor: 'default' }}>
+    <SurfaceCard style={{ cursor: 'default', display: 'flex', alignItems: 'center' }}>
       {loading ? (
-        <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56 }}>
+        <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, width: '100%' }}>
           <Spin/>
         </div>
       ) : (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
           <div style={{
             width: 40, height: 40, borderRadius: 10, flexShrink: 0,
             background: chip.bg,
