@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { notification, ConfigProvider, theme, Avatar, Dropdown } from 'antd';
+import { notification, Avatar, Dropdown } from 'antd';
 import { useAuth } from '../auth/useAuth';
 import { Role, AuthUser } from '../auth/types';
 import { useWebSocket } from './useWebSocket';
@@ -77,7 +77,7 @@ function TopBar({ user, activePath, scrolled, onLogout }: {
                       fontSize: 13,
                       color: active ? T.ink : T.gray,
                       fontWeight: active ? 600 : 400,
-                      borderBottom: active ? `2px solid ${T.rubus}` : '2px solid transparent',
+                      borderBottom: active ? `2px solid ${T.brand}` : '2px solid transparent',
                       paddingBottom: 4,
                       textDecoration: 'none',
                     }}
@@ -140,7 +140,7 @@ function TopBar({ user, activePath, scrolled, onLogout }: {
             background: 'none', border: 'none',
           }}
         >
-          <Avatar size={32} style={{ background: T.rubus, color: '#fff', fontSize: 12, fontWeight: 700 }}>
+          <Avatar size={32} style={{ background: T.brand, color: '#fff', fontSize: 12, fontWeight: 700 }}>
             {initials}
           </Avatar>
         </button>
@@ -186,26 +186,12 @@ export function AppShell() {
       display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden',
       background: T.canvas, fontFamily: "'Lexend', sans-serif",
     }}>
-      <ConfigProvider
-        theme={{
-          algorithm: theme.defaultAlgorithm,
-          token: {
-            colorPrimary: T.rubus,
-            colorBgContainer: T.surface,
-            colorBorder: T.grayLine,
-            colorText: T.ink,
-            borderRadius: 12,
-            fontFamily: "'Lexend', sans-serif",
-          },
-        }}
-      >
-        <TopBar
-          user={user}
-          activePath={location.pathname}
-          scrolled={scrolled}
-          onLogout={handleLogout}
-        />
-      </ConfigProvider>
+      <TopBar
+        user={user}
+        activePath={location.pathname}
+        scrolled={scrolled}
+        onLogout={handleLogout}
+      />
 
       <main
         onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
