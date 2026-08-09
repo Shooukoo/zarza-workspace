@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button, ConfigProvider, theme, notification } from 'antd';
+import { Form, Input, Button, notification } from 'antd';
 import { useAuth } from './useAuth';
 import { defaultRouteForRole } from './defaultRoute';
 import { lightTheme as T } from '../shared/lightTheme';
@@ -70,7 +70,7 @@ export function LoginPage() {
         .zw-login-submit:hover { filter: brightness(1.08); }
         .zw-login-submit:active { transform: scale(0.98); }
         .zw-login-submit:focus-visible {
-          outline: 2px solid ${T.rubus};
+          outline: 2px solid ${T.brand};
           outline-offset: 3px;
         }
       `}</style>
@@ -88,7 +88,7 @@ export function LoginPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 48 }}>
               <span aria-hidden="true" style={{
                 width: 16, height: 16, borderRadius: 5,
-                background: `linear-gradient(135deg, ${T.rubus}, ${T.rubusLt})`,
+                background: `linear-gradient(135deg, ${T.emerald}, ${T.brand})`,
                 display: 'inline-block',
               }} />
               <span style={{ fontSize: 15, fontWeight: 700, color: T.ink }}>RubusAI</span>
@@ -104,78 +104,60 @@ export function LoginPage() {
               Ingresa tus credenciales para acceder a tu panel
             </p>
 
-            <ConfigProvider
-              theme={{
-                algorithm: theme.defaultAlgorithm,
-                token: {
-                  colorPrimary: T.rubus,
-                  colorBgContainer: '#FFFFFF',
-                  colorBorder: T.grayLine,
-                  colorText: T.ink,
-                  colorTextPlaceholder: '#9CA3AF',
-                  borderRadius: 12,
-                  fontFamily: "'Lexend', sans-serif",
-                },
-                components: {
-                  Input: { colorBgContainer: '#FFFFFF', colorText: T.ink, colorTextPlaceholder: '#9CA3AF' },
-                },
-              }}
-            >
-              <Form layout="vertical" onFinish={onFinish} scrollToFirstError>
-                <Form.Item
-                  label={<span style={{ color: T.ink, fontSize: 13, fontWeight: 500 }}>Email</span>}
+            <Form layout="vertical" onFinish={onFinish} scrollToFirstError>
+              <Form.Item
+                label={<span style={{ color: T.ink, fontSize: 13, fontWeight: 500 }}>Email</span>}
+                name="email"
+                rules={[
+                  { required: true, message: 'Ingresa tu email' },
+                  { type: 'email', message: 'Email inválido' },
+                ]}
+              >
+                <Input
+                  id="email"
                   name="email"
-                  rules={[
-                    { required: true, message: 'Ingresa tu email' },
-                    { type: 'email', message: 'Email inválido' },
-                  ]}
-                >
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    spellCheck={false}
-                    autoFocus
-                    placeholder="admin@rubus.mx"
-                    size="large"
-                    style={{ border: `1px solid ${T.grayLine}`, borderRadius: 12 }}
-                  />
-                </Form.Item>
-                <Form.Item
-                  label={<span style={{ color: T.ink, fontSize: 13, fontWeight: 500 }}>Contraseña</span>}
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  spellCheck={false}
+                  autoFocus
+                  placeholder="admin@rubus.mx"
+                  size="large"
+                  style={{ border: `1px solid ${T.grayLine}`, borderRadius: 12 }}
+                />
+              </Form.Item>
+              <Form.Item
+                label={<span style={{ color: T.ink, fontSize: 13, fontWeight: 500 }}>Contraseña</span>}
+                name="password"
+                rules={[{ required: true, message: 'Ingresa tu contraseña' }]}
+              >
+                <Input.Password
+                  id="password"
                   name="password"
-                  rules={[{ required: true, message: 'Ingresa tu contraseña' }]}
+                  autoComplete="current-password"
+                  placeholder="••••••••"
+                  size="large"
+                  style={{ border: `1px solid ${T.grayLine}`, borderRadius: 12 }}
+                />
+              </Form.Item>
+              <Form.Item style={{ marginBottom: 0, marginTop: 20 }}>
+                <Button
+                  className="zw-login-submit"
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  size="large"
+                  style={{
+                    background: `linear-gradient(135deg, ${T.emerald}, ${T.brand})`,
+                    border: 'none', borderRadius: 12, height: 48, minWidth: 160,
+                    fontSize: 15, fontWeight: 600, fontFamily: "'Lexend', sans-serif",
+                    boxShadow: `0 8px 24px ${T.brand}33`,
+                  }}
                 >
-                  <Input.Password
-                    id="password"
-                    name="password"
-                    autoComplete="current-password"
-                    placeholder="••••••••"
-                    size="large"
-                    style={{ border: `1px solid ${T.grayLine}`, borderRadius: 12 }}
-                  />
-                </Form.Item>
-                <Form.Item style={{ marginBottom: 0, marginTop: 20 }}>
-                  <Button
-                    className="zw-login-submit"
-                    type="primary"
-                    htmlType="submit"
-                    loading={loading}
-                    size="large"
-                    style={{
-                      background: `linear-gradient(135deg, ${T.rubus}, ${T.rubusLt})`,
-                      border: 'none', borderRadius: 12, height: 48, minWidth: 160,
-                      fontSize: 15, fontWeight: 600, fontFamily: "'Lexend', sans-serif",
-                      boxShadow: `0 8px 24px ${T.rubus}33`,
-                    }}
-                  >
-                    {loading ? 'Iniciando sesión…' : 'Iniciar Sesión'}
-                  </Button>
-                </Form.Item>
-              </Form>
-            </ConfigProvider>
+                  {loading ? 'Iniciando sesión…' : 'Iniciar Sesión'}
+                </Button>
+              </Form.Item>
+            </Form>
 
             <div style={{ marginTop: 56 }}>
               <span style={{ fontSize: 11, color: '#9CA3AF' }}>
@@ -190,7 +172,7 @@ export function LoginPage() {
           className="zw-login-art-col"
           style={{
             position: 'relative', borderRadius: 24, overflow: 'hidden',
-            background: `linear-gradient(155deg, ${T.rubusLt} 0%, ${T.rubus} 55%, #4B0396 100%)`,
+            background: `linear-gradient(155deg, ${T.emerald} 0%, ${T.brand} 55%, ${T.brandDeep} 100%)`,
           }}
         >
           <div aria-hidden="true" className="zw-cloud" style={{ width: 160, height: 160, top: -50, left: -40 }} />
@@ -205,8 +187,8 @@ export function LoginPage() {
           >
             <defs>
               <linearGradient id="zw-screen" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#3D006A" />
-                <stop offset="100%" stopColor={T.pink} />
+                <stop offset="0%" stopColor={T.brandDeep} />
+                <stop offset="100%" stopColor={T.champagne} />
               </linearGradient>
               <radialGradient id="zw-berry-hl" cx="35%" cy="30%" r="70%">
                 <stop offset="0%" stopColor="#5B2A86" />
@@ -216,7 +198,7 @@ export function LoginPage() {
 
             {/* Phone frame */}
             <g className="zw-float">
-              <rect x="100" y="70" width="200" height="370" rx="34" fill="#160630" stroke="rgba(255,255,255,0.25)" strokeWidth="2" />
+              <rect x="100" y="70" width="200" height="370" rx="34" fill="#0A241C" stroke="rgba(255,255,255,0.25)" strokeWidth="2" />
               <rect x="112" y="88" width="176" height="334" rx="22" fill="url(#zw-screen)" />
               <rect x="178" y="80" width="44" height="8" rx="4" fill="rgba(255,255,255,0.35)" />
 
@@ -233,7 +215,7 @@ export function LoginPage() {
               ))}
 
               {/* Detection box */}
-              <rect x="165" y="196" width="72" height="80" rx="6" fill="none" stroke="#E9D8FF" strokeWidth="1.5" strokeDasharray="4 4" />
+              <rect x="165" y="196" width="72" height="80" rx="6" fill="none" stroke={T.champagne} strokeWidth="1.5" strokeDasharray="4 4" />
               <path d="M165 206v-10a4 4 0 014-4h10" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
               <path d="M237 266v10a4 4 0 01-4 4h-10" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
 
@@ -274,7 +256,7 @@ export function LoginPage() {
               boxShadow: '0 10px 24px rgba(0,0,0,0.18)',
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.rubus} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.brand} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2l2.4 6.2L21 10l-6.2 2.4L12 19l-2.4-6.6L3 10l6.6-1.8z" />
             </svg>
           </div>
