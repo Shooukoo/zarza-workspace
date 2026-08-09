@@ -119,6 +119,77 @@ function GradientBar(props: React.SVGProps<SVGRectElement> & { x?: number; y?: n
   );
 }
 
+// Tarjeta KPI horizontal: ícono a la izquierda, número + label a la derecha.
+// Sin sparkline — el layout compacto no deja espacio legible para uno.
+// @ts-expect-error TS6133 - will be used in a later task
+function KpiCardHorizontal({ icon, value, label, color, loading }: {
+  icon: React.ReactNode;
+  value: number | string;
+  label: string;
+  color: string;
+  loading?: boolean;
+}) {
+  const chip = chipFor(color);
+  return (
+    <SurfaceCard style={{ cursor: 'default' }}>
+      {loading ? (
+        <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56 }}>
+          <Spin/>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+            background: chip.bg,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: chip.fg,
+          }}>
+            {icon}
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: T.ink, lineHeight: 1 }}>{value}</div>
+            <div style={{ fontSize: 12, color: T.gray, marginTop: 3 }}>{label}</div>
+          </div>
+        </div>
+      )}
+    </SurfaceCard>
+  );
+}
+
+// Tarjeta "spotlight": bloque sólido T.brand, resalta la métrica más
+// relevante (Salud Global %) en vez de una alerta.
+// @ts-expect-error TS6133 - will be used in a later task
+function SpotlightCard({ value, label, sparkData, loading }: {
+  value: number;
+  label: string;
+  sparkData: number[];
+  loading?: boolean;
+}) {
+  return (
+    <div style={{
+      background: T.brand, borderRadius: 16, padding: 24,
+      boxShadow: '0 12px 32px rgba(6,78,59,0.28)',
+      display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+    }}>
+      {loading ? (
+        <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 100 }}>
+          <Spin/>
+        </div>
+      ) : (
+        <>
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 28, fontWeight: 700, color: '#FFFFFF', lineHeight: 1 }}>
+              {value}<span style={{ fontSize: 14, fontWeight: 400, marginLeft: 2 }}>%</span>
+            </div>
+            <div style={{ fontSize: 12, color: T.champagne, marginTop: 4 }}>{label}</div>
+          </div>
+          <Sparkline data={sparkData} color="#FFFFFF" height={36}/>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Main component ─────────────────────────────────────────────────
 export function DashboardPage() {
   const { user } = useAuth();
