@@ -1,5 +1,5 @@
 import React from 'react';
-import { Spin, ConfigProvider, theme } from 'antd';
+import { Spin } from 'antd';
 import {
   BarChart,
   Bar,
@@ -29,10 +29,11 @@ const T = lightTheme;
 // dona, sparklines, ring, dots) siguen usando el color semántico
 // saturado de T directamente — el pastel es solo para superficies.
 const CHIP: Record<string, { bg: string; fg: string }> = {
-  [T.emerald]: { bg: '#ECFDF5', fg: '#047857' },
-  [T.rubus]:   { bg: '#F3E8FF', fg: '#7B00D4' },
-  [T.warn]:    { bg: '#FFFBEB', fg: '#B45309' },
-  [T.danger]:  { bg: '#FEF2F2', fg: '#B91C1C' },
+  [T.emerald]:    { bg: '#ECFDF5', fg: '#047857' },
+  [T.brand]:      { bg: '#E3F0EA', fg: '#064E3B' },
+  [T.warn]:       { bg: '#FFFBEB', fg: '#B45309' },
+  [T.danger]:     { bg: '#FEF2F2', fg: '#B91C1C' },
+  [T.terracotta]: { bg: '#FBEEE7', fg: '#9A4A2E' },
 };
 function chipFor(color: string) {
   return CHIP[color] ?? { bg: '#F3F4F6', fg: '#374151' };
@@ -59,7 +60,7 @@ const PARCELAS = [
   { x: 30, y: 20, w: 80, h: 50, label: 'P1', color: T.emerald, status: 'Saludable' },
   { x: 130, y: 15, w: 90, h: 55, label: 'P2', color: T.emerald, status: 'Saludable' },
   { x: 30, y: 85, w: 70, h: 40, label: 'P3', color: T.warn, status: 'Alerta' },
-  { x: 240, y: 30, w: 65, h: 70, label: 'P4', color: T.rubus, status: 'Monitoreada' },
+  { x: 240, y: 30, w: 65, h: 70, label: 'P4', color: T.terracotta, status: 'Monitoreada' },
 ] as const;
 
 // ── Sub-components ─────────────────────────────────────────────────
@@ -72,7 +73,7 @@ function SurfaceCard({ children, style, glow }: {
     <div style={{
       ...surfaceCard,
       boxShadow: glow
-        ? '0 12px 32px rgba(123,0,212,0.18)'
+        ? '0 12px 32px rgba(6,78,59,0.18)'
         : '0 12px 32px rgba(17,17,40,0.08)',
       padding: 24,
       ...style,
@@ -82,7 +83,7 @@ function SurfaceCard({ children, style, glow }: {
   );
 }
 
-function Sparkline({ data, color = T.rubus, height = 36 }: { data: number[]; color?: string; height?: number }) {
+function Sparkline({ data, color = T.brand, height = 36 }: { data: number[]; color?: string; height?: number }) {
   const w = 100;
   const h = height;
   const max = Math.max(...data), min = Math.min(...data);
@@ -164,7 +165,7 @@ export function DashboardPage() {
       label: 'Total Detectados',
       value: h?.totalDetected ?? 0,
       unit: '',
-      color: T.rubus,
+      color: T.brand,
       icon: (
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
           <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -201,26 +202,13 @@ export function DashboardPage() {
     },
   ];
 
-  const phenoColors = [T.rubus, T.rubusLt, '#4A1D8A', T.emerald, T.warn, T.danger, T.gray];
+  const phenoColors = [T.brand, T.emerald, T.champagne, T.warn, T.danger, T.gray, T.terracotta];
 
   const healthPct = h && h.totalDetected > 0
     ? Math.round((h.totalHealthyCount / h.totalDetected) * 100)
     : 0;
 
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: theme.defaultAlgorithm,
-        token: {
-          colorPrimary: T.rubus,
-          colorBgContainer: T.surface,
-          colorBorder: T.grayLine,
-          colorText: T.ink,
-          borderRadius: 12,
-          fontFamily: "'Lexend', sans-serif",
-        },
-      }}
-    >
       <div style={{
         fontFamily: "'Lexend', sans-serif", color: T.ink,
         background: T.canvas, minHeight: '100%', fontVariantNumeric: 'tabular-nums',
@@ -307,9 +295,9 @@ export function DashboardPage() {
                   {/* SVG gradient definition — plain SVG is valid inside Recharts */}
                   <defs>
                     <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={T.rubusLt} stopOpacity={1}/>
-                      <stop offset="60%" stopColor={T.rubus} stopOpacity={1}/>
-                      <stop offset="100%" stopColor="#3D006A" stopOpacity={1}/>
+                      <stop offset="0%" stopColor={T.emerald} stopOpacity={1}/>
+                      <stop offset="60%" stopColor={T.brand} stopOpacity={1}/>
+                      <stop offset="100%" stopColor={T.brandDeep} stopOpacity={1}/>
                     </linearGradient>
                   </defs>
                   <XAxis
@@ -392,7 +380,7 @@ export function DashboardPage() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
-                  { label: 'Total detectados', value: h?.totalDetected ?? 0, color: T.rubus },
+                  { label: 'Total detectados', value: h?.totalDetected ?? 0, color: T.brand },
                   { label: 'Elementos sanos', value: h?.totalHealthyCount ?? 0, color: T.emerald },
                   { label: 'Elementos enfermos', value: h?.totalSickCount ?? 0, color: T.danger },
                   { label: 'Merma promedio', value: `${formatPercent(h?.avgLossPercent ?? 0)}%`, color: T.warn },
@@ -420,8 +408,8 @@ export function DashboardPage() {
               <span style={{
                 display: 'inline-flex', alignItems: 'center',
                 padding: '2px 10px', borderRadius: 100,
-                background: chipFor(T.rubus).bg,
-                color: chipFor(T.rubus).fg, fontSize: 11, fontWeight: 600,
+                background: chipFor(T.brand).bg,
+                color: chipFor(T.brand).fg, fontSize: 11, fontWeight: 600,
               }}>4 activas</span>
             </div>
             <div style={{ position: 'relative' }}>
@@ -459,7 +447,7 @@ export function DashboardPage() {
               {([
                 { c: T.emerald, l: 'Saludable' },
                 { c: T.warn, l: 'Alerta' },
-                { c: T.rubus, l: 'Monitoreada' },
+                { c: T.terracotta, l: 'Monitoreada' },
               ] as const).map((s, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: T.gray }}>
                   <div style={{ width: 8, height: 8, background: chipFor(s.c).fg, borderRadius: 2 }}/>
@@ -470,6 +458,5 @@ export function DashboardPage() {
           </SurfaceCard>
         </div>
       </div>
-    </ConfigProvider>
   );
 }
