@@ -44,7 +44,7 @@ src/
 - `@fastify/helmet` + `@fastify/cookie` + CORS restringido a `CORS_ORIGIN`.
 - WebSocket nativo (`WsAdapter`) para `NotificationsGateway`, ruta `/ws`.
 - `ThrottlerModule` global (`APP_GUARD`): límite `global` 1000 req/min y límite dedicado `auth` 10 req/min.
-- No expone Swagger/OpenAPI.
+- Documentación OpenAPI en `/api/docs` (JSON en `/api/docs-json`), activable con `SWAGGER_ENABLED`.
 
 ## Endpoints principales
 

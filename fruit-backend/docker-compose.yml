@@ -5,6 +5,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+      - SWAGGER_ENABLED=true
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
       - RABBITMQ_QUEUE=${RABBITMQ_QUEUE}
       - R2_ENDPOINT=${R2_ENDPOINT}

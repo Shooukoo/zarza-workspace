@@ -19,7 +19,17 @@ import { type JwtPayload } from '../auth/domain/types/jwt-payload.type';
 import { type UserScope } from '../auth/domain/types/user-scope.type';
 import { Role } from '../auth/domain/enums/role.enum';
 import { AppLogger } from '../common/logging/app.logger';
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Fruits')
+@ApiBearerAuth()
+@ApiCookieAuth('access_token')
 @Controller('fruits')
 @UseGuards(JwtAuthGuard)
 export class FruitsQueryController {
@@ -31,6 +41,19 @@ export class FruitsQueryController {
   ) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Listar frutas',
+    description:
+      'Devuelve una lista paginada de frutas accesibles para el usuario autenticado.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Frutas recuperadas con éxito.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
   async findAll(@Req() req: any, @Query() query: GetFruitsQueryDto) {
     const scope = await this.buildScope(req.user);
     this.logger.debug('GET /fruits', {
@@ -52,6 +75,23 @@ export class FruitsQueryController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Obtener fruta por ID',
+    description:
+      'Devuelve una fruta específica accesible para el usuario autenticado.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Fruta recuperada con éxito.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Fruta no encontrada.',
+  })
   async findOne(@Param('id') id: string, @Req() req: any) {
     const scope = await this.buildScope(req.user);
     const result = await this.fruitsQueryService.findOne(id, scope);

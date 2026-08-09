@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 import { DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT } from '@rubus/database';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
  * DTO base del contrato de paginación unificado.
@@ -9,12 +10,25 @@ import { DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT } from '@rubus/database';
  * endpoint debe declarar TODOS sus query params en un solo DTO).
  */
 export class PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: 'Número de página.',
+    example: 1,
+    minimum: 1,
+    default: 1,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
   page: number = 1;
 
+  @ApiPropertyOptional({
+    description: 'Número de elementos por página.',
+    example: 20,
+    minimum: 1,
+    maximum: MAX_PAGE_LIMIT,
+    default: DEFAULT_PAGE_LIMIT,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()

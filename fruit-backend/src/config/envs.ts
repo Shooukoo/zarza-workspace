@@ -19,6 +19,7 @@ interface EnvVars {
   INTERNAL_NOTIFY_TOKEN: string;
   FCM_TOKEN_ENCRYPTION_KEY: string;
   LOG_LEVEL: string;
+  SWAGGER_ENABLED: boolean;
 }
 
 const envSchema = joi
@@ -49,6 +50,7 @@ const envSchema = joi
       .string()
       .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
       .default('info'),
+    SWAGGER_ENABLED: joi.boolean().default(false),
   })
   .unknown(true);
 
@@ -76,4 +78,5 @@ export const envs = {
   internalNotifyToken: envVars.INTERNAL_NOTIFY_TOKEN,
   fcmTokenEncryptionKey: envVars.FCM_TOKEN_ENCRYPTION_KEY,
   logLevel: envVars.LOG_LEVEL,
+  swaggerEnabled: envVars.SWAGGER_ENABLED,
 };

@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { AnalysesService } from './analyses.service';
 import { ValidateAnalysisDto } from './dto/validate-analysis.dto';
-import { ListAnalysesQueryDto } from './dto/list-analyses-query.dto';
 import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
@@ -25,7 +24,22 @@ import {
   type IUserRepository,
 } from '../auth/ports/user-repository.port';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  ANALYSIS_ESTADO_VALUES,
+  ListAnalysesQueryDto,
+} from './dto/list-analyses-query.dto';
 
+@ApiTags('Analyses')
+@ApiBearerAuth()
+@ApiCookieAuth('access_token')
 @Controller('analyses')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AnalysesController {
@@ -36,6 +50,23 @@ export class AnalysesController {
     private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
+  @ApiOperation({
+    summary: 'Listar los análisis de frutas',
+    description:
+      'Devuelve una lista paginada de análisis según el rol del usuario autenticado y los filtros opcionales.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Análisis recuperados con éxito.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para acceder a los análisis.',
+  })
   @Get()
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR)
   async findAll(
@@ -52,6 +83,33 @@ export class AnalysesController {
     );
   }
 
+  @ApiOperation({
+    summary: 'Obtener la URL de la imagen de análisis',
+    description:
+      'Devuelve una URL para acceder a la imagen asociada a un análisis.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    format: 'uuid',
+    description: 'UUID del análisis.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'URL de la imagen recuperada con éxito.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para acceder a la imagen.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Análisis no encontrado.',
+  })
   @Get(':id/image')
   @Roles(Role.ADMIN, Role.AGRONOMO)
   async getImage(@Param('id', ParseUUIDPipe) id: string) {
@@ -59,6 +117,32 @@ export class AnalysesController {
     return { url };
   }
 
+  @ApiOperation({
+    summary: 'Obtén un análisis',
+    description: 'Devuelve los detalles de un análisis de fruta específico.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    format: 'uuid',
+    description: 'UUID del análisis.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Análisis recuperado con éxito.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para acceder a este análisis.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Análisis no encontrado.',
+  })
   @Get(':id')
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR)
   async findOne(
@@ -80,6 +164,37 @@ export class AnalysesController {
     return analysis;
   }
 
+  @ApiOperation({
+    summary: 'Validar o rechazar un análisis',
+    description:
+      'Permite a un agrónomo o administrador validar o rechazar un análisis de fruta.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    format: 'uuid',
+    description: 'UUID del análisis.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'La validación del análisis se completó con éxito.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos de validación no válidos.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para validar análisis.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Análisis no encontrado.',
+  })
   @Patch(':id/validate')
   @Roles(Role.AGRONOMO, Role.ADMIN)
   async validate(

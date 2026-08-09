@@ -22,9 +22,21 @@ import {
   I_USER_REPOSITORY,
   type IUserRepository,
 } from '../auth/ports/user-repository.port';
+import {
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller('campos')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ApiTags('Campos')
+@ApiBearerAuth()
+@ApiCookieAuth('access_token')
 export class CamposController {
   constructor(
     private readonly camposService: CamposService,
@@ -34,6 +46,29 @@ export class CamposController {
 
   @Get()
   @Roles(Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO, Role.MONITOR)
+  @ApiOperation({
+    summary: 'Listar campos',
+    description:
+      'Devuelve los campos accesibles para el usuario autenticado. Los administradores pueden filtrar opcionalmente por productor.',
+  })
+  @ApiQuery({
+    name: 'productor_id',
+    required: false,
+    description: 'UUID del productor utilizado para filtrar campos.',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Campos recuperados con éxito.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para acceder a los campos.',
+  })
   async findAll(
     @Req() req: { user: JwtPayload },
     @Query('productor_id') productorId?: string,
@@ -49,6 +84,32 @@ export class CamposController {
 
   @Get(':id')
   @Roles(Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO, Role.MONITOR)
+  @ApiOperation({
+    summary: 'Obtener campo por ID',
+    description:
+      'Devuelve los detalles de un campo específico accesible para el usuario autenticado.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Campo UUID.',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Campo recuperado con éxito.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para acceder a este campo.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Campo no encontrado.',
+  })
   async findById(@Param('id') id: string, @Req() req: { user: JwtPayload }) {
     const { user } = req;
     if (user.role === Role.AGRONOMO) {
@@ -62,12 +123,58 @@ export class CamposController {
 
   @Post()
   @Roles(Role.ADMIN, Role.PRODUCTOR)
+  @ApiOperation({
+    summary: 'Crear campo',
+    description: 'Crea un nuevo campo asociado con un productor.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Campo creado correctamente.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos de campo no válidos.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Solo los administradores y los productores pueden crear campos.',
+  })
   create(@Body() dto: CreateCampoDto) {
     return this.camposService.create(dto);
   }
 
   @Delete(':id')
   @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Eliminar campo',
+    description:
+      'Elimina un campo. Esta operación está restringida a los administradores.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Campo UUID.',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Campo eliminado correctamente.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Solo los administradores pueden eliminar campos.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Campo no encontrado.',
+  })
   delete(@Param('id') id: string) {
     return this.camposService.delete(id);
   }
