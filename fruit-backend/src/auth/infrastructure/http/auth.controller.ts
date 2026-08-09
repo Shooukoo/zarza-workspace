@@ -114,7 +114,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Throttle({ auth: { limit: 10, ttl: 60000 } })
   @ApiOperation({
-    summary: 'Log in',
+    summary: 'Iniciar sesión',
     description: 'Autentica a un usuario y devuelve tokens de acceso y de actualización.',
   })
   @ApiResponse({
@@ -225,7 +225,7 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Log out',
+    summary: 'Cerrar sesión',
     description:
       'Invalida el token de actualización y elimina la cookie del token de acceso.',
   })
