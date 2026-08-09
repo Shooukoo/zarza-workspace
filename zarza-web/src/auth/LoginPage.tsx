@@ -4,6 +4,7 @@ import { Form, Input, Button, notification } from 'antd';
 import { useAuth } from './useAuth';
 import { defaultRouteForRole } from './defaultRoute';
 import { lightTheme as T } from '../shared/lightTheme';
+import loginIllustration from '../assets/login-illustration.svg';
 
 interface LoginFormValues {
   email: string;
@@ -41,7 +42,7 @@ export function LoginPage() {
       <style>{`
         .zw-login-card { width: 100%; max-width: 1180px; min-height: 640px; display: flex; }
         .zw-login-form-col { flex: 1 1 480px; padding: 56px 64px; }
-        .zw-login-art-col { flex: 1 1 520px; margin: 16px; }
+        .zw-login-art-col { flex: 1 1 520px; margin: 0; }
         @media (max-width: 960px) {
           .zw-login-art-col { display: none; }
           .zw-login-form-col { flex: 1 1 100%; }
@@ -53,7 +54,7 @@ export function LoginPage() {
         }
         .zw-cloud {
           position: absolute; border-radius: 50%; filter: blur(2px);
-          background: rgba(255,255,255,0.35); pointer-events: none;
+          background: ${T.champagne}55; pointer-events: none;
         }
         .zw-float { animation: zw-bob 6s ease-in-out infinite; }
         @keyframes zw-bob {
@@ -171,8 +172,9 @@ export function LoginPage() {
         <div
           className="zw-login-art-col"
           style={{
-            position: 'relative', borderRadius: 24, overflow: 'hidden',
-            background: `linear-gradient(155deg, ${T.emerald} 0%, ${T.brand} 55%, ${T.brandDeep} 100%)`,
+            position: 'relative', borderRadius: '0 32px 32px 0', overflow: 'hidden',
+            background: `radial-gradient(120% 100% at 15% 10%, ${T.champagne}40 0%, ${T.surface} 62%)`,
+            borderLeft: `1px solid ${T.grayLine}`,
           }}
         >
           <div aria-hidden="true" className="zw-cloud" style={{ width: 160, height: 160, top: -50, left: -40 }} />
@@ -180,56 +182,16 @@ export function LoginPage() {
           <div aria-hidden="true" className="zw-cloud" style={{ width: 200, height: 200, bottom: -70, right: -60 }} />
           <div aria-hidden="true" className="zw-cloud" style={{ width: 90, height: 90, bottom: 60, right: 120, opacity: 0.4 }} />
 
-          <svg
+          <img
+            src={loginIllustration}
+            alt=""
             aria-hidden="true"
-            viewBox="0 0 400 500"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-          >
-            <defs>
-              <linearGradient id="zw-screen" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor={T.brandDeep} />
-                <stop offset="100%" stopColor={T.champagne} />
-              </linearGradient>
-              <radialGradient id="zw-berry-hl" cx="35%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#5B2A86" />
-                <stop offset="100%" stopColor="#1F0A40" />
-              </radialGradient>
-            </defs>
-
-            {/* Phone frame */}
-            <g className="zw-float">
-              <rect x="100" y="70" width="200" height="370" rx="34" fill="#0A241C" stroke="rgba(255,255,255,0.25)" strokeWidth="2" />
-              <rect x="112" y="88" width="176" height="334" rx="22" fill="url(#zw-screen)" />
-              <rect x="178" y="80" width="44" height="8" rx="4" fill="rgba(255,255,255,0.35)" />
-
-              {/* Leaves */}
-              <path d="M175 250 Q150 220 165 190 Q195 205 190 240 Z" fill="#34D399" opacity="0.9" />
-              <path d="M225 245 Q255 220 245 188 Q212 200 215 235 Z" fill="#10B981" opacity="0.9" />
-
-              {/* Blackberry cluster */}
-              {[
-                [200, 210], [188, 222], [212, 222], [180, 236], [200, 236], [220, 236],
-                [190, 250], [210, 250], [200, 262],
-              ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r="9" fill="url(#zw-berry-hl)" stroke="rgba(255,255,255,0.15)" />
-              ))}
-
-              {/* Detection box */}
-              <rect x="165" y="196" width="72" height="80" rx="6" fill="none" stroke={T.champagne} strokeWidth="1.5" strokeDasharray="4 4" />
-              <path d="M165 206v-10a4 4 0 014-4h10" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M237 266v10a4 4 0 01-4 4h-10" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
-
-              {/* Result chip */}
-              <rect x="150" y="298" width="100" height="26" rx="13" fill="#FFFFFF" />
-              <text x="200" y="315" textAnchor="middle" fontSize="11" fontWeight="700" fill={T.ink} fontFamily="'Lexend', sans-serif">
-                Etapa 5 · 97%
-              </text>
-
-              {/* Progress bar */}
-              <rect x="150" y="340" width="100" height="6" rx="3" fill="rgba(255,255,255,0.25)" />
-              <rect x="150" y="340" width="70" height="6" rx="3" fill="#FFFFFF" />
-            </g>
-          </svg>
+            className="zw-float"
+            style={{
+              position: 'absolute', inset: 0, width: '100%', height: '100%',
+              objectFit: 'contain', padding: 32,
+            }}
+          />
 
           <div
             aria-hidden="true"
@@ -238,7 +200,7 @@ export function LoginPage() {
               position: 'absolute', top: '18%', left: '10%',
               width: 52, height: 52, borderRadius: '50%', background: '#FFFFFF',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 10px 24px rgba(0,0,0,0.18)',
+              border: `1px solid ${T.grayLine}`, boxShadow: `0 10px 24px ${T.brand}26`,
             }}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={T.emerald} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -253,7 +215,7 @@ export function LoginPage() {
               position: 'absolute', bottom: '14%', right: '12%', animationDelay: '1.5s',
               width: 48, height: 48, borderRadius: 14, background: '#FFFFFF',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 10px 24px rgba(0,0,0,0.18)',
+              border: `1px solid ${T.grayLine}`, boxShadow: `0 10px 24px ${T.brand}26`,
             }}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.brand} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
