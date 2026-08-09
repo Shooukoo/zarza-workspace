@@ -402,36 +402,7 @@ export function DashboardPage() {
         </div>
 
         {/* ── Bottom row ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          {/* Health summary */}
-          <SurfaceCard>
-            <div style={{ fontSize: 15, fontWeight: 600, color: T.ink, marginBottom: 16 }}>Resumen de Salud</div>
-            {healthQuery.isLoading ? (
-              <div role="status" aria-label="Cargando…" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 100 }}><Spin/></div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[
-                  { label: 'Total detectados', value: h?.totalDetected ?? 0, color: T.brand },
-                  { label: 'Elementos sanos', value: h?.totalHealthyCount ?? 0, color: T.emerald },
-                  { label: 'Elementos enfermos', value: h?.totalSickCount ?? 0, color: T.danger },
-                  { label: 'Merma promedio', value: `${formatPercent(h?.avgLossPercent ?? 0)}%`, color: T.warn },
-                ].map((row, i) => (
-                  <div key={i} style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '10px 14px', borderRadius: 10,
-                    background: T.canvas, border: `1px solid ${T.grayLine}`,
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: row.color }}/>
-                      <span style={{ fontSize: 13, color: T.gray }}>{row.label}</span>
-                    </div>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: row.color }}>{row.value}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </SurfaceCard>
-
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
           {/* Field map placeholder */}
           <SurfaceCard>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
