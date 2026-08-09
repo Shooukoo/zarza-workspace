@@ -158,6 +158,8 @@ git commit -m "refactor(zarza-web): simplificar encabezado del dashboard, quitar
 
 Estos dos sub-componentes son la base visual de la nueva fila de KPIs (Tarea 3). No se conectan a datos reales todavía en esta tarea — solo se definen.
 
+**Corrección post-implementación:** la nota original de este plan decía que `noUnusedLocals` no marca funciones de módulo no usadas como error — **eso es incorrecto** (ya se vio con `RingProgress` en la Tarea 1, que también era una función de módulo y sí fue marcada). En la práctica, `KpiCardHorizontal` y `SpotlightCard` quedan sin uso hasta la Tarea 3, así que el build falla igual. La implementación real resolvió esto agregando `// @ts-expect-error TS6133 - will be used in a later task` justo antes de cada función — un parche funcional pero con una trampa: en cuanto la Tarea 3 las use, esos `@ts-expect-error` dejarán de tener un error real que suprimir, y **eso en sí mismo** es un error de TypeScript (`Unused '@ts-expect-error' directive`). Por eso la Tarea 3 tiene que empezar eliminando esas dos líneas de pragma — ver su nuevo Step 0 más abajo.
+
 - [ ] **Step 1: Insertar los nuevos componentes**
 
 Buscar:
@@ -273,6 +275,44 @@ git commit -m "feat(zarza-web): agregar componentes KpiCardHorizontal y Spotligh
 - Modify: `zarza-web/src/dashboard/DashboardPage.tsx` (definición de `kpiCards`, `healthPct`/`healthSparkData`, render de la fila de KPIs, grid de la fila de gráficas, nueva tarjeta de Merma)
 
 Reduce `kpiCards` de 4 a 3 elementos (Sanos, Detectados, Enfermos — sin `unit` ni `sparkData`, ya que `KpiCardHorizontal` no los usa), separa Merma Promedio en su propia constante `mermaCard`, agrega `healthSparkData` para el spotlight, cambia el render de la fila de KPIs para usar los nuevos componentes, y en el mismo paso agrega la tarjeta de Merma Promedio a la fila de gráficas. **Nota:** `mermaCard` se define y se usa dentro de esta misma tarea (Steps 1 y 5) — si quedara definida sin usar entre pasos, `tsc -b` fallaría por `noUnusedLocals` (es una variable local, no una función de módulo); por eso no se separa en dos tareas con un build/commit intermedio entre la definición y el uso.
+
+- [ ] **Step 0: Quitar los pragmas `@ts-expect-error` de la Tarea 2**
+
+Esta tarea conecta `KpiCardHorizontal` y `SpotlightCard` al render por primera vez, así que los `@ts-expect-error TS6133` que la Tarea 2 dejó justo antes de cada función ya no tienen ningún error real que suprimir — hay que quitarlos, si no `tsc` falla con `TS2578: Unused '@ts-expect-error' directive`.
+
+Buscar:
+
+```tsx
+// Tarjeta KPI horizontal: ícono a la izquierda, número + label a la derecha.
+// Sin sparkline — el layout compacto no deja espacio legible para uno.
+// @ts-expect-error TS6133 - will be used in a later task
+function KpiCardHorizontal({ icon, value, label, color, loading }: {
+```
+
+Reemplazar por:
+
+```tsx
+// Tarjeta KPI horizontal: ícono a la izquierda, número + label a la derecha.
+// Sin sparkline — el layout compacto no deja espacio legible para uno.
+function KpiCardHorizontal({ icon, value, label, color, loading }: {
+```
+
+Buscar:
+
+```tsx
+// Tarjeta "spotlight": bloque sólido T.brand, resalta la métrica más
+// relevante (Salud Global %) en vez de una alerta.
+// @ts-expect-error TS6133 - will be used in a later task
+function SpotlightCard({ value, label, sparkData, loading }: {
+```
+
+Reemplazar por:
+
+```tsx
+// Tarjeta "spotlight": bloque sólido T.brand, resalta la métrica más
+// relevante (Salud Global %) en vez de una alerta.
+function SpotlightCard({ value, label, sparkData, loading }: {
+```
 
 - [ ] **Step 1: Reemplazar el array `kpiCards`**
 
