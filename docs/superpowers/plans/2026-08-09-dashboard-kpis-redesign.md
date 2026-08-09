@@ -35,6 +35,8 @@
 
 Quitamos el badge "Salud global %" con anillo de progreso del encabezado (ahora vive solo en la tarjeta spotlight que se agrega en la Tarea 3). Como `RingProgress` queda sin ningún uso en el archivo, hay que borrarlo también — si no, `tsc -b` falla por `noUnusedLocals`.
 
+**Corrección post-implementación:** al quitar el badge del encabezado, `const healthPct = ...` (definida junto a `phenoColors`, antes del `return`) también se queda sin ningún uso hasta la Tarea 3 — por la misma razón (`noUnusedLocals`), también hay que eliminarla en esta tarea. La Tarea 3 la vuelve a introducir (junto con `healthSparkData`) cuando la vuelve a necesitar. Este paso adicional (no estaba en la redacción original del plan) queda documentado como Step 1b abajo.
+
 - [ ] **Step 1: Eliminar la función `RingProgress`**
 
 En `zarza-web/src/dashboard/DashboardPage.tsx`, buscar:
@@ -113,10 +115,32 @@ Reemplazar por:
         </div>
 ```
 
+- [ ] **Step 2b: Eliminar `const healthPct = ...` (queda sin uso)**
+
+Buscar:
+
+```tsx
+  const phenoColors = [T.brand, T.emerald, T.champagne, T.warn, T.danger, T.gray, T.terracotta];
+
+  const healthPct = h && h.totalDetected > 0
+    ? Math.round((h.totalHealthyCount / h.totalDetected) * 100)
+    : 0;
+
+  return (
+```
+
+Reemplazar por:
+
+```tsx
+  const phenoColors = [T.brand, T.emerald, T.champagne, T.warn, T.danger, T.gray, T.terracotta];
+
+  return (
+```
+
 - [ ] **Step 3: Verificar que compila**
 
 Run: `(cd zarza-web && npm run build)`
-Expected: build exitoso (sin errores de `tsc`), termina con el resumen de Vite (`✓ built in ...`). Si aparece `TS6133: 'RingProgress' is declared but its value is never read`, revisar que el Step 1 se aplicó completo.
+Expected: build exitoso (sin errores de `tsc`), termina con el resumen de Vite (`✓ built in ...`). Si aparece `TS6133: 'RingProgress' is declared but its value is never read` o `TS6133: 'healthPct' is declared but its value is never read`, revisar que los Steps 1/2/2b se aplicaron completos.
 
 - [ ] **Step 4: Commit**
 
@@ -365,16 +389,16 @@ Reemplazar por:
   };
 ```
 
-- [ ] **Step 2: Agregar `healthSparkData` después de `healthPct`**
+- [ ] **Step 2: Reintroducir `healthPct` y agregar `healthSparkData`**
+
+**Nota:** la Tarea 1 eliminó `const healthPct = ...` porque en ese punto se había quedado sin ningún uso (`noUnusedLocals`). Esta tarea la vuelve a agregar, ahora junto con `healthSparkData`, para que ambas queden usadas de inmediato (por `SpotlightCard` en el Step 3 de abajo) — sin volver a dejar una variable declarada-pero-sin-uso entre pasos.
 
 Buscar:
 
 ```tsx
   const phenoColors = [T.brand, T.emerald, T.champagne, T.warn, T.danger, T.gray, T.terracotta];
 
-  const healthPct = h && h.totalDetected > 0
-    ? Math.round((h.totalHealthyCount / h.totalDetected) * 100)
-    : 0;
+  return (
 ```
 
 Reemplazar por:
@@ -387,6 +411,8 @@ Reemplazar por:
     : 0;
 
   const healthSparkData = [85, 88, 84, 90, 87, 91, healthPct];
+
+  return (
 ```
 
 - [ ] **Step 3: Reemplazar el render de la fila de KPIs**
