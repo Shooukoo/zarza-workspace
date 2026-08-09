@@ -11,7 +11,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateCampoDto {
   @ApiProperty({
     example: 'CAMPO-001',
-    description: 'Unique code identifying the field.',
+    description: 'Código único que identifica el campo.',
   })
   @IsString()
   @IsNotEmpty()
@@ -19,7 +19,7 @@ export class CreateCampoDto {
 
   @ApiProperty({
     example: 'Parcela Norte',
-    description: 'Name of the field.',
+    description: 'Nombre del campo.',
   })
   @IsString()
   @IsNotEmpty()
@@ -27,7 +27,7 @@ export class CreateCampoDto {
 
   @ApiProperty({
     example: '37f839ab-b831-4346-a2a5-cdd1ebf9c929',
-    description: 'UUID of the producer associated with the field.',
+    description: 'UUID del productor asociado al campo.',
   })
   @IsUUID()
   productor_id: string;
@@ -40,7 +40,7 @@ export class CreateCampoDto {
       [-103.3472, 19.7015],
     ],
     description:
-      'Array of [longitude, latitude] coordinates forming the field polygon.',
+      'Matriz de coordenadas [longitud, latitud] que forman el polígono del campo.',
     type: 'array',
     items: {
       type: 'array',

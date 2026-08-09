@@ -24,6 +24,7 @@ import {
 } from '../auth/ports/user-repository.port';
 import {
   ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -35,6 +36,7 @@ import {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('Campos')
 @ApiBearerAuth()
+@ApiCookieAuth('access_token')
 export class CamposController {
   constructor(
     private readonly camposService: CamposService,
@@ -45,27 +47,27 @@ export class CamposController {
   @Get()
   @Roles(Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO, Role.MONITOR)
   @ApiOperation({
-    summary: 'List fields',
+    summary: 'Listar campos',
     description:
-      'Returns the fields accessible to the authenticated user. Administrators can optionally filter by producer.',
+      'Devuelve los campos accesibles para el usuario autenticado. Los administradores pueden filtrar opcionalmente por productor.',
   })
   @ApiQuery({
     name: 'productor_id',
     required: false,
-    description: 'Producer UUID used to filter fields.',
+    description: 'UUID del productor utilizado para filtrar campos.',
     type: String,
   })
   @ApiResponse({
     status: 200,
-    description: 'Fields retrieved successfully.',
+    description: 'Campos recuperados con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'User does not have permission to access fields.',
+    description: 'El usuario no tiene permiso para acceder a los campos.',
   })
   async findAll(
     @Req() req: { user: JwtPayload },
@@ -83,30 +85,30 @@ export class CamposController {
   @Get(':id')
   @Roles(Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO, Role.MONITOR)
   @ApiOperation({
-    summary: 'Get field by ID',
+    summary: 'Obtener campo por ID',
     description:
-      'Returns the details of a specific field accessible to the authenticated user.',
+      'Devuelve los detalles de un campo específico accesible para el usuario autenticado.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Field UUID.',
+    description: 'Campo UUID.',
     type: String,
   })
   @ApiResponse({
     status: 200,
-    description: 'Field retrieved successfully.',
+    description: 'Campo recuperado con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'User does not have permission to access this field.',
+    description: 'El usuario no tiene permiso para acceder a este campo.',
   })
   @ApiResponse({
     status: 404,
-    description: 'Field not found.',
+    description: 'Campo no encontrado.',
   })
   async findById(@Param('id') id: string, @Req() req: { user: JwtPayload }) {
     const { user } = req;
@@ -122,24 +124,24 @@ export class CamposController {
   @Post()
   @Roles(Role.ADMIN, Role.PRODUCTOR)
   @ApiOperation({
-    summary: 'Create field',
-    description: 'Creates a new field associated with a producer.',
+    summary: 'Crear campo',
+    description: 'Crea un nuevo campo asociado con un productor.',
   })
   @ApiResponse({
     status: 201,
-    description: 'Field created successfully.',
+    description: 'Campo creado correctamente.',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid field data.',
+    description: 'Datos de campo no válidos.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Only administrators and producers can create fields.',
+    description: 'Solo los administradores y los productores pueden crear campos.',
   })
   create(@Body() dto: CreateCampoDto) {
     return this.camposService.create(dto);
@@ -148,30 +150,30 @@ export class CamposController {
   @Delete(':id')
   @Roles(Role.ADMIN)
   @ApiOperation({
-    summary: 'Delete field',
+    summary: 'Eliminar campo',
     description:
-      'Deletes a field. This operation is restricted to administrators.',
+      'Elimina un campo. Esta operación está restringida a los administradores.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Field UUID.',
+    description: 'Campo UUID.',
     type: String,
   })
   @ApiResponse({
     status: 200,
-    description: 'Field deleted successfully.',
+    description: 'Campo eliminado correctamente.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Only administrators can delete fields.',
+    description: 'Solo los administradores pueden eliminar campos.',
   })
   @ApiResponse({
     status: 404,
-    description: 'Field not found.',
+    description: 'Campo no encontrado.',
   })
   delete(@Param('id') id: string) {
     return this.camposService.delete(id);

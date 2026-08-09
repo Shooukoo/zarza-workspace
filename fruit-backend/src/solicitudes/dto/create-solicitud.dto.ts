@@ -12,21 +12,21 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateSolicitudDto {
   @ApiProperty({
     example: '37f839ab-b831-4346-a2a5-cdd1ebf9c929',
-    description: 'UUID of the field where the sampling will be performed.',
+    description: 'UUID del campo donde se realizará el muestreo.',
   })
   @IsUUID()
   campo_id: string;
 
   @ApiProperty({
     example: '37f839ab-b831-4346-a2a5-cdd1ebf9c930',
-    description: 'UUID of the monitor assigned to the sampling request.',
+    description: 'UUID del monitor asignado a la solicitud de muestreo.',
   })
   @IsUUID()
   asignado_a: string;
 
   @ApiProperty({
     example: 'Realizar muestreo de frutos en el campo norte.',
-    description: 'Message or instructions for the assigned monitor.',
+    description: 'Mensaje o instrucciones para el monitor asignado.',
   })
   @IsString()
   @IsNotEmpty()
@@ -34,7 +34,7 @@ export class CreateSolicitudDto {
 
   @ApiPropertyOptional({
     example: '2026-08-15T18:00:00.000Z',
-    description: 'Optional deadline for completing the sampling request.',
+    description: 'Plazo opcional para completar la solicitud de muestreo.',
   })
   @IsOptional()
   @IsDateString()
@@ -45,7 +45,7 @@ export class UpdateEstadoDto {
   @ApiProperty({
     enum: EstadoSolicitud,
     example: 'EN_PROGRESO',
-    description: 'New status for the sampling request.',
+    description: 'Nuevo estado para la solicitud de muestreo.',
   })
   @IsEnum(EstadoSolicitud)
   estado: EstadoSolicitud;

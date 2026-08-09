@@ -23,6 +23,7 @@ import { type EstadoSolicitud } from '@rubus/database';
 import { ListSolicitudesQueryDto } from './dto/list-solicitudes-query.dto';
 import {
   ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -38,30 +39,31 @@ import {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiTags('Solicitudes')
 @ApiBearerAuth()
+@ApiCookieAuth('access_token')
 export class SolicitudesController {
   constructor(private readonly solicitudesService: SolicitudesService) {}
 
   @Post()
   @Roles(Role.ADMIN, Role.AGRONOMO)
   @ApiOperation({
-    summary: 'Create sampling request',
-    description: 'Creates a new fruit sampling request assigned to a monitor.',
+    summary: 'Crear solicitud de muestras',
+    description: 'Crea una nueva solicitud de muestreo de fruta asignada a un monitor.',
   })
   @ApiResponse({
     status: 201,
-    description: 'Sampling request created successfully.',
+    description: 'Solicitud de muestras creada con éxito.',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request data.',
+    description: 'Datos de solicitud no válidos.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Only administrators and agronomists can create requests.',
+    description: 'Solo los administradores y los agrónomos pueden crear solicitudes.',
   })
   create(@Req() req: any, @Body() dto: CreateSolicitudDto) {
     return this.solicitudesService.create(req.user.sub, dto);
@@ -70,30 +72,30 @@ export class SolicitudesController {
   @Get(':id')
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.MONITOR)
   @ApiOperation({
-    summary: 'Get sampling request by ID',
+    summary: 'Obtener solicitud de muestreo por ID',
     description:
-      'Returns a specific sampling request accessible to the authenticated user.',
+      'Devuelve una solicitud de muestreo específica accesible para el usuario autenticado.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Sampling request UUID.',
+    description: 'UUID de la solicitud de muestreo.',
     type: String,
   })
   @ApiResponse({
     status: 200,
-    description: 'Sampling request retrieved successfully.',
+    description: 'Solicitud de muestreo recuperada con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'User does not have permission to access this request.',
+    description: 'El usuario no tiene permiso para acceder a esta solicitud.',
   })
   @ApiResponse({
     status: 404,
-    description: 'Sampling request not found.',
+    description: 'No se encontró la solicitud de muestreo.',
   })
   findById(@Req() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.solicitudesService.findById(id, req.user.sub, req.user.role);
@@ -102,21 +104,21 @@ export class SolicitudesController {
   @Get()
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.MONITOR)
   @ApiOperation({
-    summary: 'List sampling requests',
+    summary: 'Listar solicitudes de muestreo',
     description:
-      'Returns paginated sampling requests accessible to the authenticated user.',
+      'Devuelve solicitudes de muestreo paginadas accesibles para el usuario autenticado.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Sampling requests retrieved successfully.',
+    description: 'Solicitudes de muestreo recuperadas con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'User does not have permission to access requests.',
+    description: 'El usuario no tiene permiso para acceder a las solicitudes.',
   })
   findAll(@Req() req: any, @Query() query: ListSolicitudesQueryDto) {
     const user = req.user;
@@ -132,33 +134,33 @@ export class SolicitudesController {
   @Patch(':id/estado')
   @Roles(Role.ADMIN, Role.AGRONOMO, Role.MONITOR)
   @ApiOperation({
-    summary: 'Update sampling request status',
-    description: 'Updates the status of a sampling request.',
+    summary: 'Actualizar el estado de la solicitud de muestreo',
+    description: 'Actualiza el estado de una solicitud de muestreo.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Sampling request UUID.',
+    description: 'UUID de la solicitud de muestreo.',
     type: String,
   })
   @ApiResponse({
     status: 200,
-    description: 'Sampling request status updated successfully.',
+    description: 'El estado de la solicitud de muestras se ha actualizado correctamente.',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid status.',
+    description: 'Estado no válido.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'User does not have permission to update this request.',
+    description: 'El usuario no tiene permiso para actualizar esta solicitud.',
   })
   @ApiResponse({
     status: 404,
-    description: 'Sampling request not found.',
+    description: 'No se encontró la solicitud de muestreo.',
   })
   updateEstado(
     @Req() req: any,

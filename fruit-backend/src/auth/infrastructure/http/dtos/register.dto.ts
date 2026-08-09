@@ -10,16 +10,16 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
   @ApiProperty({
-    description: 'User email address',
-    example: 'user@example.com',
+    description: 'Dirección de correo electrónico del usuario',
+    example: 'usuario@example.com',
   })
   @IsEmail()
   @IsNotEmpty()
   email!: string;
 
   @ApiProperty({
-    description: 'User password',
-    example: 'password123',
+    description: 'Contraseña de usuario',
+    example: 'contraseña123',
     minLength: 8,
     format: 'password',
   })
@@ -29,7 +29,7 @@ export class RegisterDto {
   password!: string;
 
   @ApiProperty({
-    description: 'User first name',
+    description: 'Nombre del usuario',
     example: 'Juan',
     required: false,
     maxLength: 60,
@@ -40,7 +40,7 @@ export class RegisterDto {
   firstName?: string;
 
   @ApiProperty({
-    description: 'User last name',
+    description: 'Apellido del usuario',
     example: 'Pérez',
     required: false,
     maxLength: 60,

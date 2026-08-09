@@ -13,7 +13,7 @@ export class ListSolicitudesQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
     enum: ESTADO_VALUES,
     example: 'PENDIENTE',
-    description: 'Filter requests by status.',
+    description: 'Filtrar solicitudes por estado.',
   })
   @IsOptional()
   @IsIn(ESTADO_VALUES)
@@ -21,7 +21,7 @@ export class ListSolicitudesQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({
     example: '37f839ab-b831-4346-a2a5-cdd1ebf9c929',
-    description: 'Filter requests by field UUID.',
+    description: 'Filtrar solicitudes por UUID de campo.',
   })
   @IsOptional()
   @IsString()

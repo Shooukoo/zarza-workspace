@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateProfileDto {
   @ApiProperty({
-    description: 'User first name',
+    description: 'Nombre del usuario',
     example: 'Juan',
     required: false,
     maxLength: 60,
@@ -14,7 +14,7 @@ export class UpdateProfileDto {
   firstName?: string;
 
   @ApiProperty({
-    description: 'User last name',
+    description: 'Apellido del usuario',
     example: 'Pérez',
     required: false,
     maxLength: 60,

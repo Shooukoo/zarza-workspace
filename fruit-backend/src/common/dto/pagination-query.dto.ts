@@ -11,7 +11,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
  */
 export class PaginationQueryDto {
   @ApiPropertyOptional({
-    description: 'Page number.',
+    description: 'Número de página.',
     example: 1,
     minimum: 1,
     default: 1,
@@ -23,7 +23,7 @@ export class PaginationQueryDto {
   page: number = 1;
 
   @ApiPropertyOptional({
-    description: 'Number of items per page.',
+    description: 'Número de elementos por página.',
     example: 20,
     minimum: 1,
     maximum: MAX_PAGE_LIMIT,

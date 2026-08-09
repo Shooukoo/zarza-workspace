@@ -21,6 +21,7 @@ import { Role } from '../auth/domain/enums/role.enum';
 import { AppLogger } from '../common/logging/app.logger';
 import {
   ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -28,6 +29,7 @@ import {
 
 @ApiTags('Fruits')
 @ApiBearerAuth()
+@ApiCookieAuth('access_token')
 @Controller('fruits')
 @UseGuards(JwtAuthGuard)
 export class FruitsQueryController {
@@ -40,17 +42,17 @@ export class FruitsQueryController {
 
   @Get()
   @ApiOperation({
-    summary: 'List fruits',
+    summary: 'Listar frutas',
     description:
-      'Returns a paginated list of fruits accessible to the authenticated user.',
+      'Devuelve una lista paginada de frutas accesibles para el usuario autenticado.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Fruits retrieved successfully.',
+    description: 'Frutas recuperadas con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   async findAll(@Req() req: any, @Query() query: GetFruitsQueryDto) {
     const scope = await this.buildScope(req.user);
@@ -74,21 +76,21 @@ export class FruitsQueryController {
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Get fruit by ID',
+    summary: 'Obtener fruta por ID',
     description:
-      'Returns a specific fruit accessible to the authenticated user.',
+      'Devuelve una fruta específica accesible para el usuario autenticado.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Fruit retrieved successfully.',
+    description: 'Fruta recuperada con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 404,
-    description: 'Fruit not found.',
+    description: 'Fruta no encontrada.',
   })
   async findOne(@Param('id') id: string, @Req() req: any) {
     const scope = await this.buildScope(req.user);

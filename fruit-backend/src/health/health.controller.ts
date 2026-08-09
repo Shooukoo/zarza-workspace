@@ -8,12 +8,12 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 export class HealthController {
   @Get()
   @ApiOperation({
-    summary: 'Check API health',
-    description: 'Returns the current health status of the API.',
+    summary: 'Comprobar el estado de la API',
+    description: 'Devuelve el estado de salud actual de la API.',
   })
   @ApiResponse({
     status: 200,
-    description: 'API is healthy and responding.',
+    description: 'La API está en buen estado y responde correctamente.',
     schema: {
       example: {
         status: 'ok',

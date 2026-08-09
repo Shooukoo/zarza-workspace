@@ -15,6 +15,7 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { buildPaginated } from '@rubus/database';
 import {
   ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -25,22 +26,23 @@ import {
 @UseGuards(JwtAuthGuard)
 @ApiTags('Notifications')
 @ApiBearerAuth()
+@ApiCookieAuth('access_token')
 export class NotificationsController {
   constructor(private readonly service: NotificationsService) {}
 
   @Get()
   @ApiOperation({
-    summary: 'Get user notifications',
+    summary: 'Obtener notificaciones de usuario',
     description:
-      'Returns the authenticated user notifications with pagination and unread count.',
+      'Devuelve las notificaciones del usuario autenticado con paginación y el recuento de notificaciones no leídas.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Notifications retrieved successfully.',
+    description: 'Notificaciones recuperadas correctamente.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   async getNotifications(@Req() req: any, @Query() query: PaginationQueryDto) {
     const { data, total, page, limit, unreadCount } =
@@ -69,17 +71,17 @@ export class NotificationsController {
   @Patch('read-all')
   @HttpCode(204)
   @ApiOperation({
-    summary: 'Mark all notifications as read',
+    summary: 'Marcar todas las notificaciones como leídas',
     description:
-      'Marks all notifications belonging to the authenticated user as read.',
+      'Marca como leídas todas las notificaciones pertenecientes al usuario autenticado.',
   })
   @ApiResponse({
     status: 204,
-    description: 'All notifications marked as read successfully.',
+    description: 'Todas las notificaciones se han marcado como leídas correctamente.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   async markAllRead(@Req() req: any): Promise<void> {
     await this.service.markAllRead(req.user.sub);
@@ -88,26 +90,26 @@ export class NotificationsController {
   @Patch(':id/read')
   @HttpCode(204)
   @ApiOperation({
-    summary: 'Mark notification as read',
+    summary: 'Marcar notificación como leída',
     description:
-      'Marks a specific notification belonging to the authenticated user as read.',
+      'Marca como leída una notificación específica perteneciente al usuario autenticado.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Notification UUID.',
+    description: 'UUID de la notificación.',
     type: String,
   })
   @ApiResponse({
     status: 204,
-    description: 'Notification marked as read successfully.',
+    description: 'Notificación marcada como leída correctamente.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 404,
-    description: 'Notification not found.',
+    description: 'No se encontró la notificación.',
   })
   async markRead(@Req() req: any, @Param('id') id: string): Promise<void> {
     await this.service.markRead(id, req.user.sub);
@@ -116,26 +118,26 @@ export class NotificationsController {
   @Delete(':id')
   @HttpCode(204)
   @ApiOperation({
-    summary: 'Delete notification',
+    summary: 'Eliminar notificación',
     description:
-      'Deletes a specific notification belonging to the authenticated user.',
+      'Elimina una notificación específica perteneciente al usuario autenticado.',
   })
   @ApiParam({
     name: 'id',
-    description: 'Notification UUID.',
+    description: 'UUID de la notificación.',
     type: String,
   })
   @ApiResponse({
     status: 204,
-    description: 'Notification deleted successfully.',
+    description: 'Notificación eliminada correctamente.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 404,
-    description: 'Notification not found.',
+    description: 'No se encontró la notificación.',
   })
   async deleteNotification(
     @Req() req: any,

@@ -25,26 +25,26 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('api');
 
-  const config = new DocumentBuilder()
-    .setTitle('Zarza API')
-    .setDescription('API documentation for Zarza backend')
-    .setVersion('1.0')
-    .addServer('/api/v1')
-    .addBearerAuth()
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config, {
-    ignoreGlobalPrefix: true,
-  });
-
-  SwaggerModule.setup('docs', app, document, {
-    useGlobalPrefix: true,
-  });
-
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  if (envs.swaggerEnabled) {
+    const config = new DocumentBuilder()
+      .setTitle('Zarza API')
+      .setDescription('API documentation for Zarza backend')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .addCookieAuth('access_token')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+
+    SwaggerModule.setup('docs', app, document, {
+      useGlobalPrefix: true,
+    });
+  }
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -32,11 +32,11 @@ import {
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
   ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
   ApiParam,
   ApiProperty,
   ApiPropertyOptional,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -44,7 +44,7 @@ import {
 class UpdateRoleDto {
   @ApiProperty({
     enum: Role,
-    description: 'New role assigned to the user.',
+    description: 'Nuevo rol asignado al usuario.',
     example: Role.AGRONOMO,
   })
   @IsEnum(Role)
@@ -54,7 +54,7 @@ class UpdateRoleDto {
 class ListUsersQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
     enum: Role,
-    description: 'Filter users by role.',
+    description: 'Filtrar usuarios por rol.',
     example: Role.AGRONOMO,
   })
   @IsOptional()
@@ -64,15 +64,15 @@ class ListUsersQueryDto extends PaginationQueryDto {
 
 class CreateUserDto {
   @ApiProperty({
-    description: 'User email address.',
+    description: 'Dirección de correo electrónico del usuario.',
     example: 'usuario@example.com',
   })
   @IsEmail()
   email: string;
 
   @ApiProperty({
-    description: 'User password.',
-    example: 'password123',
+    description: 'Contraseña de usuario.',
+    example: 'contraseña123',
     minLength: 6,
   })
   @IsString()
@@ -81,14 +81,14 @@ class CreateUserDto {
 
   @ApiProperty({
     enum: Role,
-    description: 'Role assigned to the new user.',
+    description: 'Rol asignado al nuevo usuario.',
     example: Role.PRODUCTOR,
   })
   @IsEnum(Role)
   role: Role;
 
   @ApiPropertyOptional({
-    description: 'User first name.',
+    description: 'Nombre del usuario.',
     example: 'Juan',
   })
   @IsOptional()
@@ -96,7 +96,7 @@ class CreateUserDto {
   firstName?: string;
 
   @ApiPropertyOptional({
-    description: 'User last name.',
+    description: 'Apellido del usuario.',
     example: 'Pérez',
   })
   @IsOptional()
@@ -106,7 +106,7 @@ class CreateUserDto {
 
 class UpdateNameDto {
   @ApiPropertyOptional({
-    description: 'Updated first name.',
+    description: 'Nombre actualizado.',
     example: 'Juan',
   })
   @IsOptional()
@@ -114,7 +114,7 @@ class UpdateNameDto {
   firstName?: string;
 
   @ApiPropertyOptional({
-    description: 'Updated last name.',
+    description: 'Apellido actualizado.',
     example: 'Pérez',
   })
   @IsOptional()
@@ -126,7 +126,7 @@ class UpdateCamposDto {
   @ApiProperty({
     type: [String],
     format: 'uuid',
-    description: 'IDs of the fields assigned to the user.',
+    description: 'ID de los campos asignados al usuario.',
     example: [
       '550e8400-e29b-41d4-a716-446655440000',
       '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
@@ -139,8 +139,8 @@ class UpdateCamposDto {
 
 class UpdatePasswordDto {
   @ApiProperty({
-    description: 'New password for the user.',
-    example: 'newPassword123',
+    description: 'Nueva contraseña para el usuario.',
+    example: 'nuevaContraseñad123',
     minLength: 6,
   })
   @IsString()
@@ -164,6 +164,7 @@ import { AdminDashboardService } from './admin-dashboard.service';
  */
 @ApiTags('Admin')
 @ApiBearerAuth()
+@ApiCookieAuth('access_token')
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(Role.ADMIN)
@@ -174,41 +175,21 @@ export class AdminController {
   ) {}
 
   @ApiOperation({
-    summary: 'List users',
+    summary: 'Listar usuarios',
     description:
-      'Returns a paginated list of users with an optional role filter.',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number.',
-    example: 1,
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of users per page.',
-    example: 10,
-  })
-  @ApiQuery({
-    name: 'rol',
-    required: false,
-    enum: Role,
-    description: 'Filter users by role.',
+      'Devuelve una lista paginada de usuarios con un filtro de rol opcional.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Users retrieved successfully.',
+    description: 'Los usuarios recuperaron con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator permissions required.',
+    description: 'Se requieren permisos de administrador.',
   })
   @Get('users')
   findAllUsers(@Query() query: ListUsersQueryDto) {
@@ -224,21 +205,21 @@ export class AdminController {
   @Get('users/monitores')
   @Roles(Role.ADMIN, Role.AGRONOMO)
   @ApiOperation({
-    summary: 'List available monitors',
+    summary: 'Listar los monitores disponibles',
     description:
-      'Returns a read-only list of monitors available for assignment.',
+      'Devuelve una lista de solo lectura de los monitores disponibles para su asignación.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Monitors retrieved successfully.',
+    description: 'Monitores recuperados con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator or agronomist permissions required.',
+    description: 'Se requieren permisos de administrador o agrónomo.',
   })
   findMonitores() {
     return this.adminService.findMonitores();
@@ -246,25 +227,25 @@ export class AdminController {
 
   @Post('users')
   @ApiOperation({
-    summary: 'Create a user',
+    summary: 'Crear un usuario',
     description:
-      'Creates a new user with the specified role and profile information.',
+      'Crea un nuevo usuario con el rol y la información de perfil especificados.',
   })
   @ApiResponse({
     status: 201,
-    description: 'User created successfully.',
+    description: 'Usuario creado con éxito.',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid user data or user could not be created.',
+    description: 'Datos de usuario no válidos o no se pudo crear el usuario.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator permissions required.',
+    description: 'Se requieren permisos de administrador.',
   })
   async createUser(@Body() dto: CreateUserDto) {
     try {
@@ -283,34 +264,34 @@ export class AdminController {
 
   @Patch('users/:id/name')
   @ApiOperation({
-    summary: 'Update user name',
-    description: 'Updates the first name and/or last name of a user.',
+    summary: 'Actualizar nombre de usuario',
+    description: 'Actualiza el nombre y/o los apellidos de un usuario.',
   })
   @ApiParam({
     name: 'id',
     type: String,
     format: 'uuid',
-    description: 'User UUID.',
+    description: 'Usuario UUID.',
   })
   @ApiResponse({
     status: 200,
-    description: 'User name updated successfully.',
+    description: 'Nombre de usuario actualizado correctamente.',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid data.',
+    description: 'Datos no válidos.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator permissions required.',
+    description: 'Se requieren permisos de administrador.',
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found.',
+    description: 'Usuario no encontrado.',
   })
   async updateUserName(
     @Param('id', ParseUUIDPipe) id: string,
@@ -331,34 +312,34 @@ export class AdminController {
 
   @Patch('users/:id/role')
   @ApiOperation({
-    summary: 'Update user role',
-    description: 'Changes the role assigned to a user.',
+    summary: 'Actualizar rol de usuario',
+    description: 'Cambia el rol asignado a un usuario.',
   })
   @ApiParam({
     name: 'id',
     type: String,
     format: 'uuid',
-    description: 'User UUID.',
+    description: 'Usuario UUID.',
   })
   @ApiResponse({
     status: 200,
-    description: 'User role updated successfully.',
+    description: 'Rol de usuario actualizado correctamente.',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid role or request data.',
+    description: 'Rol o datos de la solicitud no válidos.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator permissions required.',
+    description: 'Se requieren permisos de administrador.',
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found.',
+    description: 'Usuario no encontrado.',
   })
   async updateUserRole(
     @Param('id', ParseUUIDPipe) id: string,
@@ -375,34 +356,34 @@ export class AdminController {
 
   @Patch('users/:id/campos')
   @ApiOperation({
-    summary: 'Update user fields',
-    description: 'Updates the fields assigned to a user.',
+    summary: 'Actualizar campos de usuario',
+    description: 'Actualiza los campos asignados a un usuario.',
   })
   @ApiParam({
     name: 'id',
     type: String,
     format: 'uuid',
-    description: 'User UUID.',
+    description: 'Usuario UUID.',
   })
   @ApiResponse({
     status: 200,
-    description: 'User field assignments updated successfully.',
+    description: 'Las asignaciones de campos de usuario se han actualizado correctamente.',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid field IDs or request data.',
+    description: 'IDs de campo o datos de solicitud no válidos.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator permissions required.',
+    description: 'Se requieren permisos de administrador.',
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found.',
+    description: 'Usuario no encontrado.',
   })
   async updateUserCampos(
     @Param('id', ParseUUIDPipe) id: string,
@@ -419,34 +400,34 @@ export class AdminController {
 
   @Delete('users/:id')
   @ApiOperation({
-    summary: 'Delete a user',
-    description: 'Deletes a user from the system.',
+    summary: 'Eliminar un usuario',
+    description: 'Elimina un usuario del sistema.',
   })
   @ApiParam({
     name: 'id',
     type: String,
     format: 'uuid',
-    description: 'User UUID.',
+    description: 'Usuario UUID.',
   })
   @ApiResponse({
     status: 204,
-    description: 'User deleted successfully.',
+    description: 'Usuario eliminado exitosamente.',
   })
   @ApiResponse({
     status: 400,
-    description: 'User could not be deleted.',
+    description: 'El usuario no pudo ser eliminado.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator permissions required.',
+    description: 'Se requieren permisos de administrador.',
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found.',
+    description: 'Usuario no encontrado.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(@Param('id', ParseUUIDPipe) id: string, @Req() req: any) {
@@ -461,34 +442,34 @@ export class AdminController {
 
   @Patch('users/:id/password')
   @ApiOperation({
-    summary: 'Update user password',
-    description: 'Changes the password of a user.',
+    summary: 'Actualizar la contraseña del usuario',
+    description: 'Cambia la contraseña de un usuario.',
   })
   @ApiParam({
     name: 'id',
     type: String,
     format: 'uuid',
-    description: 'User UUID.',
+    description: 'Usuario UUID.',
   })
   @ApiResponse({
     status: 200,
-    description: 'User password updated successfully.',
+    description: 'La contraseña del usuario se ha actualizado correctamente.',
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid password or request data.',
+    description: 'Contraseña o datos de la solicitud no válidos.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator permissions required.',
+    description: 'Se requieren permisos de administrador.',
   })
   @ApiResponse({
     status: 404,
-    description: 'User not found.',
+    description: 'Usuario no encontrado.',
   })
   async updateUserPassword(
     @Param('id', ParseUUIDPipe) id: string,
@@ -505,20 +486,20 @@ export class AdminController {
 
   @Get('stats')
   @ApiOperation({
-    summary: 'Get system statistics',
-    description: 'Returns global statistics for the system.',
+    summary: 'Obtener estadísticas del sistema',
+    description: 'Devuelve estadísticas globales del sistema.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Statistics retrieved successfully.',
+    description: 'Estadísticas recuperadas con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator permissions required.',
+    description: 'Se requieren permisos de administrador.',
   })
   getStats() {
     return this.adminService.getStats();
@@ -527,20 +508,20 @@ export class AdminController {
   @Get('dashboard/yield')
   @Roles(Role.ADMIN, Role.PRODUCTOR)
   @ApiOperation({
-    summary: 'Get yield forecast',
-    description: 'Returns the projected crop yield.',
+    summary: 'Obtener previsión de rendimiento',
+    description: 'Devuelve el rendimiento proyectado del cultivo.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Yield forecast retrieved successfully.',
+    description: 'Pronóstico de rendimiento obtenido con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator or producer permissions required.',
+    description: 'Se requieren permisos de administrador o productor.',
   })
   getYieldForecast(@Req() req: any) {
     const productorId =
@@ -551,20 +532,20 @@ export class AdminController {
   @Get('dashboard/health')
   @Roles(Role.ADMIN, Role.PRODUCTOR)
   @ApiOperation({
-    summary: 'Get health metrics',
-    description: 'Returns crop health and loss metrics.',
+    summary: 'Obtener métricas de salud',
+    description: 'Devuelve métricas de salud y pérdidas de los cultivos.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Health metrics retrieved successfully.',
+    description: 'Métricas de salud recuperadas con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator or producer permissions required.',
+    description: 'Se requieren permisos de administrador o productor.',
   })
   getHealthMetrics(@Req() req: any) {
     const productorId =
@@ -575,20 +556,20 @@ export class AdminController {
   @Get('dashboard/phenology')
   @Roles(Role.ADMIN, Role.PRODUCTOR)
   @ApiOperation({
-    summary: 'Get phenology distribution',
-    description: 'Returns the phenological stage distribution of crops.',
+    summary: 'Obtener la distribución fenológica',
+    description: 'Devuelve la distribución de los estadios fenológicos de los cultivos.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Phenology distribution retrieved successfully.',
+    description: 'Distribución fenológica recuperada con éxito.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Authentication required.',
+    description: 'Se requiere autenticación.',
   })
   @ApiResponse({
     status: 403,
-    description: 'Administrator or producer permissions required.',
+    description: 'Se requieren permisos de administrador o productor.',
   })
   getPhenologyDistribution(@Req() req: any) {
     const productorId =

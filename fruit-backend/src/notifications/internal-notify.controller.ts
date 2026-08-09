@@ -19,15 +19,14 @@ import {
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { AppLogger } from '../common/logging/app.logger';
 import {
-  ApiBearerAuth,
   ApiBody,
+  ApiExcludeController,
   ApiHeader,
   ApiOperation,
   ApiResponse,
-  ApiTags,
 } from '@nestjs/swagger';
 
-@ApiTags('Internal')
+@ApiExcludeController()
 @Controller('internal')
 export class InternalNotifyController {
   constructor(
@@ -42,15 +41,15 @@ export class InternalNotifyController {
   @Post('notify')
   @HttpCode(204)
   @ApiOperation({
-    summary: 'Send an internal notification',
+    summary: 'Enviar una notificación interna',
     description:
-      'Receives an internal event and processes WebSocket, database, and FCM notifications.',
+      'Recibe un evento interno y procesa notificaciones de WebSocket, base de datos y FCM.',
   })
   @ApiHeader({
     name: 'x-internal-token',
     required: true,
     description:
-      'Internal token used to authorize service-to-service notifications.',
+      'Token interno utilizado para autorizar notificaciones entre servicios.',
     example: 'your-internal-token',
   })
   @ApiBody({
@@ -60,14 +59,14 @@ export class InternalNotifyController {
         event: {
           type: 'string',
           example: 'analisis_listo',
-          description: 'Notification event type.',
+          description: 'Tipo de evento de notificación.',
         },
         data: {
           type: 'object',
           example: {
             userId: '37f839ab-b831-4346-a2a5-cdd1ebf9c929',
           },
-          description: 'Event-specific notification data.',
+          description: 'Datos de notificación específicos del evento.',
         },
       },
       required: ['event', 'data'],
@@ -75,11 +74,11 @@ export class InternalNotifyController {
   })
   @ApiResponse({
     status: 204,
-    description: 'Notification processed successfully.',
+    description: 'Notificación procesada correctamente.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Invalid or missing internal token.',
+    description: 'Token interno no válido o ausente.',
   })
   async notify(
     @Headers('x-internal-token') token: string,

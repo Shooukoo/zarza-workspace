@@ -4,7 +4,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class GetFruitsQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
-    description: 'Filter fruits by image ID.',
+    description: 'Filtrar frutas por ID de imagen.',
     example: 'IMG_20260807_153000.jpg',
   })
   @IsOptional()
@@ -12,7 +12,7 @@ export class GetFruitsQueryDto extends PaginationQueryDto {
   image_id?: string;
 
   @ApiPropertyOptional({
-    description: 'Filter fruits by user ID.',
+    description: 'Filtrar frutas por ID de usuario.',
     example: '37f839ab-b831-4346-a2a5-cdd1ebf9c929',
   })
   @IsOptional()
@@ -20,7 +20,7 @@ export class GetFruitsQueryDto extends PaginationQueryDto {
   user_id?: string;
 
   @ApiPropertyOptional({
-    description: 'Filter fruits from this date.',
+    description: 'Filtra las frutas a partir de esta fecha.',
     example: '2026-08-01',
   })
   @IsOptional()
@@ -28,7 +28,7 @@ export class GetFruitsQueryDto extends PaginationQueryDto {
   start_date?: string;
 
   @ApiPropertyOptional({
-    description: 'Filter fruits until this date.',
+    description: 'Filtrar las frutas hasta esta fecha.',
     example: '2026-08-07',
   })
   @IsOptional()

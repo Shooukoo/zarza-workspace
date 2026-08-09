@@ -11,21 +11,21 @@ import {
 
 export class UploadMetadataDto {
   @ApiProperty({
-    description: 'Date and time when the image was captured.',
+    description: 'Fecha y hora en que se capturó la imagen.',
     example: '2026-08-07T15:30:00.000Z',
   })
   @IsDateString()
   capturedAt: string;
 
   @ApiProperty({
-    description: 'Date and time when the image was processed.',
+    description: 'Fecha y hora en que se procesó la imagen.',
     example: '2026-08-07T15:30:05.000Z',
   })
   @IsDateString()
   processedAt: string;
 
   @ApiProperty({
-    description: 'Uploaded image size in bytes.',
+    description: 'Tamaño de la imagen cargada en bytes.',
     example: 245678,
   })
   @IsNumber()
@@ -34,21 +34,21 @@ export class UploadMetadataDto {
 
 export class UploadResultDto {
   @ApiProperty({
-    description: 'Unique identifier of the uploaded image.',
+    description: 'Identificador único de la imagen cargada.',
     example: 'IMG_20260807_153000.jpg',
   })
   @IsString()
   image_id: string;
 
   @ApiProperty({
-    description: 'Storage key assigned to the uploaded image.',
+    description: 'Clave de almacenamiento asignada a la imagen cargada.',
     example: 'uploads/IMG_20260807_153000.jpg',
   })
   @IsString()
   storage_key: string;
 
   @ApiProperty({
-    description: 'Metadata associated with the uploaded image.',
+    description: 'Metadatos asociados a la imagen cargada.',
     type: UploadMetadataDto,
   })
   @ValidateNested()
@@ -56,7 +56,7 @@ export class UploadResultDto {
   metadata: UploadMetadataDto;
 
   @ApiProperty({
-    description: 'Upload status.',
+    description: 'Estado de la carga.',
     example: 'UPLOADED',
     enum: ['UPLOADED'],
   })
@@ -64,7 +64,7 @@ export class UploadResultDto {
   status: 'UPLOADED';
 
   @ApiProperty({
-    description: 'ID of the field where the image was captured.',
+    description: 'ID del campo donde se capturó la imagen.',
     example: 'campo-123',
     nullable: true,
     required: false,
@@ -74,7 +74,7 @@ export class UploadResultDto {
   campoId?: string | null;
 
   @ApiProperty({
-    description: 'ID of the producer associated with the image.',
+    description: 'ID del productor asociado a la imagen.',
     example: 'productor-456',
     nullable: true,
     required: false,
@@ -84,7 +84,7 @@ export class UploadResultDto {
   productorId?: string | null;
 
   @ApiProperty({
-    description: 'Latitude where the image was captured.',
+    description: 'Latitud donde se capturó la imagen.',
     example: 19.7023,
     nullable: true,
     required: false,
@@ -94,7 +94,7 @@ export class UploadResultDto {
   gpsLat?: number | null;
 
   @ApiProperty({
-    description: 'Longitude where the image was captured.',
+    description: 'Longitud donde se capturó la imagen.',
     example: -103.3472,
     nullable: true,
     required: false,
@@ -104,7 +104,7 @@ export class UploadResultDto {
   gpsLon?: number | null;
 
   @ApiProperty({
-    description: 'Identifier used to correlate an offline synchronization.',
+    description: 'Identificador utilizado para correlacionar una sincronización sin conexión.',
     example: 'offline-sync-789',
     nullable: true,
     required: false,
@@ -114,7 +114,7 @@ export class UploadResultDto {
   offlineSyncId?: string | null;
 
   @ApiProperty({
-    description: 'ID of the authenticated user who uploaded the image.',
+    description: 'ID del usuario autenticado que subió la imagen.',
     example: 'user-123',
     required: false,
   })
@@ -123,8 +123,8 @@ export class UploadResultDto {
   userId?: string;
 
   @ApiProperty({
-    description: 'Email of the authenticated user who uploaded the image.',
-    example: 'user@example.com',
+    description: 'Correo electrónico del usuario autenticado que subió la imagen.',
+    example: 'usuario@example.com',
     required: false,
   })
   @IsOptional()

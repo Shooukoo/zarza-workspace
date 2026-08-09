@@ -13,7 +13,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CronogramaCorregidoItemDto {
   @ApiProperty({
-    description: 'Corrected phenological stage.',
+    description: 'Estadio fenológico corregido.',
     example: 'Floración',
   })
   @IsString()
@@ -21,7 +21,7 @@ export class CronogramaCorregidoItemDto {
   etapa: string;
 
   @ApiProperty({
-    description: 'Corrected quantity for the stage.',
+    description: 'Cantidad corregida para la etapa.',
     example: 25,
     minimum: 0,
   })
@@ -33,7 +33,7 @@ export class CronogramaCorregidoItemDto {
 export class ValidateAnalysisDto {
   @ApiProperty({
     enum: ['validado', 'rechazado'],
-    description: 'Validation action to apply to the analysis.',
+    description: 'Acción de validación a aplicar al análisis.',
     example: 'validado',
   })
   @IsIn(['validado', 'rechazado'])
@@ -41,7 +41,7 @@ export class ValidateAnalysisDto {
 
   @ApiPropertyOptional({
     type: () => [CronogramaCorregidoItemDto],
-    description: 'Corrected phenological schedule.',
+    description: 'Calendario fenológico corregido.',
     example: [
       {
         etapa: 'Floración',
@@ -56,8 +56,8 @@ export class ValidateAnalysisDto {
   cronograma_corregido?: CronogramaCorregidoItemDto[];
 
   @ApiPropertyOptional({
-    description: 'Observations made during validation.',
-    example: 'The analysis was validated with minor corrections.',
+    description: 'Observaciones realizadas durante la validación.',
+    example: 'El análisis fue validado con correcciones menores.',
   })
   @IsOptional()
   @IsString()
