@@ -109,25 +109,6 @@ function Sparkline({ data, color = T.brand, height = 36 }: { data: number[]; col
   );
 }
 
-function RingProgress({ value, color = T.emerald, size = 68, strokeWidth = 6 }: {
-  value: number; color?: string; size?: number; strokeWidth?: number;
-}) {
-  const r = (size - strokeWidth) / 2;
-  const circ = 2 * Math.PI * r;
-  const dash = (Math.min(value, 100) / 100) * circ;
-  return (
-    <svg aria-hidden="true" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={T.grayLine} strokeWidth={strokeWidth}/>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none"
-        stroke={color} strokeWidth={strokeWidth}
-        strokeDasharray={`${dash} ${circ - dash}`}
-        strokeLinecap="round"
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-      />
-    </svg>
-  );
-}
-
 // Custom bar shape with gradient
 function GradientBar(props: React.SVGProps<SVGRectElement> & { x?: number; y?: number; width?: number; height?: number }) {
   const { x = 0, y = 0, width = 0, height = 0 } = props;
@@ -204,38 +185,19 @@ export function DashboardPage() {
 
   const phenoColors = [T.brand, T.emerald, T.champagne, T.warn, T.danger, T.gray, T.terracotta];
 
-  const healthPct = h && h.totalDetected > 0
-    ? Math.round((h.totalHealthyCount / h.totalDetected) * 100)
-    : 0;
-
   return (
       <div style={{
         fontFamily: "'Lexend', sans-serif", color: T.ink,
         background: T.canvas, minHeight: '100%', fontVariantNumeric: 'tabular-nums',
       }}>
         {/* ── Page header ── */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
-          <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: T.ink, margin: 0, marginBottom: 4 }}>
-              Hola, {user ? displayName(user) : ''} 👋
-            </h1>
-            <p style={{ fontSize: 13, color: T.gray, margin: 0 }}>
-              Vista general de la salud del cultivo · <span style={{ color: T.emerald }}>● En línea</span>
-            </p>
-          </div>
-          {!healthQuery.isLoading && h && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              background: chipFor(T.emerald).bg,
-              borderRadius: 12, padding: '8px 16px',
-            }}>
-              <RingProgress value={healthPct} color={T.emerald} size={40} strokeWidth={4}/>
-              <div>
-                <div style={{ fontSize: 11, color: T.gray }}>Salud global</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: T.ink }}>{healthPct}%</div>
-              </div>
-            </div>
-          )}
+        <div style={{ marginBottom: 28 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: T.ink, margin: 0, marginBottom: 4 }}>
+            Hola, {user ? displayName(user) : ''} 👋
+          </h1>
+          <p style={{ fontSize: 13, color: T.gray, margin: 0 }}>
+            Vista general de la salud del cultivo · <span style={{ color: T.emerald }}>● En línea</span>
+          </p>
         </div>
 
         {/* ── KPI Cards ── */}
