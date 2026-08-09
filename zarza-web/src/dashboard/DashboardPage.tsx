@@ -121,7 +121,6 @@ function GradientBar(props: React.SVGProps<SVGRectElement> & { x?: number; y?: n
 
 // Tarjeta KPI horizontal: ícono a la izquierda, número + label a la derecha.
 // Sin sparkline — el layout compacto no deja espacio legible para uno.
-// @ts-expect-error TS6133 - will be used in a later task
 function KpiCardHorizontal({ icon, value, label, color, loading }: {
   icon: React.ReactNode;
   value: number | string;
@@ -158,7 +157,6 @@ function KpiCardHorizontal({ icon, value, label, color, loading }: {
 
 // Tarjeta "spotlight": bloque sólido T.brand, resalta la métrica más
 // relevante (Salud Global %) en vez de una alerta.
-// @ts-expect-error TS6133 - will be used in a later task
 function SpotlightCard({ value, label, sparkData, loading }: {
   value: number;
   label: string;
@@ -203,58 +201,59 @@ export function DashboardPage() {
     {
       label: 'Elementos Sanos',
       value: h?.totalHealthyCount ?? 0,
-      unit: '',
       color: T.emerald,
       icon: (
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
           <path d="M12 2C6 2 2 9 2 14c0 3.3 2.7 6 6 6 2.2 0 4.2-1.2 5.3-3A6 6 0 0021 11c0-5-4-9-9-9z"/>
         </svg>
       ),
-      sparkData: [30, 45, 52, 48, 60, 72, h?.totalHealthyCount ?? 70],
       loading: healthQuery.isLoading,
     },
     {
       label: 'Total Detectados',
       value: h?.totalDetected ?? 0,
-      unit: '',
       color: T.brand,
       icon: (
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
           <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
         </svg>
       ),
-      sparkData: [50, 60, 65, 70, 68, 80, h?.totalDetected ?? 80],
-      loading: healthQuery.isLoading,
-    },
-    {
-      label: 'Merma Promedio',
-      value: h?.avgLossPercent ?? 0,
-      unit: '%',
-      color: T.warn,
-      icon: (
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/>
-        </svg>
-      ),
-      sparkData: [8, 6, 9, 7, 5, 7, Math.round((h?.avgLossPercent ?? 7) * 10) / 10],
       loading: healthQuery.isLoading,
     },
     {
       label: 'Elementos Enfermos',
       value: h?.totalSickCount ?? 0,
-      unit: '',
       color: T.danger,
       icon: (
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
         </svg>
       ),
-      sparkData: [5, 8, 6, 10, 7, 9, h?.totalSickCount ?? 9],
       loading: healthQuery.isLoading,
     },
   ];
 
+  const mermaCard = {
+    label: 'Merma Promedio',
+    value: h?.avgLossPercent ?? 0,
+    unit: '%',
+    color: T.warn,
+    icon: (
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/>
+      </svg>
+    ),
+    sparkData: [8, 6, 9, 7, 5, 7, Math.round((h?.avgLossPercent ?? 7) * 10) / 10],
+    loading: healthQuery.isLoading,
+  };
+
   const phenoColors = [T.brand, T.emerald, T.champagne, T.warn, T.danger, T.gray, T.terracotta];
+
+  const healthPct = h && h.totalDetected > 0
+    ? Math.round((h.totalHealthyCount / h.totalDetected) * 100)
+    : 0;
+
+  const healthSparkData = [85, 88, 84, 90, 87, 91, healthPct];
 
   return (
       <div style={{
@@ -272,46 +271,15 @@ export function DashboardPage() {
         </div>
 
         {/* ── KPI Cards ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
-          {kpiCards.map((c, i) => {
-            const chip = chipFor(c.color);
-            return (
-              <SurfaceCard key={i} style={{ cursor: 'default' }}>
-                {c.loading ? (
-                  <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 100 }}>
-                    <Spin/>
-                  </div>
-                ) : (
-                  <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-                      <div style={{
-                        width: 36, height: 36, borderRadius: 10,
-                        background: chip.bg,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: chip.fg,
-                      }}>
-                        {c.icon}
-                      </div>
-                    </div>
-                    <div style={{ marginBottom: 12 }}>
-                      <div style={{ fontSize: 28, fontWeight: 700, color: T.ink, lineHeight: 1 }}>
-                        {typeof c.value === 'number' && c.unit === '%'
-                          ? formatPercent(c.value)
-                          : c.value}
-                        <span style={{ fontSize: 14, fontWeight: 400, color: T.gray, marginLeft: 2 }}>{c.unit}</span>
-                      </div>
-                      <div style={{ fontSize: 12, color: T.gray, marginTop: 4 }}>{c.label}</div>
-                    </div>
-                    <Sparkline data={c.sparkData} color={c.color} height={36}/>
-                  </>
-                )}
-              </SurfaceCard>
-            );
-          })}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr) 1.3fr', gap: 16, marginBottom: 24 }}>
+          {kpiCards.map((c, i) => (
+            <KpiCardHorizontal key={i} icon={c.icon} value={c.value} label={c.label} color={c.color} loading={c.loading}/>
+          ))}
+          <SpotlightCard value={healthPct} label="Salud global" sparkData={healthSparkData} loading={healthQuery.isLoading}/>
         </div>
 
         {/* ── Charts row ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 16, marginBottom: 24 }}>
           {/* Yield bar chart */}
           <SurfaceCard>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -399,6 +367,36 @@ export function DashboardPage() {
                   />
                 </PieChart>
               </ResponsiveContainer>
+            )}
+          </SurfaceCard>
+
+          {/* Merma promedio */}
+          <SurfaceCard style={{ cursor: 'default' }}>
+            {mermaCard.loading ? (
+              <div role="status" aria-label="Cargando…" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 100 }}>
+                <Spin/>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 10,
+                    background: chipFor(mermaCard.color).bg,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: chipFor(mermaCard.color).fg,
+                  }}>
+                    {mermaCard.icon}
+                  </div>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: T.ink, lineHeight: 1 }}>
+                    {formatPercent(mermaCard.value)}
+                    <span style={{ fontSize: 14, fontWeight: 400, color: T.gray, marginLeft: 2 }}>{mermaCard.unit}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: T.gray, marginTop: 4 }}>{mermaCard.label}</div>
+                </div>
+                <Sparkline data={mermaCard.sparkData} color={mermaCard.color} height={36}/>
+              </>
             )}
           </SurfaceCard>
         </div>
