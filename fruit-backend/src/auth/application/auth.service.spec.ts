@@ -41,8 +41,8 @@ function makeUser(overrides: Partial<User> = {}): User {
     overrides.email ?? 'test@example.com',
     'hashed-pw',
     (overrides.role as Role) ?? Role.PRODUCTOR,
-    null,
-    null,
+    overrides.firstName ?? null,
+    overrides.lastName ?? null,
   );
 }
 
@@ -221,6 +221,32 @@ describe('AuthService', () => {
     it('no lanza error si rawToken es undefined', async () => {
       await expect(service.logout(undefined)).resolves.not.toThrow();
       expect(mockRefreshRepo.revokeByTokenHash).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getProfile()', () => {
+    it('devuelve el perfil completo (incluye firstName/lastName) para un userId existente', async () => {
+      const user = makeUser({ firstName: 'Ana', lastName: 'Pérez' });
+      mockUserRepo.findUserById.mockResolvedValue(user);
+
+      const result = await service.getProfile('user-1');
+
+      expect(result).toEqual({
+        id: 'user-1',
+        email: 'test@example.com',
+        role: Role.PRODUCTOR,
+        firstName: 'Ana',
+        lastName: 'Pérez',
+      });
+      expect(mockUserRepo.findUserById).toHaveBeenCalledWith('user-1');
+    });
+
+    it('lanza 401 si el userId no corresponde a ningún usuario', async () => {
+      mockUserRepo.findUserById.mockResolvedValue(null);
+
+      await expect(service.getProfile('missing-id')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });

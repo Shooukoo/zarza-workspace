@@ -180,8 +180,8 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Se requiere autenticación.',
   })
-  me(@Req() req: any) {
-    return req.user;
+  async me(@Req() req: any) {
+    return this.authService.getProfile(req.user.sub);
   }
 
   @Patch('profile')
