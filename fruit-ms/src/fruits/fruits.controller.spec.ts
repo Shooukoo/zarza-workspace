@@ -100,11 +100,107 @@ describe('FruitsController', () => {
       expect(channel.ack).toHaveBeenCalledWith(message);
     });
 
+    it('get_fruits transforma las fechas y pasa correctamente los filtros', async () => {
+      service.findAll.mockResolvedValue({ data: [], total: 0 });
+      const { context } = makeCtx();
+
+      await controller.getAll(
+        {
+          page: 2,
+          limit: 10,
+          imageId: 'img-1',
+          userId: 'user-1',
+          startDate: '2026-08-01T00:00:00.000Z',
+          endDate: '2026-08-09T00:00:00.000Z',
+          productorId: 'producer-1',
+          campoIds: ['campo-1', 'campo-2'],
+        },
+        context,
+      );
+
+      expect(service.findAll).toHaveBeenCalledWith(
+        2,
+        10,
+        'img-1',
+        'user-1',
+        new Date('2026-08-01T00:00:00.000Z'),
+        new Date('2026-08-09T05:59:59.999Z'),
+        {
+          productorId: 'producer-1',
+          campoIds: ['campo-1', 'campo-2'],
+        },
+      );
+    });
+
     it('get_fruits hace ack aunque el service lance', async () => {
       service.findAll.mockRejectedValue(new Error('boom'));
       const { channel, message, context } = makeCtx();
 
       await expect(controller.getAll({}, context)).rejects.toThrow('boom');
+      expect(channel.ack).toHaveBeenCalledWith(message);
+    });
+
+    it('get_fruit_by_id devuelve el análisis cuando existe', async () => {
+      const analysis = {
+        id: 'analysis-1',
+        image_id: 'img-1',
+        productor_id: 'producer-1',
+        campo_id: 'campo-1',
+      };
+
+      service.findById.mockResolvedValue(analysis);
+      const { channel, message, context } = makeCtx();
+
+      const result = await controller.getById({ id: 'analysis-1' }, context);
+
+      expect(result).toEqual(analysis);
+      expect(service.findById).toHaveBeenCalledWith('analysis-1');
+      expect(channel.ack).toHaveBeenCalledWith(message);
+    });
+
+    it('get_fruit_by_id devuelve null cuando el productor no coincide', async () => {
+      const analysis = {
+        id: 'analysis-1',
+        image_id: 'img-1',
+        productor_id: 'producer-1',
+        campo_id: 'campo-1',
+      };
+
+      service.findById.mockResolvedValue(analysis);
+      const { channel, message, context } = makeCtx();
+
+      const result = await controller.getById(
+        {
+          id: 'analysis-1',
+          productorId: 'producer-2',
+        },
+        context,
+      );
+
+      expect(result).toBeNull();
+      expect(channel.ack).toHaveBeenCalledWith(message);
+    });
+
+    it('get_fruit_by_id devuelve null cuando el campo no está permitido', async () => {
+      const analysis = {
+        id: 'analysis-1',
+        image_id: 'img-1',
+        productor_id: 'producer-1',
+        campo_id: 'campo-1',
+      };
+
+      service.findById.mockResolvedValue(analysis);
+      const { channel, message, context } = makeCtx();
+
+      const result = await controller.getById(
+        {
+          id: 'analysis-1',
+          campoIds: ['campo-2', 'campo-3'],
+        },
+        context,
+      );
+
+      expect(result).toBeNull();
       expect(channel.ack).toHaveBeenCalledWith(message);
     });
 
