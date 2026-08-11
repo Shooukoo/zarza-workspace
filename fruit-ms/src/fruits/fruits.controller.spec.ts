@@ -103,6 +103,8 @@ describe('FruitsController', () => {
     it('get_fruits transforma las fechas y pasa correctamente los filtros', async () => {
       service.findAll.mockResolvedValue({ data: [], total: 0 });
       const { context } = makeCtx();
+      const expectedEndDate = new Date('2026-08-09T00:00:00.000Z');
+      expectedEndDate.setHours(23, 59, 59, 999);
 
       await controller.getAll(
         {
@@ -124,7 +126,7 @@ describe('FruitsController', () => {
         'img-1',
         'user-1',
         new Date('2026-08-01T00:00:00.000Z'),
-        new Date('2026-08-09T05:59:59.999Z'),
+        expectedEndDate,
         {
           productorId: 'producer-1',
           campoIds: ['campo-1', 'campo-2'],

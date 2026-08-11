@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FruitsController } from './fruits.controller';
-import { FruitsService } from './fruits.service';
+import { FruitsModule } from './fruits.module';
+import { LoggingModule } from '../common/logging/logging.module';
 import { ANALYSIS_REPOSITORY } from './ports';
 import { I_INFERENCE_PORT } from './ports/inference.port';
 import { AppLogger } from '../common/logging/app.logger';
@@ -84,27 +85,17 @@ describe('FruitsController - flujo nueva_fruta', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [FruitsController],
-      providers: [
-        FruitsService,
-        {
-          provide: I_INFERENCE_PORT,
-          useValue: inference,
-        },
-        {
-          provide: ANALYSIS_REPOSITORY,
-          useValue: repository,
-        },
-        {
-          provide: AppLogger,
-          useValue: logger,
-        },
-        {
-          provide: HttpService,
-          useValue: http,
-        },
-      ],
-    }).compile();
+      imports: [FruitsModule, LoggingModule],
+    })
+      .overrideProvider(I_INFERENCE_PORT)
+      .useValue(inference)
+      .overrideProvider(ANALYSIS_REPOSITORY)
+      .useValue(repository)
+      .overrideProvider(AppLogger)
+      .useValue(logger)
+      .overrideProvider(HttpService)
+      .useValue(http)
+      .compile();
 
     controller = module.get<FruitsController>(FruitsController);
   });
@@ -196,5 +187,29 @@ describe('FruitsController - flujo nueva_fruta', () => {
 
     expect(channel.ack).toHaveBeenCalledTimes(1);
     expect(channel.nack).not.toHaveBeenCalled();
+  });
+
+  it('hace nack sin requeue cuando la inferencia falla, sin guardar ni notificar', async () => {
+    const dto = {
+      image_id: 'img-2',
+      storage_key: 'k2',
+      userId: 'user-1',
+      userEmail: 'user@example.com',
+    } as NuevaFrutaDto;
+
+    inference.analyze.mockRejectedValue(new Error('inference down'));
+
+    await expect(
+      controller.handleNuevaFruta(dto, context as any),
+    ).resolves.toBeUndefined();
+
+    expect(repository.save).not.toHaveBeenCalled();
+    expect(http.axiosRef.post).not.toHaveBeenCalled();
+    expect(channel.nack).toHaveBeenCalledWith(
+      context.getMessage(),
+      false,
+      false,
+    );
+    expect(channel.ack).not.toHaveBeenCalled();
   });
 });
