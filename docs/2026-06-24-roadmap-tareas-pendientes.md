@@ -1,6 +1,8 @@
 # RubusAI — Roadmap de Tareas Pendientes
-**Fecha:** 2026-06-24
+**Fecha:** 2026-06-24 (última revisión de estado: 2026-08-09)
 **Origen:** Cruce entre la auditoría técnica del 2026-05-22 ([[2026-05-22-audit-estado-proyecto]]) y la lista de tareas pendientes del equipo.
+
+> **Nota de la revisión 2026-08-09:** varios ítems se completaron en commits posteriores a la fecha original del roadmap. Se marcaron ✅ con referencia al commit/PR correspondiente. También se agregó una sección de trabajo nuevo (rebrand visual, tema claro, KPIs del dashboard) que no estaba contemplado en la versión original.
 ---
 
 ## Cómo está organizado
@@ -37,7 +39,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 2. Logging estructurado con traceId entre servicios
+### 2. Logging estructurado con traceId entre servicios — ✅ Completada (PR #8)
+
+> Resuelta: `AppLogger` estructurado agregado en `fruit-backend` y `fruit-ms`, con `traceId` propagado desde `POST /ingestion` a través de RabbitMQ hasta la llamada HTTP a `fruit-inference` (commits `2adec30`, `99b73c3`, `f94991c`, merge `57372a0`).
 
 **Qué es:** Hoy cada servicio (`fruit-backend`, `fruit-ms`, `fruit-inference`) escribe sus propios logs sueltos (algunos con `console.log`, otros con `print()` de Python), sin relación entre ellos. Si una imagen falla en algún punto del flujo, no hay forma fácil de seguirle el rastro de un servicio a otro.
 
@@ -55,7 +59,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 3. Revisar las vistas por rol
+### 3. Revisar las vistas por rol — 🟡 Parcial
+
+> En progreso: la revisión encontró y corrigió al menos dos gaps reales — endpoint de monitores expuesto sin scope para AGRONOMO (PR #12, `e1a0f24`) y `/analyses/:id/image` disparándose indebidamente para PRODUCTOR (PR #13, `631d9ed`). No hay evidencia de que se haya completado el barrido exhaustivo de todos los endpoints/pantallas descrito en el punto 1 de "en qué consiste" — sigue siendo trabajo de QA abierto, aunque ya rindió correcciones.
 
 **Qué es:** El sistema tiene 4 roles (`ADMIN`, `PRODUCTOR`, `AGRONOMO`, `MONITOR`) y cada uno debería ver solo la información que le corresponde (por ejemplo, un PRODUCTOR solo sus propios campos, un AGRONOMO solo los campos que tiene asignados). Esta tarea es una revisión manual para confirmar que eso se cumple de verdad en todas las pantallas y endpoints, no solo donde ya se probó.
 
@@ -74,7 +80,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ## Prioridad Media
 
-### 4. Documentación de API con Swagger/OpenAPI
+### 4. Documentación de API con Swagger/OpenAPI — ✅ Completada
+
+> Resuelta: `@nestjs/swagger` instalado y UI interactiva expuesta (commit `05b02e7`, PR #14).
 
 **Qué es:** El backend (`fruit-backend`) no tiene documentación interactiva de sus endpoints. Cualquiera que quiera consumir la API (el panel web, futuras integraciones, una persona nueva en el equipo) tiene que leer el código fuente para saber qué espera cada endpoint.
 
@@ -92,7 +100,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 5. Tests en fruit-ms
+### 5. Tests en fruit-ms — 🟡 Parcial
+
+> En progreso: existen specs para `fruits.controller`, `fruits.service`, `rabbitmq-topology.spec.ts` e `inference-http.adapter.spec.ts`. Sigue faltando el test del `InferenceMapper` mencionado explícitamente en el punto 1 de "en qué consiste" — no se encontró `inference.mapper.spec.ts` en el repo.
 
 **Qué es:** `fruit-ms` es el microservicio que recibe el evento de "nueva fruta", llama a la inferencia, y guarda el resultado. Actualmente tiene **cero archivos de test** — ningún cambio futuro está protegido contra romper este flujo sin darse cuenta.
 
@@ -109,7 +119,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 6. Dead Letter Queue (DLQ) y reintentos en RabbitMQ
+### 6. Dead Letter Queue (DLQ) y reintentos en RabbitMQ — ✅ Completada
+
+> Resuelta: reintentos con backoff exponencial y ack/nack manual (`7e4a874`), topología DLX `fruit.dlx` (`119788b`), clientes RMQ con argumentos DLX en `fruit-backend` (`3266267`), documentación de despliegue/operación (`3560766`), merge `26a0588`.
 
 **Qué es:** Si `fruit-ms` falla al procesar un evento `nueva_fruta` (por ejemplo, porque `fruit-inference` está caído o tarda demasiado), ese mensaje simplemente se pierde. No hay reintentos ni forma de recuperarlo.
 
@@ -128,7 +140,7 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 7. Cronograma de cosecha diferenciado por variedad
+### 7. Cronograma de cosecha diferenciado por variedad — ⬜ Sigue pendiente
 
 **Qué es:** Existen 4 variedades de zarzamora en el sistema (`regina`, `aketzali`, `amelali`, `erandi`), y cada una madura a un ritmo distinto en la realidad. Hoy el campo `variedad` llega en cada solicitud de inferencia y se reporta, pero **no afecta el cálculo** de cuántos días faltan para la cosecha — se usa la misma tabla de tiempos para todas las variedades.
 
@@ -145,7 +157,7 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 8. Modal de validación de análisis en Flutter
+### 8. Modal de validación de análisis en Flutter — ⬜ Sigue pendiente
 
 **Qué es:** Un agrónomo puede aprobar o rechazar un análisis, y el backend ya soporta esto completamente (`PATCH /analyses/:id/validate`). Pero en la app Flutter ese flujo no tiene una pantalla real: hoy solo existe un aviso (snackbar) que dice "un agrónomo rechazó tu análisis", sin que el agrónomo tenga una forma cómoda de hacer esa validación con observaciones.
 
@@ -162,7 +174,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 9. Flutter flavors (dev/staging/prod)
+### 9. Flutter flavors (dev/staging/prod) — ✅ Completada
+
+> Resuelta: product flavors nativos con `EnvConfig` resolviendo URLs por `appFlavor` (`dd96aef`, `9f68a6d`, `35a0772`), documentación de flavors y prerrequisito Firebase (`ecb216c`), merge `8e896e0`.
 
 **Qué es:** Hoy las URLs del backend y del WebSocket en la app Flutter (`AppConstants`) dependen de pasar manualmente un flag `--dart-define` al compilar. No existe un mecanismo real de "flavors" que separe los entornos de desarrollo, staging y producción.
 
@@ -204,7 +218,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ## Prioridad Baja / Investigación
 
-### 11. Investigar una red de localización/entrega offline (tipo "Buscar" de Apple)
+### 11. Investigar una red de localización/entrega offline (tipo "Buscar" de Apple) — 🟡 Spike entregado, implementación sin decidir
+
+> El entregable de investigación ya existe: [[2026-08-04-spike-entrega-solicitudes-monitor-offline]] (commit `5697ca9`). Falta que el equipo decida cuál opción implementar.
 
 **Qué es:** Cuando se crea una solicitud de muestreo para un monitor que ya está en la finca sin señal de internet, esa solicitud no le llega hasta que recupere conexión. Apple resuelve un problema parecido con su red "Buscar" (Find My): cada iPhone cercano puede actuar como relay para otro, incluso sin que su dueño se entere, usando Bluetooth de bajo consumo. Esta tarea es investigar si algo similar (o más simple) tiene sentido para nuestro caso.
 
@@ -223,7 +239,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 12. Mejoras de diseño (UX/UI en Flutter)
+### 12. Mejoras de diseño (UX/UI en Flutter) — ⬜ Sigue pendiente
+
+> No confundir con el rebrand/tema claro de **zarza-web** (ver [[#Trabajo nuevo no contemplado en la versión original|Trabajo nuevo]] al final) — esos commits son del panel web, no de la app Flutter. Ninguno de los cuatro ítems de abajo tiene commits asociados en `zarza_ai` todavía.
 
 **Qué es:** Conjunto de mejoras visuales y de experiencia de usuario en la app móvil, agrupadas como una sola línea de trabajo que se puede repartir en tickets individuales.
 
@@ -241,7 +259,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 13. Hallazgos de seguridad menores pendientes
+### 13. Hallazgos de seguridad menores pendientes — ✅ Completada
+
+> Resuelta: cifrado AES-256-GCM del `fcmToken` (`60d8488`, `4bc7360`), header `x-inference-token` validado en `fruit-inference` (`329a0ed`, `b13baf5`, `458a4a9`), validación de tamaño vía `HeadObject` antes de descargar de R2 (`92a0679`, `6ba109e`), merge `4d9156f` (SEG-05/06/07).
 
 **Qué es:** Tres hallazgos de seguridad de bajo riesgo de la auditoría original que siguen sin resolver. Son rápidos de implementar y buenos primeros tickets para alguien nuevo en el proyecto.
 
@@ -264,14 +284,26 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 Estas ideas están documentadas en la auditoría original pero no han tenido ningún movimiento. Se quedan en el backlog para retomar cuando haya espacio:
 
-- **Mapa geográfico de análisis** — visualizar en un mapa (Google Maps/Mapbox) la ubicación de los análisis por campo, usando los datos GPS que ya existen.
-- **Exportación de reportes PDF/Excel** — endpoint para que un agrónomo exporte los análisis de un campo.
-- **Cache en Redis para el dashboard** — las métricas de `/admin/dashboard/*` son costosas de calcular en cada request. Resuelto en [[2026-07-08-redis-dashboard-cache]].
-- **Healthchecks en `docker-compose.yml`** — para que los servicios esperen correctamente a sus dependencias (ej. `fruit-ms` no debe procesar hasta que `fruit-inference` esté listo).
-- **Compresión de imágenes antes del upload** — reducir tiempo de subida y costo de almacenamiento en R2. Resuelto en [[2026-06-25-image-compression-flutter]].
-- **Paginación consistente** — unificar `fruit-backend` (offset) y `fruit-ms` (cursor) a un solo esquema.
-- **Notificaciones in-app persistentes** — una campana con historial de notificaciones leídas/no leídas, en vez de solo WebSocket/push efímero. Resuelto en [[2026-06-25-persistent-notifications-implementation]].
-- **Soporte multi-campo en captura** — permitir elegir entre varios campos asignados antes de tomar la foto, en vez de uno fijo.
+- **Mapa geográfico de análisis** — ⬜ sigue pendiente. Visualizar en un mapa (Google Maps/Mapbox) la ubicación de los análisis por campo, usando los datos GPS que ya existen.
+- **Exportación de reportes PDF/Excel** — ⬜ sigue pendiente. Endpoint para que un agrónomo exporte los análisis de un campo.
+- **Cache en Redis para el dashboard** — ✅ resuelto en [[2026-07-08-redis-dashboard-cache]] (merge `c5e6686`).
+- **Healthchecks en `docker-compose.yml`** — ✅ resuelto (commit `6a710f3`, "feat(health): endpoints de health y healthchecks en Docker Compose").
+- **Compresión de imágenes antes del upload** — ✅ resuelto en [[2026-06-25-image-compression-flutter]] (merge PR #5, `69ecac3`).
+- **Paginación consistente** — ✅ resuelto: DTOs de query validados en `fruit-backend` (`5c470c0`) y paginación en repositorios de `zarza_ai` (`9b01b54`).
+- **Notificaciones in-app persistentes** — ✅ resuelto en [[2026-06-25-persistent-notifications-implementation]] (`dc96cee` y commits relacionados).
+- **Soporte multi-campo en captura** — ⬜ sigue pendiente. Permitir elegir entre varios campos asignados antes de tomar la foto, en vez de uno fijo.
+
+---
+
+## Trabajo nuevo no contemplado en la versión original
+
+Línea de trabajo de diseño en `zarza-web` que arrancó después de este roadmap y no estaba planeada originalmente:
+
+- **Rebrand a paleta Emerald Ink + Champagne** — ✅ hecho (PR #17, `3436b3f`).
+- **Tema claro en el dashboard y top bar por roles** — ✅ hecho (PR #16, `100c273`).
+- **Guía de referencia de UI/UX** — ✅ hecho (`e6c5c5a`).
+- **Reemplazo de ilustración del login y aclarado del panel** — ✅ hecho (`ce2a477`).
+- **Rediseño de KPIs del dashboard** — ✅ hecho (PR #18, `319a74f`).
 
 ---
 
