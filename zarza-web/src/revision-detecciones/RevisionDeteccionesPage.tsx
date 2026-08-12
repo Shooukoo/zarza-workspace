@@ -51,8 +51,18 @@ export function RevisionDeteccionesPage() {
 
   if (!analysisId) return null;
 
+  if (detailQuery.isLoading) {
+    return <Skeleton active paragraph={{ rows: 8 }} />;
+  }
+
   if (detailQuery.isError) {
-    return <Alert type="error" message="No tienes acceso a este análisis." showIcon />;
+    return (
+      <Alert
+        type="error"
+        message="No se pudo cargar el análisis. Verifica que tengas acceso o intenta de nuevo."
+        showIcon
+      />
+    );
   }
 
   return (
@@ -109,6 +119,10 @@ export function RevisionDeteccionesPage() {
       )}
 
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginTop: 16, paddingBottom: 8 }}>
+        {deteccionesQuery.isLoading &&
+          Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton.Button key={i} active style={{ minWidth: 140, height: 52 }} />
+          ))}
         {detecciones.map((d) => (
           <div
             key={d.id}
