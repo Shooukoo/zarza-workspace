@@ -218,16 +218,35 @@ export class AnalysesController {
     description:
       'Devuelve las detecciones individuales del análisis con su estado actual ya resuelto (original del modelo, o la corrección más reciente si existe).',
   })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    format: 'uuid',
+    description: 'UUID del análisis.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Detecciones recuperadas con éxito.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para acceder a las detecciones.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Análisis no encontrado.',
+  })
   @Get(':id/detections')
   @Roles(Role.ADMIN, Role.AGRONOMO)
   async listDetections(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: { user: JwtPayload },
   ) {
-    const scope = await this.buildScope(req.user);
-    const analysis = await this.analysesService.findById(id);
-    this.assertInScope(analysis, scope);
+    await this.assertAccessToAnalysis(id, req.user);
     return this.analysesService.listDetections(id);
   }
 
@@ -236,7 +255,32 @@ export class AnalysesController {
     description:
       'Crea una detección de origen humano (el agrónomo dibujó el bounding box en la pantalla de revisión).',
   })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    format: 'uuid',
+    description: 'UUID del análisis.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Detección agregada con éxito.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos de la detección no válidos (bbox inválido).',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para agregar detecciones.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Análisis no encontrado.',
+  })
   @Post(':id/detections')
   @Roles(Role.ADMIN, Role.AGRONOMO)
   async addDetection(
@@ -244,9 +288,7 @@ export class AnalysesController {
     @Req() req: { user: JwtPayload },
     @Body() dto: CreateDetectionDto,
   ) {
-    const scope = await this.buildScope(req.user);
-    const analysis = await this.analysesService.findById(id);
-    this.assertInScope(analysis, scope);
+    await this.assertAccessToAnalysis(id, req.user);
     return this.analysesService.addDetection(id, req.user.sub, dto);
   }
 
@@ -255,8 +297,39 @@ export class AnalysesController {
     description:
       'Registra una corrección (EDITAR) o marca una detección como falso positivo (ELIMINAR). Append-only: no modifica la detección original.',
   })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
-  @ApiParam({ name: 'detectionId', type: String, format: 'uuid' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    format: 'uuid',
+    description: 'UUID del análisis.',
+  })
+  @ApiParam({
+    name: 'detectionId',
+    type: String,
+    format: 'uuid',
+    description: 'UUID de la detección a corregir.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Corrección registrada con éxito.',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Datos de la corrección no válidos (bbox inválido, o accion=EDITAR sin etapaCorregida/saludCorregida).',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para corregir detecciones.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Análisis o detección no encontrados.',
+  })
   @Post(':id/detections/:detectionId/feedback')
   @Roles(Role.ADMIN, Role.AGRONOMO)
   async addDetectionFeedback(
@@ -265,9 +338,7 @@ export class AnalysesController {
     @Req() req: { user: JwtPayload },
     @Body() dto: DetectionFeedbackDto,
   ) {
-    const scope = await this.buildScope(req.user);
-    const analysis = await this.analysesService.findById(id);
-    this.assertInScope(analysis, scope);
+    await this.assertAccessToAnalysis(id, req.user);
     return this.analysesService.addFeedback(
       id,
       detectionId,
@@ -281,21 +352,40 @@ export class AnalysesController {
     description:
       'Marca deteccionesRevisadas=true sin necesidad de haber registrado correcciones (caso: el agrónomo revisó y todo estaba correcto).',
   })
-  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    format: 'uuid',
+    description: 'UUID del análisis.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Análisis marcado como revisado con éxito.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no tiene permiso para marcar el análisis como revisado.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Análisis no encontrado.',
+  })
   @Patch(':id/review')
   @Roles(Role.ADMIN, Role.AGRONOMO)
   async markReviewed(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: { user: JwtPayload },
   ) {
-    const scope = await this.buildScope(req.user);
-    const analysis = await this.analysesService.findById(id);
-    this.assertInScope(analysis, scope);
+    await this.assertAccessToAnalysis(id, req.user);
     return this.analysesService.markReviewed(id, req.user.sub);
   }
 
   private assertInScope(
-    analysis: { productorId: string; campoId: string | null },
+    analysis: { productorId: string; campoId: string },
     scope: UserScope,
   ) {
     if (scope.role === Role.PRODUCTOR && analysis.productorId !== scope.sub) {
@@ -308,6 +398,15 @@ export class AnalysesController {
     ) {
       throw new NotFoundException();
     }
+  }
+
+  private async assertAccessToAnalysis(
+    id: string,
+    jwtUser: JwtPayload,
+  ): Promise<void> {
+    const scope = await this.buildScope(jwtUser);
+    const analysis = await this.analysesService.findScopeInfo(id);
+    this.assertInScope(analysis, scope);
   }
 
   private async buildScope(jwtUser: JwtPayload): Promise<UserScope> {

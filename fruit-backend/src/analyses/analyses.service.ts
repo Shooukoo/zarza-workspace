@@ -87,6 +87,18 @@ export class AnalysesService {
     return analysis;
   }
 
+  async findScopeInfo(
+    id: string,
+  ): Promise<{ productorId: string; campoId: string }> {
+    const analysis = await this.prisma.analysis.findUnique({
+      where: { id },
+      select: { productorId: true, campoId: true },
+    });
+    if (!analysis)
+      throw new NotFoundException(`Análisis con id "${id}" no encontrado`);
+    return analysis;
+  }
+
   async getImageUrl(id: string): Promise<string> {
     const analysis = await this.findById(id);
     if (!analysis.storageKey) {
