@@ -35,6 +35,7 @@ describe('InferenceHttpAdapter', () => {
     },
     proyeccion_financiera: { peso_sano_gramos: 100 },
     cronograma_fenologico: [],
+    detecciones: [],
   };
 
   beforeEach(() => {
