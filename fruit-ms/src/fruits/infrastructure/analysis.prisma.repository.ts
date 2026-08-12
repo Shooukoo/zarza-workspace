@@ -13,6 +13,7 @@ import type {
 import type {
   AnalysisDomain,
   EtapaFenologica,
+  Deteccion,
 } from '../domain/analysis.entity';
 
 @Injectable()
@@ -64,6 +65,23 @@ export class PrismaAnalysisRepository implements IAnalysisRepository {
             cambiaA: e.prediccion.cambio_a,
             enDias: e.prediccion.en_dias,
             diasParaCosecha: e.prediccion.dias_para_cosecha,
+          })),
+        });
+      }
+
+      if (analysis.detecciones.length > 0) {
+        await tx.detection.createMany({
+          data: analysis.detecciones.map((d: Deteccion) => ({
+            analysisId: created.id,
+            origen: 'MODELO' as const,
+            claseDetectada: d.clase,
+            etapaDetectada: d.etapa,
+            saludDetectada: d.sano ? 'SANO' : 'ENFERMO',
+            confidence: d.confidence,
+            bboxX1: d.bbox[0],
+            bboxY1: d.bbox[1],
+            bboxX2: d.bbox[2],
+            bboxY2: d.bbox[3],
           })),
         });
       }
