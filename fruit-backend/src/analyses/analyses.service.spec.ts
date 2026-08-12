@@ -191,6 +191,7 @@ describe('AnalysesService — detecciones', () => {
           creadoPorId: 'user-1',
         },
       });
+      expect(prisma.analysis.update).not.toHaveBeenCalled();
     });
   });
 

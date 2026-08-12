@@ -261,26 +261,9 @@ export class AnalysesService {
     }
   }
 
-  private resolveDetectionState(detection: {
-    id: string;
-    origen: string;
-    confidence: number | null;
-    etapaDetectada: string;
-    saludDetectada: string;
-    bboxX1: number;
-    bboxY1: number;
-    bboxX2: number;
-    bboxY2: number;
-    feedback: Array<{
-      accion: string;
-      etapaCorregida: string | null;
-      saludCorregida: string | null;
-      bboxX1: number | null;
-      bboxY1: number | null;
-      bboxX2: number | null;
-      bboxY2: number | null;
-    }>;
-  }) {
+  private resolveDetectionState(
+    detection: Prisma.DetectionGetPayload<{ include: { feedback: true } }>,
+  ) {
     const latest = detection.feedback[0];
     return {
       id: detection.id,
