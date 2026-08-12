@@ -32,6 +32,15 @@ describe('InferenceMapper', () => {
         },
       },
     ],
+    detecciones: [
+      {
+        clase: 'naranja',
+        etapa: 'naranja',
+        sano: true,
+        confidence: 0.87,
+        bbox: [10, 20, 30, 40],
+      },
+    ],
   };
 
   describe('mapeo básico', () => {
@@ -66,6 +75,15 @@ describe('InferenceMapper', () => {
               en_dias: 10,
               dias_para_cosecha: 60,
             },
+          },
+        ],
+        detecciones: [
+          {
+            clase: 'naranja',
+            etapa: 'naranja',
+            sano: true,
+            confidence: 0.87,
+            bbox: [10, 20, 30, 40],
           },
         ],
         campo_id: null,
@@ -256,6 +274,34 @@ describe('InferenceMapper', () => {
       const result = InferenceMapper.toDomain(dto, 'storage-key', requester);
 
       expect(result.cronograma_fenologico).toEqual([]);
+    });
+  });
+
+  describe('detecciones', () => {
+    it('mapea clase, etapa, sano, confidence y bbox', () => {
+      const result = InferenceMapper.toDomain(
+        validDto,
+        'storage-key',
+        requester,
+      );
+
+      expect(result.detecciones).toEqual([
+        {
+          clase: 'naranja',
+          etapa: 'naranja',
+          sano: true,
+          confidence: 0.87,
+          bbox: [10, 20, 30, 40],
+        },
+      ]);
+    });
+
+    it('devuelve un arreglo vacío cuando no hay detecciones', () => {
+      const dto = { ...validDto, detecciones: [] };
+
+      const result = InferenceMapper.toDomain(dto, 'storage-key', requester);
+
+      expect(result.detecciones).toEqual([]);
     });
   });
 });
