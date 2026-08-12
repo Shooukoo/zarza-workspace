@@ -137,6 +137,9 @@ export class PrismaAnalysisRepository implements IAnalysisRepository {
         porcentaje_merma_general: doc.porcentajeMermaGeneral,
       },
       proyeccion_financiera: { peso_sano_gramos: doc.pesoSanoGramos },
+      // No se consultan detecciones individuales en este path de lectura —
+      // solo lo usa fruit-backend directamente contra Detection/ModelFeedback.
+      detecciones: [],
       cronograma_fenologico: (doc.fenologiaEtapas ?? []).map((e: any) => ({
         etapa: e.etapa,
         cantidad: e.cantidad,
