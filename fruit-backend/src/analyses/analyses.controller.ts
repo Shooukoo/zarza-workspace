@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Param,
   Body,
@@ -13,6 +14,8 @@ import {
 } from '@nestjs/common';
 import { AnalysesService } from './analyses.service';
 import { ValidateAnalysisDto } from './dto/validate-analysis.dto';
+import { CreateDetectionDto } from './dto/create-detection.dto';
+import { DetectionFeedbackDto } from './dto/detection-feedback.dto';
 import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
@@ -80,6 +83,7 @@ export class AnalysesController {
       query.estado,
       scope,
       query.campo_id,
+      query.revision_detecciones,
     );
   }
 
@@ -151,16 +155,7 @@ export class AnalysesController {
   ) {
     const scope = await this.buildScope(req.user);
     const analysis = await this.analysesService.findById(id);
-    if (scope.role === Role.PRODUCTOR && analysis.productorId !== scope.sub) {
-      throw new NotFoundException();
-    }
-    if (
-      scope.role === Role.AGRONOMO &&
-      scope.camposAsignados?.length &&
-      !scope.camposAsignados.includes(analysis.campoId ?? '')
-    ) {
-      throw new NotFoundException();
-    }
+    this.assertInScope(analysis, scope);
     return analysis;
   }
 
@@ -216,6 +211,103 @@ export class AnalysesController {
       );
     }
     return result;
+  }
+
+  @ApiOperation({
+    summary: 'Listar las detecciones de un análisis',
+    description:
+      'Devuelve las detecciones individuales del análisis con su estado actual ya resuelto (original del modelo, o la corrección más reciente si existe).',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @Get(':id/detections')
+  @Roles(Role.ADMIN, Role.AGRONOMO)
+  async listDetections(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: { user: JwtPayload },
+  ) {
+    const scope = await this.buildScope(req.user);
+    const analysis = await this.analysesService.findById(id);
+    this.assertInScope(analysis, scope);
+    return this.analysesService.listDetections(id);
+  }
+
+  @ApiOperation({
+    summary: 'Agregar una detección que el modelo no detectó',
+    description:
+      'Crea una detección de origen humano (el agrónomo dibujó el bounding box en la pantalla de revisión).',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @Post(':id/detections')
+  @Roles(Role.ADMIN, Role.AGRONOMO)
+  async addDetection(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: { user: JwtPayload },
+    @Body() dto: CreateDetectionDto,
+  ) {
+    const scope = await this.buildScope(req.user);
+    const analysis = await this.analysesService.findById(id);
+    this.assertInScope(analysis, scope);
+    return this.analysesService.addDetection(id, req.user.sub, dto);
+  }
+
+  @ApiOperation({
+    summary: 'Corregir o eliminar una detección',
+    description:
+      'Registra una corrección (EDITAR) o marca una detección como falso positivo (ELIMINAR). Append-only: no modifica la detección original.',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @ApiParam({ name: 'detectionId', type: String, format: 'uuid' })
+  @Post(':id/detections/:detectionId/feedback')
+  @Roles(Role.ADMIN, Role.AGRONOMO)
+  async addDetectionFeedback(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('detectionId', ParseUUIDPipe) detectionId: string,
+    @Req() req: { user: JwtPayload },
+    @Body() dto: DetectionFeedbackDto,
+  ) {
+    const scope = await this.buildScope(req.user);
+    const analysis = await this.analysesService.findById(id);
+    this.assertInScope(analysis, scope);
+    return this.analysesService.addFeedback(
+      id,
+      detectionId,
+      req.user.sub,
+      dto,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Marcar un análisis como revisado',
+    description:
+      'Marca deteccionesRevisadas=true sin necesidad de haber registrado correcciones (caso: el agrónomo revisó y todo estaba correcto).',
+  })
+  @ApiParam({ name: 'id', type: String, format: 'uuid' })
+  @Patch(':id/review')
+  @Roles(Role.ADMIN, Role.AGRONOMO)
+  async markReviewed(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: { user: JwtPayload },
+  ) {
+    const scope = await this.buildScope(req.user);
+    const analysis = await this.analysesService.findById(id);
+    this.assertInScope(analysis, scope);
+    return this.analysesService.markReviewed(id, req.user.sub);
+  }
+
+  private assertInScope(
+    analysis: { productorId: string; campoId: string | null },
+    scope: UserScope,
+  ) {
+    if (scope.role === Role.PRODUCTOR && analysis.productorId !== scope.sub) {
+      throw new NotFoundException();
+    }
+    if (
+      scope.role === Role.AGRONOMO &&
+      scope.camposAsignados?.length &&
+      !scope.camposAsignados.includes(analysis.campoId ?? '')
+    ) {
+      throw new NotFoundException();
+    }
   }
 
   private async buildScope(jwtUser: JwtPayload): Promise<UserScope> {
