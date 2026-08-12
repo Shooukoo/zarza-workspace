@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Form, Select, Switch, Button, Space, message } from 'antd';
 import { useFeedbackDeteccion } from './useDetecciones';
 import { ETAPAS_CONOCIDAS } from './types';
@@ -18,6 +18,7 @@ interface FormValues {
 export function DeteccionPanel({ deteccion, analysisId, onClose }: Props) {
   const feedbackMutation = useFeedbackDeteccion(analysisId);
   const [form] = Form.useForm<FormValues>();
+  const [pendingAction, setPendingAction] = useState<'EDITAR' | 'ELIMINAR' | null>(null);
 
   useEffect(() => {
     form.setFieldsValue({
@@ -27,6 +28,7 @@ export function DeteccionPanel({ deteccion, analysisId, onClose }: Props) {
   }, [deteccion, form]);
 
   async function guardar(values: FormValues) {
+    setPendingAction('EDITAR');
     try {
       await feedbackMutation.mutateAsync({
         detectionId: deteccion.id,
@@ -39,10 +41,13 @@ export function DeteccionPanel({ deteccion, analysisId, onClose }: Props) {
       message.success('Corrección guardada');
     } catch {
       message.error('Error al guardar la corrección');
+    } finally {
+      setPendingAction(null);
     }
   }
 
   async function eliminar() {
+    setPendingAction('ELIMINAR');
     try {
       await feedbackMutation.mutateAsync({
         detectionId: deteccion.id,
@@ -52,6 +57,8 @@ export function DeteccionPanel({ deteccion, analysisId, onClose }: Props) {
       onClose();
     } catch {
       message.error('Error al eliminar la detección');
+    } finally {
+      setPendingAction(null);
     }
   }
 
@@ -77,10 +84,10 @@ export function DeteccionPanel({ deteccion, analysisId, onClose }: Props) {
           <Switch checkedChildren="Sano" unCheckedChildren="Enfermo" />
         </Form.Item>
         <Space>
-          <Button type="primary" htmlType="submit" loading={feedbackMutation.isPending}>
+          <Button type="primary" htmlType="submit" loading={pendingAction === 'EDITAR'}>
             Guardar
           </Button>
-          <Button danger onClick={eliminar} loading={feedbackMutation.isPending}>
+          <Button danger onClick={eliminar} loading={pendingAction === 'ELIMINAR'}>
             Eliminar
           </Button>
           <Button onClick={onClose}>Cerrar</Button>
