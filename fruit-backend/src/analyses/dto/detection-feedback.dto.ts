@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsBoolean,
+  IsEnum,
   IsIn,
   IsOptional,
   IsString,
@@ -8,16 +9,14 @@ import {
   ArrayMaxSize,
   IsNumber,
 } from 'class-validator';
+import { AccionFeedback } from '@rubus/database';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ETAPAS_CONOCIDAS, type EtapaConocida } from './create-detection.dto';
 
-export const ACCION_FEEDBACK_VALUES = ['EDITAR', 'ELIMINAR'] as const;
-export type AccionFeedbackValue = (typeof ACCION_FEEDBACK_VALUES)[number];
-
 export class DetectionFeedbackDto {
-  @ApiProperty({ enum: ACCION_FEEDBACK_VALUES })
-  @IsIn(ACCION_FEEDBACK_VALUES)
-  accion: AccionFeedbackValue;
+  @ApiProperty({ enum: AccionFeedback })
+  @IsEnum(AccionFeedback)
+  accion: AccionFeedback;
 
   @ApiPropertyOptional({ enum: ETAPAS_CONOCIDAS })
   @IsOptional()
