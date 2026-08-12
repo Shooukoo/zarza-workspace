@@ -116,7 +116,13 @@ export class AnalysesController {
   })
   @Get(':id/image')
   @Roles(Role.ADMIN, Role.AGRONOMO)
-  async getImage(@Param('id', ParseUUIDPipe) id: string) {
+  async getImage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: { user: JwtPayload },
+  ) {
+    const scope = await this.buildScope(req.user);
+    const analysis = await this.analysesService.findById(id);
+    this.assertInScope(analysis, scope);
     const url = await this.analysesService.getImageUrl(id);
     return { url };
   }
