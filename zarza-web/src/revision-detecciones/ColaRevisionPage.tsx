@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Table, Typography } from 'antd';
+import { Alert, Button, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useColaRevision } from './useDetecciones';
 import type { Analysis } from '../analisis/types';
@@ -44,6 +44,14 @@ export function ColaRevisionPage() {
       <Typography.Title level={4} style={{ marginBottom: 16 }}>
         Cola de revisión de detecciones
       </Typography.Title>
+      {query.isError && (
+        <Alert
+          type="error"
+          message="No se pudo cargar la cola de revisión."
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <Table
         rowKey="id"
         dataSource={query.data?.data ?? []}
