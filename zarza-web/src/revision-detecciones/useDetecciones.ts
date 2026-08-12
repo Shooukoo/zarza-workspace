@@ -25,8 +25,10 @@ export function useAgregarDeteccion(analysisId: string) {
       apiClient
         .post<Deteccion>(`/analyses/${analysisId}/detections`, payload)
         .then((r) => r.data),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ['detecciones', analysisId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['detecciones', analysisId] });
+      qc.invalidateQueries({ queryKey: ['cola-revision'] });
+    },
   });
 }
 
@@ -46,8 +48,10 @@ export function useFeedbackDeteccion(analysisId: string) {
           payload,
         )
         .then((r) => r.data),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ['detecciones', analysisId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['detecciones', analysisId] });
+      qc.invalidateQueries({ queryKey: ['cola-revision'] });
+    },
   });
 }
 
