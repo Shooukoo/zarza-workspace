@@ -184,6 +184,9 @@ exports.Prisma.AnalysisScalarFieldEnum = {
   validacionDiagnosticoOriginal: 'validacionDiagnosticoOriginal',
   validacionCronogramaCorregido: 'validacionCronogramaCorregido',
   validacionObservaciones: 'validacionObservaciones',
+  deteccionesRevisadas: 'deteccionesRevisadas',
+  deteccionesRevisadasPorId: 'deteccionesRevisadasPorId',
+  deteccionesRevisadasAt: 'deteccionesRevisadasAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -196,6 +199,38 @@ exports.Prisma.FenologiaEtapaScalarFieldEnum = {
   cambiaA: 'cambiaA',
   enDias: 'enDias',
   diasParaCosecha: 'diasParaCosecha'
+};
+
+exports.Prisma.DetectionScalarFieldEnum = {
+  id: 'id',
+  analysisId: 'analysisId',
+  origen: 'origen',
+  claseDetectada: 'claseDetectada',
+  etapaDetectada: 'etapaDetectada',
+  saludDetectada: 'saludDetectada',
+  confidence: 'confidence',
+  bboxX1: 'bboxX1',
+  bboxY1: 'bboxY1',
+  bboxX2: 'bboxX2',
+  bboxY2: 'bboxY2',
+  creadoPorId: 'creadoPorId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ModelFeedbackScalarFieldEnum = {
+  id: 'id',
+  analysisId: 'analysisId',
+  detectionId: 'detectionId',
+  accion: 'accion',
+  etapaCorregida: 'etapaCorregida',
+  saludCorregida: 'saludCorregida',
+  bboxX1: 'bboxX1',
+  bboxY1: 'bboxY1',
+  bboxX2: 'bboxX2',
+  bboxY2: 'bboxY2',
+  observaciones: 'observaciones',
+  creadoPorId: 'creadoPorId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.RefreshTokenScalarFieldEnum = {
@@ -265,6 +300,21 @@ exports.EstadoValidacion = exports.$Enums.EstadoValidacion = {
   rechazado: 'rechazado'
 };
 
+exports.OrigenDeteccion = exports.$Enums.OrigenDeteccion = {
+  MODELO: 'MODELO',
+  HUMANO: 'HUMANO'
+};
+
+exports.EstadoSalud = exports.$Enums.EstadoSalud = {
+  SANO: 'SANO',
+  ENFERMO: 'ENFERMO'
+};
+
+exports.AccionFeedback = exports.$Enums.AccionFeedback = {
+  EDITAR: 'EDITAR',
+  ELIMINAR: 'ELIMINAR'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Campo: 'Campo',
@@ -272,6 +322,8 @@ exports.Prisma.ModelName = {
   SolicitudMuestreo: 'SolicitudMuestreo',
   Analysis: 'Analysis',
   FenologiaEtapa: 'FenologiaEtapa',
+  Detection: 'Detection',
+  ModelFeedback: 'ModelFeedback',
   RefreshToken: 'RefreshToken',
   Notification: 'Notification'
 };
