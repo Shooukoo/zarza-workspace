@@ -50,6 +50,7 @@ export function DeteccionOverlay({
     if (!drawMode) return;
     const p = toViewBoxPoint(e.clientX, e.clientY);
     if (!p) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
     startRef.current = p;
     setDraft([p.x, p.y, p.x, p.y]);
   }
@@ -67,8 +68,11 @@ export function DeteccionOverlay({
     ]);
   }
 
-  function handlePointerUp() {
+  function handlePointerUp(e: PointerEvent<SVGSVGElement>) {
     if (!drawMode || !draft) return;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
     const [x1, y1, x2, y2] = draft;
     if (x2 - x1 > 4 && y2 - y1 > 4) {
       onDrawComplete([
@@ -77,6 +81,14 @@ export function DeteccionOverlay({
         Math.round(x2),
         Math.round(y2),
       ]);
+    }
+    startRef.current = null;
+    setDraft(null);
+  }
+
+  function handlePointerCancel(e: PointerEvent<SVGSVGElement>) {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
     }
     startRef.current = null;
     setDraft(null);
@@ -118,6 +130,7 @@ export function DeteccionOverlay({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
         >
           {detecciones.map((d) => {
             const [x1, y1, x2, y2] = d.bbox;
@@ -135,8 +148,8 @@ export function DeteccionOverlay({
                 fill={!d.sano ? 'rgba(207,19,34,0.18)' : 'transparent'}
                 opacity={d.eliminada ? 0.35 : 1}
                 vectorEffect="non-scaling-stroke"
-                onClick={() => onSelect(d.id)}
-                style={{ cursor: 'pointer' }}
+                onClick={() => !drawMode && onSelect(d.id)}
+                style={{ cursor: drawMode ? 'crosshair' : 'pointer' }}
               />
             );
           })}
