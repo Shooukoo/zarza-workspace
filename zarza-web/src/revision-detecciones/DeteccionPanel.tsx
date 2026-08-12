@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Form, Select, Switch, Button, Space, message } from 'antd';
+import { Alert, Form, Select, Switch, Button, Space, message } from 'antd';
 import { useFeedbackDeteccion } from './useDetecciones';
 import { ETAPAS_CONOCIDAS } from './types';
 import type { Deteccion } from './types';
@@ -76,23 +76,37 @@ export function DeteccionPanel({ deteccion, analysisId, onClose }: Props) {
         zIndex: 10,
       }}
     >
-      <Form form={form} layout="vertical" onFinish={guardar}>
-        <Form.Item label="Etapa" name="etapa" rules={[{ required: true }]}>
-          <Select options={ETAPAS_CONOCIDAS.map((e) => ({ value: e, label: e }))} />
-        </Form.Item>
-        <Form.Item label="Estado" name="sano" valuePropName="checked">
-          <Switch checkedChildren="Sano" unCheckedChildren="Enfermo" />
-        </Form.Item>
-        <Space>
-          <Button type="primary" htmlType="submit" loading={pendingAction === 'EDITAR'}>
-            Guardar
+      {deteccion.eliminada ? (
+        <>
+          <Alert
+            type="warning"
+            showIcon
+            message="Esta detección fue eliminada."
+            style={{ marginBottom: 12 }}
+          />
+          <Button onClick={onClose} block>
+            Cerrar
           </Button>
-          <Button danger onClick={eliminar} loading={pendingAction === 'ELIMINAR'}>
-            Eliminar
-          </Button>
-          <Button onClick={onClose}>Cerrar</Button>
-        </Space>
-      </Form>
+        </>
+      ) : (
+        <Form form={form} layout="vertical" onFinish={guardar}>
+          <Form.Item label="Etapa" name="etapa" rules={[{ required: true }]}>
+            <Select options={ETAPAS_CONOCIDAS.map((e) => ({ value: e, label: e }))} />
+          </Form.Item>
+          <Form.Item label="Estado" name="sano" valuePropName="checked">
+            <Switch checkedChildren="Sano" unCheckedChildren="Enfermo" />
+          </Form.Item>
+          <Space>
+            <Button type="primary" htmlType="submit" loading={pendingAction === 'EDITAR'}>
+              Guardar
+            </Button>
+            <Button danger onClick={eliminar} loading={pendingAction === 'ELIMINAR'}>
+              Eliminar
+            </Button>
+            <Button onClick={onClose}>Cerrar</Button>
+          </Space>
+        </Form>
+      )}
     </div>
   );
 }

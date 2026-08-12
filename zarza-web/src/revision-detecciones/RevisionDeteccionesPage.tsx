@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Select, Space, Switch, Typography, message } from 'antd';
+import { Alert, Button, Select, Skeleton, Space, Switch, Typography, message } from 'antd';
 import { useAnalisisDetail, useAnalisisImage } from '../analisis/useAnalisis';
 import { useAgregarDeteccion, useDetecciones, useMarcarRevisado } from './useDetecciones';
 import { DeteccionOverlay } from './DeteccionOverlay';
@@ -14,7 +14,9 @@ export function RevisionDeteccionesPage() {
   const navigate = useNavigate();
 
   const imageQuery = useAnalisisImage(analysisId, !!analysisId);
-  useAnalisisDetail(analysisId);
+  // Solo para forzar el chequeo de scope (assertInScope) de /analyses/:id antes
+  // de mostrar la pantalla; el detalle en sí no se usa aquí.
+  const detailQuery = useAnalisisDetail(analysisId);
   const deteccionesQuery = useDetecciones(analysisId);
   const agregarMutation = useAgregarDeteccion(analysisId ?? '');
   const revisadoMutation = useMarcarRevisado(analysisId ?? '');
@@ -49,6 +51,10 @@ export function RevisionDeteccionesPage() {
 
   if (!analysisId) return null;
 
+  if (detailQuery.isError) {
+    return <Alert type="error" message="No tienes acceso a este análisis." showIcon />;
+  }
+
   return (
     <div>
       <Space style={{ marginBottom: 16, justifyContent: 'space-between', width: '100%' }}>
@@ -79,6 +85,10 @@ export function RevisionDeteccionesPage() {
         </Space>
       </Space>
 
+      {imageQuery.isLoading && <Skeleton.Image style={{ width: '100%', height: 400 }} active />}
+      {imageQuery.isError && (
+        <Alert type="error" message="No se pudo cargar la imagen del análisis." showIcon />
+      )}
       {imageQuery.data?.url && (
         <DeteccionOverlay
           imageUrl={imageQuery.data.url}
@@ -87,6 +97,14 @@ export function RevisionDeteccionesPage() {
           onSelect={setSelectedId}
           drawMode={drawMode}
           onDrawComplete={handleDrawComplete}
+        />
+      )}
+      {deteccionesQuery.isError && (
+        <Alert
+          type="error"
+          message="No se pudieron cargar las detecciones."
+          showIcon
+          style={{ marginTop: 16 }}
         />
       )}
 
