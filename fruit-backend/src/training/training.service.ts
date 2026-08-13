@@ -1,4 +1,9 @@
-import { ConflictException, Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@rubus/database';
@@ -24,8 +29,14 @@ export class TrainingService {
         this.prisma.trainingJob.findFirst({
           where: { status: { in: ['PENDING', 'RUNNING'] } },
         }),
-        this.prisma.trainingJob.findMany({ orderBy: { iniciadoAt: 'desc' }, take: 20 }),
-        this.prisma.modelVersion.findMany({ orderBy: { version: 'desc' }, take: 20 }),
+        this.prisma.trainingJob.findMany({
+          orderBy: { iniciadoAt: 'desc' },
+          take: 20,
+        }),
+        this.prisma.modelVersion.findMany({
+          orderBy: { version: 'desc' },
+          take: 20,
+        }),
       ]);
 
     // historialJobs ya viene ordenado desc por iniciadoAt sin filtro, así que
@@ -47,7 +58,11 @@ export class TrainingService {
       countNuevosAnalisisRevisados: countNuevos,
       umbralMinimo: envs.trainingMinReviewedAnalyses,
       activeJob: activeJob
-        ? { id: activeJob.id, status: activeJob.status, iniciadoAt: activeJob.iniciadoAt }
+        ? {
+            id: activeJob.id,
+            status: activeJob.status,
+            iniciadoAt: activeJob.iniciadoAt,
+          }
         : null,
       historialJobs: historialJobs.map((j) => ({
         id: j.id,
@@ -80,8 +95,13 @@ export class TrainingService {
         throw new ConflictException('Ya hay un entrenamiento en curso.');
       }
 
-      const lastJob = await tx.trainingJob.findFirst({ orderBy: { iniciadoAt: 'desc' } });
-      const countNuevos = await this.countNuevosAnalisisDesde(tx, lastJob?.iniciadoAt ?? null);
+      const lastJob = await tx.trainingJob.findFirst({
+        orderBy: { iniciadoAt: 'desc' },
+      });
+      const countNuevos = await this.countNuevosAnalisisDesde(
+        tx,
+        lastJob?.iniciadoAt ?? null,
+      );
       if (countNuevos < envs.trainingMinReviewedAnalyses) {
         throw new ConflictException(
           `Se requieren al menos ${envs.trainingMinReviewedAnalyses} análisis revisados nuevos desde el último job (hay ${countNuevos}).`,
@@ -91,11 +111,11 @@ export class TrainingService {
       return tx.trainingJob.create({ data: { iniciadoPorId: userId } });
     });
 
-    const activeModel = await this.prisma.modelVersion.findFirst({
-      where: { status: 'PROMOVIDO' },
-    });
-
     try {
+      const activeModel = await this.prisma.modelVersion.findFirst({
+        where: { status: 'PROMOVIDO' },
+      });
+
       await firstValueFrom(
         this.httpService.post(
           `${envs.trainingUrl}/train`,
@@ -143,9 +163,21 @@ export class TrainingService {
     const threshold = new Date(
       Date.now() - envs.trainingJobTimeoutHours * 60 * 60 * 1000,
     );
+    // PENDING también se reclama acá, no solo RUNNING: si el proceso se
+    // cae entre el commit de la transacción de createJob() y el update a
+    // RUNNING/FAILED (o falla el lookup del modelo activo), el job queda
+    // en PENDING sin ningún otro mecanismo que lo libere — bloqueando
+    // createJob() indefinidamente para futuros intentos.
     await this.prisma.trainingJob.updateMany({
-      where: { status: 'RUNNING', iniciadoAt: { lt: threshold } },
-      data: { status: 'FAILED', errorMessage: 'timeout', finalizadoAt: new Date() },
+      where: {
+        status: { in: ['PENDING', 'RUNNING'] },
+        iniciadoAt: { lt: threshold },
+      },
+      data: {
+        status: 'FAILED',
+        errorMessage: 'timeout',
+        finalizadoAt: new Date(),
+      },
     });
   }
 }

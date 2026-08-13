@@ -57,12 +57,23 @@ describe('TrainingService', () => {
       expect(status.umbralMinimo).toBe(50);
     });
 
-    it('marca como FAILED los jobs RUNNING que llevan más del timeout', async () => {
+    it('marca como FAILED los jobs RUNNING o PENDING que llevan más del timeout', async () => {
+      // PENDING también se reclama, no solo RUNNING: un job puede quedar
+      // varado en PENDING si el proceso se cae entre el commit de
+      // createJob() y su update a RUNNING/FAILED — sin esto, bloquearía
+      // createJob() para siempre.
       await service.getStatus();
 
       expect(prisma.trainingJob.updateMany).toHaveBeenCalledWith({
-        where: { status: 'RUNNING', iniciadoAt: { lt: expect.any(Date) } },
-        data: { status: 'FAILED', errorMessage: 'timeout', finalizadoAt: expect.any(Date) },
+        where: {
+          status: { in: ['PENDING', 'RUNNING'] },
+          iniciadoAt: { lt: expect.any(Date) },
+        },
+        data: {
+          status: 'FAILED',
+          errorMessage: 'timeout',
+          finalizadoAt: expect.any(Date),
+        },
       });
     });
 
@@ -121,15 +132,26 @@ describe('TrainingService', () => {
       });
       expect(status.historialJobs).toEqual([
         expect.objectContaining({ id: 'job-activo', status: 'RUNNING' }),
-        expect.objectContaining({ id: 'job-anterior', status: 'COMPLETED', datasetSize: 80 }),
+        expect.objectContaining({
+          id: 'job-anterior',
+          status: 'COMPLETED',
+          datasetSize: 80,
+        }),
       ]);
       expect(status.historialVersiones).toEqual([
-        expect.objectContaining({ id: 'mv-1', version: 3, status: 'PROMOVIDO' }),
+        expect.objectContaining({
+          id: 'mv-1',
+          version: 3,
+          status: 'PROMOVIDO',
+        }),
       ]);
       // countNuevosAnalisisDesde usa el iniciadoAt del job más reciente
       // (historialJobs[0], NO una query separada) como corte "since".
       expect(prisma.analysis.count).toHaveBeenCalledWith({
-        where: { deteccionesRevisadas: true, deteccionesRevisadasAt: { gt: job1IniciadoAt } },
+        where: {
+          deteccionesRevisadas: true,
+          deteccionesRevisadasAt: { gt: job1IniciadoAt },
+        },
       });
     });
 
@@ -148,9 +170,14 @@ describe('TrainingService', () => {
     });
 
     it('lanza 409 si ya hay un job PENDING o RUNNING', async () => {
-      prisma.trainingJob.findFirst.mockResolvedValueOnce({ id: 'job-activo', status: 'RUNNING' });
+      prisma.trainingJob.findFirst.mockResolvedValueOnce({
+        id: 'job-activo',
+        status: 'RUNNING',
+      });
 
-      await expect(service.createJob('user-1')).rejects.toThrow('Ya hay un entrenamiento en curso');
+      await expect(service.createJob('user-1')).rejects.toThrow(
+        'Ya hay un entrenamiento en curso',
+      );
     });
 
     it('lanza 409 si no se alcanza el umbral de análisis revisados nuevos', async () => {
@@ -159,7 +186,9 @@ describe('TrainingService', () => {
         .mockResolvedValueOnce(null); // no hay job previo
       prisma.analysis.count.mockResolvedValue(10);
 
-      await expect(service.createJob('user-1')).rejects.toThrow('análisis revisados nuevos');
+      await expect(service.createJob('user-1')).rejects.toThrow(
+        'análisis revisados nuevos',
+      );
     });
 
     it('crea el job, llama a fruit-training y lo marca RUNNING', async () => {
@@ -168,7 +197,9 @@ describe('TrainingService', () => {
         .mockResolvedValueOnce(null);
       prisma.analysis.count.mockResolvedValue(50);
       prisma.trainingJob.create.mockResolvedValue({ id: 'job-nuevo' });
-      prisma.modelVersion.findFirst.mockResolvedValue({ r2Key: 'models/best_v2.pt' });
+      prisma.modelVersion.findFirst.mockResolvedValue({
+        r2Key: 'models/best_v2.pt',
+      });
       httpService.post.mockReturnValue(of({ data: { status: 'accepted' } }));
 
       const result = await service.createJob('user-1');
@@ -177,7 +208,11 @@ describe('TrainingService', () => {
       expect(httpService.post).toHaveBeenCalledWith(
         expect.stringContaining('/train'),
         { job_id: 'job-nuevo', base_model_r2_key: 'models/best_v2.pt' },
-        expect.objectContaining({ headers: expect.objectContaining({ 'x-training-token': expect.any(String) }) }),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'x-training-token': expect.any(String),
+          }),
+        }),
       );
       expect(prisma.trainingJob.update).toHaveBeenCalledWith({
         where: { id: 'job-nuevo' },
@@ -192,10 +227,31 @@ describe('TrainingService', () => {
       prisma.analysis.count.mockResolvedValue(50);
       prisma.trainingJob.create.mockResolvedValue({ id: 'job-nuevo' });
       prisma.modelVersion.findFirst.mockResolvedValue(null);
-      httpService.post.mockReturnValue(throwError(() => new Error('connection refused')));
+      httpService.post.mockReturnValue(
+        throwError(() => new Error('connection refused')),
+      );
 
       await expect(service.createJob('user-1')).rejects.toThrow();
 
+      expect(prisma.trainingJob.update).toHaveBeenCalledWith({
+        where: { id: 'job-nuevo' },
+        data: expect.objectContaining({ status: 'FAILED' }),
+      });
+    });
+
+    it('marca el job FAILED (no lo deja en PENDING) si falla el lookup del modelo activo', async () => {
+      prisma.trainingJob.findFirst
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null);
+      prisma.analysis.count.mockResolvedValue(50);
+      prisma.trainingJob.create.mockResolvedValue({ id: 'job-nuevo' });
+      prisma.modelVersion.findFirst.mockRejectedValue(
+        new Error('DB no disponible'),
+      );
+
+      await expect(service.createJob('user-1')).rejects.toThrow();
+
+      expect(httpService.post).not.toHaveBeenCalled();
       expect(prisma.trainingJob.update).toHaveBeenCalledWith({
         where: { id: 'job-nuevo' },
         data: expect.objectContaining({ status: 'FAILED' }),
