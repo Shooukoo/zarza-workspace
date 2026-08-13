@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -7,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { writeFile } from 'fs/promises';
 import { PrismaService } from '@rubus/database';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
 import { envs } from '../config/envs';
@@ -242,6 +244,64 @@ export class TrainingService {
       }
     }
     return entries;
+  }
+
+  async promote(jobId: string, userId: string) {
+    const modelVersion = await this.prisma.modelVersion.findUnique({
+      where: { trainingJobId: jobId },
+    });
+    if (!modelVersion) {
+      throw new NotFoundException(
+        `No hay una versión de modelo asociada al job "${jobId}"`,
+      );
+    }
+    if (!['LISTO_PARA_PROMOVER', 'REEMPLAZADO'].includes(modelVersion.status)) {
+      throw new BadRequestException(
+        `La versión ${modelVersion.version} no se puede promover (estado actual: ${modelVersion.status})`,
+      );
+    }
+    if (!modelVersion.r2Key) {
+      throw new BadRequestException(
+        `La versión ${modelVersion.version} no tiene un archivo de modelo asociado`,
+      );
+    }
+
+    try {
+      const buffer = await this.storage.downloadBuffer(modelVersion.r2Key);
+      await writeFile(envs.activeModelPath, buffer);
+      await firstValueFrom(
+        this.httpService.post(
+          `${envs.inferenceUrl}/internal/prepare-restart`,
+          {},
+          {
+            headers: { 'x-inference-token': envs.inferenceAuthToken },
+            timeout: 10_000,
+          },
+        ),
+      );
+    } catch (error) {
+      throw new ServiceUnavailableException(
+        `No se pudo completar la promoción de la versión ${modelVersion.version}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const currentlyPromoted = await tx.modelVersion.findFirst({
+        where: { status: 'PROMOVIDO' },
+      });
+      if (currentlyPromoted && currentlyPromoted.id !== modelVersion.id) {
+        await tx.modelVersion.update({
+          where: { id: currentlyPromoted.id },
+          data: { status: 'REEMPLAZADO' },
+        });
+      }
+      return tx.modelVersion.update({
+        where: { id: modelVersion.id },
+        data: { status: 'PROMOVIDO', promovidoPorId: userId, promovidoAt: new Date() },
+      });
+    });
   }
 
   private async countNuevosAnalisisDesde(

@@ -5,6 +5,8 @@ import type { IStoragePort } from '../storage/ports';
 import type { AppLogger } from '../common/logging/app.logger';
 import { of, throwError } from 'rxjs';
 
+jest.mock('fs/promises', () => ({ writeFile: jest.fn().mockResolvedValue(undefined) }));
+
 describe('TrainingService', () => {
   let prisma: any;
   let storage: { downloadBuffer: jest.Mock; getPresignedUrl: jest.Mock };
@@ -452,6 +454,62 @@ describe('TrainingService', () => {
         expect.any(String),
         expect.objectContaining({ storageKey: 'raw/analysis-bad.jpg' }),
       );
+    });
+  });
+
+  describe('promote()', () => {
+    it('lanza 404 si no hay ModelVersion asociado al job', async () => {
+      prisma.modelVersion.findUnique.mockResolvedValue(null);
+
+      await expect(service.promote('job-1', 'user-1')).rejects.toThrow('No hay una versión');
+    });
+
+    it('lanza 400 si el estado no es promovible', async () => {
+      prisma.modelVersion.findUnique.mockResolvedValue({
+        id: 'mv-1', version: 2, status: 'DESCARTADO', r2Key: 'models/x.pt',
+      });
+
+      await expect(service.promote('job-1', 'user-1')).rejects.toThrow('no se puede promover');
+    });
+
+    it('descarga el .pt, reinicia fruit-inference y marca PROMOVIDO/REEMPLAZADO', async () => {
+      prisma.modelVersion.findUnique.mockResolvedValue({
+        id: 'mv-2', version: 3, status: 'LISTO_PARA_PROMOVER', r2Key: 'models/best_job-1.pt',
+      });
+      prisma.modelVersion.findFirst.mockResolvedValue({ id: 'mv-1', status: 'PROMOVIDO' });
+      prisma.modelVersion.update.mockResolvedValue({ id: 'mv-2', status: 'PROMOVIDO' });
+      storage.downloadBuffer.mockResolvedValue(Buffer.from('modelo'));
+      httpService.post.mockReturnValue(of({ data: { status: 'restarting' } }));
+
+      const result = await service.promote('job-1', 'user-1');
+
+      expect(storage.downloadBuffer).toHaveBeenCalledWith('models/best_job-1.pt');
+      expect(httpService.post).toHaveBeenCalledWith(
+        expect.stringContaining('/internal/prepare-restart'),
+        {},
+        expect.objectContaining({ headers: expect.objectContaining({ 'x-inference-token': expect.any(String) }) }),
+      );
+      expect(prisma.modelVersion.update).toHaveBeenCalledWith({
+        where: { id: 'mv-1' },
+        data: { status: 'REEMPLAZADO' },
+      });
+      expect(prisma.modelVersion.update).toHaveBeenCalledWith({
+        where: { id: 'mv-2' },
+        data: { status: 'PROMOVIDO', promovidoPorId: 'user-1', promovidoAt: expect.any(Date) },
+      });
+      expect(result).toEqual({ id: 'mv-2', status: 'PROMOVIDO' });
+    });
+
+    it('no marca la promoción como exitosa si fruit-inference no responde', async () => {
+      prisma.modelVersion.findUnique.mockResolvedValue({
+        id: 'mv-2', version: 3, status: 'LISTO_PARA_PROMOVER', r2Key: 'models/best_job-1.pt',
+      });
+      storage.downloadBuffer.mockResolvedValue(Buffer.from('modelo'));
+      httpService.post.mockReturnValue(throwError(() => new Error('timeout')));
+
+      await expect(service.promote('job-1', 'user-1')).rejects.toThrow();
+
+      expect(prisma.modelVersion.update).not.toHaveBeenCalled();
     });
   });
 });
