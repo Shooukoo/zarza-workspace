@@ -2873,21 +2873,27 @@ git commit -m "feat(zarza-web): enlazar la cola y la pantalla de revisión de de
 
 **Files:** ninguno (solo verificación).
 
-- [ ] **Step 1: Levantar el stack completo**
+- [x] **Step 1: Levantar el stack completo**
 
 Run: `docker compose up --build`
 Expected: los 6 servicios (`postgres`, `rabbitmq`, `redis`, `fruit-backend`, `fruit-ms`, `fruit-inference`) arrancan sin error. Si se prefiere correr `zarza-web` fuera de Docker: `docker compose up postgres rabbitmq redis fruit-backend fruit-ms fruit-inference` y en otra terminal `cd zarza-web && npm run dev`.
 
-- [ ] **Step 2: Generar un análisis nuevo**
+Nota de verificación (2026-08-12): el stack ya estaba arriba con imágenes construidas el 2026-08-07/09, previas a casi todo este trabajo — `fruit-inference` no incluía el campo `detecciones`, por lo que las filas `Detection` no se persistían. Se reconstruyeron `fruit-backend`, `fruit-ms`, `fruit-inference` y `zarza-web` (`docker compose build` + `up -d`) antes de continuar.
+
+- [x] **Step 2: Generar un análisis nuevo**
 
 Subir una imagen vía la app o `POST /api/v1/ingestion/upload` y esperar a que `fruit-ms` termine de procesarla. Confirmar en los logs de `fruit-ms` que se registra `Análisis guardado` sin errores.
 
-- [ ] **Step 3: Verificar en la base de datos que se crearon las `Detection`**
+Verificado con `analysisId: 1500cfd7-5fdc-4057-88e2-7ced0e21c7c1` (campo E2E-1), 15 detecciones. Se encontró y corrigió un bug preexistente (no introducido por este plan, pero descubierto durante esta verificación): `MultipartImagePipe.transform` cortaba el loop de parsing en cuanto encontraba el part `file`, así que si `campoId`/`productorId` se enviaban *después* del archivo en el multipart, se ignoraban silenciosamente (el campo llegaba `null` y el mensaje terminaba en la DLQ tras 3 reintentos). Corregido en `fruit-backend/src/ingestion/pipes/multipart-image.pipe.ts`: el part de archivo ahora se bufferiza con `part.toBuffer()` en el momento en que se encuentra, permitiendo seguir consumiendo el iterador y capturar campos de metadata en cualquier orden. Reverificado end-to-end con `campoId`/`productorId` enviados después del archivo — el análisis se guardó en el primer intento.
+
+- [x] **Step 3: Verificar en la base de datos que se crearon las `Detection`**
 
 Run: `cd packages/database && pnpm run studio`
 Expected: la tabla `detections` tiene una fila por cada fruto detectado en la imagen subida, con `origen = MODELO` y `confidence` poblado.
 
-- [ ] **Step 4: Probar el flujo completo en el navegador como `AGRONOMO`**
+Verificado vía `psql` directo (usuario `rubus`/db `rubusai`): 15 filas para el análisis de prueba, todas `origen=MODELO` con `confidence` poblado.
+
+- [x] **Step 4: Probar el flujo completo en el navegador como `AGRONOMO`**
 
 1. Iniciar sesión como `AGRONOMO`.
 2. Ir a "Revisión de Detecciones" en el sidebar → confirmar que el análisis recién creado aparece en la cola.
@@ -2898,10 +2904,16 @@ Expected: la tabla `detections` tiene una fila por cada fruto detectado en la im
 7. Activar "+ Agregar detección", elegir etapa/salud, y dibujar un rectángulo sobre un fruto no detectado → confirmar que aparece una nueva tarjeta "agregado manualmente".
 8. Hacer clic en "Marcar como revisado" → confirmar que redirige a la cola y que el análisis ya no aparece en la lista de pendientes.
 
-- [ ] **Step 5: Confirmar que `PRODUCTOR` no tiene acceso**
+Los 8 pasos verificados con Claude in Chrome contra `http://localhost:5173`. El aparente recorte de las etiquetas "Sano"/"Enfermo" del `Switch` observado en la primera pasada era un artefacto de captura a mitad de la animación de antd (confirmado re-probando con espera antes del screenshot): el panel `DeteccionPanel` es `position: fixed` en la esquina inferior derecha, no depende de la posición del bbox seleccionado, y nunca se recorta contra el viewport.
+
+- [x] **Step 5: Confirmar que `PRODUCTOR` no tiene acceso**
 
 Iniciar sesión como `PRODUCTOR` → confirmar que "Revisión de Detecciones" no aparece en el sidebar, y que navegar manualmente a `/revision-detecciones` redirige a `/403`.
 
-- [ ] **Step 6: Confirmar el scope de `AGRONOMO` por campo**
+Verificado: el nav de `PRODUCTOR` no incluye el item, y la navegación directa redirige a `/403`.
+
+- [x] **Step 6: Confirmar el scope de `AGRONOMO` por campo**
 
 Con un `AGRONOMO` que tiene campos asignados, confirmar que la cola solo muestra análisis de sus campos, y que navegar directamente a la URL de revisión de un análisis fuera de su scope devuelve 404 (no carga la pantalla).
+
+Verificado con un segundo campo/productor no asignado al agrónomo de prueba: la cola solo mostró el análisis del campo asignado, y los 3 endpoints (`/analyses/:id`, `/image`, `/detections`) devolvieron 404 al navegar directo a la URL de revisión del análisis fuera de scope.
