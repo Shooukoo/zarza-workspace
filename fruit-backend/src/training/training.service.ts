@@ -17,10 +17,9 @@ export class TrainingService {
   async getStatus(): Promise<TrainingStatusResponse> {
     await this.timeoutStaleRunningJob();
 
-    const [activeModelRow, lastJob, activeJob, historialJobs, historialVersiones] =
+    const [activeModelRow, activeJob, historialJobs, historialVersiones] =
       await Promise.all([
         this.prisma.modelVersion.findFirst({ where: { status: 'PROMOVIDO' } }),
-        this.prisma.trainingJob.findFirst({ orderBy: { iniciadoAt: 'desc' } }),
         this.prisma.trainingJob.findFirst({
           where: { status: { in: ['PENDING', 'RUNNING'] } },
         }),
@@ -28,6 +27,9 @@ export class TrainingService {
         this.prisma.modelVersion.findMany({ orderBy: { version: 'desc' }, take: 20 }),
       ]);
 
+    // historialJobs ya viene ordenado desc por iniciadoAt sin filtro, así que
+    // su primer elemento ES el último job — evita una query duplicada.
+    const lastJob = historialJobs[0] ?? null;
     const countNuevos = await this.countNuevosAnalisisDesde(
       this.prisma,
       lastJob?.iniciadoAt ?? null,
