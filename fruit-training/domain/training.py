@@ -13,7 +13,13 @@ from ultralytics import YOLO
 def run_training(base_model_path: str, dataset_yaml: Path, epochs: int):
     """Corre fine-tuning sobre el modelo base y retorna el modelo resultante."""
     model = YOLO(base_model_path)
-    model.train(data=str(dataset_yaml), epochs=epochs, imgsz=640, patience=10)
+    model.train(
+        data=str(dataset_yaml),
+        epochs=epochs,
+        imgsz=640,
+        patience=10,
+        project=str(dataset_yaml.parent / "runs"),
+    )
     return model
 
 

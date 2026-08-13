@@ -35,7 +35,13 @@ def test_run_training_construye_yolo_con_el_modelo_base_y_llama_train(monkeypatc
 
     assert model.model_path == "base.pt"
     assert model.train_calls == [
-        {"data": "data.yaml", "epochs": 25, "imgsz": 640, "patience": 10}
+        {
+            "data": "data.yaml",
+            "epochs": 25,
+            "imgsz": 640,
+            "patience": 10,
+            "project": str(Path("runs")),
+        }
     ]
 
 

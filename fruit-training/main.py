@@ -78,11 +78,25 @@ def run_training_job(job_id: str, base_model_r2_key: Optional[str]) -> None:
 
             s3 = create_r2_client()
             r2_key = upload_model_file(s3, R2_BUCKET, trained_pt_path, job_id)
-
-            report_success(job_id, m_ap, m_ap_base, r2_key, dataset_size)
     except Exception as exc:
         logger.exception("Job de entrenamiento falló (jobId=%s)", job_id)
         report_failure(job_id, str(exc))
+        return
+
+    try:
+        report_success(job_id, m_ap, m_ap_base, r2_key, dataset_size)
+    except Exception:
+        # El entrenamiento y la subida a R2 ya terminaron con éxito en este punto
+        # (r2_key existe) — un fallo acá es un problema de reporte, no del job en
+        # sí. No se llama a report_failure: eso marcaría como FAILED un job que
+        # en realidad produjo un modelo válido, dejándolo huérfano en R2 sin
+        # poder promoverlo.
+        logger.exception(
+            "El job de entrenamiento terminó con éxito pero no se pudo reportar "
+            "a fruit-backend (jobId=%s, r2Key=%s)",
+            job_id,
+            r2_key,
+        )
 
 
 def _resolve_base_model_path(base_model_r2_key: Optional[str], tmp_dir: Path) -> str:

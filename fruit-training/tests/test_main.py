@@ -100,6 +100,36 @@ def test_run_training_job_happy_path_reports_success(app_module, monkeypatch):
     }
 
 
+def test_run_training_job_no_reporta_failure_si_report_success_falla(app_module, monkeypatch):
+    # Si el job terminó bien (entrenó, evaluó, subió a R2) pero el POST final
+    # a fruit-backend falla, el job NO debe reportarse como FAILED: eso
+    # marcaría como fallido un job que en realidad produjo un modelo válido
+    # ya subido a R2, dejándolo huérfano sin poder promoverlo.
+    monkeypatch.setattr(app_module, "fetch_dataset", lambda: [{"imageUrl": "x", "detecciones": []}])
+    monkeypatch.setattr(app_module, "export_dataset", lambda entries, job_id, out_dir: 7)
+    monkeypatch.setattr(app_module, "_resolve_base_model_path", lambda key, tmp: "base.pt")
+
+    fake_trained_model = type("M", (), {"save": lambda self, path: None})()
+    monkeypatch.setattr(app_module, "run_training", lambda base, yaml, epochs: fake_trained_model)
+    monkeypatch.setattr(app_module, "evaluate", lambda model, yaml: 0.9)
+    monkeypatch.setattr(app_module, "create_r2_client", lambda: object())
+    monkeypatch.setattr(app_module, "YOLO", lambda path: object())
+    monkeypatch.setattr(app_module, "upload_model_file", lambda s3, bucket, path, job_id: "models/best_job-1.pt")
+
+    def raise_error(*args, **kwargs):
+        raise RuntimeError("timeout reportando a fruit-backend")
+
+    monkeypatch.setattr(app_module, "report_success", raise_error)
+    failure_calls = []
+    monkeypatch.setattr(
+        app_module, "report_failure", lambda job_id, error_message: failure_calls.append((job_id, error_message))
+    )
+
+    app_module.run_training_job("job-1", None)
+
+    assert failure_calls == []
+
+
 def test_run_training_job_reports_failure_on_exception(app_module, monkeypatch):
     def raise_error():
         raise RuntimeError("R2 inaccesible")
