@@ -169,12 +169,7 @@ class _CaptureBodyState extends State<_CaptureBody> {
 
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
     final picker = ImagePicker();
-    final xFile = await picker.pickImage(
-      source: source,
-      maxWidth: 1920,
-      maxHeight: 1920,
-      imageQuality: 92,
-    );
+    final xFile = await picker.pickImage(source: source);
     if (xFile == null || !context.mounted) return;
     context.read<CaptureBloc>().add(CaptureImageSelected(File(xFile.path)));
     unawaited(_fetchGps());
