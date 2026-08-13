@@ -66,6 +66,8 @@ model User {
   detectionsCreadas            Detection[]
   modelFeedbackCreado          ModelFeedback[]
   analysesDeteccionesRevisadas Analysis[]          @relation("AnalysisDeteccionesRevisadas")
+  trainingJobsIniciados        TrainingJob[]
+  modelVersionsPromovidas      ModelVersion[]
 
   @@map("users")
 }
@@ -217,6 +219,54 @@ model ModelFeedback {
   @@index([analysisId])
   @@index([detectionId, createdAt(sort: Desc)])
   @@map("model_feedback")
+}
+
+enum TrainingJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum ModelVersionStatus {
+  ENTRENADO
+  LISTO_PARA_PROMOVER
+  DESCARTADO
+  PROMOVIDO
+  REEMPLAZADO
+}
+
+model TrainingJob {
+  id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  status        TrainingJobStatus @default(PENDING)
+  datasetSize   Int?              @map("dataset_size")
+  errorMessage  String?           @map("error_message")
+  iniciadoPorId String            @map("iniciado_por_id") @db.Uuid
+  iniciadoAt    DateTime          @default(now()) @map("iniciado_at")
+  finalizadoAt  DateTime?         @map("finalizado_at")
+
+  iniciadoPor  User          @relation(fields: [iniciadoPorId], references: [id])
+  modelVersion ModelVersion?
+
+  @@map("training_jobs")
+}
+
+model ModelVersion {
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  version        Int                @unique
+  r2Key          String?            @map("r2_key")
+  mAP            Float?
+  mAPBase        Float?             @map("map_base")
+  status         ModelVersionStatus @default(ENTRENADO)
+  trainingJobId  String             @unique @map("training_job_id") @db.Uuid
+  promovidoPorId String?            @map("promovido_por_id") @db.Uuid
+  promovidoAt    DateTime?          @map("promovido_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+
+  trainingJob  TrainingJob @relation(fields: [trainingJobId], references: [id])
+  promovidoPor User?       @relation(fields: [promovidoPorId], references: [id])
+
+  @@map("model_versions")
 }
 
 model RefreshToken {
