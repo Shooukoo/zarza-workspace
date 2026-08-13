@@ -10,7 +10,9 @@ import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@rubus/database';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
 import { envs } from '../config/envs';
-import type { TrainingStatusResponse } from './training.types';
+import { resolveDetectionState } from '../analyses/detection-state.util';
+import { resolveClaseParaEntrenamiento } from './resolve-clase-entrenamiento';
+import type { TrainingDatasetEntry, TrainingStatusResponse } from './training.types';
 import type { TrainingCompleteDto } from './dto/training-complete.dto';
 
 @Injectable()
@@ -197,6 +199,39 @@ export class TrainingService {
         },
       });
     });
+  }
+
+  async getDataset(): Promise<TrainingDatasetEntry[]> {
+    const analyses = await this.prisma.analysis.findMany({
+      where: { deteccionesRevisadas: true },
+      select: {
+        storageKey: true,
+        detections: {
+          include: { feedback: { orderBy: { createdAt: 'desc' }, take: 1 } },
+        },
+      },
+    });
+
+    const entries: TrainingDatasetEntry[] = [];
+    for (const analysis of analyses) {
+      const detecciones = analysis.detections
+        .map((detection) => resolveDetectionState(detection))
+        .filter((resolved) => !resolved.eliminada)
+        .map((resolved) => ({
+          clase: resolveClaseParaEntrenamiento(resolved.etapa, resolved.sano),
+          sano: resolved.sano,
+          bbox: resolved.bbox,
+        }));
+
+      if (detecciones.length === 0) continue;
+
+      const imageUrl = await this.storage.getPresignedUrl(
+        analysis.storageKey,
+        900,
+      );
+      entries.push({ imageUrl, detecciones });
+    }
+    return entries;
   }
 
   private async countNuevosAnalisisDesde(

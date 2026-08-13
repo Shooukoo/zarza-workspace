@@ -325,4 +325,82 @@ describe('TrainingService', () => {
       });
     });
   });
+
+  describe('getDataset()', () => {
+    it('excluye detecciones eliminadas y omite análisis sin detecciones restantes', async () => {
+      prisma.analysis.findMany.mockResolvedValue([
+        {
+          storageKey: 'raw/analysis-1.jpg',
+          detections: [
+            {
+              id: 'd1',
+              origen: 'MODELO',
+              confidence: 0.9,
+              etapaDetectada: 'naranja',
+              saludDetectada: 'SANO',
+              bboxX1: 1, bboxY1: 2, bboxX2: 3, bboxY2: 4,
+              feedback: [],
+            },
+            {
+              id: 'd2',
+              origen: 'MODELO',
+              confidence: 0.8,
+              etapaDetectada: 'verde',
+              saludDetectada: 'SANO',
+              bboxX1: 5, bboxY1: 6, bboxX2: 7, bboxY2: 8,
+              feedback: [{ accion: 'ELIMINAR', etapaCorregida: null, saludCorregida: null, bboxX1: null, bboxY1: null, bboxX2: null, bboxY2: null }],
+            },
+          ],
+        },
+        {
+          storageKey: 'raw/analysis-2.jpg',
+          detections: [
+            {
+              id: 'd3',
+              origen: 'MODELO',
+              confidence: 0.7,
+              etapaDetectada: 'verde',
+              saludDetectada: 'SANO',
+              bboxX1: 0, bboxY1: 0, bboxX2: 0, bboxY2: 0,
+              feedback: [{ accion: 'ELIMINAR', etapaCorregida: null, saludCorregida: null, bboxX1: null, bboxY1: null, bboxX2: null, bboxY2: null }],
+            },
+          ],
+        },
+      ]);
+      storage.getPresignedUrl.mockResolvedValue('https://signed/analysis-1.jpg');
+
+      const dataset = await service.getDataset();
+
+      expect(dataset).toEqual([
+        {
+          imageUrl: 'https://signed/analysis-1.jpg',
+          detecciones: [{ clase: 'naranja', sano: true, bbox: [1, 2, 3, 4] }],
+        },
+      ]);
+    });
+
+    it('mapea saludCorregida=ENFERMO a la clase "enfermo" sin importar la etapa', async () => {
+      prisma.analysis.findMany.mockResolvedValue([
+        {
+          storageKey: 'raw/analysis-1.jpg',
+          detections: [
+            {
+              id: 'd1',
+              origen: 'MODELO',
+              confidence: 0.9,
+              etapaDetectada: 'naranja',
+              saludDetectada: 'SANO',
+              bboxX1: 1, bboxY1: 2, bboxX2: 3, bboxY2: 4,
+              feedback: [{ accion: 'EDITAR', etapaCorregida: null, saludCorregida: 'ENFERMO', bboxX1: null, bboxY1: null, bboxX2: null, bboxY2: null }],
+            },
+          ],
+        },
+      ]);
+      storage.getPresignedUrl.mockResolvedValue('https://signed/analysis-1.jpg');
+
+      const dataset = await service.getDataset();
+
+      expect(dataset[0].detecciones).toEqual([{ clase: 'enfermo', sano: false, bbox: [1, 2, 3, 4] }]);
+    });
+  });
 });
