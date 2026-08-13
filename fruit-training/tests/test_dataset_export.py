@@ -34,3 +34,72 @@ def test_split_dataset_difiere_entre_jobs_distintos():
     train_job2, _ = split_dataset(entries, "job-2")
 
     assert train_job1 != train_job2
+
+
+import io
+
+from PIL import Image
+
+from domain.dataset_export import export_dataset
+
+
+def _fake_jpeg_bytes(width=100, height=100) -> bytes:
+    image = Image.new("RGB", (width, height), color="red")
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG")
+    return buffer.getvalue()
+
+
+class DummyImageResponse:
+    def __init__(self, content: bytes, status_code: int = 200):
+        self.content = content
+        self.status_code = status_code
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise Exception(f"HTTP {self.status_code}")
+
+
+def test_export_dataset_escribe_estructura_ultralytics(tmp_path, monkeypatch):
+    image_bytes = _fake_jpeg_bytes()
+
+    def fake_get(url, timeout=None):
+        return DummyImageResponse(image_bytes)
+
+    monkeypatch.setattr("domain.dataset_export.httpx.get", fake_get)
+
+    entries = [
+        {
+            "imageUrl": f"https://x/{i}.jpg",
+            "detecciones": [{"clase": "naranja", "sano": True, "bbox": [10, 10, 50, 50]}],
+        }
+        for i in range(10)
+    ]
+
+    dataset_size = export_dataset(entries, "job-1", tmp_path)
+
+    assert dataset_size == 10
+    assert (tmp_path / "data.yaml").exists()
+    train_images = list((tmp_path / "images" / "train").glob("*.jpg"))
+    val_images = list((tmp_path / "images" / "val").glob("*.jpg"))
+    assert len(train_images) == 8
+    assert len(val_images) == 2
+    train_labels = list((tmp_path / "labels" / "train").glob("*.txt"))
+    assert len(train_labels) == 8
+    label_content = train_labels[0].read_text()
+    assert label_content.startswith("3 ")  # class_id de "naranja"
+
+
+def test_export_dataset_omite_imagenes_inaccesibles(tmp_path, monkeypatch):
+    def fake_get(url, timeout=None):
+        raise Exception("connection refused")
+
+    monkeypatch.setattr("domain.dataset_export.httpx.get", fake_get)
+
+    entries = [
+        {"imageUrl": "https://x/1.jpg", "detecciones": [{"clase": "naranja", "sano": True, "bbox": [1, 1, 2, 2]}]}
+    ]
+
+    dataset_size = export_dataset(entries, "job-1", tmp_path)
+
+    assert dataset_size == 0
