@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Param, Req, UseGuards, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Req,
+  UseGuards,
+  ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCookieAuth,
@@ -57,6 +67,7 @@ export class TrainingController {
   @ApiResponse({ status: 400, description: 'La versión no está en un estado promovible.' })
   @ApiResponse({ status: 404, description: 'No hay una versión asociada a ese job.' })
   @Post('jobs/:id/promote')
+  @HttpCode(HttpStatus.OK)
   async promote(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: { user: JwtPayload },
