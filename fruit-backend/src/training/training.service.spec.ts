@@ -2,12 +2,14 @@ import { TrainingService } from './training.service';
 import { PrismaService } from '@rubus/database';
 import { HttpService } from '@nestjs/axios';
 import type { IStoragePort } from '../storage/ports';
+import type { AppLogger } from '../common/logging/app.logger';
 import { of, throwError } from 'rxjs';
 
 describe('TrainingService', () => {
   let prisma: any;
   let storage: { downloadBuffer: jest.Mock; getPresignedUrl: jest.Mock };
   let httpService: { post: jest.Mock };
+  let logger: { info: jest.Mock; warn: jest.Mock; error: jest.Mock; debug: jest.Mock };
   let service: TrainingService;
 
   beforeEach(() => {
@@ -33,10 +35,12 @@ describe('TrainingService', () => {
     };
     storage = { downloadBuffer: jest.fn(), getPresignedUrl: jest.fn() };
     httpService = { post: jest.fn() };
+    logger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
     service = new TrainingService(
       prisma as unknown as PrismaService,
       storage as unknown as IStoragePort,
       httpService as unknown as HttpService,
+      logger as unknown as AppLogger,
     );
   });
 
@@ -401,6 +405,53 @@ describe('TrainingService', () => {
       const dataset = await service.getDataset();
 
       expect(dataset[0].detecciones).toEqual([{ clase: 'enfermo', sano: false, bbox: [1, 2, 3, 4] }]);
+    });
+
+    it('omite un análisis cuya etapa no mapea a clase de entrenamiento sin abortar el resto del dataset', async () => {
+      prisma.analysis.findMany.mockResolvedValue([
+        {
+          storageKey: 'raw/analysis-bad.jpg',
+          detections: [
+            {
+              id: 'd-bad',
+              origen: 'MODELO',
+              confidence: 0.9,
+              etapaDetectada: 'etapa_desconocida',
+              saludDetectada: 'SANO',
+              bboxX1: 1, bboxY1: 2, bboxX2: 3, bboxY2: 4,
+              feedback: [],
+            },
+          ],
+        },
+        {
+          storageKey: 'raw/analysis-ok.jpg',
+          detections: [
+            {
+              id: 'd-ok',
+              origen: 'MODELO',
+              confidence: 0.9,
+              etapaDetectada: 'naranja',
+              saludDetectada: 'SANO',
+              bboxX1: 5, bboxY1: 6, bboxX2: 7, bboxY2: 8,
+              feedback: [],
+            },
+          ],
+        },
+      ]);
+      storage.getPresignedUrl.mockResolvedValue('https://signed/analysis-ok.jpg');
+
+      const dataset = await service.getDataset();
+
+      expect(dataset).toEqual([
+        {
+          imageUrl: 'https://signed/analysis-ok.jpg',
+          detecciones: [{ clase: 'naranja', sano: true, bbox: [5, 6, 7, 8] }],
+        },
+      ]);
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ storageKey: 'raw/analysis-bad.jpg' }),
+      );
     });
   });
 });

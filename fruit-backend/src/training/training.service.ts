@@ -14,6 +14,7 @@ import { resolveDetectionState } from '../analyses/detection-state.util';
 import { resolveClaseParaEntrenamiento } from './resolve-clase-entrenamiento';
 import type { TrainingDatasetEntry, TrainingStatusResponse } from './training.types';
 import type { TrainingCompleteDto } from './dto/training-complete.dto';
+import { AppLogger } from '../common/logging/app.logger';
 
 @Injectable()
 export class TrainingService {
@@ -22,6 +23,7 @@ export class TrainingService {
     @Inject(STORAGE_PORT)
     private readonly storage: IStoragePort,
     private readonly httpService: HttpService,
+    private readonly logger: AppLogger,
   ) {}
 
   async getStatus(): Promise<TrainingStatusResponse> {
@@ -214,22 +216,30 @@ export class TrainingService {
 
     const entries: TrainingDatasetEntry[] = [];
     for (const analysis of analyses) {
-      const detecciones = analysis.detections
-        .map((detection) => resolveDetectionState(detection))
-        .filter((resolved) => !resolved.eliminada)
-        .map((resolved) => ({
-          clase: resolveClaseParaEntrenamiento(resolved.etapa, resolved.sano),
-          sano: resolved.sano,
-          bbox: resolved.bbox,
-        }));
+      try {
+        const detecciones = analysis.detections
+          .map((detection) => resolveDetectionState(detection))
+          .filter((resolved) => !resolved.eliminada)
+          .map((resolved) => ({
+            clase: resolveClaseParaEntrenamiento(resolved.etapa, resolved.sano),
+            sano: resolved.sano,
+            bbox: resolved.bbox,
+          }));
 
-      if (detecciones.length === 0) continue;
+        if (detecciones.length === 0) continue;
 
-      const imageUrl = await this.storage.getPresignedUrl(
-        analysis.storageKey,
-        900,
-      );
-      entries.push({ imageUrl, detecciones });
+        const imageUrl = await this.storage.getPresignedUrl(
+          analysis.storageKey,
+          900,
+        );
+        entries.push({ imageUrl, detecciones });
+      } catch (error) {
+        this.logger.warn('No se pudo incluir análisis en el dataset de entrenamiento', {
+          storageKey: analysis.storageKey,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        continue;
+      }
     }
     return entries;
   }
