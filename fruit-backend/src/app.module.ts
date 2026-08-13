@@ -13,6 +13,7 @@ import { AdminModule } from './admin/admin.module';
 import { CamposModule } from './campos/campos.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
 import { AnalysesModule } from './analyses/analyses.module';
+import { TrainingModule } from './training/training.module';
 import { FcmModule } from './fcm/fcm.module';
 import { HealthController } from './health/health.controller';
 import { CacheModule } from './cache/cache.module';
@@ -62,6 +63,7 @@ import { envs } from './config/envs';
     CamposModule,
     SolicitudesModule,
     AnalysesModule,
+    TrainingModule,
     LoggingModule,
   ],
   controllers: [HealthController],
