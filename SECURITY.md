@@ -77,3 +77,20 @@ al importarse si falta).
 
 **Cadencia recomendada:** la misma que `INTERNAL_NOTIFY_TOKEN` (cada 90
 días, o de inmediato ante sospecha de filtración).
+
+### `TRAINING_INTERNAL_TOKEN`
+
+Token compartido entre `fruit-backend` y `fruit-training`, usado en ambos
+sentidos: `fruit-backend` lo envía en `POST /train` (header
+`x-training-token`), y `fruit-training` lo envía en
+`GET /internal/training/dataset` y `POST /internal/training-complete`.
+
+**Rotación:**
+1. Generar un token nuevo: `openssl rand -hex 32`.
+2. Actualizar `TRAINING_INTERNAL_TOKEN` en el `.env` de **ambos** servicios
+   (`fruit-backend` y `fruit-training`); los valores deben coincidir.
+3. Redesplegar/reiniciar ambos servicios juntos, ej.
+   `docker compose up -d --build fruit-backend fruit-training`.
+
+**Cadencia recomendada:** la misma que `INTERNAL_NOTIFY_TOKEN`/`INFERENCE_AUTH_TOKEN`
+(cada 90 días, o de inmediato ante sospecha de filtración).

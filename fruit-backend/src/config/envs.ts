@@ -20,6 +20,13 @@ interface EnvVars {
   FCM_TOKEN_ENCRYPTION_KEY: string;
   LOG_LEVEL: string;
   SWAGGER_ENABLED: boolean;
+  TRAINING_INTERNAL_TOKEN: string;
+  TRAINING_MIN_REVIEWED_ANALYSES: number;
+  TRAINING_JOB_TIMEOUT_HOURS: number;
+  TRAINING_URL: string;
+  INFERENCE_URL: string;
+  INFERENCE_AUTH_TOKEN: string;
+  ACTIVE_MODEL_PATH: string;
 }
 
 const envSchema = joi
@@ -51,6 +58,13 @@ const envSchema = joi
       .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
       .default('info'),
     SWAGGER_ENABLED: joi.boolean().default(false),
+    TRAINING_INTERNAL_TOKEN: joi.string().min(32).required(),
+    TRAINING_MIN_REVIEWED_ANALYSES: joi.number().integer().min(1).default(50),
+    TRAINING_JOB_TIMEOUT_HOURS: joi.number().integer().min(1).default(6),
+    TRAINING_URL: joi.string().uri().required(),
+    INFERENCE_URL: joi.string().uri().required(),
+    INFERENCE_AUTH_TOKEN: joi.string().required(),
+    ACTIVE_MODEL_PATH: joi.string().default('/app/models/active-model.pt'),
   })
   .unknown(true);
 
@@ -79,4 +93,11 @@ export const envs = {
   fcmTokenEncryptionKey: envVars.FCM_TOKEN_ENCRYPTION_KEY,
   logLevel: envVars.LOG_LEVEL,
   swaggerEnabled: envVars.SWAGGER_ENABLED,
+  trainingInternalToken: envVars.TRAINING_INTERNAL_TOKEN,
+  trainingMinReviewedAnalyses: envVars.TRAINING_MIN_REVIEWED_ANALYSES,
+  trainingJobTimeoutHours: envVars.TRAINING_JOB_TIMEOUT_HOURS,
+  trainingUrl: envVars.TRAINING_URL,
+  inferenceUrl: envVars.INFERENCE_URL,
+  inferenceAuthToken: envVars.INFERENCE_AUTH_TOKEN,
+  activeModelPath: envVars.ACTIVE_MODEL_PATH,
 };
