@@ -511,5 +511,44 @@ describe('TrainingService', () => {
 
       expect(prisma.modelVersion.update).not.toHaveBeenCalled();
     });
+
+    it('el mensaje de error distingue si falló la descarga de R2', async () => {
+      prisma.modelVersion.findUnique.mockResolvedValue({
+        id: 'mv-2', version: 3, status: 'LISTO_PARA_PROMOVER', r2Key: 'models/best_job-1.pt',
+      });
+      storage.downloadBuffer.mockRejectedValue(new Error('bucket inaccesible'));
+
+      await expect(service.promote('job-1', 'user-1')).rejects.toThrow(
+        /descargar el modelo desde el almacenamiento.*bucket inaccesible/,
+      );
+    });
+
+    it('el mensaje de error distingue si falló el reinicio de fruit-inference', async () => {
+      prisma.modelVersion.findUnique.mockResolvedValue({
+        id: 'mv-2', version: 3, status: 'LISTO_PARA_PROMOVER', r2Key: 'models/best_job-1.pt',
+      });
+      storage.downloadBuffer.mockResolvedValue(Buffer.from('modelo'));
+      httpService.post.mockReturnValue(throwError(() => new Error('timeout')));
+
+      await expect(service.promote('job-1', 'user-1')).rejects.toThrow(
+        /indicar a fruit-inference que reinicie.*timeout/,
+      );
+    });
+
+    it('loguea la desincronización disco/BD si la transacción falla tras escribir el archivo y notificar a fruit-inference', async () => {
+      prisma.modelVersion.findUnique.mockResolvedValue({
+        id: 'mv-2', version: 3, status: 'LISTO_PARA_PROMOVER', r2Key: 'models/best_job-1.pt',
+      });
+      storage.downloadBuffer.mockResolvedValue(Buffer.from('modelo'));
+      httpService.post.mockReturnValue(of({ data: { status: 'restarting' } }));
+      prisma.$transaction.mockRejectedValue(new Error('DB caída'));
+
+      await expect(service.promote('job-1', 'user-1')).rejects.toThrow('DB caída');
+
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Desincronización disco/BD'),
+        expect.objectContaining({ version: 3, modelVersionId: 'mv-2' }),
+      );
+    });
   });
 });

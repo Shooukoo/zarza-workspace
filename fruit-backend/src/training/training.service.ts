@@ -9,7 +9,7 @@ import {
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { writeFile } from 'fs/promises';
-import { PrismaService } from '@rubus/database';
+import { PrismaService, type ModelVersion } from '@rubus/database';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
 import { envs } from '../config/envs';
 import { resolveDetectionState } from '../analyses/detection-state.util';
@@ -246,7 +246,7 @@ export class TrainingService {
     return entries;
   }
 
-  async promote(jobId: string, userId: string) {
+  async promote(jobId: string, userId: string): Promise<ModelVersion> {
     const modelVersion = await this.prisma.modelVersion.findUnique({
       where: { trainingJobId: jobId },
     });
@@ -266,9 +266,16 @@ export class TrainingService {
       );
     }
 
+    // Cada paso se identifica en `step` antes de ejecutarse, así el catch
+    // puede nombrar exactamente cuál falló (descarga de R2 vs. escritura en
+    // disco vs. fruit-inference inalcanzable) sin necesitar un try/catch por
+    // paso — este mensaje se muestra directamente al ADMIN en el frontend.
+    let step: 'download' | 'write' | 'restart' = 'download';
     try {
       const buffer = await this.storage.downloadBuffer(modelVersion.r2Key);
+      step = 'write';
       await writeFile(envs.activeModelPath, buffer);
+      step = 'restart';
       await firstValueFrom(
         this.httpService.post(
           `${envs.inferenceUrl}/internal/prepare-restart`,
@@ -280,28 +287,51 @@ export class TrainingService {
         ),
       );
     } catch (error) {
+      const stepDescription: Record<typeof step, string> = {
+        download: 'descargar el modelo desde el almacenamiento (R2)',
+        write: 'escribir el modelo en disco',
+        restart: 'indicar a fruit-inference que reinicie',
+      };
       throw new ServiceUnavailableException(
-        `No se pudo completar la promoción de la versión ${modelVersion.version}: ${
+        `No se pudo ${stepDescription[step]} al promover la versión ${modelVersion.version}: ${
           error instanceof Error ? error.message : String(error)
         }`,
       );
     }
 
-    return this.prisma.$transaction(async (tx) => {
-      const currentlyPromoted = await tx.modelVersion.findFirst({
-        where: { status: 'PROMOVIDO' },
-      });
-      if (currentlyPromoted && currentlyPromoted.id !== modelVersion.id) {
-        await tx.modelVersion.update({
-          where: { id: currentlyPromoted.id },
-          data: { status: 'REEMPLAZADO' },
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const currentlyPromoted = await tx.modelVersion.findFirst({
+          where: { status: 'PROMOVIDO' },
         });
-      }
-      return tx.modelVersion.update({
-        where: { id: modelVersion.id },
-        data: { status: 'PROMOVIDO', promovidoPorId: userId, promovidoAt: new Date() },
+        if (currentlyPromoted && currentlyPromoted.id !== modelVersion.id) {
+          await tx.modelVersion.update({
+            where: { id: currentlyPromoted.id },
+            data: { status: 'REEMPLAZADO' },
+          });
+        }
+        return tx.modelVersion.update({
+          where: { id: modelVersion.id },
+          data: { status: 'PROMOVIDO', promovidoPorId: userId, promovidoAt: new Date() },
+        });
       });
-    });
+    } catch (error) {
+      // El archivo ya se reemplazó en disco y fruit-inference ya fue
+      // notificado antes de llegar acá: si la transacción falla, disco y BD
+      // quedan desincronizados (la versión activa en disco no coincide con
+      // el ModelVersion PROMOVIDO en la base). No hay reconciliación
+      // automática — este log es lo que permite detectar y resolver el
+      // desfase manualmente.
+      this.logger.warn(
+        'Desincronización disco/BD: el modelo ya fue reemplazado en disco y fruit-inference notificado, pero falló la actualización de ModelVersion en la base de datos',
+        {
+          version: modelVersion.version,
+          modelVersionId: modelVersion.id,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      );
+      throw error;
+    }
   }
 
   private async countNuevosAnalisisDesde(
