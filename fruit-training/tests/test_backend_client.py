@@ -56,7 +56,7 @@ def test_report_success_posts_completed_payload(monkeypatch, set_env):
 
     backend_client.report_success("job-1", 0.75, 0.60, "models/best_job-1.pt", 42)
 
-    assert captured["url"] == "http://fruit-backend:3000/api/v1/training-complete"
+    assert captured["url"] == "http://fruit-backend:3000/api/v1/internal/training-complete"
     assert captured["json"] == {
         "jobId": "job-1",
         "status": "COMPLETED",

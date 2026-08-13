@@ -47,7 +47,7 @@ def report_failure(job_id: str, error_message: str) -> None:
 
 def _report(payload: dict) -> None:
     response = httpx.post(
-        f"{BACKEND_URL}/api/v1/training-complete",
+        f"{BACKEND_URL}/api/v1/internal/training-complete",
         json=payload,
         headers={"x-training-token": TRAINING_INTERNAL_TOKEN},
         timeout=30.0,
