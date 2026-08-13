@@ -1,4 +1,13 @@
-from domain.dataset_export import bbox_to_yolo, resolve_class_id, split_dataset
+import io
+
+from PIL import Image
+
+from domain.dataset_export import (
+    bbox_to_yolo,
+    export_dataset,
+    resolve_class_id,
+    split_dataset,
+)
 
 
 def test_bbox_to_yolo_normaliza_a_0_1():
@@ -34,13 +43,6 @@ def test_split_dataset_difiere_entre_jobs_distintos():
     train_job2, _ = split_dataset(entries, "job-2")
 
     assert train_job1 != train_job2
-
-
-import io
-
-from PIL import Image
-
-from domain.dataset_export import export_dataset
 
 
 def _fake_jpeg_bytes(width=100, height=100) -> bytes:
@@ -103,3 +105,26 @@ def test_export_dataset_omite_imagenes_inaccesibles(tmp_path, monkeypatch):
     dataset_size = export_dataset(entries, "job-1", tmp_path)
 
     assert dataset_size == 0
+
+
+def test_export_dataset_conserva_las_imagenes_accesibles_de_un_lote_mixto(tmp_path, monkeypatch):
+    image_bytes = _fake_jpeg_bytes()
+
+    def fake_get(url, timeout=None):
+        if url == "https://x/bad.jpg":
+            raise Exception("connection refused")
+        return DummyImageResponse(image_bytes)
+
+    monkeypatch.setattr("domain.dataset_export.httpx.get", fake_get)
+
+    entries = [
+        {"imageUrl": "https://x/good.jpg", "detecciones": [{"clase": "naranja", "sano": True, "bbox": [1, 1, 2, 2]}]},
+        {"imageUrl": "https://x/bad.jpg", "detecciones": [{"clase": "naranja", "sano": True, "bbox": [1, 1, 2, 2]}]},
+    ]
+
+    dataset_size = export_dataset(entries, "job-1", tmp_path)
+
+    assert dataset_size == 1
+    all_images = list((tmp_path / "images").rglob("*.jpg"))
+    assert len(all_images) == 1
+    assert all_images[0].read_bytes() == image_bytes
