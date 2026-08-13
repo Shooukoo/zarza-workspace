@@ -1,5 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@rubus/database';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
 import { envs } from '../config/envs';
@@ -66,6 +67,64 @@ export class TrainingService {
         createdAt: v.createdAt,
       })),
     };
+  }
+
+  async createJob(userId: string): Promise<{ jobId: string }> {
+    await this.timeoutStaleRunningJob();
+
+    const job = await this.prisma.$transaction(async (tx) => {
+      const activeJob = await tx.trainingJob.findFirst({
+        where: { status: { in: ['PENDING', 'RUNNING'] } },
+      });
+      if (activeJob) {
+        throw new ConflictException('Ya hay un entrenamiento en curso.');
+      }
+
+      const lastJob = await tx.trainingJob.findFirst({ orderBy: { iniciadoAt: 'desc' } });
+      const countNuevos = await this.countNuevosAnalisisDesde(tx, lastJob?.iniciadoAt ?? null);
+      if (countNuevos < envs.trainingMinReviewedAnalyses) {
+        throw new ConflictException(
+          `Se requieren al menos ${envs.trainingMinReviewedAnalyses} análisis revisados nuevos desde el último job (hay ${countNuevos}).`,
+        );
+      }
+
+      return tx.trainingJob.create({ data: { iniciadoPorId: userId } });
+    });
+
+    const activeModel = await this.prisma.modelVersion.findFirst({
+      where: { status: 'PROMOVIDO' },
+    });
+
+    try {
+      await firstValueFrom(
+        this.httpService.post(
+          `${envs.trainingUrl}/train`,
+          { job_id: job.id, base_model_r2_key: activeModel?.r2Key ?? null },
+          {
+            headers: { 'x-training-token': envs.trainingInternalToken },
+            timeout: 10_000,
+          },
+        ),
+      );
+      await this.prisma.trainingJob.update({
+        where: { id: job.id },
+        data: { status: 'RUNNING' },
+      });
+    } catch (error) {
+      await this.prisma.trainingJob.update({
+        where: { id: job.id },
+        data: {
+          status: 'FAILED',
+          errorMessage: 'No se pudo contactar a fruit-training',
+          finalizadoAt: new Date(),
+        },
+      });
+      throw new ServiceUnavailableException(
+        'No se pudo iniciar el entrenamiento: fruit-training no respondió.',
+      );
+    }
+
+    return { jobId: job.id };
   }
 
   private async countNuevosAnalisisDesde(

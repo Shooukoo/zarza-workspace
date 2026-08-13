@@ -2,6 +2,7 @@ import { TrainingService } from './training.service';
 import { PrismaService } from '@rubus/database';
 import { HttpService } from '@nestjs/axios';
 import type { IStoragePort } from '../storage/ports';
+import { of, throwError } from 'rxjs';
 
 describe('TrainingService', () => {
   let prisma: any;
@@ -137,6 +138,67 @@ describe('TrainingService', () => {
 
       expect(prisma.analysis.count).toHaveBeenCalledWith({
         where: { deteccionesRevisadas: true },
+      });
+    });
+  });
+
+  describe('createJob()', () => {
+    beforeEach(() => {
+      prisma.trainingJob.updateMany.mockResolvedValue({ count: 0 });
+    });
+
+    it('lanza 409 si ya hay un job PENDING o RUNNING', async () => {
+      prisma.trainingJob.findFirst.mockResolvedValueOnce({ id: 'job-activo', status: 'RUNNING' });
+
+      await expect(service.createJob('user-1')).rejects.toThrow('Ya hay un entrenamiento en curso');
+    });
+
+    it('lanza 409 si no se alcanza el umbral de análisis revisados nuevos', async () => {
+      prisma.trainingJob.findFirst
+        .mockResolvedValueOnce(null) // no hay job activo
+        .mockResolvedValueOnce(null); // no hay job previo
+      prisma.analysis.count.mockResolvedValue(10);
+
+      await expect(service.createJob('user-1')).rejects.toThrow('análisis revisados nuevos');
+    });
+
+    it('crea el job, llama a fruit-training y lo marca RUNNING', async () => {
+      prisma.trainingJob.findFirst
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null);
+      prisma.analysis.count.mockResolvedValue(50);
+      prisma.trainingJob.create.mockResolvedValue({ id: 'job-nuevo' });
+      prisma.modelVersion.findFirst.mockResolvedValue({ r2Key: 'models/best_v2.pt' });
+      httpService.post.mockReturnValue(of({ data: { status: 'accepted' } }));
+
+      const result = await service.createJob('user-1');
+
+      expect(result).toEqual({ jobId: 'job-nuevo' });
+      expect(httpService.post).toHaveBeenCalledWith(
+        expect.stringContaining('/train'),
+        { job_id: 'job-nuevo', base_model_r2_key: 'models/best_v2.pt' },
+        expect.objectContaining({ headers: expect.objectContaining({ 'x-training-token': expect.any(String) }) }),
+      );
+      expect(prisma.trainingJob.update).toHaveBeenCalledWith({
+        where: { id: 'job-nuevo' },
+        data: { status: 'RUNNING' },
+      });
+    });
+
+    it('marca el job FAILED si fruit-training no responde', async () => {
+      prisma.trainingJob.findFirst
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null);
+      prisma.analysis.count.mockResolvedValue(50);
+      prisma.trainingJob.create.mockResolvedValue({ id: 'job-nuevo' });
+      prisma.modelVersion.findFirst.mockResolvedValue(null);
+      httpService.post.mockReturnValue(throwError(() => new Error('connection refused')));
+
+      await expect(service.createJob('user-1')).rejects.toThrow();
+
+      expect(prisma.trainingJob.update).toHaveBeenCalledWith({
+        where: { id: 'job-nuevo' },
+        data: expect.objectContaining({ status: 'FAILED' }),
       });
     });
   });
