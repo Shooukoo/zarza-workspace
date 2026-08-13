@@ -60,18 +60,21 @@ Manager) en lugar de variables de entorno planas.
 
 ### `INFERENCE_AUTH_TOKEN`
 
-Token compartido entre `fruit-ms` (cliente) y `fruit-inference` (endpoint
-`POST /analyze`, header `x-inference-token`). `fruit-inference` no arranca
-sin este valor configurado (`infrastructure/auth.py` lanza `RuntimeError`
-al importarse si falta).
+Token compartido entre `fruit-ms` (cliente de `POST /analyze`) y
+`fruit-backend` (cliente de `POST /internal/prepare-restart`, al promover un
+modelo) por un lado, y `fruit-inference` (endpoint, header
+`x-inference-token`) por el otro. `fruit-inference` no arranca sin este
+valor configurado (`infrastructure/auth.py` lanza `RuntimeError` al
+importarse si falta).
 
 **Proceso de rotación (manual):**
 
 1. Generar un nuevo valor: `openssl rand -hex 32`.
-2. Actualizar `INFERENCE_AUTH_TOKEN` en el `.env` de **ambos** servicios
-   (`fruit-ms` y `fruit-inference`); los valores deben coincidir.
-3. Redesplegar/reiniciar ambos servicios juntos, ej.
-   `docker compose up -d --build fruit-ms fruit-inference`.
+2. Actualizar `INFERENCE_AUTH_TOKEN` en el `.env` de los **tres** servicios
+   (`fruit-ms`, `fruit-backend` y `fruit-inference`); los valores deben
+   coincidir.
+3. Redesplegar/reiniciar los tres servicios juntos, ej.
+   `docker compose up -d --build fruit-ms fruit-backend fruit-inference`.
 4. Verificar que `POST /analyze` vuelve a responder `200` y que no hay
    `401` por token inválido en los logs de `fruit-inference`.
 
