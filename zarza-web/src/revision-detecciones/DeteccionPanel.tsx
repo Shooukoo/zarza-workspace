@@ -1,0 +1,112 @@
+import { useEffect, useState } from 'react';
+import { Alert, Form, Select, Switch, Button, Space, message } from 'antd';
+import { useFeedbackDeteccion } from './useDetecciones';
+import { ETAPAS_CONOCIDAS } from './types';
+import type { Deteccion } from './types';
+
+interface Props {
+  deteccion: Deteccion;
+  analysisId: string;
+  onClose: () => void;
+}
+
+interface FormValues {
+  etapa: (typeof ETAPAS_CONOCIDAS)[number];
+  sano: boolean;
+}
+
+export function DeteccionPanel({ deteccion, analysisId, onClose }: Props) {
+  const feedbackMutation = useFeedbackDeteccion(analysisId);
+  const [form] = Form.useForm<FormValues>();
+  const [pendingAction, setPendingAction] = useState<'EDITAR' | 'ELIMINAR' | null>(null);
+
+  useEffect(() => {
+    form.setFieldsValue({
+      etapa: deteccion.etapa as FormValues['etapa'],
+      sano: deteccion.sano,
+    });
+  }, [deteccion, form]);
+
+  async function guardar(values: FormValues) {
+    setPendingAction('EDITAR');
+    try {
+      await feedbackMutation.mutateAsync({
+        detectionId: deteccion.id,
+        payload: {
+          accion: 'EDITAR',
+          etapaCorregida: values.etapa,
+          saludCorregida: values.sano,
+        },
+      });
+      message.success('Corrección guardada');
+    } catch {
+      message.error('Error al guardar la corrección');
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
+  async function eliminar() {
+    setPendingAction('ELIMINAR');
+    try {
+      await feedbackMutation.mutateAsync({
+        detectionId: deteccion.id,
+        payload: { accion: 'ELIMINAR' },
+      });
+      message.success('Detección eliminada');
+      onClose();
+    } catch {
+      message.error('Error al eliminar la detección');
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        right: 24,
+        bottom: 24,
+        width: 280,
+        background: '#fff',
+        borderRadius: 8,
+        boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+        padding: 16,
+        zIndex: 10,
+      }}
+    >
+      {deteccion.eliminada ? (
+        <>
+          <Alert
+            type="warning"
+            showIcon
+            message="Esta detección fue eliminada."
+            style={{ marginBottom: 12 }}
+          />
+          <Button onClick={onClose} block>
+            Cerrar
+          </Button>
+        </>
+      ) : (
+        <Form form={form} layout="vertical" onFinish={guardar}>
+          <Form.Item label="Etapa" name="etapa" rules={[{ required: true }]}>
+            <Select options={ETAPAS_CONOCIDAS.map((e) => ({ value: e, label: e }))} />
+          </Form.Item>
+          <Form.Item label="Estado" name="sano" valuePropName="checked">
+            <Switch checkedChildren="Sano" unCheckedChildren="Enfermo" />
+          </Form.Item>
+          <Space>
+            <Button type="primary" htmlType="submit" loading={pendingAction === 'EDITAR'}>
+              Guardar
+            </Button>
+            <Button danger onClick={eliminar} loading={pendingAction === 'ELIMINAR'}>
+              Eliminar
+            </Button>
+            <Button onClick={onClose}>Cerrar</Button>
+          </Space>
+        </Form>
+      )}
+    </div>
+  );
+}

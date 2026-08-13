@@ -13,6 +13,7 @@ import type {
 import type {
   AnalysisDomain,
   EtapaFenologica,
+  Deteccion,
 } from '../domain/analysis.entity';
 
 @Injectable()
@@ -64,6 +65,23 @@ export class PrismaAnalysisRepository implements IAnalysisRepository {
             cambiaA: e.prediccion.cambio_a,
             enDias: e.prediccion.en_dias,
             diasParaCosecha: e.prediccion.dias_para_cosecha,
+          })),
+        });
+      }
+
+      if (analysis.detecciones.length > 0) {
+        await tx.detection.createMany({
+          data: analysis.detecciones.map((d: Deteccion) => ({
+            analysisId: created.id,
+            origen: 'MODELO' as const,
+            claseDetectada: d.clase,
+            etapaDetectada: d.etapa,
+            saludDetectada: d.sano ? 'SANO' : 'ENFERMO',
+            confidence: d.confidence,
+            bboxX1: d.bbox[0],
+            bboxY1: d.bbox[1],
+            bboxX2: d.bbox[2],
+            bboxY2: d.bbox[3],
           })),
         });
       }
@@ -137,6 +155,9 @@ export class PrismaAnalysisRepository implements IAnalysisRepository {
         porcentaje_merma_general: doc.porcentajeMermaGeneral,
       },
       proyeccion_financiera: { peso_sano_gramos: doc.pesoSanoGramos },
+      // No se consultan detecciones individuales en este path de lectura —
+      // solo lo usa fruit-backend directamente contra Detection/ModelFeedback.
+      detecciones: [],
       cronograma_fenologico: (doc.fenologiaEtapas ?? []).map((e: any) => ({
         etapa: e.etapa,
         cantidad: e.cantidad,

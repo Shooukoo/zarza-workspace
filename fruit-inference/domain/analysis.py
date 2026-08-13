@@ -39,6 +39,7 @@ def build_report(
     etapa_pesos:   dict[str, float] = {}
     peso_sano_total = 0.0
     total = sanos = enfermos = 0
+    detecciones_reporte: list[dict] = []
 
     for det in detections:
         cls  = det["class"]
@@ -58,6 +59,14 @@ def build_report(
             peso = info["peso_g"]
 
         etapa_pesos[etapa] = etapa_pesos.get(etapa, 0.0) + peso
+
+        detecciones_reporte.append({
+            "clase":      cls,
+            "etapa":      etapa,
+            "sano":       info["sano"],
+            "confidence": det["confidence"],
+            "bbox":       det["bbox"],
+        })
 
         if info["sano"]:
             sanos += 1
@@ -99,4 +108,5 @@ def build_report(
             "peso_sano_gramos": round(peso_sano_total, 2),
         },
         "cronograma_fenologico": cronograma,
+        "detecciones":           detecciones_reporte,
     }

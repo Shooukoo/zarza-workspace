@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Modal,
   Row,
@@ -34,6 +35,7 @@ interface FormValues {
 
 export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const canEdit = user?.role === Role.AGRONOMO || user?.role === Role.ADMIN;
   const isProductor = user?.role === Role.PRODUCTOR;
 
@@ -97,6 +99,19 @@ export function AnalisisDetailModal({ analysisId, open, onClose }: Props) {
         <Skeleton active paragraph={{ rows: 8 }} />
       ) : !analysis ? null : (
         <Form form={form} layout="vertical" onFinish={onFinish}>
+          {canEdit && (
+            <div style={{ marginBottom: 16, textAlign: 'right' }}>
+              <Button
+                onClick={() => {
+                  onClose();
+                  navigate(`/analisis/${analysisId}/revision-detecciones`);
+                }}
+              >
+                Revisar detecciones →
+              </Button>
+            </div>
+          )}
+
           <Row gutter={24}>
             <Col xs={24} md={10}>
               {isProductor ? (

@@ -8,6 +8,8 @@ import { DashboardPage } from './dashboard/DashboardPage';
 import { CamposPage } from './campos/CamposPage';
 import { SolicitudesPage } from './solicitudes/SolicitudesPage';
 import { AnalisisPage } from './analisis/AnalisisPage';
+import { ColaRevisionPage } from './revision-detecciones/ColaRevisionPage';
+import { RevisionDeteccionesPage } from './revision-detecciones/RevisionDeteccionesPage';
 import { UsersPage } from './admin/UsersPage';
 import { Role } from './auth/types';
 import { useAuth } from './auth/useAuth';
@@ -67,6 +69,11 @@ export function App() {
             }
           >
             <Route path="/analisis" element={<AnalisisPage />} />
+          </Route>
+
+          <Route element={<PrivateRoute allowedRoles={[Role.ADMIN, Role.AGRONOMO]} />}>
+            <Route path="/revision-detecciones" element={<ColaRevisionPage />} />
+            <Route path="/analisis/:id/revision-detecciones" element={<RevisionDeteccionesPage />} />
           </Route>
         </Route>
       </Route>
