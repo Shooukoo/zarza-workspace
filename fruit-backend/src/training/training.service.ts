@@ -2,6 +2,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
@@ -10,6 +11,7 @@ import { PrismaService } from '@rubus/database';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
 import { envs } from '../config/envs';
 import type { TrainingStatusResponse } from './training.types';
+import type { TrainingCompleteDto } from './dto/training-complete.dto';
 
 @Injectable()
 export class TrainingService {
@@ -145,6 +147,56 @@ export class TrainingService {
     }
 
     return { jobId: job.id };
+  }
+
+  async recordTrainingComplete(dto: TrainingCompleteDto): Promise<void> {
+    const job = await this.prisma.trainingJob.findUnique({
+      where: { id: dto.jobId },
+    });
+    if (!job) {
+      throw new NotFoundException(`TrainingJob "${dto.jobId}" no encontrado`);
+    }
+
+    if (dto.status === 'FAILED') {
+      await this.prisma.trainingJob.update({
+        where: { id: dto.jobId },
+        data: {
+          status: 'FAILED',
+          errorMessage: dto.errorMessage ?? 'Error desconocido',
+          finalizadoAt: new Date(),
+        },
+      });
+      return;
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      const maxVersion = await tx.modelVersion.aggregate({
+        _max: { version: true },
+      });
+      const nextVersion = (maxVersion._max.version ?? 0) + 1;
+      const mAP = dto.mAP ?? 0;
+      const mAPBase = dto.mAPBase ?? 0;
+
+      await tx.modelVersion.create({
+        data: {
+          version: nextVersion,
+          r2Key: dto.r2Key,
+          mAP,
+          mAPBase,
+          status: mAP > mAPBase ? 'LISTO_PARA_PROMOVER' : 'DESCARTADO',
+          trainingJobId: dto.jobId,
+        },
+      });
+
+      await tx.trainingJob.update({
+        where: { id: dto.jobId },
+        data: {
+          status: 'COMPLETED',
+          datasetSize: dto.datasetSize,
+          finalizadoAt: new Date(),
+        },
+      });
+    });
   }
 
   private async countNuevosAnalisisDesde(

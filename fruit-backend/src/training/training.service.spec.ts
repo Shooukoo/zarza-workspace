@@ -14,6 +14,7 @@ describe('TrainingService', () => {
     prisma = {
       trainingJob: {
         findFirst: jest.fn(),
+        findUnique: jest.fn(),
         findMany: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
@@ -255,6 +256,72 @@ describe('TrainingService', () => {
       expect(prisma.trainingJob.update).toHaveBeenCalledWith({
         where: { id: 'job-nuevo' },
         data: expect.objectContaining({ status: 'FAILED' }),
+      });
+    });
+  });
+
+  describe('recordTrainingComplete()', () => {
+    it('lanza 404 si el job no existe', async () => {
+      prisma.trainingJob.findUnique = jest.fn().mockResolvedValue(null);
+
+      await expect(
+        service.recordTrainingComplete({ jobId: 'no-existe', status: 'FAILED' } as any),
+      ).rejects.toThrow('no encontrado');
+    });
+
+    it('marca el job FAILED sin crear ModelVersion cuando status=FAILED', async () => {
+      prisma.trainingJob.findUnique = jest.fn().mockResolvedValue({ id: 'job-1' });
+
+      await service.recordTrainingComplete({
+        jobId: 'job-1',
+        status: 'FAILED',
+        errorMessage: 'R2 inaccesible',
+      } as any);
+
+      expect(prisma.trainingJob.update).toHaveBeenCalledWith({
+        where: { id: 'job-1' },
+        data: { status: 'FAILED', errorMessage: 'R2 inaccesible', finalizadoAt: expect.any(Date) },
+      });
+      expect(prisma.modelVersion.create).not.toHaveBeenCalled();
+    });
+
+    it('crea ModelVersion LISTO_PARA_PROMOVER cuando mAP > mAPBase', async () => {
+      prisma.trainingJob.findUnique = jest.fn().mockResolvedValue({ id: 'job-1' });
+      prisma.modelVersion.aggregate.mockResolvedValue({ _max: { version: 2 } });
+
+      await service.recordTrainingComplete({
+        jobId: 'job-1',
+        status: 'COMPLETED',
+        mAP: 0.8,
+        mAPBase: 0.6,
+        r2Key: 'models/best_job-1.pt',
+        datasetSize: 100,
+      } as any);
+
+      expect(prisma.modelVersion.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          version: 3,
+          status: 'LISTO_PARA_PROMOVER',
+          trainingJobId: 'job-1',
+        }),
+      });
+    });
+
+    it('crea ModelVersion DESCARTADO cuando mAP <= mAPBase', async () => {
+      prisma.trainingJob.findUnique = jest.fn().mockResolvedValue({ id: 'job-1' });
+      prisma.modelVersion.aggregate.mockResolvedValue({ _max: { version: null } });
+
+      await service.recordTrainingComplete({
+        jobId: 'job-1',
+        status: 'COMPLETED',
+        mAP: 0.5,
+        mAPBase: 0.6,
+        r2Key: 'models/best_job-1.pt',
+        datasetSize: 100,
+      } as any);
+
+      expect(prisma.modelVersion.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ version: 1, status: 'DESCARTADO' }),
       });
     });
   });
