@@ -48,3 +48,24 @@ def test_detecciones_vacio_cuando_no_hay_detecciones(bgr_img):
     report = build_report([], bgr_img, "img-1", None)
 
     assert report["detecciones"] == []
+
+
+def test_clase_enfermo_cuenta_como_enfermo_sin_aportar_peso_sano(bgr_img):
+    detections = [
+        {"class": "enfermo", "confidence": 0.75, "bbox": (0, 0, 10, 10)},
+    ]
+
+    report = build_report(detections, bgr_img, "img-1", None)
+
+    assert report["metricas_salud"]["elementos_enfermos"] == 1
+    assert report["metricas_salud"]["elementos_sanos"] == 0
+    assert report["proyeccion_financiera"]["peso_sano_gramos"] == 0.0
+    assert report["detecciones"] == [
+        {
+            "clase": "enfermo",
+            "etapa": "deteccion_gen",
+            "sano": False,
+            "confidence": 0.75,
+            "bbox": (0, 0, 10, 10),
+        }
+    ]
