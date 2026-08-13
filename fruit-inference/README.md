@@ -7,8 +7,8 @@ Ver también el [README raíz](../README.md) para la arquitectura completa del s
 ## Responsabilidades
 
 - Descargar la imagen desde Cloudflare R2 (`boto3`).
-- Preprocesar la imagen (balance de blancos Gray World + CLAHE sobre el canal L de LAB).
-- Ejecutar la inferencia YOLOv8 (`best.pt`) sobre la imagen preprocesada.
+- Preprocesar la imagen opcionalmente (balance de blancos Gray World + CLAHE sobre el canal L de LAB), desactivado por defecto — ver `ENABLE_COLOR_PREPROCESSING`.
+- Ejecutar la inferencia YOLOv8 (`best.pt`) sobre la imagen (preprocesada solo si `ENABLE_COLOR_PREPROCESSING=true`).
 - Clasificar cada fruto detectado en una de las 7 etapas fenológicas.
 - Estimar el peso por fruto (segmentación HSV + ajuste de elipse sobre el bounding box), con fallback al peso tabulado por etapa si la estimación visual falla.
 - Calcular métricas de salud (sanos/enfermos, % de merma) y el cronograma de días para cosecha.
@@ -29,7 +29,7 @@ Python 3.11 · FastAPI · Ultralytics YOLOv8 · OpenCV (`opencv-python-headless`
 │   ├── auth.py                      # verify_inference_token() — valida header x-inference-token
 │   ├── r2_client.py                 # cliente S3/R2: check_object_size, download_image_bytes
 │   ├── yolo_client.py                # bytes_to_bgr, run_inference (wrapper sobre model.predict)
-│   └── image_preprocessor.py         # preprocess() — balance de blancos + CLAHE, con metadata de debug
+│   └── image_preprocessor.py         # preprocess() — balance de blancos + CLAHE, opcional (ENABLE_COLOR_PREPROCESSING), con metadata de debug
 └── tests/                            # pytest: auth, r2_client, image_preprocessor
 ```
 
@@ -38,7 +38,7 @@ Python 3.11 · FastAPI · Ultralytics YOLOv8 · OpenCV (`opencv-python-headless`
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
 | `GET` | `/health` | Ninguna | `{ status, model_loaded, timestamp }`. Usado por el healthcheck de Docker. |
-| `POST` | `/analyze` | Header `x-inference-token` | Body: `{ storage_key, image_id?, variedad? }`. Descarga, preprocesa, infiere y retorna el reporte JSON (incluye `debug_preprocessing` si `PREPROCESSING_DEBUG=true`). |
+| `POST` | `/analyze` | Header `x-inference-token` | Body: `{ storage_key, image_id?, variedad? }`. Descarga, preprocesa opcionalmente (`ENABLE_COLOR_PREPROCESSING`), infiere y retorna el reporte JSON (incluye `debug_preprocessing` si `PREPROCESSING_DEBUG=true`). |
 
 ## Etapas fenológicas (`model_config.py`)
 
@@ -56,7 +56,11 @@ R2_ACCESS_KEY_ID=
 R2_SECRET_ACCESS_KEY=
 R2_BUCKET_NAME=fruit-images
 
-# Preprocesado
+# Preprocesado (balance de blancos Gray World + CLAHE)
+# DESACTIVADO por defecto: el modelo se entrenó sin ninguna corrección
+# determinista de color, y este preprocesado reducía las detecciones
+# frente al pipeline de entrenamiento. Activar solo para pruebas A/B.
+ENABLE_COLOR_PREPROCESSING=false
 CLAHE_CLIP_LIMIT=
 CLAHE_TILE_SIZE=
 PREPROCESSING_DEBUG=false
@@ -78,7 +82,7 @@ uvicorn main:app --reload --port 8000
 pytest                              # Unit tests
 ```
 
-Cobertura de tests real en: `test_auth.py` (token faltante/incorrecto/correcto), `test_r2_client.py` (tamaño de objeto, 404/400), `test_image_preprocessor.py` (guardas de imagen negra, corrección de canal rojo, preservación de forma/dtype, CLAHE solo en el canal L). Pendiente: tests de `domain/analysis.py`, `domain/weight.py`, `yolo_client.py` y de los endpoints de `main.py`.
+Cobertura de tests real en: `test_auth.py` (token faltante/incorrecto/correcto), `test_r2_client.py` (tamaño de objeto, 404/400), `test_image_preprocessor.py` (guardas de imagen negra, corrección de canal rojo, preservación de forma/dtype, CLAHE solo en el canal L), `test_main.py` (`ENABLE_COLOR_PREPROCESSING` on/off, `debug_preprocessing`, fallback ante excepción). Pendiente: tests de `domain/analysis.py`, `domain/weight.py`, `yolo_client.py`.
 
 ## Docker
 
