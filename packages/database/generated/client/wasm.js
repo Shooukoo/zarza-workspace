@@ -350,7 +350,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/san/Proyectos/zarza-workspace/.claude/worktrees/pipeline-reentrenamiento/packages/database/generated/client",
+      "value": "/home/san/Proyectos/zarza-workspace/packages/database/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -364,7 +364,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/san/Proyectos/zarza-workspace/.claude/worktrees/pipeline-reentrenamiento/packages/database/prisma/schema.prisma",
+    "sourceFilePath": "/home/san/Proyectos/zarza-workspace/packages/database/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -378,6 +378,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
