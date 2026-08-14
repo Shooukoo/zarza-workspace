@@ -5,6 +5,13 @@ Responsabilidad: transformar el dataset resuelto de fruit-backend (imagen +
 detecciones ya corregidas) en la estructura de carpetas que espera
 ultralytics (images/, labels/, data.yaml), con normalización de bbox a
 formato YOLO y split train/val reproducible por job.
+
+El modelo base es un checkpoint YOLO26-seg (task="segment"), pero las
+detecciones almacenadas solo tienen bounding box, sin máscara. Por eso las
+labels se escriben en formato de segmentación sintetizando el bbox como un
+polígono rectangular de 4 esquinas — Ultralytics exige ese formato para
+entrenar un modelo de segmentación, aunque el polígono no aporte más
+precisión que el bbox del que sale.
 """
 
 import hashlib
@@ -21,18 +28,17 @@ from model_config import CLASS_NAMES
 logger = logging.getLogger("fruit-training")
 
 
-def bbox_to_yolo(
+def bbox_to_yolo_polygon(
     bbox: tuple[float, float, float, float],
     img_width: int,
     img_height: int,
-) -> tuple[float, float, float, float]:
-    """Normaliza un bbox [x1, y1, x2, y2] en píxeles a formato YOLO (x_center, y_center, width, height), 0-1."""
+) -> tuple[float, float, float, float, float, float, float, float]:
+    """Normaliza un bbox [x1, y1, x2, y2] en píxeles a un polígono rectangular
+    YOLO-seg (4 esquinas, sentido horario desde arriba-izquierda), 0-1."""
     x1, y1, x2, y2 = bbox
-    width = (x2 - x1) / img_width
-    height = (y2 - y1) / img_height
-    x_center = (x1 + x2) / 2 / img_width
-    y_center = (y1 + y2) / 2 / img_height
-    return (x_center, y_center, width, height)
+    nx1, ny1 = x1 / img_width, y1 / img_height
+    nx2, ny2 = x2 / img_width, y2 / img_height
+    return (nx1, ny1, nx2, ny1, nx2, ny2, nx1, ny2)
 
 
 def resolve_class_id(clase: str) -> int:
@@ -94,12 +100,11 @@ def export_dataset(entries: list[dict], job_id: str, output_dir: Path) -> int:
             lines = []
             for det in entry["detecciones"]:
                 class_id = resolve_class_id(det["clase"])
-                x_center, y_center, width, height = bbox_to_yolo(
+                polygon = bbox_to_yolo_polygon(
                     tuple(det["bbox"]), entry["width"], entry["height"]
                 )
-                lines.append(
-                    f"{class_id} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}"
-                )
+                coords = " ".join(f"{c:.6f}" for c in polygon)
+                lines.append(f"{class_id} {coords}")
             (labels_dir / f"{filename}.txt").write_text("\n".join(lines))
 
     data_yaml = output_dir / "data.yaml"

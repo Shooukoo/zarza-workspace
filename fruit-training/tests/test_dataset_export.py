@@ -3,20 +3,17 @@ import io
 from PIL import Image
 
 from domain.dataset_export import (
-    bbox_to_yolo,
+    bbox_to_yolo_polygon,
     export_dataset,
     resolve_class_id,
     split_dataset,
 )
 
 
-def test_bbox_to_yolo_normaliza_a_0_1():
-    x_center, y_center, width, height = bbox_to_yolo((10, 20, 30, 60), img_width=100, img_height=200)
+def test_bbox_to_yolo_polygon_normaliza_las_4_esquinas_a_0_1():
+    polygon = bbox_to_yolo_polygon((10, 20, 30, 60), img_width=100, img_height=200)
 
-    assert x_center == 0.2
-    assert y_center == 0.2
-    assert width == 0.2
-    assert height == 0.2
+    assert polygon == (0.1, 0.1, 0.3, 0.1, 0.3, 0.3, 0.1, 0.3)
 
 
 def test_resolve_class_id_usa_el_orden_de_class_names():
