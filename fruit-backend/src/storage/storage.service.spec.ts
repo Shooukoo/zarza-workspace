@@ -56,4 +56,22 @@ describe('StorageService', () => {
       { expiresIn: 900 },
     );
   });
+
+  describe('downloadBuffer', () => {
+    it('concatena los chunks del stream de S3 en un Buffer', async () => {
+      const chunks = [Buffer.from('hola '), Buffer.from('mundo')];
+      const fakeBody = {
+        [Symbol.asyncIterator]: async function* () {
+          for (const chunk of chunks) yield chunk;
+        },
+      };
+      (service as any).s3Client = {
+        send: jest.fn().mockResolvedValue({ Body: fakeBody }),
+      };
+
+      const result = await service.downloadBuffer('models/best_v1.pt');
+
+      expect(result).toEqual(Buffer.from('hola mundo'));
+    });
+  });
 });

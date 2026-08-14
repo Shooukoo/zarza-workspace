@@ -60,6 +60,27 @@ export class StorageService implements IStoragePort {
     }
   }
 
+  async downloadBuffer(key: string): Promise<Buffer> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      });
+      const response = await this.s3Client.send(command);
+      const chunks: Buffer[] = [];
+      for await (const chunk of response.Body as AsyncIterable<Uint8Array>) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      return Buffer.concat(chunks);
+    } catch (error) {
+      this.logger.error('Error al descargar archivo', {
+        storageKey: key,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
+
   async getPresignedUrl(key: string, expiresIn: number): Promise<string> {
     try {
       const command = new GetObjectCommand({

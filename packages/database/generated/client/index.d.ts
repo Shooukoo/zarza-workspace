@@ -54,6 +54,16 @@ export type Detection = $Result.DefaultSelection<Prisma.$DetectionPayload>
  */
 export type ModelFeedback = $Result.DefaultSelection<Prisma.$ModelFeedbackPayload>
 /**
+ * Model TrainingJob
+ * 
+ */
+export type TrainingJob = $Result.DefaultSelection<Prisma.$TrainingJobPayload>
+/**
+ * Model ModelVersion
+ * 
+ */
+export type ModelVersion = $Result.DefaultSelection<Prisma.$ModelVersionPayload>
+/**
  * Model RefreshToken
  * 
  */
@@ -120,6 +130,27 @@ export const AccionFeedback: {
 
 export type AccionFeedback = (typeof AccionFeedback)[keyof typeof AccionFeedback]
 
+
+export const TrainingJobStatus: {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+export type TrainingJobStatus = (typeof TrainingJobStatus)[keyof typeof TrainingJobStatus]
+
+
+export const ModelVersionStatus: {
+  ENTRENADO: 'ENTRENADO',
+  LISTO_PARA_PROMOVER: 'LISTO_PARA_PROMOVER',
+  DESCARTADO: 'DESCARTADO',
+  PROMOVIDO: 'PROMOVIDO',
+  REEMPLAZADO: 'REEMPLAZADO'
+};
+
+export type ModelVersionStatus = (typeof ModelVersionStatus)[keyof typeof ModelVersionStatus]
+
 }
 
 export type Role = $Enums.Role
@@ -145,6 +176,14 @@ export const EstadoSalud: typeof $Enums.EstadoSalud
 export type AccionFeedback = $Enums.AccionFeedback
 
 export const AccionFeedback: typeof $Enums.AccionFeedback
+
+export type TrainingJobStatus = $Enums.TrainingJobStatus
+
+export const TrainingJobStatus: typeof $Enums.TrainingJobStatus
+
+export type ModelVersionStatus = $Enums.ModelVersionStatus
+
+export const ModelVersionStatus: typeof $Enums.ModelVersionStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -343,6 +382,26 @@ export class PrismaClient<
     * ```
     */
   get modelFeedback(): Prisma.ModelFeedbackDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.trainingJob`: Exposes CRUD operations for the **TrainingJob** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TrainingJobs
+    * const trainingJobs = await prisma.trainingJob.findMany()
+    * ```
+    */
+  get trainingJob(): Prisma.TrainingJobDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.modelVersion`: Exposes CRUD operations for the **ModelVersion** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ModelVersions
+    * const modelVersions = await prisma.modelVersion.findMany()
+    * ```
+    */
+  get modelVersion(): Prisma.ModelVersionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.refreshToken`: Exposes CRUD operations for the **RefreshToken** model.
@@ -812,6 +871,8 @@ export namespace Prisma {
     FenologiaEtapa: 'FenologiaEtapa',
     Detection: 'Detection',
     ModelFeedback: 'ModelFeedback',
+    TrainingJob: 'TrainingJob',
+    ModelVersion: 'ModelVersion',
     RefreshToken: 'RefreshToken',
     Notification: 'Notification'
   };
@@ -832,7 +893,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "campo" | "userCampo" | "solicitudMuestreo" | "analysis" | "fenologiaEtapa" | "detection" | "modelFeedback" | "refreshToken" | "notification"
+      modelProps: "user" | "campo" | "userCampo" | "solicitudMuestreo" | "analysis" | "fenologiaEtapa" | "detection" | "modelFeedback" | "trainingJob" | "modelVersion" | "refreshToken" | "notification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1428,6 +1489,154 @@ export namespace Prisma {
           }
         }
       }
+      TrainingJob: {
+        payload: Prisma.$TrainingJobPayload<ExtArgs>
+        fields: Prisma.TrainingJobFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TrainingJobFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TrainingJobFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          findFirst: {
+            args: Prisma.TrainingJobFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TrainingJobFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          findMany: {
+            args: Prisma.TrainingJobFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>[]
+          }
+          create: {
+            args: Prisma.TrainingJobCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          createMany: {
+            args: Prisma.TrainingJobCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TrainingJobCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>[]
+          }
+          delete: {
+            args: Prisma.TrainingJobDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          update: {
+            args: Prisma.TrainingJobUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          deleteMany: {
+            args: Prisma.TrainingJobDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TrainingJobUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TrainingJobUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>[]
+          }
+          upsert: {
+            args: Prisma.TrainingJobUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          aggregate: {
+            args: Prisma.TrainingJobAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTrainingJob>
+          }
+          groupBy: {
+            args: Prisma.TrainingJobGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TrainingJobGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TrainingJobCountArgs<ExtArgs>
+            result: $Utils.Optional<TrainingJobCountAggregateOutputType> | number
+          }
+        }
+      }
+      ModelVersion: {
+        payload: Prisma.$ModelVersionPayload<ExtArgs>
+        fields: Prisma.ModelVersionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ModelVersionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ModelVersionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          findFirst: {
+            args: Prisma.ModelVersionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ModelVersionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          findMany: {
+            args: Prisma.ModelVersionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>[]
+          }
+          create: {
+            args: Prisma.ModelVersionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          createMany: {
+            args: Prisma.ModelVersionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ModelVersionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>[]
+          }
+          delete: {
+            args: Prisma.ModelVersionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          update: {
+            args: Prisma.ModelVersionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ModelVersionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ModelVersionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ModelVersionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>[]
+          }
+          upsert: {
+            args: Prisma.ModelVersionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          aggregate: {
+            args: Prisma.ModelVersionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateModelVersion>
+          }
+          groupBy: {
+            args: Prisma.ModelVersionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ModelVersionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ModelVersionCountArgs<ExtArgs>
+            result: $Utils.Optional<ModelVersionCountAggregateOutputType> | number
+          }
+        }
+      }
       RefreshToken: {
         payload: Prisma.$RefreshTokenPayload<ExtArgs>
         fields: Prisma.RefreshTokenFieldRefs
@@ -1680,6 +1889,8 @@ export namespace Prisma {
     fenologiaEtapa?: FenologiaEtapaOmit
     detection?: DetectionOmit
     modelFeedback?: ModelFeedbackOmit
+    trainingJob?: TrainingJobOmit
+    modelVersion?: ModelVersionOmit
     refreshToken?: RefreshTokenOmit
     notification?: NotificationOmit
   }
@@ -1774,6 +1985,8 @@ export namespace Prisma {
     detectionsCreadas: number
     modelFeedbackCreado: number
     analysesDeteccionesRevisadas: number
+    trainingJobsIniciados: number
+    modelVersionsPromovidas: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1789,6 +2002,8 @@ export namespace Prisma {
     detectionsCreadas?: boolean | UserCountOutputTypeCountDetectionsCreadasArgs
     modelFeedbackCreado?: boolean | UserCountOutputTypeCountModelFeedbackCreadoArgs
     analysesDeteccionesRevisadas?: boolean | UserCountOutputTypeCountAnalysesDeteccionesRevisadasArgs
+    trainingJobsIniciados?: boolean | UserCountOutputTypeCountTrainingJobsIniciadosArgs
+    modelVersionsPromovidas?: boolean | UserCountOutputTypeCountModelVersionsPromovidasArgs
   }
 
   // Custom InputTypes
@@ -1884,6 +2099,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAnalysesDeteccionesRevisadasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AnalysisWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTrainingJobsIniciadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrainingJobWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountModelVersionsPromovidasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelVersionWhereInput
   }
 
 
@@ -2228,6 +2457,8 @@ export namespace Prisma {
     detectionsCreadas?: boolean | User$detectionsCreadasArgs<ExtArgs>
     modelFeedbackCreado?: boolean | User$modelFeedbackCreadoArgs<ExtArgs>
     analysesDeteccionesRevisadas?: boolean | User$analysesDeteccionesRevisadasArgs<ExtArgs>
+    trainingJobsIniciados?: boolean | User$trainingJobsIniciadosArgs<ExtArgs>
+    modelVersionsPromovidas?: boolean | User$modelVersionsPromovidasArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2281,6 +2512,8 @@ export namespace Prisma {
     detectionsCreadas?: boolean | User$detectionsCreadasArgs<ExtArgs>
     modelFeedbackCreado?: boolean | User$modelFeedbackCreadoArgs<ExtArgs>
     analysesDeteccionesRevisadas?: boolean | User$analysesDeteccionesRevisadasArgs<ExtArgs>
+    trainingJobsIniciados?: boolean | User$trainingJobsIniciadosArgs<ExtArgs>
+    modelVersionsPromovidas?: boolean | User$modelVersionsPromovidasArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2301,6 +2534,8 @@ export namespace Prisma {
       detectionsCreadas: Prisma.$DetectionPayload<ExtArgs>[]
       modelFeedbackCreado: Prisma.$ModelFeedbackPayload<ExtArgs>[]
       analysesDeteccionesRevisadas: Prisma.$AnalysisPayload<ExtArgs>[]
+      trainingJobsIniciados: Prisma.$TrainingJobPayload<ExtArgs>[]
+      modelVersionsPromovidas: Prisma.$ModelVersionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2718,6 +2953,8 @@ export namespace Prisma {
     detectionsCreadas<T extends User$detectionsCreadasArgs<ExtArgs> = {}>(args?: Subset<T, User$detectionsCreadasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     modelFeedbackCreado<T extends User$modelFeedbackCreadoArgs<ExtArgs> = {}>(args?: Subset<T, User$modelFeedbackCreadoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     analysesDeteccionesRevisadas<T extends User$analysesDeteccionesRevisadasArgs<ExtArgs> = {}>(args?: Subset<T, User$analysesDeteccionesRevisadasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalysisPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    trainingJobsIniciados<T extends User$trainingJobsIniciadosArgs<ExtArgs> = {}>(args?: Subset<T, User$trainingJobsIniciadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    modelVersionsPromovidas<T extends User$modelVersionsPromovidasArgs<ExtArgs> = {}>(args?: Subset<T, User$modelVersionsPromovidasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3429,6 +3666,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AnalysisScalarFieldEnum | AnalysisScalarFieldEnum[]
+  }
+
+  /**
+   * User.trainingJobsIniciados
+   */
+  export type User$trainingJobsIniciadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    where?: TrainingJobWhereInput
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    cursor?: TrainingJobWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TrainingJobScalarFieldEnum | TrainingJobScalarFieldEnum[]
+  }
+
+  /**
+   * User.modelVersionsPromovidas
+   */
+  export type User$modelVersionsPromovidasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    where?: ModelVersionWhereInput
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    cursor?: ModelVersionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ModelVersionScalarFieldEnum | ModelVersionScalarFieldEnum[]
   }
 
   /**
@@ -11956,6 +12241,2339 @@ export namespace Prisma {
 
 
   /**
+   * Model TrainingJob
+   */
+
+  export type AggregateTrainingJob = {
+    _count: TrainingJobCountAggregateOutputType | null
+    _avg: TrainingJobAvgAggregateOutputType | null
+    _sum: TrainingJobSumAggregateOutputType | null
+    _min: TrainingJobMinAggregateOutputType | null
+    _max: TrainingJobMaxAggregateOutputType | null
+  }
+
+  export type TrainingJobAvgAggregateOutputType = {
+    datasetSize: number | null
+  }
+
+  export type TrainingJobSumAggregateOutputType = {
+    datasetSize: number | null
+  }
+
+  export type TrainingJobMinAggregateOutputType = {
+    id: string | null
+    status: $Enums.TrainingJobStatus | null
+    datasetSize: number | null
+    errorMessage: string | null
+    iniciadoPorId: string | null
+    iniciadoAt: Date | null
+    finalizadoAt: Date | null
+  }
+
+  export type TrainingJobMaxAggregateOutputType = {
+    id: string | null
+    status: $Enums.TrainingJobStatus | null
+    datasetSize: number | null
+    errorMessage: string | null
+    iniciadoPorId: string | null
+    iniciadoAt: Date | null
+    finalizadoAt: Date | null
+  }
+
+  export type TrainingJobCountAggregateOutputType = {
+    id: number
+    status: number
+    datasetSize: number
+    errorMessage: number
+    iniciadoPorId: number
+    iniciadoAt: number
+    finalizadoAt: number
+    _all: number
+  }
+
+
+  export type TrainingJobAvgAggregateInputType = {
+    datasetSize?: true
+  }
+
+  export type TrainingJobSumAggregateInputType = {
+    datasetSize?: true
+  }
+
+  export type TrainingJobMinAggregateInputType = {
+    id?: true
+    status?: true
+    datasetSize?: true
+    errorMessage?: true
+    iniciadoPorId?: true
+    iniciadoAt?: true
+    finalizadoAt?: true
+  }
+
+  export type TrainingJobMaxAggregateInputType = {
+    id?: true
+    status?: true
+    datasetSize?: true
+    errorMessage?: true
+    iniciadoPorId?: true
+    iniciadoAt?: true
+    finalizadoAt?: true
+  }
+
+  export type TrainingJobCountAggregateInputType = {
+    id?: true
+    status?: true
+    datasetSize?: true
+    errorMessage?: true
+    iniciadoPorId?: true
+    iniciadoAt?: true
+    finalizadoAt?: true
+    _all?: true
+  }
+
+  export type TrainingJobAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrainingJob to aggregate.
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrainingJobs to fetch.
+     */
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TrainingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrainingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrainingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TrainingJobs
+    **/
+    _count?: true | TrainingJobCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TrainingJobAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TrainingJobSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TrainingJobMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TrainingJobMaxAggregateInputType
+  }
+
+  export type GetTrainingJobAggregateType<T extends TrainingJobAggregateArgs> = {
+        [P in keyof T & keyof AggregateTrainingJob]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTrainingJob[P]>
+      : GetScalarType<T[P], AggregateTrainingJob[P]>
+  }
+
+
+
+
+  export type TrainingJobGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrainingJobWhereInput
+    orderBy?: TrainingJobOrderByWithAggregationInput | TrainingJobOrderByWithAggregationInput[]
+    by: TrainingJobScalarFieldEnum[] | TrainingJobScalarFieldEnum
+    having?: TrainingJobScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TrainingJobCountAggregateInputType | true
+    _avg?: TrainingJobAvgAggregateInputType
+    _sum?: TrainingJobSumAggregateInputType
+    _min?: TrainingJobMinAggregateInputType
+    _max?: TrainingJobMaxAggregateInputType
+  }
+
+  export type TrainingJobGroupByOutputType = {
+    id: string
+    status: $Enums.TrainingJobStatus
+    datasetSize: number | null
+    errorMessage: string | null
+    iniciadoPorId: string
+    iniciadoAt: Date
+    finalizadoAt: Date | null
+    _count: TrainingJobCountAggregateOutputType | null
+    _avg: TrainingJobAvgAggregateOutputType | null
+    _sum: TrainingJobSumAggregateOutputType | null
+    _min: TrainingJobMinAggregateOutputType | null
+    _max: TrainingJobMaxAggregateOutputType | null
+  }
+
+  type GetTrainingJobGroupByPayload<T extends TrainingJobGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TrainingJobGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TrainingJobGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TrainingJobGroupByOutputType[P]>
+            : GetScalarType<T[P], TrainingJobGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TrainingJobSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    status?: boolean
+    datasetSize?: boolean
+    errorMessage?: boolean
+    iniciadoPorId?: boolean
+    iniciadoAt?: boolean
+    finalizadoAt?: boolean
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+    modelVersion?: boolean | TrainingJob$modelVersionArgs<ExtArgs>
+  }, ExtArgs["result"]["trainingJob"]>
+
+  export type TrainingJobSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    status?: boolean
+    datasetSize?: boolean
+    errorMessage?: boolean
+    iniciadoPorId?: boolean
+    iniciadoAt?: boolean
+    finalizadoAt?: boolean
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trainingJob"]>
+
+  export type TrainingJobSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    status?: boolean
+    datasetSize?: boolean
+    errorMessage?: boolean
+    iniciadoPorId?: boolean
+    iniciadoAt?: boolean
+    finalizadoAt?: boolean
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trainingJob"]>
+
+  export type TrainingJobSelectScalar = {
+    id?: boolean
+    status?: boolean
+    datasetSize?: boolean
+    errorMessage?: boolean
+    iniciadoPorId?: boolean
+    iniciadoAt?: boolean
+    finalizadoAt?: boolean
+  }
+
+  export type TrainingJobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "datasetSize" | "errorMessage" | "iniciadoPorId" | "iniciadoAt" | "finalizadoAt", ExtArgs["result"]["trainingJob"]>
+  export type TrainingJobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+    modelVersion?: boolean | TrainingJob$modelVersionArgs<ExtArgs>
+  }
+  export type TrainingJobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TrainingJobIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $TrainingJobPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TrainingJob"
+    objects: {
+      iniciadoPor: Prisma.$UserPayload<ExtArgs>
+      modelVersion: Prisma.$ModelVersionPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      status: $Enums.TrainingJobStatus
+      datasetSize: number | null
+      errorMessage: string | null
+      iniciadoPorId: string
+      iniciadoAt: Date
+      finalizadoAt: Date | null
+    }, ExtArgs["result"]["trainingJob"]>
+    composites: {}
+  }
+
+  type TrainingJobGetPayload<S extends boolean | null | undefined | TrainingJobDefaultArgs> = $Result.GetResult<Prisma.$TrainingJobPayload, S>
+
+  type TrainingJobCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TrainingJobFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TrainingJobCountAggregateInputType | true
+    }
+
+  export interface TrainingJobDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TrainingJob'], meta: { name: 'TrainingJob' } }
+    /**
+     * Find zero or one TrainingJob that matches the filter.
+     * @param {TrainingJobFindUniqueArgs} args - Arguments to find a TrainingJob
+     * @example
+     * // Get one TrainingJob
+     * const trainingJob = await prisma.trainingJob.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TrainingJobFindUniqueArgs>(args: SelectSubset<T, TrainingJobFindUniqueArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TrainingJob that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TrainingJobFindUniqueOrThrowArgs} args - Arguments to find a TrainingJob
+     * @example
+     * // Get one TrainingJob
+     * const trainingJob = await prisma.trainingJob.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TrainingJobFindUniqueOrThrowArgs>(args: SelectSubset<T, TrainingJobFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrainingJob that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobFindFirstArgs} args - Arguments to find a TrainingJob
+     * @example
+     * // Get one TrainingJob
+     * const trainingJob = await prisma.trainingJob.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TrainingJobFindFirstArgs>(args?: SelectSubset<T, TrainingJobFindFirstArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrainingJob that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobFindFirstOrThrowArgs} args - Arguments to find a TrainingJob
+     * @example
+     * // Get one TrainingJob
+     * const trainingJob = await prisma.trainingJob.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TrainingJobFindFirstOrThrowArgs>(args?: SelectSubset<T, TrainingJobFindFirstOrThrowArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TrainingJobs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TrainingJobs
+     * const trainingJobs = await prisma.trainingJob.findMany()
+     * 
+     * // Get first 10 TrainingJobs
+     * const trainingJobs = await prisma.trainingJob.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const trainingJobWithIdOnly = await prisma.trainingJob.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TrainingJobFindManyArgs>(args?: SelectSubset<T, TrainingJobFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TrainingJob.
+     * @param {TrainingJobCreateArgs} args - Arguments to create a TrainingJob.
+     * @example
+     * // Create one TrainingJob
+     * const TrainingJob = await prisma.trainingJob.create({
+     *   data: {
+     *     // ... data to create a TrainingJob
+     *   }
+     * })
+     * 
+     */
+    create<T extends TrainingJobCreateArgs>(args: SelectSubset<T, TrainingJobCreateArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TrainingJobs.
+     * @param {TrainingJobCreateManyArgs} args - Arguments to create many TrainingJobs.
+     * @example
+     * // Create many TrainingJobs
+     * const trainingJob = await prisma.trainingJob.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TrainingJobCreateManyArgs>(args?: SelectSubset<T, TrainingJobCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TrainingJobs and returns the data saved in the database.
+     * @param {TrainingJobCreateManyAndReturnArgs} args - Arguments to create many TrainingJobs.
+     * @example
+     * // Create many TrainingJobs
+     * const trainingJob = await prisma.trainingJob.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TrainingJobs and only return the `id`
+     * const trainingJobWithIdOnly = await prisma.trainingJob.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TrainingJobCreateManyAndReturnArgs>(args?: SelectSubset<T, TrainingJobCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TrainingJob.
+     * @param {TrainingJobDeleteArgs} args - Arguments to delete one TrainingJob.
+     * @example
+     * // Delete one TrainingJob
+     * const TrainingJob = await prisma.trainingJob.delete({
+     *   where: {
+     *     // ... filter to delete one TrainingJob
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TrainingJobDeleteArgs>(args: SelectSubset<T, TrainingJobDeleteArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TrainingJob.
+     * @param {TrainingJobUpdateArgs} args - Arguments to update one TrainingJob.
+     * @example
+     * // Update one TrainingJob
+     * const trainingJob = await prisma.trainingJob.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TrainingJobUpdateArgs>(args: SelectSubset<T, TrainingJobUpdateArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TrainingJobs.
+     * @param {TrainingJobDeleteManyArgs} args - Arguments to filter TrainingJobs to delete.
+     * @example
+     * // Delete a few TrainingJobs
+     * const { count } = await prisma.trainingJob.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TrainingJobDeleteManyArgs>(args?: SelectSubset<T, TrainingJobDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrainingJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TrainingJobs
+     * const trainingJob = await prisma.trainingJob.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TrainingJobUpdateManyArgs>(args: SelectSubset<T, TrainingJobUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrainingJobs and returns the data updated in the database.
+     * @param {TrainingJobUpdateManyAndReturnArgs} args - Arguments to update many TrainingJobs.
+     * @example
+     * // Update many TrainingJobs
+     * const trainingJob = await prisma.trainingJob.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TrainingJobs and only return the `id`
+     * const trainingJobWithIdOnly = await prisma.trainingJob.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TrainingJobUpdateManyAndReturnArgs>(args: SelectSubset<T, TrainingJobUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TrainingJob.
+     * @param {TrainingJobUpsertArgs} args - Arguments to update or create a TrainingJob.
+     * @example
+     * // Update or create a TrainingJob
+     * const trainingJob = await prisma.trainingJob.upsert({
+     *   create: {
+     *     // ... data to create a TrainingJob
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TrainingJob we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TrainingJobUpsertArgs>(args: SelectSubset<T, TrainingJobUpsertArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TrainingJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobCountArgs} args - Arguments to filter TrainingJobs to count.
+     * @example
+     * // Count the number of TrainingJobs
+     * const count = await prisma.trainingJob.count({
+     *   where: {
+     *     // ... the filter for the TrainingJobs we want to count
+     *   }
+     * })
+    **/
+    count<T extends TrainingJobCountArgs>(
+      args?: Subset<T, TrainingJobCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TrainingJobCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TrainingJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TrainingJobAggregateArgs>(args: Subset<T, TrainingJobAggregateArgs>): Prisma.PrismaPromise<GetTrainingJobAggregateType<T>>
+
+    /**
+     * Group by TrainingJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TrainingJobGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TrainingJobGroupByArgs['orderBy'] }
+        : { orderBy?: TrainingJobGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TrainingJobGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTrainingJobGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TrainingJob model
+   */
+  readonly fields: TrainingJobFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TrainingJob.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TrainingJobClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    iniciadoPor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    modelVersion<T extends TrainingJob$modelVersionArgs<ExtArgs> = {}>(args?: Subset<T, TrainingJob$modelVersionArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TrainingJob model
+   */
+  interface TrainingJobFieldRefs {
+    readonly id: FieldRef<"TrainingJob", 'String'>
+    readonly status: FieldRef<"TrainingJob", 'TrainingJobStatus'>
+    readonly datasetSize: FieldRef<"TrainingJob", 'Int'>
+    readonly errorMessage: FieldRef<"TrainingJob", 'String'>
+    readonly iniciadoPorId: FieldRef<"TrainingJob", 'String'>
+    readonly iniciadoAt: FieldRef<"TrainingJob", 'DateTime'>
+    readonly finalizadoAt: FieldRef<"TrainingJob", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TrainingJob findUnique
+   */
+  export type TrainingJobFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJob to fetch.
+     */
+    where: TrainingJobWhereUniqueInput
+  }
+
+  /**
+   * TrainingJob findUniqueOrThrow
+   */
+  export type TrainingJobFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJob to fetch.
+     */
+    where: TrainingJobWhereUniqueInput
+  }
+
+  /**
+   * TrainingJob findFirst
+   */
+  export type TrainingJobFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJob to fetch.
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrainingJobs to fetch.
+     */
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrainingJobs.
+     */
+    cursor?: TrainingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrainingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrainingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrainingJobs.
+     */
+    distinct?: TrainingJobScalarFieldEnum | TrainingJobScalarFieldEnum[]
+  }
+
+  /**
+   * TrainingJob findFirstOrThrow
+   */
+  export type TrainingJobFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJob to fetch.
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrainingJobs to fetch.
+     */
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrainingJobs.
+     */
+    cursor?: TrainingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrainingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrainingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrainingJobs.
+     */
+    distinct?: TrainingJobScalarFieldEnum | TrainingJobScalarFieldEnum[]
+  }
+
+  /**
+   * TrainingJob findMany
+   */
+  export type TrainingJobFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJobs to fetch.
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrainingJobs to fetch.
+     */
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TrainingJobs.
+     */
+    cursor?: TrainingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrainingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrainingJobs.
+     */
+    skip?: number
+    distinct?: TrainingJobScalarFieldEnum | TrainingJobScalarFieldEnum[]
+  }
+
+  /**
+   * TrainingJob create
+   */
+  export type TrainingJobCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TrainingJob.
+     */
+    data: XOR<TrainingJobCreateInput, TrainingJobUncheckedCreateInput>
+  }
+
+  /**
+   * TrainingJob createMany
+   */
+  export type TrainingJobCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TrainingJobs.
+     */
+    data: TrainingJobCreateManyInput | TrainingJobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TrainingJob createManyAndReturn
+   */
+  export type TrainingJobCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * The data used to create many TrainingJobs.
+     */
+    data: TrainingJobCreateManyInput | TrainingJobCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrainingJob update
+   */
+  export type TrainingJobUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TrainingJob.
+     */
+    data: XOR<TrainingJobUpdateInput, TrainingJobUncheckedUpdateInput>
+    /**
+     * Choose, which TrainingJob to update.
+     */
+    where: TrainingJobWhereUniqueInput
+  }
+
+  /**
+   * TrainingJob updateMany
+   */
+  export type TrainingJobUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TrainingJobs.
+     */
+    data: XOR<TrainingJobUpdateManyMutationInput, TrainingJobUncheckedUpdateManyInput>
+    /**
+     * Filter which TrainingJobs to update
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * Limit how many TrainingJobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrainingJob updateManyAndReturn
+   */
+  export type TrainingJobUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * The data used to update TrainingJobs.
+     */
+    data: XOR<TrainingJobUpdateManyMutationInput, TrainingJobUncheckedUpdateManyInput>
+    /**
+     * Filter which TrainingJobs to update
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * Limit how many TrainingJobs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrainingJob upsert
+   */
+  export type TrainingJobUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TrainingJob to update in case it exists.
+     */
+    where: TrainingJobWhereUniqueInput
+    /**
+     * In case the TrainingJob found by the `where` argument doesn't exist, create a new TrainingJob with this data.
+     */
+    create: XOR<TrainingJobCreateInput, TrainingJobUncheckedCreateInput>
+    /**
+     * In case the TrainingJob was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TrainingJobUpdateInput, TrainingJobUncheckedUpdateInput>
+  }
+
+  /**
+   * TrainingJob delete
+   */
+  export type TrainingJobDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter which TrainingJob to delete.
+     */
+    where: TrainingJobWhereUniqueInput
+  }
+
+  /**
+   * TrainingJob deleteMany
+   */
+  export type TrainingJobDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrainingJobs to delete
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * Limit how many TrainingJobs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrainingJob.modelVersion
+   */
+  export type TrainingJob$modelVersionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    where?: ModelVersionWhereInput
+  }
+
+  /**
+   * TrainingJob without action
+   */
+  export type TrainingJobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ModelVersion
+   */
+
+  export type AggregateModelVersion = {
+    _count: ModelVersionCountAggregateOutputType | null
+    _avg: ModelVersionAvgAggregateOutputType | null
+    _sum: ModelVersionSumAggregateOutputType | null
+    _min: ModelVersionMinAggregateOutputType | null
+    _max: ModelVersionMaxAggregateOutputType | null
+  }
+
+  export type ModelVersionAvgAggregateOutputType = {
+    version: number | null
+    mAP: number | null
+    mAPBase: number | null
+  }
+
+  export type ModelVersionSumAggregateOutputType = {
+    version: number | null
+    mAP: number | null
+    mAPBase: number | null
+  }
+
+  export type ModelVersionMinAggregateOutputType = {
+    id: string | null
+    version: number | null
+    r2Key: string | null
+    mAP: number | null
+    mAPBase: number | null
+    status: $Enums.ModelVersionStatus | null
+    trainingJobId: string | null
+    promovidoPorId: string | null
+    promovidoAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ModelVersionMaxAggregateOutputType = {
+    id: string | null
+    version: number | null
+    r2Key: string | null
+    mAP: number | null
+    mAPBase: number | null
+    status: $Enums.ModelVersionStatus | null
+    trainingJobId: string | null
+    promovidoPorId: string | null
+    promovidoAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ModelVersionCountAggregateOutputType = {
+    id: number
+    version: number
+    r2Key: number
+    mAP: number
+    mAPBase: number
+    status: number
+    trainingJobId: number
+    promovidoPorId: number
+    promovidoAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ModelVersionAvgAggregateInputType = {
+    version?: true
+    mAP?: true
+    mAPBase?: true
+  }
+
+  export type ModelVersionSumAggregateInputType = {
+    version?: true
+    mAP?: true
+    mAPBase?: true
+  }
+
+  export type ModelVersionMinAggregateInputType = {
+    id?: true
+    version?: true
+    r2Key?: true
+    mAP?: true
+    mAPBase?: true
+    status?: true
+    trainingJobId?: true
+    promovidoPorId?: true
+    promovidoAt?: true
+    createdAt?: true
+  }
+
+  export type ModelVersionMaxAggregateInputType = {
+    id?: true
+    version?: true
+    r2Key?: true
+    mAP?: true
+    mAPBase?: true
+    status?: true
+    trainingJobId?: true
+    promovidoPorId?: true
+    promovidoAt?: true
+    createdAt?: true
+  }
+
+  export type ModelVersionCountAggregateInputType = {
+    id?: true
+    version?: true
+    r2Key?: true
+    mAP?: true
+    mAPBase?: true
+    status?: true
+    trainingJobId?: true
+    promovidoPorId?: true
+    promovidoAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ModelVersionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ModelVersion to aggregate.
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelVersions to fetch.
+     */
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ModelVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ModelVersions
+    **/
+    _count?: true | ModelVersionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ModelVersionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ModelVersionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ModelVersionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ModelVersionMaxAggregateInputType
+  }
+
+  export type GetModelVersionAggregateType<T extends ModelVersionAggregateArgs> = {
+        [P in keyof T & keyof AggregateModelVersion]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateModelVersion[P]>
+      : GetScalarType<T[P], AggregateModelVersion[P]>
+  }
+
+
+
+
+  export type ModelVersionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelVersionWhereInput
+    orderBy?: ModelVersionOrderByWithAggregationInput | ModelVersionOrderByWithAggregationInput[]
+    by: ModelVersionScalarFieldEnum[] | ModelVersionScalarFieldEnum
+    having?: ModelVersionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ModelVersionCountAggregateInputType | true
+    _avg?: ModelVersionAvgAggregateInputType
+    _sum?: ModelVersionSumAggregateInputType
+    _min?: ModelVersionMinAggregateInputType
+    _max?: ModelVersionMaxAggregateInputType
+  }
+
+  export type ModelVersionGroupByOutputType = {
+    id: string
+    version: number
+    r2Key: string | null
+    mAP: number | null
+    mAPBase: number | null
+    status: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoPorId: string | null
+    promovidoAt: Date | null
+    createdAt: Date
+    _count: ModelVersionCountAggregateOutputType | null
+    _avg: ModelVersionAvgAggregateOutputType | null
+    _sum: ModelVersionSumAggregateOutputType | null
+    _min: ModelVersionMinAggregateOutputType | null
+    _max: ModelVersionMaxAggregateOutputType | null
+  }
+
+  type GetModelVersionGroupByPayload<T extends ModelVersionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ModelVersionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ModelVersionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ModelVersionGroupByOutputType[P]>
+            : GetScalarType<T[P], ModelVersionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ModelVersionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    version?: boolean
+    r2Key?: boolean
+    mAP?: boolean
+    mAPBase?: boolean
+    status?: boolean
+    trainingJobId?: boolean
+    promovidoPorId?: boolean
+    promovidoAt?: boolean
+    createdAt?: boolean
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }, ExtArgs["result"]["modelVersion"]>
+
+  export type ModelVersionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    version?: boolean
+    r2Key?: boolean
+    mAP?: boolean
+    mAPBase?: boolean
+    status?: boolean
+    trainingJobId?: boolean
+    promovidoPorId?: boolean
+    promovidoAt?: boolean
+    createdAt?: boolean
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }, ExtArgs["result"]["modelVersion"]>
+
+  export type ModelVersionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    version?: boolean
+    r2Key?: boolean
+    mAP?: boolean
+    mAPBase?: boolean
+    status?: boolean
+    trainingJobId?: boolean
+    promovidoPorId?: boolean
+    promovidoAt?: boolean
+    createdAt?: boolean
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }, ExtArgs["result"]["modelVersion"]>
+
+  export type ModelVersionSelectScalar = {
+    id?: boolean
+    version?: boolean
+    r2Key?: boolean
+    mAP?: boolean
+    mAPBase?: boolean
+    status?: boolean
+    trainingJobId?: boolean
+    promovidoPorId?: boolean
+    promovidoAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type ModelVersionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "version" | "r2Key" | "mAP" | "mAPBase" | "status" | "trainingJobId" | "promovidoPorId" | "promovidoAt" | "createdAt", ExtArgs["result"]["modelVersion"]>
+  export type ModelVersionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }
+  export type ModelVersionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }
+  export type ModelVersionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }
+
+  export type $ModelVersionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ModelVersion"
+    objects: {
+      trainingJob: Prisma.$TrainingJobPayload<ExtArgs>
+      promovidoPor: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      version: number
+      r2Key: string | null
+      mAP: number | null
+      mAPBase: number | null
+      status: $Enums.ModelVersionStatus
+      trainingJobId: string
+      promovidoPorId: string | null
+      promovidoAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["modelVersion"]>
+    composites: {}
+  }
+
+  type ModelVersionGetPayload<S extends boolean | null | undefined | ModelVersionDefaultArgs> = $Result.GetResult<Prisma.$ModelVersionPayload, S>
+
+  type ModelVersionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ModelVersionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ModelVersionCountAggregateInputType | true
+    }
+
+  export interface ModelVersionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ModelVersion'], meta: { name: 'ModelVersion' } }
+    /**
+     * Find zero or one ModelVersion that matches the filter.
+     * @param {ModelVersionFindUniqueArgs} args - Arguments to find a ModelVersion
+     * @example
+     * // Get one ModelVersion
+     * const modelVersion = await prisma.modelVersion.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ModelVersionFindUniqueArgs>(args: SelectSubset<T, ModelVersionFindUniqueArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ModelVersion that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ModelVersionFindUniqueOrThrowArgs} args - Arguments to find a ModelVersion
+     * @example
+     * // Get one ModelVersion
+     * const modelVersion = await prisma.modelVersion.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ModelVersionFindUniqueOrThrowArgs>(args: SelectSubset<T, ModelVersionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ModelVersion that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionFindFirstArgs} args - Arguments to find a ModelVersion
+     * @example
+     * // Get one ModelVersion
+     * const modelVersion = await prisma.modelVersion.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ModelVersionFindFirstArgs>(args?: SelectSubset<T, ModelVersionFindFirstArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ModelVersion that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionFindFirstOrThrowArgs} args - Arguments to find a ModelVersion
+     * @example
+     * // Get one ModelVersion
+     * const modelVersion = await prisma.modelVersion.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ModelVersionFindFirstOrThrowArgs>(args?: SelectSubset<T, ModelVersionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ModelVersions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ModelVersions
+     * const modelVersions = await prisma.modelVersion.findMany()
+     * 
+     * // Get first 10 ModelVersions
+     * const modelVersions = await prisma.modelVersion.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const modelVersionWithIdOnly = await prisma.modelVersion.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ModelVersionFindManyArgs>(args?: SelectSubset<T, ModelVersionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ModelVersion.
+     * @param {ModelVersionCreateArgs} args - Arguments to create a ModelVersion.
+     * @example
+     * // Create one ModelVersion
+     * const ModelVersion = await prisma.modelVersion.create({
+     *   data: {
+     *     // ... data to create a ModelVersion
+     *   }
+     * })
+     * 
+     */
+    create<T extends ModelVersionCreateArgs>(args: SelectSubset<T, ModelVersionCreateArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ModelVersions.
+     * @param {ModelVersionCreateManyArgs} args - Arguments to create many ModelVersions.
+     * @example
+     * // Create many ModelVersions
+     * const modelVersion = await prisma.modelVersion.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ModelVersionCreateManyArgs>(args?: SelectSubset<T, ModelVersionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ModelVersions and returns the data saved in the database.
+     * @param {ModelVersionCreateManyAndReturnArgs} args - Arguments to create many ModelVersions.
+     * @example
+     * // Create many ModelVersions
+     * const modelVersion = await prisma.modelVersion.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ModelVersions and only return the `id`
+     * const modelVersionWithIdOnly = await prisma.modelVersion.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ModelVersionCreateManyAndReturnArgs>(args?: SelectSubset<T, ModelVersionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ModelVersion.
+     * @param {ModelVersionDeleteArgs} args - Arguments to delete one ModelVersion.
+     * @example
+     * // Delete one ModelVersion
+     * const ModelVersion = await prisma.modelVersion.delete({
+     *   where: {
+     *     // ... filter to delete one ModelVersion
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ModelVersionDeleteArgs>(args: SelectSubset<T, ModelVersionDeleteArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ModelVersion.
+     * @param {ModelVersionUpdateArgs} args - Arguments to update one ModelVersion.
+     * @example
+     * // Update one ModelVersion
+     * const modelVersion = await prisma.modelVersion.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ModelVersionUpdateArgs>(args: SelectSubset<T, ModelVersionUpdateArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ModelVersions.
+     * @param {ModelVersionDeleteManyArgs} args - Arguments to filter ModelVersions to delete.
+     * @example
+     * // Delete a few ModelVersions
+     * const { count } = await prisma.modelVersion.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ModelVersionDeleteManyArgs>(args?: SelectSubset<T, ModelVersionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ModelVersions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ModelVersions
+     * const modelVersion = await prisma.modelVersion.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ModelVersionUpdateManyArgs>(args: SelectSubset<T, ModelVersionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ModelVersions and returns the data updated in the database.
+     * @param {ModelVersionUpdateManyAndReturnArgs} args - Arguments to update many ModelVersions.
+     * @example
+     * // Update many ModelVersions
+     * const modelVersion = await prisma.modelVersion.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ModelVersions and only return the `id`
+     * const modelVersionWithIdOnly = await prisma.modelVersion.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ModelVersionUpdateManyAndReturnArgs>(args: SelectSubset<T, ModelVersionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ModelVersion.
+     * @param {ModelVersionUpsertArgs} args - Arguments to update or create a ModelVersion.
+     * @example
+     * // Update or create a ModelVersion
+     * const modelVersion = await prisma.modelVersion.upsert({
+     *   create: {
+     *     // ... data to create a ModelVersion
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ModelVersion we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ModelVersionUpsertArgs>(args: SelectSubset<T, ModelVersionUpsertArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ModelVersions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionCountArgs} args - Arguments to filter ModelVersions to count.
+     * @example
+     * // Count the number of ModelVersions
+     * const count = await prisma.modelVersion.count({
+     *   where: {
+     *     // ... the filter for the ModelVersions we want to count
+     *   }
+     * })
+    **/
+    count<T extends ModelVersionCountArgs>(
+      args?: Subset<T, ModelVersionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ModelVersionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ModelVersion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ModelVersionAggregateArgs>(args: Subset<T, ModelVersionAggregateArgs>): Prisma.PrismaPromise<GetModelVersionAggregateType<T>>
+
+    /**
+     * Group by ModelVersion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ModelVersionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ModelVersionGroupByArgs['orderBy'] }
+        : { orderBy?: ModelVersionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ModelVersionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetModelVersionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ModelVersion model
+   */
+  readonly fields: ModelVersionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ModelVersion.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ModelVersionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    trainingJob<T extends TrainingJobDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TrainingJobDefaultArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    promovidoPor<T extends ModelVersion$promovidoPorArgs<ExtArgs> = {}>(args?: Subset<T, ModelVersion$promovidoPorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ModelVersion model
+   */
+  interface ModelVersionFieldRefs {
+    readonly id: FieldRef<"ModelVersion", 'String'>
+    readonly version: FieldRef<"ModelVersion", 'Int'>
+    readonly r2Key: FieldRef<"ModelVersion", 'String'>
+    readonly mAP: FieldRef<"ModelVersion", 'Float'>
+    readonly mAPBase: FieldRef<"ModelVersion", 'Float'>
+    readonly status: FieldRef<"ModelVersion", 'ModelVersionStatus'>
+    readonly trainingJobId: FieldRef<"ModelVersion", 'String'>
+    readonly promovidoPorId: FieldRef<"ModelVersion", 'String'>
+    readonly promovidoAt: FieldRef<"ModelVersion", 'DateTime'>
+    readonly createdAt: FieldRef<"ModelVersion", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ModelVersion findUnique
+   */
+  export type ModelVersionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersion to fetch.
+     */
+    where: ModelVersionWhereUniqueInput
+  }
+
+  /**
+   * ModelVersion findUniqueOrThrow
+   */
+  export type ModelVersionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersion to fetch.
+     */
+    where: ModelVersionWhereUniqueInput
+  }
+
+  /**
+   * ModelVersion findFirst
+   */
+  export type ModelVersionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersion to fetch.
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelVersions to fetch.
+     */
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ModelVersions.
+     */
+    cursor?: ModelVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ModelVersions.
+     */
+    distinct?: ModelVersionScalarFieldEnum | ModelVersionScalarFieldEnum[]
+  }
+
+  /**
+   * ModelVersion findFirstOrThrow
+   */
+  export type ModelVersionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersion to fetch.
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelVersions to fetch.
+     */
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ModelVersions.
+     */
+    cursor?: ModelVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ModelVersions.
+     */
+    distinct?: ModelVersionScalarFieldEnum | ModelVersionScalarFieldEnum[]
+  }
+
+  /**
+   * ModelVersion findMany
+   */
+  export type ModelVersionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersions to fetch.
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelVersions to fetch.
+     */
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ModelVersions.
+     */
+    cursor?: ModelVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelVersions.
+     */
+    skip?: number
+    distinct?: ModelVersionScalarFieldEnum | ModelVersionScalarFieldEnum[]
+  }
+
+  /**
+   * ModelVersion create
+   */
+  export type ModelVersionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ModelVersion.
+     */
+    data: XOR<ModelVersionCreateInput, ModelVersionUncheckedCreateInput>
+  }
+
+  /**
+   * ModelVersion createMany
+   */
+  export type ModelVersionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ModelVersions.
+     */
+    data: ModelVersionCreateManyInput | ModelVersionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ModelVersion createManyAndReturn
+   */
+  export type ModelVersionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * The data used to create many ModelVersions.
+     */
+    data: ModelVersionCreateManyInput | ModelVersionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ModelVersion update
+   */
+  export type ModelVersionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ModelVersion.
+     */
+    data: XOR<ModelVersionUpdateInput, ModelVersionUncheckedUpdateInput>
+    /**
+     * Choose, which ModelVersion to update.
+     */
+    where: ModelVersionWhereUniqueInput
+  }
+
+  /**
+   * ModelVersion updateMany
+   */
+  export type ModelVersionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ModelVersions.
+     */
+    data: XOR<ModelVersionUpdateManyMutationInput, ModelVersionUncheckedUpdateManyInput>
+    /**
+     * Filter which ModelVersions to update
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * Limit how many ModelVersions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ModelVersion updateManyAndReturn
+   */
+  export type ModelVersionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * The data used to update ModelVersions.
+     */
+    data: XOR<ModelVersionUpdateManyMutationInput, ModelVersionUncheckedUpdateManyInput>
+    /**
+     * Filter which ModelVersions to update
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * Limit how many ModelVersions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ModelVersion upsert
+   */
+  export type ModelVersionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ModelVersion to update in case it exists.
+     */
+    where: ModelVersionWhereUniqueInput
+    /**
+     * In case the ModelVersion found by the `where` argument doesn't exist, create a new ModelVersion with this data.
+     */
+    create: XOR<ModelVersionCreateInput, ModelVersionUncheckedCreateInput>
+    /**
+     * In case the ModelVersion was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ModelVersionUpdateInput, ModelVersionUncheckedUpdateInput>
+  }
+
+  /**
+   * ModelVersion delete
+   */
+  export type ModelVersionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter which ModelVersion to delete.
+     */
+    where: ModelVersionWhereUniqueInput
+  }
+
+  /**
+   * ModelVersion deleteMany
+   */
+  export type ModelVersionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ModelVersions to delete
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * Limit how many ModelVersions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ModelVersion.promovidoPor
+   */
+  export type ModelVersion$promovidoPorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * ModelVersion without action
+   */
+  export type ModelVersionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model RefreshToken
    */
 
@@ -14295,6 +16913,35 @@ export namespace Prisma {
   export type ModelFeedbackScalarFieldEnum = (typeof ModelFeedbackScalarFieldEnum)[keyof typeof ModelFeedbackScalarFieldEnum]
 
 
+  export const TrainingJobScalarFieldEnum: {
+    id: 'id',
+    status: 'status',
+    datasetSize: 'datasetSize',
+    errorMessage: 'errorMessage',
+    iniciadoPorId: 'iniciadoPorId',
+    iniciadoAt: 'iniciadoAt',
+    finalizadoAt: 'finalizadoAt'
+  };
+
+  export type TrainingJobScalarFieldEnum = (typeof TrainingJobScalarFieldEnum)[keyof typeof TrainingJobScalarFieldEnum]
+
+
+  export const ModelVersionScalarFieldEnum: {
+    id: 'id',
+    version: 'version',
+    r2Key: 'r2Key',
+    mAP: 'mAP',
+    mAPBase: 'mAPBase',
+    status: 'status',
+    trainingJobId: 'trainingJobId',
+    promovidoPorId: 'promovidoPorId',
+    promovidoAt: 'promovidoAt',
+    createdAt: 'createdAt'
+  };
+
+  export type ModelVersionScalarFieldEnum = (typeof ModelVersionScalarFieldEnum)[keyof typeof ModelVersionScalarFieldEnum]
+
+
   export const RefreshTokenScalarFieldEnum: {
     id: 'id',
     tokenHash: 'tokenHash',
@@ -14528,6 +17175,34 @@ export namespace Prisma {
    */
   export type ListEnumAccionFeedbackFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AccionFeedback[]'>
     
+
+
+  /**
+   * Reference to a field of type 'TrainingJobStatus'
+   */
+  export type EnumTrainingJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrainingJobStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'TrainingJobStatus[]'
+   */
+  export type ListEnumTrainingJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrainingJobStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ModelVersionStatus'
+   */
+  export type EnumModelVersionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModelVersionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ModelVersionStatus[]'
+   */
+  export type ListEnumModelVersionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModelVersionStatus[]'>
+    
   /**
    * Deep Input Types
    */
@@ -14558,6 +17233,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionListRelationFilter
     modelFeedbackCreado?: ModelFeedbackListRelationFilter
     analysesDeteccionesRevisadas?: AnalysisListRelationFilter
+    trainingJobsIniciados?: TrainingJobListRelationFilter
+    modelVersionsPromovidas?: ModelVersionListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -14582,6 +17259,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionOrderByRelationAggregateInput
     modelFeedbackCreado?: ModelFeedbackOrderByRelationAggregateInput
     analysesDeteccionesRevisadas?: AnalysisOrderByRelationAggregateInput
+    trainingJobsIniciados?: TrainingJobOrderByRelationAggregateInput
+    modelVersionsPromovidas?: ModelVersionOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -14609,6 +17288,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionListRelationFilter
     modelFeedbackCreado?: ModelFeedbackListRelationFilter
     analysesDeteccionesRevisadas?: AnalysisListRelationFilter
+    trainingJobsIniciados?: TrainingJobListRelationFilter
+    modelVersionsPromovidas?: ModelVersionListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -15306,6 +17987,161 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"ModelFeedback"> | Date | string
   }
 
+  export type TrainingJobWhereInput = {
+    AND?: TrainingJobWhereInput | TrainingJobWhereInput[]
+    OR?: TrainingJobWhereInput[]
+    NOT?: TrainingJobWhereInput | TrainingJobWhereInput[]
+    id?: UuidFilter<"TrainingJob"> | string
+    status?: EnumTrainingJobStatusFilter<"TrainingJob"> | $Enums.TrainingJobStatus
+    datasetSize?: IntNullableFilter<"TrainingJob"> | number | null
+    errorMessage?: StringNullableFilter<"TrainingJob"> | string | null
+    iniciadoPorId?: UuidFilter<"TrainingJob"> | string
+    iniciadoAt?: DateTimeFilter<"TrainingJob"> | Date | string
+    finalizadoAt?: DateTimeNullableFilter<"TrainingJob"> | Date | string | null
+    iniciadoPor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    modelVersion?: XOR<ModelVersionNullableScalarRelationFilter, ModelVersionWhereInput> | null
+  }
+
+  export type TrainingJobOrderByWithRelationInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrderInput | SortOrder
+    iniciadoPor?: UserOrderByWithRelationInput
+    modelVersion?: ModelVersionOrderByWithRelationInput
+  }
+
+  export type TrainingJobWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TrainingJobWhereInput | TrainingJobWhereInput[]
+    OR?: TrainingJobWhereInput[]
+    NOT?: TrainingJobWhereInput | TrainingJobWhereInput[]
+    status?: EnumTrainingJobStatusFilter<"TrainingJob"> | $Enums.TrainingJobStatus
+    datasetSize?: IntNullableFilter<"TrainingJob"> | number | null
+    errorMessage?: StringNullableFilter<"TrainingJob"> | string | null
+    iniciadoPorId?: UuidFilter<"TrainingJob"> | string
+    iniciadoAt?: DateTimeFilter<"TrainingJob"> | Date | string
+    finalizadoAt?: DateTimeNullableFilter<"TrainingJob"> | Date | string | null
+    iniciadoPor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    modelVersion?: XOR<ModelVersionNullableScalarRelationFilter, ModelVersionWhereInput> | null
+  }, "id">
+
+  export type TrainingJobOrderByWithAggregationInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrderInput | SortOrder
+    _count?: TrainingJobCountOrderByAggregateInput
+    _avg?: TrainingJobAvgOrderByAggregateInput
+    _max?: TrainingJobMaxOrderByAggregateInput
+    _min?: TrainingJobMinOrderByAggregateInput
+    _sum?: TrainingJobSumOrderByAggregateInput
+  }
+
+  export type TrainingJobScalarWhereWithAggregatesInput = {
+    AND?: TrainingJobScalarWhereWithAggregatesInput | TrainingJobScalarWhereWithAggregatesInput[]
+    OR?: TrainingJobScalarWhereWithAggregatesInput[]
+    NOT?: TrainingJobScalarWhereWithAggregatesInput | TrainingJobScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"TrainingJob"> | string
+    status?: EnumTrainingJobStatusWithAggregatesFilter<"TrainingJob"> | $Enums.TrainingJobStatus
+    datasetSize?: IntNullableWithAggregatesFilter<"TrainingJob"> | number | null
+    errorMessage?: StringNullableWithAggregatesFilter<"TrainingJob"> | string | null
+    iniciadoPorId?: UuidWithAggregatesFilter<"TrainingJob"> | string
+    iniciadoAt?: DateTimeWithAggregatesFilter<"TrainingJob"> | Date | string
+    finalizadoAt?: DateTimeNullableWithAggregatesFilter<"TrainingJob"> | Date | string | null
+  }
+
+  export type ModelVersionWhereInput = {
+    AND?: ModelVersionWhereInput | ModelVersionWhereInput[]
+    OR?: ModelVersionWhereInput[]
+    NOT?: ModelVersionWhereInput | ModelVersionWhereInput[]
+    id?: UuidFilter<"ModelVersion"> | string
+    version?: IntFilter<"ModelVersion"> | number
+    r2Key?: StringNullableFilter<"ModelVersion"> | string | null
+    mAP?: FloatNullableFilter<"ModelVersion"> | number | null
+    mAPBase?: FloatNullableFilter<"ModelVersion"> | number | null
+    status?: EnumModelVersionStatusFilter<"ModelVersion"> | $Enums.ModelVersionStatus
+    trainingJobId?: UuidFilter<"ModelVersion"> | string
+    promovidoPorId?: UuidNullableFilter<"ModelVersion"> | string | null
+    promovidoAt?: DateTimeNullableFilter<"ModelVersion"> | Date | string | null
+    createdAt?: DateTimeFilter<"ModelVersion"> | Date | string
+    trainingJob?: XOR<TrainingJobScalarRelationFilter, TrainingJobWhereInput>
+    promovidoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type ModelVersionOrderByWithRelationInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrderInput | SortOrder
+    mAP?: SortOrderInput | SortOrder
+    mAPBase?: SortOrderInput | SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrderInput | SortOrder
+    promovidoAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    trainingJob?: TrainingJobOrderByWithRelationInput
+    promovidoPor?: UserOrderByWithRelationInput
+  }
+
+  export type ModelVersionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    version?: number
+    trainingJobId?: string
+    AND?: ModelVersionWhereInput | ModelVersionWhereInput[]
+    OR?: ModelVersionWhereInput[]
+    NOT?: ModelVersionWhereInput | ModelVersionWhereInput[]
+    r2Key?: StringNullableFilter<"ModelVersion"> | string | null
+    mAP?: FloatNullableFilter<"ModelVersion"> | number | null
+    mAPBase?: FloatNullableFilter<"ModelVersion"> | number | null
+    status?: EnumModelVersionStatusFilter<"ModelVersion"> | $Enums.ModelVersionStatus
+    promovidoPorId?: UuidNullableFilter<"ModelVersion"> | string | null
+    promovidoAt?: DateTimeNullableFilter<"ModelVersion"> | Date | string | null
+    createdAt?: DateTimeFilter<"ModelVersion"> | Date | string
+    trainingJob?: XOR<TrainingJobScalarRelationFilter, TrainingJobWhereInput>
+    promovidoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "version" | "trainingJobId">
+
+  export type ModelVersionOrderByWithAggregationInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrderInput | SortOrder
+    mAP?: SortOrderInput | SortOrder
+    mAPBase?: SortOrderInput | SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrderInput | SortOrder
+    promovidoAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ModelVersionCountOrderByAggregateInput
+    _avg?: ModelVersionAvgOrderByAggregateInput
+    _max?: ModelVersionMaxOrderByAggregateInput
+    _min?: ModelVersionMinOrderByAggregateInput
+    _sum?: ModelVersionSumOrderByAggregateInput
+  }
+
+  export type ModelVersionScalarWhereWithAggregatesInput = {
+    AND?: ModelVersionScalarWhereWithAggregatesInput | ModelVersionScalarWhereWithAggregatesInput[]
+    OR?: ModelVersionScalarWhereWithAggregatesInput[]
+    NOT?: ModelVersionScalarWhereWithAggregatesInput | ModelVersionScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"ModelVersion"> | string
+    version?: IntWithAggregatesFilter<"ModelVersion"> | number
+    r2Key?: StringNullableWithAggregatesFilter<"ModelVersion"> | string | null
+    mAP?: FloatNullableWithAggregatesFilter<"ModelVersion"> | number | null
+    mAPBase?: FloatNullableWithAggregatesFilter<"ModelVersion"> | number | null
+    status?: EnumModelVersionStatusWithAggregatesFilter<"ModelVersion"> | $Enums.ModelVersionStatus
+    trainingJobId?: UuidWithAggregatesFilter<"ModelVersion"> | string
+    promovidoPorId?: UuidNullableWithAggregatesFilter<"ModelVersion"> | string | null
+    promovidoAt?: DateTimeNullableWithAggregatesFilter<"ModelVersion"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ModelVersion"> | Date | string
+  }
+
   export type RefreshTokenWhereInput = {
     AND?: RefreshTokenWhereInput | RefreshTokenWhereInput[]
     OR?: RefreshTokenWhereInput[]
@@ -15468,6 +18304,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -15492,6 +18330,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUpdateInput = {
@@ -15516,6 +18356,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -15540,6 +18382,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -16290,6 +19134,168 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TrainingJobCreateInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    iniciadoPor: UserCreateNestedOneWithoutTrainingJobsIniciadosInput
+    modelVersion?: ModelVersionCreateNestedOneWithoutTrainingJobInput
+  }
+
+  export type TrainingJobUncheckedCreateInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoPorId: string
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    modelVersion?: ModelVersionUncheckedCreateNestedOneWithoutTrainingJobInput
+  }
+
+  export type TrainingJobUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    iniciadoPor?: UserUpdateOneRequiredWithoutTrainingJobsIniciadosNestedInput
+    modelVersion?: ModelVersionUpdateOneWithoutTrainingJobNestedInput
+  }
+
+  export type TrainingJobUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoPorId?: StringFieldUpdateOperationsInput | string
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    modelVersion?: ModelVersionUncheckedUpdateOneWithoutTrainingJobNestedInput
+  }
+
+  export type TrainingJobCreateManyInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoPorId: string
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+  }
+
+  export type TrainingJobUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TrainingJobUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoPorId?: StringFieldUpdateOperationsInput | string
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ModelVersionCreateInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+    trainingJob: TrainingJobCreateNestedOneWithoutModelVersionInput
+    promovidoPor?: UserCreateNestedOneWithoutModelVersionsPromovidasInput
+  }
+
+  export type ModelVersionUncheckedCreateInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoPorId?: string | null
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelVersionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trainingJob?: TrainingJobUpdateOneRequiredWithoutModelVersionNestedInput
+    promovidoPor?: UserUpdateOneWithoutModelVersionsPromovidasNestedInput
+  }
+
+  export type ModelVersionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    trainingJobId?: StringFieldUpdateOperationsInput | string
+    promovidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelVersionCreateManyInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoPorId?: string | null
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelVersionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelVersionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    trainingJobId?: StringFieldUpdateOperationsInput | string
+    promovidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type RefreshTokenCreateInput = {
     id?: string
     tokenHash: string
@@ -16550,6 +19556,18 @@ export namespace Prisma {
     none?: ModelFeedbackWhereInput
   }
 
+  export type TrainingJobListRelationFilter = {
+    every?: TrainingJobWhereInput
+    some?: TrainingJobWhereInput
+    none?: TrainingJobWhereInput
+  }
+
+  export type ModelVersionListRelationFilter = {
+    every?: ModelVersionWhereInput
+    some?: ModelVersionWhereInput
+    none?: ModelVersionWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -16584,6 +19602,14 @@ export namespace Prisma {
   }
 
   export type ModelFeedbackOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TrainingJobOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ModelVersionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -17393,6 +20419,166 @@ export namespace Prisma {
     _max?: NestedEnumEstadoSaludNullableFilter<$PrismaModel>
   }
 
+  export type EnumTrainingJobStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrainingJobStatus | EnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrainingJobStatusFilter<$PrismaModel> | $Enums.TrainingJobStatus
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type ModelVersionNullableScalarRelationFilter = {
+    is?: ModelVersionWhereInput | null
+    isNot?: ModelVersionWhereInput | null
+  }
+
+  export type TrainingJobCountOrderByAggregateInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrder
+    errorMessage?: SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrder
+  }
+
+  export type TrainingJobAvgOrderByAggregateInput = {
+    datasetSize?: SortOrder
+  }
+
+  export type TrainingJobMaxOrderByAggregateInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrder
+    errorMessage?: SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrder
+  }
+
+  export type TrainingJobMinOrderByAggregateInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrder
+    errorMessage?: SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrder
+  }
+
+  export type TrainingJobSumOrderByAggregateInput = {
+    datasetSize?: SortOrder
+  }
+
+  export type EnumTrainingJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrainingJobStatus | EnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrainingJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.TrainingJobStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrainingJobStatusFilter<$PrismaModel>
+    _max?: NestedEnumTrainingJobStatusFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type EnumModelVersionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ModelVersionStatus | EnumModelVersionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumModelVersionStatusFilter<$PrismaModel> | $Enums.ModelVersionStatus
+  }
+
+  export type TrainingJobScalarRelationFilter = {
+    is?: TrainingJobWhereInput
+    isNot?: TrainingJobWhereInput
+  }
+
+  export type ModelVersionCountOrderByAggregateInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrder
+    promovidoAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelVersionAvgOrderByAggregateInput = {
+    version?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+  }
+
+  export type ModelVersionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrder
+    promovidoAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelVersionMinOrderByAggregateInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrder
+    promovidoAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelVersionSumOrderByAggregateInput = {
+    version?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+  }
+
+  export type EnumModelVersionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ModelVersionStatus | EnumModelVersionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumModelVersionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ModelVersionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumModelVersionStatusFilter<$PrismaModel>
+    _max?: NestedEnumModelVersionStatusFilter<$PrismaModel>
+  }
+
   export type RefreshTokenCountOrderByAggregateInput = {
     id?: SortOrder
     tokenHash?: SortOrder
@@ -17541,6 +20727,20 @@ export namespace Prisma {
     connect?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
   }
 
+  export type TrainingJobCreateNestedManyWithoutIniciadoPorInput = {
+    create?: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput> | TrainingJobCreateWithoutIniciadoPorInput[] | TrainingJobUncheckedCreateWithoutIniciadoPorInput[]
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutIniciadoPorInput | TrainingJobCreateOrConnectWithoutIniciadoPorInput[]
+    createMany?: TrainingJobCreateManyIniciadoPorInputEnvelope
+    connect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+  }
+
+  export type ModelVersionCreateNestedManyWithoutPromovidoPorInput = {
+    create?: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput> | ModelVersionCreateWithoutPromovidoPorInput[] | ModelVersionUncheckedCreateWithoutPromovidoPorInput[]
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutPromovidoPorInput | ModelVersionCreateOrConnectWithoutPromovidoPorInput[]
+    createMany?: ModelVersionCreateManyPromovidoPorInputEnvelope
+    connect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+  }
+
   export type UserCampoUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<UserCampoCreateWithoutUserInput, UserCampoUncheckedCreateWithoutUserInput> | UserCampoCreateWithoutUserInput[] | UserCampoUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UserCampoCreateOrConnectWithoutUserInput | UserCampoCreateOrConnectWithoutUserInput[]
@@ -17623,6 +20823,20 @@ export namespace Prisma {
     connectOrCreate?: AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput | AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput[]
     createMany?: AnalysisCreateManyDeteccionesRevisadasPorInputEnvelope
     connect?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+  }
+
+  export type TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput = {
+    create?: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput> | TrainingJobCreateWithoutIniciadoPorInput[] | TrainingJobUncheckedCreateWithoutIniciadoPorInput[]
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutIniciadoPorInput | TrainingJobCreateOrConnectWithoutIniciadoPorInput[]
+    createMany?: TrainingJobCreateManyIniciadoPorInputEnvelope
+    connect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+  }
+
+  export type ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput = {
+    create?: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput> | ModelVersionCreateWithoutPromovidoPorInput[] | ModelVersionUncheckedCreateWithoutPromovidoPorInput[]
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutPromovidoPorInput | ModelVersionCreateOrConnectWithoutPromovidoPorInput[]
+    createMany?: ModelVersionCreateManyPromovidoPorInputEnvelope
+    connect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -17809,6 +21023,34 @@ export namespace Prisma {
     deleteMany?: AnalysisScalarWhereInput | AnalysisScalarWhereInput[]
   }
 
+  export type TrainingJobUpdateManyWithoutIniciadoPorNestedInput = {
+    create?: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput> | TrainingJobCreateWithoutIniciadoPorInput[] | TrainingJobUncheckedCreateWithoutIniciadoPorInput[]
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutIniciadoPorInput | TrainingJobCreateOrConnectWithoutIniciadoPorInput[]
+    upsert?: TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput | TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput[]
+    createMany?: TrainingJobCreateManyIniciadoPorInputEnvelope
+    set?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    disconnect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    delete?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    connect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    update?: TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput | TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput[]
+    updateMany?: TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput | TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput[]
+    deleteMany?: TrainingJobScalarWhereInput | TrainingJobScalarWhereInput[]
+  }
+
+  export type ModelVersionUpdateManyWithoutPromovidoPorNestedInput = {
+    create?: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput> | ModelVersionCreateWithoutPromovidoPorInput[] | ModelVersionUncheckedCreateWithoutPromovidoPorInput[]
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutPromovidoPorInput | ModelVersionCreateOrConnectWithoutPromovidoPorInput[]
+    upsert?: ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput | ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput[]
+    createMany?: ModelVersionCreateManyPromovidoPorInputEnvelope
+    set?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    disconnect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    delete?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    connect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    update?: ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput | ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput[]
+    updateMany?: ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput | ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput[]
+    deleteMany?: ModelVersionScalarWhereInput | ModelVersionScalarWhereInput[]
+  }
+
   export type UserCampoUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<UserCampoCreateWithoutUserInput, UserCampoUncheckedCreateWithoutUserInput> | UserCampoCreateWithoutUserInput[] | UserCampoUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UserCampoCreateOrConnectWithoutUserInput | UserCampoCreateOrConnectWithoutUserInput[]
@@ -17975,6 +21217,34 @@ export namespace Prisma {
     update?: AnalysisUpdateWithWhereUniqueWithoutDeteccionesRevisadasPorInput | AnalysisUpdateWithWhereUniqueWithoutDeteccionesRevisadasPorInput[]
     updateMany?: AnalysisUpdateManyWithWhereWithoutDeteccionesRevisadasPorInput | AnalysisUpdateManyWithWhereWithoutDeteccionesRevisadasPorInput[]
     deleteMany?: AnalysisScalarWhereInput | AnalysisScalarWhereInput[]
+  }
+
+  export type TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput = {
+    create?: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput> | TrainingJobCreateWithoutIniciadoPorInput[] | TrainingJobUncheckedCreateWithoutIniciadoPorInput[]
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutIniciadoPorInput | TrainingJobCreateOrConnectWithoutIniciadoPorInput[]
+    upsert?: TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput | TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput[]
+    createMany?: TrainingJobCreateManyIniciadoPorInputEnvelope
+    set?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    disconnect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    delete?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    connect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    update?: TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput | TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput[]
+    updateMany?: TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput | TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput[]
+    deleteMany?: TrainingJobScalarWhereInput | TrainingJobScalarWhereInput[]
+  }
+
+  export type ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput = {
+    create?: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput> | ModelVersionCreateWithoutPromovidoPorInput[] | ModelVersionUncheckedCreateWithoutPromovidoPorInput[]
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutPromovidoPorInput | ModelVersionCreateOrConnectWithoutPromovidoPorInput[]
+    upsert?: ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput | ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput[]
+    createMany?: ModelVersionCreateManyPromovidoPorInputEnvelope
+    set?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    disconnect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    delete?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    connect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    update?: ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput | ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput[]
+    updateMany?: ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput | ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput[]
+    deleteMany?: ModelVersionScalarWhereInput | ModelVersionScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutCamposProductorInput = {
@@ -18571,6 +21841,98 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutModelFeedbackCreadoInput, UserUpdateWithoutModelFeedbackCreadoInput>, UserUncheckedUpdateWithoutModelFeedbackCreadoInput>
   }
 
+  export type UserCreateNestedOneWithoutTrainingJobsIniciadosInput = {
+    create?: XOR<UserCreateWithoutTrainingJobsIniciadosInput, UserUncheckedCreateWithoutTrainingJobsIniciadosInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTrainingJobsIniciadosInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ModelVersionCreateNestedOneWithoutTrainingJobInput = {
+    create?: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutTrainingJobInput
+    connect?: ModelVersionWhereUniqueInput
+  }
+
+  export type ModelVersionUncheckedCreateNestedOneWithoutTrainingJobInput = {
+    create?: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutTrainingJobInput
+    connect?: ModelVersionWhereUniqueInput
+  }
+
+  export type EnumTrainingJobStatusFieldUpdateOperationsInput = {
+    set?: $Enums.TrainingJobStatus
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type UserUpdateOneRequiredWithoutTrainingJobsIniciadosNestedInput = {
+    create?: XOR<UserCreateWithoutTrainingJobsIniciadosInput, UserUncheckedCreateWithoutTrainingJobsIniciadosInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTrainingJobsIniciadosInput
+    upsert?: UserUpsertWithoutTrainingJobsIniciadosInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTrainingJobsIniciadosInput, UserUpdateWithoutTrainingJobsIniciadosInput>, UserUncheckedUpdateWithoutTrainingJobsIniciadosInput>
+  }
+
+  export type ModelVersionUpdateOneWithoutTrainingJobNestedInput = {
+    create?: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutTrainingJobInput
+    upsert?: ModelVersionUpsertWithoutTrainingJobInput
+    disconnect?: ModelVersionWhereInput | boolean
+    delete?: ModelVersionWhereInput | boolean
+    connect?: ModelVersionWhereUniqueInput
+    update?: XOR<XOR<ModelVersionUpdateToOneWithWhereWithoutTrainingJobInput, ModelVersionUpdateWithoutTrainingJobInput>, ModelVersionUncheckedUpdateWithoutTrainingJobInput>
+  }
+
+  export type ModelVersionUncheckedUpdateOneWithoutTrainingJobNestedInput = {
+    create?: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutTrainingJobInput
+    upsert?: ModelVersionUpsertWithoutTrainingJobInput
+    disconnect?: ModelVersionWhereInput | boolean
+    delete?: ModelVersionWhereInput | boolean
+    connect?: ModelVersionWhereUniqueInput
+    update?: XOR<XOR<ModelVersionUpdateToOneWithWhereWithoutTrainingJobInput, ModelVersionUpdateWithoutTrainingJobInput>, ModelVersionUncheckedUpdateWithoutTrainingJobInput>
+  }
+
+  export type TrainingJobCreateNestedOneWithoutModelVersionInput = {
+    create?: XOR<TrainingJobCreateWithoutModelVersionInput, TrainingJobUncheckedCreateWithoutModelVersionInput>
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutModelVersionInput
+    connect?: TrainingJobWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutModelVersionsPromovidasInput = {
+    create?: XOR<UserCreateWithoutModelVersionsPromovidasInput, UserUncheckedCreateWithoutModelVersionsPromovidasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutModelVersionsPromovidasInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumModelVersionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ModelVersionStatus
+  }
+
+  export type TrainingJobUpdateOneRequiredWithoutModelVersionNestedInput = {
+    create?: XOR<TrainingJobCreateWithoutModelVersionInput, TrainingJobUncheckedCreateWithoutModelVersionInput>
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutModelVersionInput
+    upsert?: TrainingJobUpsertWithoutModelVersionInput
+    connect?: TrainingJobWhereUniqueInput
+    update?: XOR<XOR<TrainingJobUpdateToOneWithWhereWithoutModelVersionInput, TrainingJobUpdateWithoutModelVersionInput>, TrainingJobUncheckedUpdateWithoutModelVersionInput>
+  }
+
+  export type UserUpdateOneWithoutModelVersionsPromovidasNestedInput = {
+    create?: XOR<UserCreateWithoutModelVersionsPromovidasInput, UserUncheckedCreateWithoutModelVersionsPromovidasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutModelVersionsPromovidasInput
+    upsert?: UserUpsertWithoutModelVersionsPromovidasInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutModelVersionsPromovidasInput, UserUpdateWithoutModelVersionsPromovidasInput>, UserUncheckedUpdateWithoutModelVersionsPromovidasInput>
+  }
+
   export type UserCreateNestedOneWithoutRefreshTokensInput = {
     create?: XOR<UserCreateWithoutRefreshTokensInput, UserUncheckedCreateWithoutRefreshTokensInput>
     connectOrCreate?: UserCreateOrConnectWithoutRefreshTokensInput
@@ -19006,6 +22368,56 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumEstadoSaludNullableFilter<$PrismaModel>
     _max?: NestedEnumEstadoSaludNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTrainingJobStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrainingJobStatus | EnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrainingJobStatusFilter<$PrismaModel> | $Enums.TrainingJobStatus
+  }
+
+  export type NestedEnumTrainingJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrainingJobStatus | EnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrainingJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.TrainingJobStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrainingJobStatusFilter<$PrismaModel>
+    _max?: NestedEnumTrainingJobStatusFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumModelVersionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ModelVersionStatus | EnumModelVersionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumModelVersionStatusFilter<$PrismaModel> | $Enums.ModelVersionStatus
+  }
+
+  export type NestedEnumModelVersionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ModelVersionStatus | EnumModelVersionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumModelVersionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ModelVersionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumModelVersionStatusFilter<$PrismaModel>
+    _max?: NestedEnumModelVersionStatusFilter<$PrismaModel>
   }
 
   export type UserCampoCreateWithoutUserInput = {
@@ -19570,6 +22982,70 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TrainingJobCreateWithoutIniciadoPorInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    modelVersion?: ModelVersionCreateNestedOneWithoutTrainingJobInput
+  }
+
+  export type TrainingJobUncheckedCreateWithoutIniciadoPorInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    modelVersion?: ModelVersionUncheckedCreateNestedOneWithoutTrainingJobInput
+  }
+
+  export type TrainingJobCreateOrConnectWithoutIniciadoPorInput = {
+    where: TrainingJobWhereUniqueInput
+    create: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput>
+  }
+
+  export type TrainingJobCreateManyIniciadoPorInputEnvelope = {
+    data: TrainingJobCreateManyIniciadoPorInput | TrainingJobCreateManyIniciadoPorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ModelVersionCreateWithoutPromovidoPorInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+    trainingJob: TrainingJobCreateNestedOneWithoutModelVersionInput
+  }
+
+  export type ModelVersionUncheckedCreateWithoutPromovidoPorInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelVersionCreateOrConnectWithoutPromovidoPorInput = {
+    where: ModelVersionWhereUniqueInput
+    create: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput>
+  }
+
+  export type ModelVersionCreateManyPromovidoPorInputEnvelope = {
+    data: ModelVersionCreateManyPromovidoPorInput | ModelVersionCreateManyPromovidoPorInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserCampoUpsertWithWhereUniqueWithoutUserInput = {
     where: UserCampoWhereUniqueInput
     update: XOR<UserCampoUpdateWithoutUserInput, UserCampoUncheckedUpdateWithoutUserInput>
@@ -19898,6 +23374,67 @@ export namespace Prisma {
     data: XOR<AnalysisUpdateManyMutationInput, AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorInput>
   }
 
+  export type TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput = {
+    where: TrainingJobWhereUniqueInput
+    update: XOR<TrainingJobUpdateWithoutIniciadoPorInput, TrainingJobUncheckedUpdateWithoutIniciadoPorInput>
+    create: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput>
+  }
+
+  export type TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput = {
+    where: TrainingJobWhereUniqueInput
+    data: XOR<TrainingJobUpdateWithoutIniciadoPorInput, TrainingJobUncheckedUpdateWithoutIniciadoPorInput>
+  }
+
+  export type TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput = {
+    where: TrainingJobScalarWhereInput
+    data: XOR<TrainingJobUpdateManyMutationInput, TrainingJobUncheckedUpdateManyWithoutIniciadoPorInput>
+  }
+
+  export type TrainingJobScalarWhereInput = {
+    AND?: TrainingJobScalarWhereInput | TrainingJobScalarWhereInput[]
+    OR?: TrainingJobScalarWhereInput[]
+    NOT?: TrainingJobScalarWhereInput | TrainingJobScalarWhereInput[]
+    id?: UuidFilter<"TrainingJob"> | string
+    status?: EnumTrainingJobStatusFilter<"TrainingJob"> | $Enums.TrainingJobStatus
+    datasetSize?: IntNullableFilter<"TrainingJob"> | number | null
+    errorMessage?: StringNullableFilter<"TrainingJob"> | string | null
+    iniciadoPorId?: UuidFilter<"TrainingJob"> | string
+    iniciadoAt?: DateTimeFilter<"TrainingJob"> | Date | string
+    finalizadoAt?: DateTimeNullableFilter<"TrainingJob"> | Date | string | null
+  }
+
+  export type ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput = {
+    where: ModelVersionWhereUniqueInput
+    update: XOR<ModelVersionUpdateWithoutPromovidoPorInput, ModelVersionUncheckedUpdateWithoutPromovidoPorInput>
+    create: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput>
+  }
+
+  export type ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput = {
+    where: ModelVersionWhereUniqueInput
+    data: XOR<ModelVersionUpdateWithoutPromovidoPorInput, ModelVersionUncheckedUpdateWithoutPromovidoPorInput>
+  }
+
+  export type ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput = {
+    where: ModelVersionScalarWhereInput
+    data: XOR<ModelVersionUpdateManyMutationInput, ModelVersionUncheckedUpdateManyWithoutPromovidoPorInput>
+  }
+
+  export type ModelVersionScalarWhereInput = {
+    AND?: ModelVersionScalarWhereInput | ModelVersionScalarWhereInput[]
+    OR?: ModelVersionScalarWhereInput[]
+    NOT?: ModelVersionScalarWhereInput | ModelVersionScalarWhereInput[]
+    id?: UuidFilter<"ModelVersion"> | string
+    version?: IntFilter<"ModelVersion"> | number
+    r2Key?: StringNullableFilter<"ModelVersion"> | string | null
+    mAP?: FloatNullableFilter<"ModelVersion"> | number | null
+    mAPBase?: FloatNullableFilter<"ModelVersion"> | number | null
+    status?: EnumModelVersionStatusFilter<"ModelVersion"> | $Enums.ModelVersionStatus
+    trainingJobId?: UuidFilter<"ModelVersion"> | string
+    promovidoPorId?: UuidNullableFilter<"ModelVersion"> | string | null
+    promovidoAt?: DateTimeNullableFilter<"ModelVersion"> | Date | string | null
+    createdAt?: DateTimeFilter<"ModelVersion"> | Date | string
+  }
+
   export type UserCreateWithoutCamposProductorInput = {
     id?: string
     email: string
@@ -19919,6 +23456,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutCamposProductorInput = {
@@ -19942,6 +23481,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutCamposProductorInput = {
@@ -20107,6 +23648,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCamposProductorInput = {
@@ -20130,6 +23673,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserCampoUpsertWithWhereUniqueWithoutCampoInput = {
@@ -20201,6 +23746,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutCamposAsignadosInput = {
@@ -20224,6 +23771,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutCamposAsignadosInput = {
@@ -20292,6 +23841,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCamposAsignadosInput = {
@@ -20315,6 +23866,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type CampoUpsertWithoutUsuariosInput = {
@@ -20373,6 +23926,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutSolicitudesCreadasInput = {
@@ -20396,6 +23951,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutSolicitudesCreadasInput = {
@@ -20424,6 +23981,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutSolicitudesAsignadasInput = {
@@ -20447,6 +24006,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutSolicitudesAsignadasInput = {
@@ -20515,6 +24076,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSolicitudesCreadasInput = {
@@ -20538,6 +24101,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUpsertWithoutSolicitudesAsignadasInput = {
@@ -20572,6 +24137,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSolicitudesAsignadasInput = {
@@ -20595,6 +24162,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type CampoUpsertWithoutSolicitudesInput = {
@@ -20653,6 +24222,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutAnalysesAsRequesterInput = {
@@ -20676,6 +24247,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutAnalysesAsRequesterInput = {
@@ -20704,6 +24277,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutAnalysesAsProductorInput = {
@@ -20727,6 +24302,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutAnalysesAsProductorInput = {
@@ -20784,6 +24361,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutAnalysesValidadasInput = {
@@ -20807,6 +24386,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutAnalysesValidadasInput = {
@@ -20835,6 +24416,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutAnalysesDeteccionesRevisadasInput = {
@@ -20858,6 +24441,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutAnalysesDeteccionesRevisadasInput = {
@@ -21007,6 +24592,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnalysesAsRequesterInput = {
@@ -21030,6 +24617,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUpsertWithoutAnalysesAsProductorInput = {
@@ -21064,6 +24653,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnalysesAsProductorInput = {
@@ -21087,6 +24678,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type CampoUpsertWithoutAnalysesInput = {
@@ -21156,6 +24749,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnalysesValidadasInput = {
@@ -21179,6 +24774,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUpsertWithoutAnalysesDeteccionesRevisadasInput = {
@@ -21213,6 +24810,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnalysesDeteccionesRevisadasInput = {
@@ -21236,6 +24835,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type FenologiaEtapaUpsertWithWhereUniqueWithoutAnalysisInput = {
@@ -21539,6 +25140,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutDetectionsCreadasInput = {
@@ -21562,6 +25165,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutDetectionsCreadasInput = {
@@ -21718,6 +25323,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDetectionsCreadasInput = {
@@ -21741,6 +25348,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type ModelFeedbackUpsertWithWhereUniqueWithoutDetectionInput = {
@@ -21888,6 +25497,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutModelFeedbackCreadoInput = {
@@ -21911,6 +25522,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutModelFeedbackCreadoInput = {
@@ -22070,6 +25683,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutModelFeedbackCreadoInput = {
@@ -22093,6 +25708,360 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type UserCreateWithoutTrainingJobsIniciadosInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
+    camposProductor?: CampoCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserUncheckedCreateWithoutTrainingJobsIniciadosInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
+    camposProductor?: CampoUncheckedCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisUncheckedCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserCreateOrConnectWithoutTrainingJobsIniciadosInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTrainingJobsIniciadosInput, UserUncheckedCreateWithoutTrainingJobsIniciadosInput>
+  }
+
+  export type ModelVersionCreateWithoutTrainingJobInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+    promovidoPor?: UserCreateNestedOneWithoutModelVersionsPromovidasInput
+  }
+
+  export type ModelVersionUncheckedCreateWithoutTrainingJobInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    promovidoPorId?: string | null
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelVersionCreateOrConnectWithoutTrainingJobInput = {
+    where: ModelVersionWhereUniqueInput
+    create: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+  }
+
+  export type UserUpsertWithoutTrainingJobsIniciadosInput = {
+    update: XOR<UserUpdateWithoutTrainingJobsIniciadosInput, UserUncheckedUpdateWithoutTrainingJobsIniciadosInput>
+    create: XOR<UserCreateWithoutTrainingJobsIniciadosInput, UserUncheckedCreateWithoutTrainingJobsIniciadosInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTrainingJobsIniciadosInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTrainingJobsIniciadosInput, UserUncheckedUpdateWithoutTrainingJobsIniciadosInput>
+  }
+
+  export type UserUpdateWithoutTrainingJobsIniciadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTrainingJobsIniciadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUncheckedUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUncheckedUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type ModelVersionUpsertWithoutTrainingJobInput = {
+    update: XOR<ModelVersionUpdateWithoutTrainingJobInput, ModelVersionUncheckedUpdateWithoutTrainingJobInput>
+    create: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    where?: ModelVersionWhereInput
+  }
+
+  export type ModelVersionUpdateToOneWithWhereWithoutTrainingJobInput = {
+    where?: ModelVersionWhereInput
+    data: XOR<ModelVersionUpdateWithoutTrainingJobInput, ModelVersionUncheckedUpdateWithoutTrainingJobInput>
+  }
+
+  export type ModelVersionUpdateWithoutTrainingJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    promovidoPor?: UserUpdateOneWithoutModelVersionsPromovidasNestedInput
+  }
+
+  export type ModelVersionUncheckedUpdateWithoutTrainingJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrainingJobCreateWithoutModelVersionInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    iniciadoPor: UserCreateNestedOneWithoutTrainingJobsIniciadosInput
+  }
+
+  export type TrainingJobUncheckedCreateWithoutModelVersionInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoPorId: string
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+  }
+
+  export type TrainingJobCreateOrConnectWithoutModelVersionInput = {
+    where: TrainingJobWhereUniqueInput
+    create: XOR<TrainingJobCreateWithoutModelVersionInput, TrainingJobUncheckedCreateWithoutModelVersionInput>
+  }
+
+  export type UserCreateWithoutModelVersionsPromovidasInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
+    camposProductor?: CampoCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+  }
+
+  export type UserUncheckedCreateWithoutModelVersionsPromovidasInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
+    camposProductor?: CampoUncheckedCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisUncheckedCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+  }
+
+  export type UserCreateOrConnectWithoutModelVersionsPromovidasInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutModelVersionsPromovidasInput, UserUncheckedCreateWithoutModelVersionsPromovidasInput>
+  }
+
+  export type TrainingJobUpsertWithoutModelVersionInput = {
+    update: XOR<TrainingJobUpdateWithoutModelVersionInput, TrainingJobUncheckedUpdateWithoutModelVersionInput>
+    create: XOR<TrainingJobCreateWithoutModelVersionInput, TrainingJobUncheckedCreateWithoutModelVersionInput>
+    where?: TrainingJobWhereInput
+  }
+
+  export type TrainingJobUpdateToOneWithWhereWithoutModelVersionInput = {
+    where?: TrainingJobWhereInput
+    data: XOR<TrainingJobUpdateWithoutModelVersionInput, TrainingJobUncheckedUpdateWithoutModelVersionInput>
+  }
+
+  export type TrainingJobUpdateWithoutModelVersionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    iniciadoPor?: UserUpdateOneRequiredWithoutTrainingJobsIniciadosNestedInput
+  }
+
+  export type TrainingJobUncheckedUpdateWithoutModelVersionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoPorId?: StringFieldUpdateOperationsInput | string
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserUpsertWithoutModelVersionsPromovidasInput = {
+    update: XOR<UserUpdateWithoutModelVersionsPromovidasInput, UserUncheckedUpdateWithoutModelVersionsPromovidasInput>
+    create: XOR<UserCreateWithoutModelVersionsPromovidasInput, UserUncheckedCreateWithoutModelVersionsPromovidasInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutModelVersionsPromovidasInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutModelVersionsPromovidasInput, UserUncheckedUpdateWithoutModelVersionsPromovidasInput>
+  }
+
+  export type UserUpdateWithoutModelVersionsPromovidasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutModelVersionsPromovidasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUncheckedUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUncheckedUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
   }
 
   export type UserCreateWithoutRefreshTokensInput = {
@@ -22116,6 +26085,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -22139,6 +26110,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -22178,6 +26151,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -22201,6 +26176,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -22224,6 +26201,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -22247,6 +26226,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
     modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -22286,6 +26267,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -22309,6 +26292,8 @@ export namespace Prisma {
     detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
     modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
     analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserCampoCreateManyUserInput = {
@@ -22514,6 +26499,27 @@ export namespace Prisma {
     deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type TrainingJobCreateManyIniciadoPorInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+  }
+
+  export type ModelVersionCreateManyPromovidoPorInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
   }
 
   export type UserCampoUpdateWithoutUserInput = {
@@ -23161,6 +27167,71 @@ export namespace Prisma {
     deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrainingJobUpdateWithoutIniciadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    modelVersion?: ModelVersionUpdateOneWithoutTrainingJobNestedInput
+  }
+
+  export type TrainingJobUncheckedUpdateWithoutIniciadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    modelVersion?: ModelVersionUncheckedUpdateOneWithoutTrainingJobNestedInput
+  }
+
+  export type TrainingJobUncheckedUpdateManyWithoutIniciadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ModelVersionUpdateWithoutPromovidoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trainingJob?: TrainingJobUpdateOneRequiredWithoutModelVersionNestedInput
+  }
+
+  export type ModelVersionUncheckedUpdateWithoutPromovidoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    trainingJobId?: StringFieldUpdateOperationsInput | string
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelVersionUncheckedUpdateManyWithoutPromovidoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    trainingJobId?: StringFieldUpdateOperationsInput | string
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCampoCreateManyCampoInput = {

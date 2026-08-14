@@ -5,13 +5,14 @@ Los nombres de clase deben coincidir EXACTAMENTE con las etiquetas del modelo en
 
 # Mapa de clases: nombre_clase → metadatos de etapa, salud y peso estimado en gramos
 CLASS_MAP: dict[str, dict] = {
-    "boton":      {"etapa": "boton",         "sano": True, "peso_g": 0.1},
-    "flor":       {"etapa": "flor",          "sano": True, "peso_g": 0.2},
-    "verde":      {"etapa": "verde",         "sano": True, "peso_g": 1.8},
-    "naranja":    {"etapa": "naranja",       "sano": True, "peso_g": 3.5},
-    "marron":     {"etapa": "marron",        "sano": True, "peso_g": 4.5},
-    "maduro":     {"etapa": "maduro",        "sano": True, "peso_g": 6.0},
-    "zarzamora":  {"etapa": "deteccion_gen", "sano": True, "peso_g": 3.0},
+    "boton":      {"etapa": "boton",         "sano": True,  "peso_g": 0.1},
+    "flor":       {"etapa": "flor",          "sano": True,  "peso_g": 0.2},
+    "verde":      {"etapa": "verde",         "sano": True,  "peso_g": 1.8},
+    "naranja":    {"etapa": "naranja",       "sano": True,  "peso_g": 3.5},
+    "marron":     {"etapa": "marron",        "sano": True,  "peso_g": 4.5},
+    "maduro":     {"etapa": "maduro",        "sano": True,  "peso_g": 6.0},
+    "zarzamora":  {"etapa": "deteccion_gen", "sano": True,  "peso_g": 3.0},
+    "enfermo":    {"etapa": "deteccion_gen", "sano": False, "peso_g": 0.0},
 }
 
 # Ciclo fenológico estándar para variedades Regina, Aketzali, Amelali y Erandi
