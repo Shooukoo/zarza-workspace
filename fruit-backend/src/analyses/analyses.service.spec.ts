@@ -136,10 +136,8 @@ describe('AnalysesService — detecciones', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('marca deteccionesRevisadas si aún estaba en false', async () => {
-      prisma.analysis.findUnique
-        .mockResolvedValueOnce({ id: 'analysis-1', fenologiaEtapas: [], campo: null, deteccionesRevisadas: false })
-        .mockResolvedValueOnce({ deteccionesRevisadas: false });
+    it('no marca deteccionesRevisadas — solo el endpoint explícito de revisión puede hacerlo', async () => {
+      prisma.analysis.findUnique.mockResolvedValue({ id: 'analysis-1', fenologiaEtapas: [], campo: null, deteccionesRevisadas: false });
       prisma.detection.create.mockResolvedValue({
         id: 'det-2', origen: 'HUMANO', confidence: null,
         etapaDetectada: 'verde', saludDetectada: 'SANO',
@@ -148,10 +146,7 @@ describe('AnalysesService — detecciones', () => {
 
       await service.addDetection('analysis-1', 'user-1', { etapa: 'verde', sano: true, bbox: [10, 20, 30, 40] });
 
-      expect(prisma.analysis.update).toHaveBeenCalledWith({
-        where: { id: 'analysis-1' },
-        data: expect.objectContaining({ deteccionesRevisadas: true, deteccionesRevisadasPorId: 'user-1' }),
-      });
+      expect(prisma.analysis.update).not.toHaveBeenCalled();
     });
   });
 
@@ -174,7 +169,6 @@ describe('AnalysesService — detecciones', () => {
 
     it('crea un ModelFeedback con accion=ELIMINAR sin campos corregidos', async () => {
       prisma.detection.findFirst.mockResolvedValue({ id: 'det-1', analysisId: 'analysis-1' });
-      prisma.analysis.findUnique.mockResolvedValue({ deteccionesRevisadas: true });
       prisma.modelFeedback.create.mockResolvedValue({ id: 'fb-1' });
 
       await service.addFeedback('analysis-1', 'det-1', 'user-1', { accion: 'ELIMINAR' });

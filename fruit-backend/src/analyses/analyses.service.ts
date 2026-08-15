@@ -176,8 +176,6 @@ export class AnalysesService {
       },
     });
 
-    await this.markReviewedIfNeeded(analysisId, userId);
-
     const recienCreada = { ...detection, feedback: [] };
     return resolveDetectionState(recienCreada);
   }
@@ -231,8 +229,6 @@ export class AnalysesService {
       },
     });
 
-    await this.markReviewedIfNeeded(analysisId, userId);
-
     return feedback;
   }
 
@@ -246,23 +242,6 @@ export class AnalysesService {
         deteccionesRevisadasAt: new Date(),
       },
     });
-  }
-
-  private async markReviewedIfNeeded(analysisId: string, userId: string) {
-    const analysis = await this.prisma.analysis.findUnique({
-      where: { id: analysisId },
-      select: { deteccionesRevisadas: true },
-    });
-    if (!analysis?.deteccionesRevisadas) {
-      await this.prisma.analysis.update({
-        where: { id: analysisId },
-        data: {
-          deteccionesRevisadas: true,
-          deteccionesRevisadasPorId: userId,
-          deteccionesRevisadasAt: new Date(),
-        },
-      });
-    }
   }
 
   private assertBboxValido(bbox: [number, number, number, number]) {
