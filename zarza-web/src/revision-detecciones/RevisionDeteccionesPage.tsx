@@ -5,6 +5,7 @@ import { useAnalisisDetail, useAnalisisImage } from '../analisis/useAnalisis';
 import { useAgregarDeteccion, useDetecciones, useMarcarRevisado } from './useDetecciones';
 import { DeteccionOverlay } from './DeteccionOverlay';
 import { DeteccionPanel } from './DeteccionPanel';
+import { DeteccionSidebar } from './DeteccionSidebar';
 import { ETAPAS_CONOCIDAS } from './types';
 import type { EtapaConocida } from './types';
 
@@ -66,8 +67,23 @@ export function RevisionDeteccionesPage() {
   }
 
   return (
-    <div>
-      <Space style={{ marginBottom: 16, justifyContent: 'space-between', width: '100%' }}>
+    <div
+      style={{
+        margin: '-28px -32px',
+        width: 'calc(100% + 64px)',
+        height: 'calc(100% + 56px)',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <Space
+        style={{
+          justifyContent: 'space-between',
+          width: '100%',
+          padding: '14px 32px',
+          flexShrink: 0,
+        }}
+      >
         <Typography.Title level={4} style={{ margin: 0 }}>
           Revisión de detecciones
         </Typography.Title>
@@ -95,66 +111,45 @@ export function RevisionDeteccionesPage() {
         </Space>
       </Space>
 
-      {imageQuery.isLoading && <Skeleton.Image style={{ width: '100%', height: 400 }} active />}
-      {imageQuery.isError && (
-        <Alert type="error" message="No se pudo cargar la imagen del análisis." showIcon />
-      )}
-      {imageQuery.data?.url && (
-        <DeteccionOverlay
-          imageUrl={imageQuery.data.url}
-          detecciones={detecciones}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          drawMode={drawMode}
-          onDrawComplete={handleDrawComplete}
-        />
-      )}
       {deteccionesQuery.isError && (
         <Alert
           type="error"
           message="No se pudieron cargar las detecciones."
           showIcon
-          style={{ marginTop: 16 }}
+          style={{ margin: '0 32px 12px' }}
         />
       )}
 
-      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginTop: 16, paddingBottom: 8 }}>
-        {deteccionesQuery.isLoading &&
-          Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton.Button key={i} active style={{ minWidth: 140, height: 52 }} />
-          ))}
-        {detecciones.map((d) => (
-          <div
-            key={d.id}
-            onClick={() => setSelectedId(d.id)}
-            style={{
-              minWidth: 140,
-              padding: 8,
-              borderRadius: 6,
-              cursor: 'pointer',
-              border: selectedId === d.id ? '2px solid #1677ff' : '1px solid #d9d9d9',
-              opacity: d.eliminada ? 0.5 : 1,
-            }}
-          >
-            <div>
-              {d.etapa} · {d.sano ? 'sano' : 'enfermo'}
-            </div>
-            <div style={{ fontSize: 12, color: '#888' }}>
-              {d.origen === 'MODELO'
-                ? `confianza ${((d.confidence ?? 0) * 100).toFixed(0)}%`
-                : 'agregado manualmente'}
-            </div>
-          </div>
-        ))}
+      <div style={{ flex: 1, minHeight: 0, padding: '0 32px 24px', display: 'flex', gap: 16 }}>
+        <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+          {imageQuery.isLoading && <Skeleton.Image style={{ width: '100%', height: '100%' }} active />}
+          {imageQuery.isError && (
+            <Alert type="error" message="No se pudo cargar la imagen del análisis." showIcon />
+          )}
+          {imageQuery.data?.url && (
+            <DeteccionOverlay
+              imageUrl={imageQuery.data.url}
+              detecciones={detecciones}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              drawMode={drawMode}
+              onDrawComplete={handleDrawComplete}
+            >
+              {selected && (
+                <DeteccionPanel
+                  deteccion={selected}
+                  analysisId={analysisId}
+                  onClose={() => setSelectedId(null)}
+                />
+              )}
+            </DeteccionOverlay>
+          )}
+        </div>
+
+        {detecciones.length > 0 && (
+          <DeteccionSidebar detecciones={detecciones} selectedId={selectedId} onSelect={setSelectedId} />
+        )}
       </div>
-
-      {selected && (
-        <DeteccionPanel
-          deteccion={selected}
-          analysisId={analysisId}
-          onClose={() => setSelectedId(null)}
-        />
-      )}
     </div>
   );
 }
