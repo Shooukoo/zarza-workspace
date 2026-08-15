@@ -237,6 +237,10 @@ class _CaptureBodyState extends State<_CaptureBody> {
                     ),
                   ],
                 ),
+                if (!hasImage) ...[
+                  const SizedBox(height: 10),
+                  const _CaptureTip(),
+                ],
               ],
 
               // Paso 2 — Campo (solo si hay imagen)
@@ -524,6 +528,36 @@ class _SourceButton extends StatelessWidget {
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         minimumSize: const Size.fromHeight(50),
+      ),
+    );
+  }
+}
+
+class _CaptureTip extends StatelessWidget {
+  const _CaptureTip();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.obsidian3,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.wb_sunny_rounded, size: 16, color: Colors.white38),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Ubica el sol detrás de ti al tomar la foto — el contraluz '
+              'dificulta que el modelo detecte los frutos.',
+              style: TextStyle(color: Colors.white54, fontSize: 12, height: 1.4),
+            ),
+          ),
+        ],
       ),
     );
   }

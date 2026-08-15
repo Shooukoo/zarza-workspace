@@ -11,7 +11,7 @@ abstract class ImageCompressionService {
 class ImageCompressionServiceImpl implements ImageCompressionService {
   const ImageCompressionServiceImpl();
 
-  static const _maxSide = 1280;
+  static const _maxSide = 2048;
   static const _quality = 85;
   static const _uuid = Uuid();
 
