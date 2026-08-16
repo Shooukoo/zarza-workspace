@@ -7,6 +7,7 @@ export interface Campo {
   nombre: string;
   productorId: string;
   productor: { id: string; email: string };
+  poligonoGps: number[][] | null;
   createdAt: string;
 }
 
@@ -49,6 +50,17 @@ export function useDeleteCampo() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => apiClient.delete(`/campos/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['campos'] }),
+  });
+}
+
+export function useUpdateCampoPoligono() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, poligono_gps }: { id: string; poligono_gps: number[][] }) =>
+      apiClient
+        .patch<Campo>(`/campos/${id}/poligono`, { poligono_gps })
+        .then((r) => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['campos'] }),
   });
 }
