@@ -14,8 +14,8 @@ import {
   Res,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { IsString, MaxLength, IsNotEmpty, IsOptional } from 'class-validator';
-import type { FastifyReply } from 'fastify';
+import { IsString, MaxLength, IsOptional } from 'class-validator';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { AuthService } from '../../application/auth.service';
 import {
   UserAlreadyExistsError,
@@ -45,6 +45,9 @@ export const AUTH_SERVICE = Symbol('AUTH_SERVICE');
 
 const COOKIE_NAME = 'access_token';
 const ACCESS_COOKIE_MAX_AGE = 900; // 15 minutos
+const REFRESH_COOKIE_NAME = 'refresh_token';
+const REFRESH_COOKIE_PATH = '/api/v1/auth';
+const REFRESH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 días
 
 class FcmTokenDto {
   @ApiProperty({
@@ -58,11 +61,14 @@ class FcmTokenDto {
 
 class RefreshTokenDto {
   @ApiProperty({
-    description: 'Token de actualización utilizado para obtener un nuevo token de acceso.',
+    description:
+      'Token de actualización utilizado para obtener un nuevo token de acceso. ' +
+      'Opcional en el cliente web: si se omite, se toma de la cookie httpOnly "refresh_token".',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  refreshToken: string;
+  @IsOptional()
+  refreshToken?: string;
 }
 
 class LogoutDto {
@@ -135,6 +141,7 @@ export class AuthController {
         loginDto.password,
       );
       this.setAccessTokenCookie(reply, result.token);
+      this.setRefreshTokenCookie(reply, result.refreshToken);
       return result; // { token, refreshToken, user }
     } catch (error) {
       if (error instanceof InvalidCredentialsError) {
@@ -149,18 +156,30 @@ export class AuthController {
   @Throttle({ auth: { limit: 5, ttl: 60000 } })
   @ApiOperation({
     summary: 'Actualizar token de acceso',
-    description: 'Genera un nuevo token de acceso utilizando un token de actualización.',
+    description:
+      'Genera un nuevo token de acceso utilizando un token de actualización. ' +
+      'El cliente web no necesita enviarlo en el body: se lee de la cookie httpOnly "refresh_token".',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Token de acceso renovado correctamente.',
   })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'No se proporcionó un token de actualización válido.',
+  })
   async refresh(
     @Body() body: RefreshTokenDto,
+    @Req() req: FastifyRequest & { cookies?: Record<string, string> },
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const result = await this.authService.refresh(body.refreshToken);
+    const rawToken = body?.refreshToken ?? req.cookies?.[REFRESH_COOKIE_NAME];
+    if (!rawToken) {
+      throw new UnauthorizedException('Refresh token requerido');
+    }
+    const result = await this.authService.refresh(rawToken);
     this.setAccessTokenCookie(reply, result.token);
+    this.setRefreshTokenCookie(reply, result.refreshToken);
     return result; // { token, refreshToken }
   }
 
@@ -235,14 +254,20 @@ export class AuthController {
   })
   async logout(
     @Body() body: LogoutDto,
-    @Req() req: any,
+    @Req()
+    req: FastifyRequest & {
+      user?: { sub: string };
+      cookies?: Record<string, string>;
+    },
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    await this.authService.logout(body?.refreshToken);
+    const rawToken = body?.refreshToken ?? req.cookies?.[REFRESH_COOKIE_NAME];
+    await this.authService.logout(rawToken);
     if (req.user?.sub) {
       await this.userRepository.clearFcmToken(req.user.sub).catch(() => {});
     }
     reply.clearCookie(COOKIE_NAME, { path: '/' });
+    reply.clearCookie(REFRESH_COOKIE_NAME, { path: REFRESH_COOKIE_PATH });
     return { message: 'Logged out' };
   }
 
@@ -253,6 +278,16 @@ export class AuthController {
       sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       path: '/',
       maxAge: ACCESS_COOKIE_MAX_AGE,
+    });
+  }
+
+  private setRefreshTokenCookie(reply: FastifyReply, token: string): void {
+    reply.setCookie(REFRESH_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      path: REFRESH_COOKIE_PATH,
+      maxAge: REFRESH_COOKIE_MAX_AGE,
     });
   }
 }

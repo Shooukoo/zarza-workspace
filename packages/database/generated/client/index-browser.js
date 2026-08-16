@@ -233,6 +233,29 @@ exports.Prisma.ModelFeedbackScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.TrainingJobScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  datasetSize: 'datasetSize',
+  errorMessage: 'errorMessage',
+  iniciadoPorId: 'iniciadoPorId',
+  iniciadoAt: 'iniciadoAt',
+  finalizadoAt: 'finalizadoAt'
+};
+
+exports.Prisma.ModelVersionScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  r2Key: 'r2Key',
+  mAP: 'mAP',
+  mAPBase: 'mAPBase',
+  status: 'status',
+  trainingJobId: 'trainingJobId',
+  promovidoPorId: 'promovidoPorId',
+  promovidoAt: 'promovidoAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.RefreshTokenScalarFieldEnum = {
   id: 'id',
   tokenHash: 'tokenHash',
@@ -315,6 +338,21 @@ exports.AccionFeedback = exports.$Enums.AccionFeedback = {
   ELIMINAR: 'ELIMINAR'
 };
 
+exports.TrainingJobStatus = exports.$Enums.TrainingJobStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+exports.ModelVersionStatus = exports.$Enums.ModelVersionStatus = {
+  ENTRENADO: 'ENTRENADO',
+  LISTO_PARA_PROMOVER: 'LISTO_PARA_PROMOVER',
+  DESCARTADO: 'DESCARTADO',
+  PROMOVIDO: 'PROMOVIDO',
+  REEMPLAZADO: 'REEMPLAZADO'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Campo: 'Campo',
@@ -324,6 +362,8 @@ exports.Prisma.ModelName = {
   FenologiaEtapa: 'FenologiaEtapa',
   Detection: 'Detection',
   ModelFeedback: 'ModelFeedback',
+  TrainingJob: 'TrainingJob',
+  ModelVersion: 'ModelVersion',
   RefreshToken: 'RefreshToken',
   Notification: 'Notification'
 };

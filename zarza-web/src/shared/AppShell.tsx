@@ -28,6 +28,7 @@ const GROUP_CAMPO: NavItem[] = [
 
 const GROUP_ADMIN: NavItem[] = [
   { key: '/usuarios', label: 'Usuarios', roles: [Role.ADMIN] },
+  { key: '/modelos-ia', label: 'Modelos IA', roles: [Role.ADMIN] },
 ];
 
 const NAV_GROUPS: NavItem[][] = [GROUP_VISION, GROUP_CAMPO, GROUP_ADMIN];

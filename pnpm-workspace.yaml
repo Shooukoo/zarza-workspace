@@ -10,6 +10,7 @@ allowBuilds:
   bcrypt: true
   prisma: true
   protobufjs: true
+  sharp: true
   unrs-resolver: true
 # pnpm 11 ya no lee el campo "pnpm" de package.json: los overrides de seguridad
 # viven aqui, no en fruit-backend/package.json ni fruit-ms/package.json.

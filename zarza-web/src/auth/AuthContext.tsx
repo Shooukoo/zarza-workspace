@@ -49,7 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function login(email: string, password: string): Promise<AuthUser> {
-    // Backend devuelve { user: { id, email, role, firstName, lastName } }
+    // Backend devuelve { token, refreshToken, user } y setea access_token +
+    // refresh_token como cookies httpOnly — no hace falta guardar nada aquí.
     const res = await apiClient.post<{ user: BackendUserProfile }>(
       '/auth/login',
       { email, password },
@@ -60,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
+    // El refresh token se lee de su cookie httpOnly en el backend.
     await apiClient.post('/auth/logout');
     setUser(null);
   }

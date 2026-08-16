@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 # INFERENCE_AUTH_TOKEN a nivel de módulo (fail-fast).
 load_dotenv()
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from ultralytics import YOLO
@@ -141,3 +141,16 @@ def analyze(request: Request, req: AnalyzeRequest):
     )
 
     return JSONResponse(content=report)
+
+
+@app.post(
+    "/internal/prepare-restart", dependencies=[Depends(verify_inference_token)]
+)
+def prepare_restart(background_tasks: BackgroundTasks):
+    """
+    Responde 200 de inmediato y, tras enviar la respuesta, termina el proceso.
+    Docker (restart: unless-stopped) relanza el contenedor y el lifespan
+    recoge el best.pt reemplazado sin cambios adicionales.
+    """
+    background_tasks.add_task(os._exit, 0)
+    return {"status": "restarting"}

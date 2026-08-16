@@ -13,10 +13,12 @@ import {
 import { ValidateAnalysisDto } from './dto/validate-analysis.dto';
 import { CreateDetectionDto } from './dto/create-detection.dto';
 import { DetectionFeedbackDto } from './dto/detection-feedback.dto';
+import { resolveDetectionState } from './detection-state.util';
 import { STORAGE_PORT, type IStoragePort } from '../storage/ports';
 import { type UserScope } from '../auth/domain/types/user-scope.type';
 import { Role } from '../auth/domain/enums/role.enum';
 import { AppLogger } from '../common/logging/app.logger';
+import { RedisCacheService } from '../cache/redis-cache.service';
 
 @Injectable()
 export class AnalysesService {
@@ -25,6 +27,7 @@ export class AnalysesService {
     @Inject(STORAGE_PORT)
     private readonly storage: IStoragePort,
     private readonly logger: AppLogger,
+    private readonly cache: RedisCacheService,
   ) {}
 
   async findAll(
@@ -99,12 +102,41 @@ export class AnalysesService {
     return analysis;
   }
 
-  async getImageUrl(id: string): Promise<string> {
-    const analysis = await this.findById(id);
-    if (!analysis.storageKey) {
-      throw new NotFoundException(`El análisis ${id} no tiene imagen asociada`);
+  async findScopeAndStorageKey(
+    id: string,
+  ): Promise<{
+    productorId: string;
+    campoId: string;
+    storageKey: string | null;
+  }> {
+    const analysis = await this.prisma.analysis.findUnique({
+      where: { id },
+      select: { productorId: true, campoId: true, storageKey: true },
+    });
+    if (!analysis)
+      throw new NotFoundException(`Análisis con id "${id}" no encontrado`);
+    return analysis;
+  }
+
+  async getImageUrl(
+    storageKey: string | null,
+    analysisId: string,
+  ): Promise<{ url: string; width: number; height: number }> {
+    if (!storageKey) {
+      throw new NotFoundException(
+        `El análisis ${analysisId} no tiene imagen asociada`,
+      );
     }
-    return this.storage.getPresignedUrl(analysis.storageKey, 900);
+    return this.cache.getOrSet(
+      `analysis-display-image:${storageKey}`,
+      800,
+      async () => {
+        const { key, originalWidth, originalHeight } =
+          await this.storage.getOrCreateDisplayVariant(storageKey, 2048);
+        const url = await this.storage.getPresignedUrl(key, 900);
+        return { url, width: originalWidth, height: originalHeight };
+      },
+    );
   }
 
   async validate(id: string, corregidoPorId: string, dto: ValidateAnalysisDto) {
@@ -150,7 +182,7 @@ export class AnalysesService {
       include: { feedback: { orderBy: { createdAt: 'desc' }, take: 1 } },
     });
 
-    return detections.map((detection) => this.resolveDetectionState(detection));
+    return detections.map((detection) => resolveDetectionState(detection));
   }
 
   async addDetection(
@@ -175,10 +207,8 @@ export class AnalysesService {
       },
     });
 
-    await this.markReviewedIfNeeded(analysisId, userId);
-
     const recienCreada = { ...detection, feedback: [] };
-    return this.resolveDetectionState(recienCreada);
+    return resolveDetectionState(recienCreada);
   }
 
   async addFeedback(
@@ -230,8 +260,6 @@ export class AnalysesService {
       },
     });
 
-    await this.markReviewedIfNeeded(analysisId, userId);
-
     return feedback;
   }
 
@@ -247,23 +275,6 @@ export class AnalysesService {
     });
   }
 
-  private async markReviewedIfNeeded(analysisId: string, userId: string) {
-    const analysis = await this.prisma.analysis.findUnique({
-      where: { id: analysisId },
-      select: { deteccionesRevisadas: true },
-    });
-    if (!analysis?.deteccionesRevisadas) {
-      await this.prisma.analysis.update({
-        where: { id: analysisId },
-        data: {
-          deteccionesRevisadas: true,
-          deteccionesRevisadasPorId: userId,
-          deteccionesRevisadasAt: new Date(),
-        },
-      });
-    }
-  }
-
   private assertBboxValido(bbox: [number, number, number, number]) {
     const [x1, y1, x2, y2] = bbox;
     if (x1 >= x2 || y1 >= y2) {
@@ -271,28 +282,5 @@ export class AnalysesService {
         'bbox inválido: se requiere x1 < x2 y y1 < y2',
       );
     }
-  }
-
-  private resolveDetectionState(
-    detection: Prisma.DetectionGetPayload<{ include: { feedback: true } }>,
-  ) {
-    const latest = detection.feedback[0];
-    return {
-      id: detection.id,
-      origen: detection.origen,
-      confidence: detection.confidence,
-      etapa: latest?.etapaCorregida ?? detection.etapaDetectada,
-      sano: (latest?.saludCorregida ?? detection.saludDetectada) === 'SANO',
-      bbox:
-        latest?.bboxX1 != null
-          ? [latest.bboxX1, latest.bboxY1, latest.bboxX2, latest.bboxY2]
-          : [
-              detection.bboxX1,
-              detection.bboxY1,
-              detection.bboxX2,
-              detection.bboxY2,
-            ],
-      eliminada: latest?.accion === 'ELIMINAR',
-    };
   }
 }
