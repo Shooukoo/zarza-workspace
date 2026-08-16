@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Alert, Button, Select, Skeleton, Space, Switch, Typography, message } from 'antd';
+import { Alert, Button, Skeleton, Space, Tooltip, Typography, message } from 'antd';
+import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
 import { useAnalisisDetail, useAnalisisImage } from '../analisis/useAnalisis';
 import { useAgregarDeteccion, useDetecciones, useMarcarRevisado } from './useDetecciones';
 import { DeteccionOverlay } from './DeteccionOverlay';
 import { DeteccionPanel } from './DeteccionPanel';
 import { DeteccionSidebar } from './DeteccionSidebar';
-import { ETAPAS_CONOCIDAS } from './types';
 import type { EtapaConocida } from './types';
 
 export function RevisionDeteccionesPage() {
@@ -30,13 +30,19 @@ export function RevisionDeteccionesPage() {
   const detecciones = deteccionesQuery.data ?? [];
   const selected = detecciones.find((d) => d.id === selectedId) ?? null;
 
-  async function handleDrawComplete(bbox: [number, number, number, number]) {
+  function handleToggleDrawMode() {
+    setDrawMode((v) => !v);
+    setSelectedId(null);
+  }
+
+  async function handleConfirmDraft(bbox: [number, number, number, number]) {
     try {
       await agregarMutation.mutateAsync({ etapa: draftEtapa, sano: draftSano, bbox });
       message.success('Detección agregada');
       setDrawMode(false);
     } catch {
       message.error('Error al agregar la detección');
+      throw new Error('add-failed');
     }
   }
 
@@ -51,10 +57,6 @@ export function RevisionDeteccionesPage() {
   }
 
   if (!analysisId) return null;
-
-  if (detailQuery.isLoading) {
-    return <Skeleton active paragraph={{ rows: 8 }} />;
-  }
 
   if (detailQuery.isError) {
     return (
@@ -84,27 +86,29 @@ export function RevisionDeteccionesPage() {
           flexShrink: 0,
         }}
       >
-        <Typography.Title level={4} style={{ margin: 0 }}>
-          Revisión de detecciones
-        </Typography.Title>
+        <Space align="center" size={12}>
+          <Button
+            type="text"
+            shape="circle"
+            icon={<ArrowLeftOutlined style={{ fontSize: 18 }} />}
+            onClick={() => navigate(-1)}
+            aria-label="Volver"
+            style={{ width: 44, height: 44 }}
+          />
+          <Typography.Title level={4} style={{ margin: 0 }}>
+            Revisión de detecciones
+          </Typography.Title>
+        </Space>
         <Space>
-          <Select
-            value={draftEtapa}
-            onChange={setDraftEtapa}
-            options={ETAPAS_CONOCIDAS.map((e) => ({ value: e, label: e }))}
-            style={{ width: 140 }}
-            disabled={!drawMode}
-          />
-          <Switch
-            checked={draftSano}
-            onChange={setDraftSano}
-            checkedChildren="Sano"
-            unCheckedChildren="Enfermo"
-            disabled={!drawMode}
-          />
-          <Button type={drawMode ? 'primary' : 'default'} onClick={() => setDrawMode((v) => !v)}>
-            {drawMode ? 'Cancelar dibujo' : '+ Agregar detección'}
-          </Button>
+          <Tooltip title={drawMode ? 'Esc para cancelar' : 'Atajo: N'}>
+            <Button
+              type={drawMode ? 'primary' : 'default'}
+              icon={<PlusOutlined />}
+              onClick={handleToggleDrawMode}
+            >
+              {drawMode ? 'Cancelar dibujo' : 'Agregar detección'}
+            </Button>
+          </Tooltip>
           <Button type="primary" onClick={handleMarcarRevisado} loading={revisadoMutation.isPending}>
             Marcar como revisado
           </Button>
@@ -129,11 +133,19 @@ export function RevisionDeteccionesPage() {
           {imageQuery.data?.url && (
             <DeteccionOverlay
               imageUrl={imageQuery.data.url}
+              imageWidth={imageQuery.data.width}
+              imageHeight={imageQuery.data.height}
               detecciones={detecciones}
               selectedId={selectedId}
               onSelect={setSelectedId}
               drawMode={drawMode}
-              onDrawComplete={handleDrawComplete}
+              onToggleDrawMode={handleToggleDrawMode}
+              draftEtapa={draftEtapa}
+              onDraftEtapaChange={setDraftEtapa}
+              draftSano={draftSano}
+              onDraftSanoChange={setDraftSano}
+              onConfirmDraft={handleConfirmDraft}
+              confirmLoading={agregarMutation.isPending}
             >
               {selected && (
                 <DeteccionPanel
