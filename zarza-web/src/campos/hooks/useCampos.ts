@@ -61,7 +61,10 @@ export function useUpdateCampoPoligono() {
       apiClient
         .patch<Campo>(`/campos/${id}/poligono`, { poligono_gps })
         .then((r) => r.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['campos'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['campos'] });
+      qc.invalidateQueries({ queryKey: ['mapas-calor', 'campos'] });
+    },
   });
 }
 
