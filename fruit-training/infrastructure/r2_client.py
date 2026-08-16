@@ -20,7 +20,16 @@ def create_r2_client():
         endpoint_url=os.getenv("R2_ENDPOINT", ""),
         aws_access_key_id=os.getenv("R2_ACCESS_KEY_ID", ""),
         aws_secret_access_key=os.getenv("R2_SECRET_ACCESS_KEY", ""),
-        config=Config(signature_version="s3v4"),
+        # botocore >=1.36 agrega por defecto un checksum (x-amz-checksum-crc32)
+        # a las requests de S3, incluidas las de multipart upload. R2 no lo
+        # soporta de la misma forma que S3 y responde SignatureDoesNotMatch
+        # en CreateMultipartUpload/UploadPart. Se desactiva volviendo al
+        # comportamiento previo (checksum solo cuando es requerido).
+        config=Config(
+            signature_version="s3v4",
+            request_checksum_calculation="when_required",
+            response_checksum_validation="when_required",
+        ),
         region_name="us-east-1",
     )
 
