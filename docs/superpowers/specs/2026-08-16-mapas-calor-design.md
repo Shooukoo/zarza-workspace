@@ -35,7 +35,7 @@ Vista general. `from`/`to` son fechas ISO opcionales (filtran por `Analysis.fech
   campos: Array<{
     campoId: string;
     nombre: string;
-    poligonoGps: [number, number][] | null; // null si tiene <3 puntos
+    poligonoGps: [number, number][] | null; // [lng, lat], null si tiene <3 puntos
     centroid: { lat: number; lng: number };  // promedio de lat/lng de sus análisis geolocalizados
     analysisCount: number;
     totalElementosDetectados: number;
@@ -83,7 +83,7 @@ Hoy `CamposController` no tiene ningún endpoint de actualización (`create`, `f
 
 ### `PATCH /api/v1/campos/:id/poligono`
 
-**Body:** `{ poligono_gps: [number, number][] }` — pares `[lat, lng]` (convención nativa de Leaflet, evita conversiones en el frontend). Mínimo 3 puntos. DTO valida rango de cada coordenada (`lat` ∈ [-90, 90], `lng` ∈ [-180, 180]) y longitud mínima; responde 400 si no cumple.
+**Body:** `{ poligono_gps: [number, number][] }` — pares `[longitud, latitud]`, **mismo orden que ya documenta `CreateCampoDto.poligono_gps`** (no `[lat, lng]`: aunque el campo nunca se pobló desde la UI, el contrato ya es público vía Swagger y no hay razón para introducir una segunda convención). Mínimo 3 puntos. DTO valida rango de cada coordenada (`lng` ∈ [-180, 180], `lat` ∈ [-90, 90]) y longitud mínima; responde 400 si no cumple. El frontend convierte a `[lat, lng]` únicamente al pasarle las coordenadas a componentes de Leaflet (que esperan ese orden) — el array que viaja por la API siempre es `[lng, lat]`.
 
 **Roles:** `ADMIN` (cualquier campo) o `PRODUCTOR` dueño del campo (`campo.productorId === user.sub`, verificado en el controller antes de delegar al service — 403 si no es dueño). `AGRONOMO` no tiene acceso a este endpoint (`@Roles(Role.ADMIN, Role.PRODUCTOR)`).
 
