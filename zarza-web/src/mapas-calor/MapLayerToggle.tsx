@@ -28,7 +28,7 @@ export function tileLayerFor(layer: MapLayer): { url: string; attribution: strin
     return {
       url: `https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`,
       attribution:
-        '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a>',
+        '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     };
   }
   return {
