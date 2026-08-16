@@ -3,11 +3,13 @@ import { PrismaService } from '@rubus/database';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import type { IStoragePort } from '../storage/ports';
 import type { AppLogger } from '../common/logging/app.logger';
+import type { RedisCacheService } from '../cache/redis-cache.service';
 
 describe('AnalysesService — detecciones', () => {
   let prisma: any;
-  let storage: { getPresignedUrl: jest.Mock };
+  let storage: { getPresignedUrl: jest.Mock; getOrCreateDisplayVariant: jest.Mock };
   let logger: { info: jest.Mock; warn: jest.Mock; error: jest.Mock };
+  let cache: { getOrSet: jest.Mock };
   let service: AnalysesService;
 
   beforeEach(() => {
@@ -16,12 +18,14 @@ describe('AnalysesService — detecciones', () => {
       detection: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn() },
       modelFeedback: { create: jest.fn() },
     };
-    storage = { getPresignedUrl: jest.fn() };
+    storage = { getPresignedUrl: jest.fn(), getOrCreateDisplayVariant: jest.fn() };
     logger = { info: jest.fn(), warn: jest.fn(), error: jest.fn() };
+    cache = { getOrSet: jest.fn((_key, _ttl, compute) => compute()) };
     service = new AnalysesService(
       prisma as unknown as PrismaService,
       storage as unknown as IStoragePort,
       logger as unknown as AppLogger,
+      cache as unknown as RedisCacheService,
     );
   });
 
@@ -186,6 +190,75 @@ describe('AnalysesService — detecciones', () => {
         },
       });
       expect(prisma.analysis.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('findScopeAndStorageKey()', () => {
+    it('devuelve productorId, campoId y storageKey', async () => {
+      prisma.analysis.findUnique.mockResolvedValue({
+        productorId: 'prod-1',
+        campoId: 'campo-1',
+        storageKey: 'raw/foo.jpg',
+      });
+
+      const result = await service.findScopeAndStorageKey('analysis-1');
+
+      expect(result).toEqual({
+        productorId: 'prod-1',
+        campoId: 'campo-1',
+        storageKey: 'raw/foo.jpg',
+      });
+      expect(prisma.analysis.findUnique).toHaveBeenCalledWith({
+        where: { id: 'analysis-1' },
+        select: { productorId: true, campoId: true, storageKey: true },
+      });
+    });
+
+    it('lanza NotFoundException si el análisis no existe', async () => {
+      prisma.analysis.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.findScopeAndStorageKey('analysis-x'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getImageUrl()', () => {
+    it('genera la variante de visualización, firma su URL y cachea el resultado', async () => {
+      storage.getOrCreateDisplayVariant.mockResolvedValue({
+        key: 'display/foo.jpg',
+        originalWidth: 4000,
+        originalHeight: 3000,
+      });
+      storage.getPresignedUrl.mockResolvedValue('https://signed-url');
+
+      const result = await service.getImageUrl('raw/foo.jpg', 'analysis-1');
+
+      expect(result).toEqual({
+        url: 'https://signed-url',
+        width: 4000,
+        height: 3000,
+      });
+      expect(cache.getOrSet).toHaveBeenCalledWith(
+        'analysis-display-image:raw/foo.jpg',
+        800,
+        expect.any(Function),
+      );
+      expect(storage.getOrCreateDisplayVariant).toHaveBeenCalledWith(
+        'raw/foo.jpg',
+        2048,
+      );
+      expect(storage.getPresignedUrl).toHaveBeenCalledWith(
+        'display/foo.jpg',
+        900,
+      );
+    });
+
+    it('lanza NotFoundException si no hay storageKey', async () => {
+      await expect(
+        service.getImageUrl(null, 'analysis-1'),
+      ).rejects.toThrow(NotFoundException);
+      expect(cache.getOrSet).not.toHaveBeenCalled();
     });
   });
 
