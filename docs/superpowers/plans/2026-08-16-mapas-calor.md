@@ -12,6 +12,32 @@
 
 ---
 
+## Estado de ejecución (pausado — retomar en Task 9)
+
+Ejecutado con subagent-driven-development (implementador + revisor de spec + revisor de calidad por tarea) sobre `feat/mapas-calor`, en este mismo directorio (sin worktree separado).
+
+**Tareas 1-8: COMPLETAS y aprobadas.** Commits en orden (`d97b5dc`..`66bf042`):
+
+- `d97b5dc` — Task 1: índice `campoId+fechaAnalisis` en `Analysis`. **Nota:** el primer intento de subagente se salió de scope al toparse con que la Postgres local de dev tenía migraciones de otra rama (`feat/deteccion-feedback-captura`, con el pipeline de reentrenamiento) aplicadas pero no presentes en `main`; agregó modelos `TrainingJob`/`ModelVersion` no relacionados para "hacer coincidir" el historial. Se revirtió. Causa raíz: la Postgres compartida de dev tenía estado de una rama no mergeada. Se resolvió abriendo **PR #25** (`feat/deteccion-feedback-captura` → `main`, sin mergear) para no perder ese trabajo, y reseteando la Postgres local con consentimiento explícito del usuario (requerido por el guardrail de Prisma para agentes de IA). La migración del índice se aplicó manualmente después, limpio.
+- `e219628` — Task 2: `PATCH /campos/:id/poligono`. Aprobado con notas menores (no aplicadas: dedup con `findById`, tipo `Pick<JwtPayload>`, `Number.isFinite` en validación — no bloqueantes).
+- `f2a735b` — Task 3: `MapasCalorService`.
+- `fd218b1` — fix post-revisión de Task 3: tipar `scopeWhere`/`dateWhere` como `Prisma.AnalysisWhereInput` (en vez de `Record<string, unknown>`) + 2 tests nuevos que verifican el `where` completo (scope+fecha combinados) en `getCamposHeatmap` y `getAnalisisHeatmap`. 15/15 tests.
+- `d845be5` — Task 4: `MapasCalorController` + `MapasCalorModule`, registrado en `app.module.ts`. Verificado con boot real + Swagger. Aprobado sin issues.
+- `ba091bd` — Task 5: dependencias de Leaflet (`leaflet@1.9.4`, `react-leaflet@4.2.1`, `leaflet-draw@1.0.4`, `leaflet.markercluster@1.5.3`, `react-leaflet-cluster@2.1.0`) + `.env.example` + imports de CSS en `main.tsx`.
+- `34f1af3` — Task 6: `types.ts` + `metricColor.ts`. Aprobado.
+- `d4f0589` — Task 7: `MapLayerToggle.tsx`.
+- `0600156` — fix post-revisión de Task 7: la atribución de la capa satélite de Mapbox solo incluía "© Mapbox", faltaba "© OpenStreetMap" (requerido por los términos de Mapbox).
+- `e423baa` — Task 8: `useMapasCalor.ts` (hooks) + `poligonoGps`/`useUpdateCampoPoligono` en `useCampos.ts`.
+- `66bf042` — fix post-revisión de Task 8: `useUpdateCampoPoligono` no invalidaba la caché de `mapas-calor` al guardar un polígono nuevo (solo `['campos']`), dejando el mapa general con el polígono viejo hasta expirar el `staleTime`. Ahora invalida ambos.
+
+**Pendientes: Tasks 9-15** (vista general del mapa, vista de campo con clustering, la página completa con filtros/impresión, editor de polígono en CamposPage, wiring en CamposPage, deep link `?id=` en `/analisis`, y verificación end-to-end). Ninguna tiene código escrito todavía.
+
+**Artefactos de build sueltos sin commitear:** hay cambios en `zarza-web/dist/` y `zarza-web/tsconfig.app.tsbuildinfo` generados por builds de verificación de tareas anteriores (no por ninguna tarea puntual). Quedan pendientes de un commit "chore: regenerar artefactos de build" al final, junto con Task 15.
+
+**PR #25 sigue abierto**, no mergeado — no se tomó ninguna decisión sobre mergearlo, es una decisión del usuario para más adelante.
+
+---
+
 ## Prerrequisitos
 
 - `docker compose up postgres` corriendo para poder ejecutar la migración de Prisma.
@@ -63,7 +89,7 @@
 **Files:**
 - Modify: `packages/database/prisma/schema.prisma:119-159` (modelo `Analysis`)
 
-- [ ] **Step 1: Agregar el índice al modelo**
+- [x] **Step 1: Agregar el índice al modelo**
 
 En `packages/database/prisma/schema.prisma`, dentro del modelo `Analysis`, agregar la línea `@@index` antes de `@@map("analyses")`:
 
@@ -77,17 +103,17 @@ En `packages/database/prisma/schema.prisma`, dentro del modelo `Analysis`, agreg
 }
 ```
 
-- [ ] **Step 2: Generar la migración**
+- [x] **Step 2: Generar la migración**
 
 Run: `cd packages/database && pnpm run migrate:dev --name add_analysis_campo_fecha_index`
 Expected: la migración se crea y aplica sin errores contra la base de datos local (requiere `docker compose up postgres` corriendo).
 
-- [ ] **Step 3: Regenerar el cliente Prisma**
+- [x] **Step 3: Regenerar el cliente Prisma**
 
 Run: `cd packages/database && pnpm run generate`
 Expected: termina sin errores.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add packages/database/prisma/schema.prisma packages/database/prisma/migrations
@@ -104,7 +130,7 @@ git commit -m "perf(database): agregar índice compuesto campoId+fechaAnalisis a
 - Modify: `fruit-backend/src/campos/campos.service.ts`
 - Modify: `fruit-backend/src/campos/campos.controller.ts`
 
-- [ ] **Step 1: Crear el DTO**
+- [x] **Step 1: Crear el DTO**
 
 `fruit-backend/src/campos/dto/update-poligono.dto.ts`:
 
@@ -133,7 +159,7 @@ export class UpdatePoligonoDto {
 }
 ```
 
-- [ ] **Step 2: Escribir el test que falla**
+- [x] **Step 2: Escribir el test que falla**
 
 `fruit-backend/src/campos/campos.service.spec.ts` (archivo nuevo, `CamposService` hoy no tiene spec):
 
@@ -270,12 +296,12 @@ describe('CamposService', () => {
 });
 ```
 
-- [ ] **Step 3: Correr el test y verificar que falla**
+- [x] **Step 3: Correr el test y verificar que falla**
 
 Run: `cd fruit-backend && pnpm exec jest campos.service.spec.ts`
 Expected: FAIL — `service.updatePoligono is not a function`.
 
-- [ ] **Step 4: Implementar `updatePoligono` en el servicio**
+- [x] **Step 4: Implementar `updatePoligono` en el servicio**
 
 En `fruit-backend/src/campos/campos.service.ts`, actualizar imports y agregar el método:
 
@@ -343,12 +369,12 @@ function assertValidPoligono(points: number[][]): void {
 }
 ```
 
-- [ ] **Step 5: Correr el test y verificar que pasa**
+- [x] **Step 5: Correr el test y verificar que pasa**
 
 Run: `cd fruit-backend && pnpm exec jest campos.service.spec.ts`
 Expected: PASS (7 tests).
 
-- [ ] **Step 6: Agregar el endpoint al controller**
+- [x] **Step 6: Agregar el endpoint al controller**
 
 En `fruit-backend/src/campos/campos.controller.ts`, agregar el import del DTO junto a los existentes:
 
@@ -422,12 +448,12 @@ import {
 } from '@nestjs/common';
 ```
 
-- [ ] **Step 7: Verificar que el proyecto compila**
+- [x] **Step 7: Verificar que el proyecto compila**
 
 Run: `cd fruit-backend && pnpm exec tsc --noEmit`
 Expected: sin nuevos errores relacionados a `campos/` (el proyecto puede tener errores preexistentes no relacionados; confirmar que no aparecen nuevos en `campos.controller.ts`/`campos.service.ts`).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add fruit-backend/src/campos
@@ -443,7 +469,7 @@ git commit -m "feat(fruit-backend): agregar PATCH /campos/:id/poligono"
 - Create: `fruit-backend/src/mapas-calor/mapas-calor.service.ts`
 - Create: `fruit-backend/src/mapas-calor/mapas-calor.service.spec.ts`
 
-- [ ] **Step 1: Crear el DTO de query params**
+- [x] **Step 1: Crear el DTO de query params**
 
 `fruit-backend/src/mapas-calor/dto/heatmap-query.dto.ts`:
 
@@ -470,7 +496,7 @@ export class HeatmapQueryDto {
 }
 ```
 
-- [ ] **Step 2: Escribir el test que falla**
+- [x] **Step 2: Escribir el test que falla**
 
 `fruit-backend/src/mapas-calor/mapas-calor.service.spec.ts`:
 
@@ -732,12 +758,12 @@ describe('MapasCalorService', () => {
 });
 ```
 
-- [ ] **Step 3: Correr el test y verificar que falla**
+- [x] **Step 3: Correr el test y verificar que falla**
 
 Run: `cd fruit-backend && pnpm exec jest mapas-calor.service.spec.ts`
 Expected: FAIL — no se puede resolver el módulo `./mapas-calor.service`.
 
-- [ ] **Step 4: Implementar el servicio**
+- [x] **Step 4: Implementar el servicio**
 
 `fruit-backend/src/mapas-calor/mapas-calor.service.ts`:
 
@@ -929,12 +955,12 @@ function normalizePoligono(value: unknown): [number, number][] | null {
 }
 ```
 
-- [ ] **Step 5: Correr el test y verificar que pasa**
+- [x] **Step 5: Correr el test y verificar que pasa**
 
 Run: `cd fruit-backend && pnpm exec jest mapas-calor.service.spec.ts`
 Expected: PASS (14 tests).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add fruit-backend/src/mapas-calor
@@ -950,7 +976,7 @@ git commit -m "feat(fruit-backend): agregar MapasCalorService (agregación por c
 - Create: `fruit-backend/src/mapas-calor/mapas-calor.module.ts`
 - Modify: `fruit-backend/src/app.module.ts`
 
-- [ ] **Step 1: Crear el controller**
+- [x] **Step 1: Crear el controller**
 
 `fruit-backend/src/mapas-calor/mapas-calor.controller.ts`:
 
@@ -1045,7 +1071,7 @@ export class MapasCalorController {
 }
 ```
 
-- [ ] **Step 2: Crear el módulo**
+- [x] **Step 2: Crear el módulo**
 
 `fruit-backend/src/mapas-calor/mapas-calor.module.ts`:
 
@@ -1063,7 +1089,7 @@ import { AuthModule } from '../auth/infrastructure/auth.module';
 export class MapasCalorModule {}
 ```
 
-- [ ] **Step 3: Registrar el módulo en `AppModule`**
+- [x] **Step 3: Registrar el módulo en `AppModule`**
 
 En `fruit-backend/src/app.module.ts`, agregar el import junto a los demás módulos por feature:
 
@@ -1078,12 +1104,12 @@ Y agregarlo al array `imports`, junto a `CamposModule`:
     MapasCalorModule,
 ```
 
-- [ ] **Step 4: Levantar el servicio y verificar manualmente con Swagger**
+- [x] **Step 4: Levantar el servicio y verificar manualmente con Swagger**
 
 Run: `cd fruit-backend && pnpm run start:dev`
 Expected: arranca sin errores. Abrir `http://localhost:3001/api` (o el path configurado de Swagger) y confirmar que aparecen `GET /mapas-calor/campos` y `GET /mapas-calor/campos/{campoId}/analisis` bajo el tag "MapasCalor", y `PATCH /campos/{id}/poligono` bajo "Campos".
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add fruit-backend/src/mapas-calor fruit-backend/src/app.module.ts
@@ -1099,7 +1125,7 @@ git commit -m "feat(fruit-backend): exponer endpoints de mapas de calor"
 - Create: `zarza-web/.env.example`
 - Modify: `zarza-web/src/main.tsx`
 
-- [ ] **Step 1: Agregar dependencias**
+- [x] **Step 1: Agregar dependencias**
 
 En `zarza-web/package.json`, agregar a `dependencies`:
 
@@ -1120,12 +1146,12 @@ Y a `devDependencies`:
 
 `react-leaflet` se fija en la serie 4.x a propósito: la 5.x requiere React 19 y este proyecto sigue en React 18.3.
 
-- [ ] **Step 2: Instalar**
+- [x] **Step 2: Instalar**
 
 Run: `cd zarza-web && npm install`
 Expected: instala sin errores de peer dependencies relacionados a React.
 
-- [ ] **Step 3: Crear `.env.example`**
+- [x] **Step 3: Crear `.env.example`**
 
 `zarza-web/.env.example` (archivo nuevo — hoy `zarza-web` no tiene ninguno):
 
@@ -1138,7 +1164,7 @@ Expected: instala sin errores de peer dependencies relacionados a React.
 VITE_MAPBOX_TOKEN=
 ```
 
-- [ ] **Step 4: Importar los estilos de Leaflet una sola vez**
+- [x] **Step 4: Importar los estilos de Leaflet una sola vez**
 
 En `zarza-web/src/main.tsx`, agregar al inicio del archivo, antes de los demás imports:
 
@@ -1149,12 +1175,12 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 ```
 
-- [ ] **Step 5: Verificar que el build sigue funcionando**
+- [x] **Step 5: Verificar que el build sigue funcionando**
 
 Run: `cd zarza-web && npm run build`
 Expected: termina sin errores (los imports de CSS no rompen `tsc -b`/`vite build`).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add zarza-web/package.json zarza-web/package-lock.json zarza-web/.env.example zarza-web/src/main.tsx
@@ -1169,7 +1195,7 @@ git commit -m "feat(zarza-web): agregar dependencias de Leaflet para mapas de ca
 - Create: `zarza-web/src/mapas-calor/types.ts`
 - Create: `zarza-web/src/mapas-calor/metricColor.ts`
 
-- [ ] **Step 1: Tipos compartidos**
+- [x] **Step 1: Tipos compartidos**
 
 `zarza-web/src/mapas-calor/types.ts`:
 
@@ -1205,7 +1231,7 @@ export interface AnalisisHeatmapPoint {
 }
 ```
 
-- [ ] **Step 2: Utilidad de escala de color**
+- [x] **Step 2: Utilidad de escala de color**
 
 `zarza-web/src/mapas-calor/metricColor.ts`:
 
@@ -1261,12 +1287,12 @@ function interpolate(t: number): string {
 }
 ```
 
-- [ ] **Step 3: Verificar tipos**
+- [x] **Step 3: Verificar tipos**
 
 Run: `cd zarza-web && npx tsc -b --noEmit`
 Expected: sin errores nuevos.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add zarza-web/src/mapas-calor/types.ts zarza-web/src/mapas-calor/metricColor.ts
@@ -1280,7 +1306,7 @@ git commit -m "feat(zarza-web): tipos y escala de color para mapas de calor"
 **Files:**
 - Create: `zarza-web/src/mapas-calor/MapLayerToggle.tsx`
 
-- [ ] **Step 1: Escribir el componente**
+- [x] **Step 1: Escribir el componente**
 
 `zarza-web/src/mapas-calor/MapLayerToggle.tsx`:
 
@@ -1326,12 +1352,12 @@ export function tileLayerFor(layer: MapLayer): { url: string; attribution: strin
 }
 ```
 
-- [ ] **Step 2: Verificar tipos**
+- [x] **Step 2: Verificar tipos**
 
 Run: `cd zarza-web && npx tsc -b --noEmit`
 Expected: sin errores nuevos.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add zarza-web/src/mapas-calor/MapLayerToggle.tsx
@@ -1346,7 +1372,7 @@ git commit -m "feat(zarza-web): toggle de capa calles/satélite para mapas"
 - Create: `zarza-web/src/mapas-calor/hooks/useMapasCalor.ts`
 - Modify: `zarza-web/src/campos/hooks/useCampos.ts`
 
-- [ ] **Step 1: Hooks de mapas de calor**
+- [x] **Step 1: Hooks de mapas de calor**
 
 `zarza-web/src/mapas-calor/hooks/useMapasCalor.ts`:
 
@@ -1391,7 +1417,7 @@ export function useAnalisisHeatmap(campoId: string | null, range: DateRange) {
 }
 ```
 
-- [ ] **Step 2: Extender `Campo` y agregar `useUpdateCampoPoligono`**
+- [x] **Step 2: Extender `Campo` y agregar `useUpdateCampoPoligono`**
 
 En `zarza-web/src/campos/hooks/useCampos.ts`, agregar el campo a la interfaz `Campo`:
 
@@ -1422,12 +1448,12 @@ export function useUpdateCampoPoligono() {
 }
 ```
 
-- [ ] **Step 3: Verificar tipos**
+- [x] **Step 3: Verificar tipos**
 
 Run: `cd zarza-web && npx tsc -b --noEmit`
 Expected: sin errores nuevos.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add zarza-web/src/mapas-calor/hooks zarza-web/src/campos/hooks/useCampos.ts
