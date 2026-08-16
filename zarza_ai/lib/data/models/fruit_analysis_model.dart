@@ -37,6 +37,8 @@ class FruitAnalysisModel {
     required this.pesoSanoGramos,
     required this.cronograma,
     this.createdAt,
+    this.validacionEstado,
+    this.observaciones,
   });
 
   final String id;
@@ -51,6 +53,8 @@ class FruitAnalysisModel {
   final double pesoSanoGramos;
   final List<DetectionModel> cronograma;
   final DateTime? createdAt;
+  final String? validacionEstado;
+  final String? observaciones;
 
   factory FruitAnalysisModel.fromJson(Map<String, dynamic> json) {
     final metricas =
@@ -66,6 +70,16 @@ class FruitAnalysisModel {
 
     final rawCreatedAt =
         json['createdAt'] ?? json['created_at'] ?? json['fecha_analisis'];
+
+    final rawValidacionEstado =
+        json['validacionEstado'] ??
+        json['validacion_estado'];
+
+    final validacionEstado = rawValidacionEstado?.toString();
+
+    final observaciones = (json['validacionObservaciones'] ??
+            json['observaciones'])
+        ?.toString();
 
     return FruitAnalysisModel(
       id: (json['_id'] ?? json['id'] ?? '').toString(),
@@ -87,6 +101,8 @@ class FruitAnalysisModel {
       createdAt: rawCreatedAt != null
           ? DateTime.tryParse(rawCreatedAt.toString())?.toLocal()
           : null,
+      validacionEstado: validacionEstado,
+      observaciones: observaciones,
     );
   }
 
@@ -104,5 +120,19 @@ class FruitAnalysisModel {
         variety: variedad,
         analysisDate: fechaAnalisis,
         createdAt: createdAt,
+        validationStatus: _parseValidationStatus(validacionEstado),
+        observaciones: observaciones,
       );
+
+  static AnalysisValidationStatus _parseValidationStatus(dynamic value) {
+    switch (value?.toString().toLowerCase()) {
+      case 'validado':
+        return AnalysisValidationStatus.validado;
+      case 'rechazado':
+        return AnalysisValidationStatus.rechazado;
+      case 'pendiente':
+      default:
+        return AnalysisValidationStatus.pendiente;
+    }
+  }
 }

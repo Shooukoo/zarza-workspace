@@ -9,35 +9,97 @@ import '../widgets/help_tooltip.dart';
 import '../widgets/ring_progress.dart';
 import '../widgets/stage_badge.dart' show StageBadge, StatusBadge;
 import 'results_bloc.dart';
+import '../../core/auth/auth_cubit.dart';
+import '../../core/auth/auth_state.dart';
+import '../../domain/enums/user_role.dart';
 
 class ResultsScreen extends StatelessWidget {
   const ResultsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Resultado del Análisis'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home_rounded),
-            onPressed: () => context.go('/home'),
-          ),
-        ],
-      ),
-      body: BlocBuilder<ResultsBloc, ResultsState>(
-        builder: (context, state) {
-          if (state is ResultsLoading || state is ResultsInitial) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state is ResultsError) {
-            return _ErrorBody(message: state.message);
-          }
-          if (state is ResultsLoaded) {
-            return _ResultsBody(analysis: state.analysis);
-          }
-          return const SizedBox.shrink();
-        },
+    return PopScope<FruitAnalysis?>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+
+        final state = context.read<ResultsBloc>().state;
+
+        if (state is ResultsValidated) {
+          context.pop(state.analysis);
+        } else {
+          context.pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Resultado del Análisis'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.home_rounded),
+              onPressed: () => context.go('/home'),
+            ),
+          ],
+        ),
+        body: BlocBuilder<ResultsBloc, ResultsState>(
+          builder: (context, state) {
+            if (state is ResultsLoading || state is ResultsInitial) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state is ResultsError) {
+              return _ErrorBody(message: state.message);
+            }
+            if (state is ResultsLoaded) {
+              return _ResultsBody(analysis: state.analysis);
+            }
+
+            if (state is ResultsValidating) {
+              return Stack(
+                children: [
+                  _ResultsBody(analysis: state.analysis),
+                  const Positioned.fill(
+                    child: ColoredBox(
+                      color: Colors.black26,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            if (state is ResultsValidated) {
+              return _ResultsBody(analysis: state.analysis);
+            }
+
+            if (state is ResultsValidationError) {
+              return Stack(
+                children: [
+                  _ResultsBody(analysis: state.analysis),
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                    child: Material(
+                      color: AppTheme.danger,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Text(
+                          state.message,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }
@@ -82,6 +144,11 @@ class _ResultsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.read<AuthCubit>().state;
+
+    final canValidate = authState is AuthAuthenticated &&
+        (authState.user.role == UserRole.agronomo ||
+        authState.user.role == UserRole.admin);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
       children: [
@@ -97,6 +164,8 @@ class _ResultsBody extends StatelessWidget {
           const SizedBox(height: 4),
         ],
         _WeightCard(analysis: analysis),
+        const SizedBox(height: 4),
+        if (canValidate) _ValidationActions(analysis: analysis),
       ],
     );
   }
@@ -673,6 +742,184 @@ class _WeightCard extends StatelessWidget {
                 fontFamily: 'Lexend',
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ValidationActions extends StatelessWidget {
+  const _ValidationActions({required this.analysis});
+
+  final FruitAnalysis analysis;
+
+  Future<void> _showValidationDialog(
+    BuildContext context,
+    String action,
+  ) async {
+    final controller = TextEditingController();
+    final isValidating = action == 'validado';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(
+            isValidating
+                ? 'Validar análisis'
+                : 'Rechazar análisis',
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isValidating
+                    ? '¿Deseas validar este análisis?'
+                    : '¿Deseas rechazar este análisis?',
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Observaciones',
+                  hintText: 'Opcional',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(isValidating ? 'Validar' : 'Rechazar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) {
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      controller.dispose();
+      return;
+    }
+
+    final observaciones = controller.text.trim();
+
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    controller.dispose();
+
+    if (!context.mounted) return;
+
+    context.read<ResultsBloc>().add(
+          ResultsValidateEvent(
+            id: analysis.id,
+            action: action,
+            observaciones:
+                observaciones.isEmpty ? null : observaciones,
+          ),
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isPending =
+        analysis.validationStatus == AnalysisValidationStatus.pendiente;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Validación del análisis',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 6),
+
+            Text(
+              isPending
+                  ? 'Revisa los resultados antes de confirmar el análisis.'
+                  : analysis.validationStatus ==
+                          AnalysisValidationStatus.validado
+                      ? 'Este análisis ya fue validado.'
+                      : 'Este análisis fue rechazado.',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(color: AppTheme.dataGray),
+            ),
+
+            if (!isPending &&
+                analysis.observaciones != null &&
+                analysis.observaciones!.trim().isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Observaciones',
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelSmall!
+                          .copyWith(
+                            color: AppTheme.dataGray,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      analysis.observaciones!,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 16),
+
+            if (isPending)
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          _showValidationDialog(context, 'rechazado'),
+                      icon: const Icon(Icons.close_rounded),
+                      label: const Text('Rechazar'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () =>
+                          _showValidationDialog(context, 'validado'),
+                      icon: const Icon(Icons.check_rounded),
+                      label: const Text('Validar'),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),

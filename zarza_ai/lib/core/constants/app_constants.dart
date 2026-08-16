@@ -15,6 +15,8 @@ class AppConstants {
   static const String uploadEndpoint = '/api/v1/ingestion/upload';
   static const String fruitsEndpoint = '/api/v1/fruits';
   static const String solicitudesEndpoint = '/api/v1/solicitudes';
+  static const String analysesEndpoint = '/api/v1/analyses';
+  
 
   // Auth endpoints
   static const String loginEndpoint = '/api/v1/auth/login';

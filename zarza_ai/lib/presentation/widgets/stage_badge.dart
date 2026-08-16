@@ -51,10 +51,10 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, color) = switch (status) {
-      AnalysisStatus.uploaded    => ('SUBIDO', AppTheme.rubusLight),
-      AnalysisStatus.processing  => ('ANALIZANDO', AppTheme.warn),
-      AnalysisStatus.completed   => ('COMPLETADO', AppTheme.emerald),
-      AnalysisStatus.failed      => ('FALLIDO', AppTheme.danger),
+      AnalysisStatus.uploaded => ('SUBIDO', AppTheme.rubusLight),
+      AnalysisStatus.processing => ('ANALIZANDO', AppTheme.warn),
+      AnalysisStatus.completed => ('COMPLETADO', AppTheme.emerald),
+      AnalysisStatus.failed => ('FALLIDO', AppTheme.danger),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -71,6 +71,62 @@ class StatusBadge extends StatelessWidget {
           fontWeight: FontWeight.w700,
           letterSpacing: 0.5,
         ),
+      ),
+    );
+  }
+}
+
+/// Etiqueta de una sola fila que muestra el estado de validación de un análisis.
+class ValidationStatusBadge extends StatelessWidget {
+  const ValidationStatusBadge({
+    super.key,
+    required this.status,
+  });
+
+  final AnalysisValidationStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final (label, color, icon) = switch (status) {
+      AnalysisValidationStatus.pendiente => (
+          'PENDIENTE',
+          AppTheme.warn,
+          Icons.hourglass_empty_rounded,
+        ),
+      AnalysisValidationStatus.validado => (
+          'VALIDADO',
+          AppTheme.emerald,
+          Icons.check_circle_outline_rounded,
+        ),
+      AnalysisValidationStatus.rechazado => (
+          'RECHAZADO',
+          AppTheme.danger,
+          Icons.cancel_outlined,
+        ),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
       ),
     );
   }

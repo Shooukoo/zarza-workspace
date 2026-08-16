@@ -19,12 +19,30 @@ class GetAnalysisListUseCase {
     String? userId,
     String? startDate,
     String? endDate,
+  }) => _repository.getAnalysisList(
+    page: page,
+    limit: limit,
+    userId: userId,
+    startDate: startDate,
+    endDate: endDate,
+  );
+}
+
+class ValidateAnalysisUseCase {
+  const ValidateAnalysisUseCase(this._repository);
+
+  final IFruitsRepository _repository;
+
+  Future<FruitAnalysis> call({
+    required String id,
+    required String action,
+    List<Map<String, dynamic>>? cronogramaCorregido,
+    String? observaciones,
   }) =>
-      _repository.getAnalysisList(
-        page: page,
-        limit: limit,
-        userId: userId,
-        startDate: startDate,
-        endDate: endDate,
+      _repository.validateAnalysis(
+        id: id,
+        action: action,
+        cronogramaCorregido: cronogramaCorregido,
+        observaciones: observaciones,
       );
 }

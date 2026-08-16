@@ -36,6 +36,15 @@ class HistoryLoadMoreEvent extends HistoryEvent {
   const HistoryLoadMoreEvent();
 }
 
+class HistoryAnalysisUpdatedEvent extends HistoryEvent {
+  const HistoryAnalysisUpdatedEvent(this.analysis);
+
+  final FruitAnalysis analysis;
+
+  @override
+  List<Object?> get props => [analysis];
+}
+
 class _HistorySilentRefresh extends HistoryEvent {
   const _HistorySilentRefresh();
 }
@@ -92,6 +101,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
       : super(const HistoryInitial()) {
     on<HistoryLoadEvent>(_onLoad);
     on<HistoryLoadMoreEvent>(_onLoadMore);
+    on<HistoryAnalysisUpdatedEvent>(_onAnalysisUpdated);
     on<_HistorySilentRefresh>(_onSilentRefresh);
     on<GetAnalysesEvent>(_onGetAnalyses);
 
@@ -141,7 +151,9 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         startDate: _currentStartDate?.toIso8601String(),
         endDate: _currentEndDate?.toIso8601String(),
       );
+
       _items.addAll(result.items);
+
       emit(HistoryLoaded(
         analyses: List.unmodifiable(_items),
         hasMore: result.hasMore,
@@ -150,6 +162,29 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     } on Object catch (e) {
       emit(HistoryError('No se pudo cargar el historial: ${e.toString()}'));
     }
+  }
+
+  void _onAnalysisUpdated(
+    HistoryAnalysisUpdatedEvent event,
+    Emitter<HistoryState> emit,
+  ) {
+    final index = _items.indexWhere(
+      (item) => item.id == event.analysis.id,
+    );
+
+    if (index == -1) return;
+
+    _items[index] = event.analysis;
+
+    final currentState = state;
+
+    emit(HistoryLoaded(
+      analyses: List.unmodifiable(_items),
+      hasMore: currentState is HistoryLoaded
+          ? currentState.hasMore
+          : false,
+      page: _currentPage,
+    ));
   }
 
   Future<void> _onLoadMore(
@@ -167,7 +202,9 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         startDate: _currentStartDate?.toIso8601String(),
         endDate: _currentEndDate?.toIso8601String(),
       );
+
       _items.addAll(result.items);
+
       emit(HistoryLoaded(
         analyses: List.unmodifiable(_items),
         hasMore: result.hasMore,
@@ -189,6 +226,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   ) async {
     // Only refresh if already loaded — don't interrupt loading states
     if (state is! HistoryLoaded) return;
+
     try {
       final result = await _getListUseCase(
         page: 1,
@@ -197,21 +235,28 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
         startDate: _currentStartDate?.toIso8601String(),
         endDate: _currentEndDate?.toIso8601String(),
       );
+
       if (result.items.isEmpty) return;
+
       _currentPage = 1;
       _items
         ..clear()
         ..addAll(result.items);
+
       emit(HistoryLoaded(
         analyses: List.unmodifiable(_items),
         hasMore: result.hasMore,
         page: _currentPage,
       ));
     } on Object catch (e, stack) {
-      developer.log('[HistoryBloc] silent refresh failed', error: e, stackTrace: stack);
+      developer.log(
+        '[HistoryBloc] silent refresh failed',
+        error: e,
+        stackTrace: stack,
+      );
     }
   }
-
+  
   Future<void> _onGetAnalyses(
     GetAnalysesEvent event,
     Emitter<HistoryState> emit,

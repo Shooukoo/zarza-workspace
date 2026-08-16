@@ -11,4 +11,10 @@ abstract class IFruitsRepository {
     String? startDate,
     String? endDate,
   });
+  Future<FruitAnalysis> validateAnalysis({
+    required String id,
+    required String action,
+    List<Map<String, dynamic>>? cronogramaCorregido,
+    String? observaciones,
+  });
 }

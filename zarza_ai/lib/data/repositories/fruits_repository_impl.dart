@@ -30,4 +30,21 @@ class FruitsRepositoryImpl implements IFruitsRepository {
     );
     return result.map((m) => m.toEntity());
   }
+
+  @override
+  Future<FruitAnalysis> validateAnalysis({
+    required String id,
+    required String action,
+    List<Map<String, dynamic>>? cronogramaCorregido,
+    String? observaciones,
+  }) async {
+    final model = await _datasource.validateAnalysis(
+      id: id,
+      action: action,
+      cronogramaCorregido: cronogramaCorregido,
+      observaciones: observaciones,
+    );
+
+    return model.toEntity();
+  }
 }
