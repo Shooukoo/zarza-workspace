@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@rubus/database';
+import { PrismaService, Prisma } from '@rubus/database';
 import { Role } from '../auth/domain/enums/role.enum';
 import { type UserScope } from '../auth/domain/types/user-scope.type';
 
@@ -35,7 +35,7 @@ export interface AnalisisHeatmapPoint {
 export class MapasCalorService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private scopeWhere(scope: UserScope): Record<string, unknown> {
+  private scopeWhere(scope: UserScope): Prisma.AnalysisWhereInput {
     if (scope.role === Role.PRODUCTOR) return { productorId: scope.sub };
     if (scope.role === Role.AGRONOMO) {
       return { campoId: { in: scope.camposAsignados ?? [] } };
@@ -43,7 +43,7 @@ export class MapasCalorService {
     return {};
   }
 
-  private dateWhere(from?: string, to?: string): Record<string, unknown> {
+  private dateWhere(from?: string, to?: string): Prisma.AnalysisWhereInput {
     if (!from && !to) return {};
     return {
       fechaAnalisis: {

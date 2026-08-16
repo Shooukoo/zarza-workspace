@@ -84,6 +84,31 @@ describe('MapasCalorService', () => {
       );
     });
 
+    it('arma el where completo combinando scope, rango de fechas y filtro de ubicación', async () => {
+      prisma.analysis.groupBy.mockResolvedValue([]);
+      prisma.analysis.count.mockResolvedValue(0);
+
+      await service.getCamposHeatmap(
+        { role: Role.PRODUCTOR, sub: 'prod-1' },
+        '2026-01-01',
+        '2026-01-31',
+      );
+
+      expect(prisma.analysis.groupBy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            productorId: 'prod-1',
+            fechaAnalisis: {
+              gte: new Date('2026-01-01'),
+              lte: new Date('2026-01-31'),
+            },
+            ubicacionLat: { not: null },
+            ubicacionLng: { not: null },
+          },
+        }),
+      );
+    });
+
     it('arma la respuesta combinando agregados y datos del campo', async () => {
       prisma.analysis.groupBy.mockResolvedValue([
         {
@@ -194,6 +219,26 @@ describe('MapasCalorService', () => {
         }),
       );
       expect(result[0]).toMatchObject({ id: 'a-1', lat: 19.7, lng: -103.3 });
+    });
+
+    it('aplica el rango de fechas al listar análisis de un campo', async () => {
+      prisma.analysis.findMany.mockResolvedValue([]);
+
+      await service.getAnalisisHeatmap('campo-1', '2026-01-01', '2026-01-31');
+
+      expect(prisma.analysis.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            campoId: 'campo-1',
+            ubicacionLat: { not: null },
+            ubicacionLng: { not: null },
+            fechaAnalisis: {
+              gte: new Date('2026-01-01'),
+              lte: new Date('2026-01-31'),
+            },
+          },
+        }),
+      );
     });
   });
 
