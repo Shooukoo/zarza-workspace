@@ -157,6 +157,7 @@ model Analysis {
   detections               Detection[]
   modelFeedback            ModelFeedback[]
 
+  @@index([campoId, fechaAnalisis])
   @@map("analyses")
 }
 
