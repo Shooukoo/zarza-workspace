@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Alert, Button, DatePicker, Empty, Segmented, Space, Typography } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
+import { Alert, Button, DatePicker, Empty, Segmented, Space, Spin, Typography } from 'antd';
 import { ArrowLeftOutlined, PrinterOutlined } from '@ant-design/icons';
 import type { Dayjs } from 'dayjs';
 import { useCamposHeatmap, useAnalisisHeatmap } from './hooks/useMapasCalor';
@@ -30,6 +30,12 @@ export function MapasCalorPage() {
 
   const campoSeleccionado =
     camposQuery.data?.campos.find((c) => c.campoId === campoId) ?? null;
+
+  useEffect(() => {
+    if (!campoId || !camposQuery.data) return;
+    const exists = camposQuery.data.campos.some((c) => c.campoId === campoId);
+    if (!exists) setCampoId(null);
+  }, [campoId, camposQuery.data]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -86,11 +92,23 @@ export function MapasCalorPage() {
             message={`${camposQuery.data.sinUbicacion} análisis en este período no tienen ubicación GPS y no se muestran.`}
           />
         )}
+        {camposQuery.isError && (
+          <Alert
+            style={{ marginTop: 12 }}
+            type="error"
+            showIcon
+            message="No se pudo cargar el mapa de calor."
+          />
+        )}
       </div>
 
       <div className="mapas-calor-map" style={{ flex: 1, minHeight: 0 }}>
         {campoId ? (
-          campoSeleccionado && analisisQuery.data ? (
+          analisisQuery.isLoading ? (
+            <SpinCenter />
+          ) : analisisQuery.isError ? (
+            <ErrorCenter message="No se pudo cargar el análisis de este campo." />
+          ) : campoSeleccionado && analisisQuery.data ? (
             analisisQuery.data.length > 0 ? (
               <CampoDetailMap
                 analisis={analisisQuery.data}
@@ -102,7 +120,9 @@ export function MapasCalorPage() {
               <Empty description="Este campo no tiene análisis geolocalizados en el rango seleccionado" />
             )
           ) : null
-        ) : camposQuery.data && camposQuery.data.campos.length > 0 ? (
+        ) : camposQuery.isLoading ? (
+          <SpinCenter />
+        ) : camposQuery.isError ? null : camposQuery.data && camposQuery.data.campos.length > 0 ? (
           <CamposOverviewMap
             campos={camposQuery.data.campos}
             metrica={metrica}
@@ -113,6 +133,22 @@ export function MapasCalorPage() {
           <Empty description="No hay campos con análisis geolocalizados en el rango seleccionado" />
         )}
       </div>
+    </div>
+  );
+}
+
+function SpinCenter() {
+  return (
+    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Spin size="large" />
+    </div>
+  );
+}
+
+function ErrorCenter({ message }: { message: string }) {
+  return (
+    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Alert type="error" showIcon message={message} />
     </div>
   );
 }
