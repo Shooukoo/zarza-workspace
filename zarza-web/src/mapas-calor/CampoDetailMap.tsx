@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
+import L from 'leaflet';
 import type { AnalisisHeatmapPoint, MetricaMapaCalor } from './types';
 import { tileLayerFor, type MapLayer } from './MapLayerToggle';
 import { analisisMetricValue, computeRange, colorForValue } from './metricColor';
@@ -11,6 +12,15 @@ interface Props {
   metrica: MetricaMapaCalor;
   layer: MapLayer;
   center: { lat: number; lng: number };
+}
+
+function coloredCircleIcon(color: string): L.DivIcon {
+  return L.divIcon({
+    className: 'analisis-marker-icon',
+    html: `<span style="display:block;width:18px;height:18px;border-radius:50%;background:${color};border:2px solid rgba(0,0,0,0.35);box-sizing:border-box;"></span>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  });
 }
 
 function FitToPoints({ points }: { points: AnalisisHeatmapPoint[] }) {
@@ -40,16 +50,11 @@ export function CampoDetailMap({ analisis, metrica, layer, center }: Props) {
         {analisis.map((a) => {
           const color = colorForValue(analisisMetricValue(metrica, a), min, max);
           return (
-            <CircleMarker
-              key={a.id}
-              center={[a.lat, a.lng]}
-              radius={9}
-              pathOptions={{ color, fillColor: color, fillOpacity: 0.8, weight: 2 }}
-            >
+            <Marker key={a.id} position={[a.lat, a.lng]} icon={coloredCircleIcon(color)}>
               <Popup>
                 <AnalisisPopup analisis={a} />
               </Popup>
-            </CircleMarker>
+            </Marker>
           );
         })}
       </MarkerClusterGroup>
