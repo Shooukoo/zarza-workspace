@@ -6,6 +6,7 @@ import { Forbidden403Page } from './shared/Forbidden403Page';
 import { NotFound404Page } from './shared/NotFound404Page';
 import { DashboardPage } from './dashboard/DashboardPage';
 import { CamposPage } from './campos/CamposPage';
+import { MapasCalorPage } from './mapas-calor/MapasCalorPage';
 import { SolicitudesPage } from './solicitudes/SolicitudesPage';
 import { AnalisisPage } from './analisis/AnalisisPage';
 import { ColaRevisionPage } from './revision-detecciones/ColaRevisionPage';
@@ -52,6 +53,7 @@ export function App() {
             }
           >
             <Route path="/campos" element={<CamposPage />} />
+            <Route path="/mapas-calor" element={<MapasCalorPage />} />
           </Route>
 
           <Route
