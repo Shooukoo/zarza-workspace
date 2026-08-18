@@ -104,7 +104,7 @@ export function MapasCalorPage() {
 
       <div className="mapas-calor-map" style={{ flex: 1, minHeight: 0 }}>
         {campoId ? (
-          analisisQuery.isLoading ? (
+          analisisQuery.isLoading || camposQuery.isLoading ? (
             <SpinCenter />
           ) : analisisQuery.isError ? (
             <ErrorCenter message="No se pudo cargar el análisis de este campo." />
@@ -122,7 +122,9 @@ export function MapasCalorPage() {
           ) : null
         ) : camposQuery.isLoading ? (
           <SpinCenter />
-        ) : camposQuery.isError ? null : camposQuery.data && camposQuery.data.campos.length > 0 ? (
+        ) : camposQuery.isError ? (
+          <ErrorCenter message="No se pudo cargar el mapa de calor." />
+        ) : camposQuery.data && camposQuery.data.campos.length > 0 ? (
           <CamposOverviewMap
             campos={camposQuery.data.campos}
             metrica={metrica}
@@ -139,7 +141,11 @@ export function MapasCalorPage() {
 
 function SpinCenter() {
   return (
-    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div
+      role="status"
+      aria-label="Cargando…"
+      style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
       <Spin size="large" />
     </div>
   );
