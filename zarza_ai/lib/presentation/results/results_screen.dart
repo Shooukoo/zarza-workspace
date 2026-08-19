@@ -749,6 +749,68 @@ class _WeightCard extends StatelessWidget {
   }
 }
 
+class _ValidationObservacionesDialog extends StatefulWidget {
+  const _ValidationObservacionesDialog({required this.isValidating});
+
+  final bool isValidating;
+
+  @override
+  State<_ValidationObservacionesDialog> createState() =>
+      _ValidationObservacionesDialogState();
+}
+
+class _ValidationObservacionesDialogState
+    extends State<_ValidationObservacionesDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        widget.isValidating ? 'Validar análisis' : 'Rechazar análisis',
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.isValidating
+                ? '¿Deseas validar este análisis?'
+                : '¿Deseas rechazar este análisis?',
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _controller,
+            maxLines: 4,
+            decoration: const InputDecoration(
+              labelText: 'Observaciones',
+              hintText: 'Opcional',
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        ElevatedButton(
+          onPressed: () =>
+              Navigator.of(context).pop(_controller.text.trim()),
+          child: Text(widget.isValidating ? 'Validar' : 'Rechazar'),
+        ),
+      ],
+    );
+  }
+}
+
 class _ValidationActions extends StatelessWidget {
   const _ValidationActions({required this.analysis});
 
@@ -758,65 +820,15 @@ class _ValidationActions extends StatelessWidget {
     BuildContext context,
     String action,
   ) async {
-    final controller = TextEditingController();
     final isValidating = action == 'validado';
 
-    final confirmed = await showDialog<bool>(
+    final observaciones = await showDialog<String>(
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(
-            isValidating
-                ? 'Validar análisis'
-                : 'Rechazar análisis',
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isValidating
-                    ? '¿Deseas validar este análisis?'
-                    : '¿Deseas rechazar este análisis?',
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: controller,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Observaciones',
-                  hintText: 'Opcional',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(isValidating ? 'Validar' : 'Rechazar'),
-            ),
-          ],
-        );
-      },
+      builder: (dialogContext) =>
+          _ValidationObservacionesDialog(isValidating: isValidating),
     );
 
-    if (confirmed != true || !context.mounted) {
-      await Future<void>.delayed(const Duration(milliseconds: 300));
-      controller.dispose();
-      return;
-    }
-
-    final observaciones = controller.text.trim();
-
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    controller.dispose();
-
-    if (!context.mounted) return;
+    if (observaciones == null || !context.mounted) return;
 
     context.read<ResultsBloc>().add(
           ResultsValidateEvent(

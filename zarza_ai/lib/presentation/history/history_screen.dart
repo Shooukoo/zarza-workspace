@@ -87,7 +87,15 @@ class _HistoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => context.push('/results/${analysis.id}'),
+          onTap: () async {
+            final updated =
+                await context.push<FruitAnalysis?>('/results/${analysis.id}');
+            if (updated != null && context.mounted) {
+              context
+                  .read<HistoryBloc>()
+                  .add(HistoryAnalysisUpdatedEvent(updated));
+            }
+          },
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),

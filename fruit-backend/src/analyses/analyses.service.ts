@@ -95,13 +95,15 @@ export class AnalysesService {
       data: {
         validacionEstado: dto.action,
         validacionCorregidoPorId: corregidoPorId,
+        ...(dto.observaciones !== undefined
+          ? { validacionObservaciones: dto.observaciones }
+          : {}),
         ...(dto.action === 'rechazado' && dto.cronograma_corregido?.length
           ? {
               validacionFueCorregido: true,
               validacionDiagnosticoOriginal: diagnosticoOriginal,
               validacionCronogramaCorregido:
                 dto.cronograma_corregido as unknown as Prisma.InputJsonValue,
-              validacionObservaciones: dto.observaciones ?? '',
             }
           : {}),
       },
