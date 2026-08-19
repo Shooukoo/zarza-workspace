@@ -131,11 +131,14 @@ export function AnalisisPage() {
   const deepLinkId = searchParams.get('id');
 
   function closeDeepLink() {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.delete('id');
-      return next;
-    });
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('id');
+        return next;
+      },
+      { replace: true },
+    );
   }
 
   return (
