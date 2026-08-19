@@ -12,9 +12,9 @@
 
 ---
 
-## Estado de ejecución (pausado — retomar en Task 9)
+## Estado de ejecución (COMPLETO — Tareas 1-15)
 
-Ejecutado con subagent-driven-development (implementador + revisor de spec + revisor de calidad por tarea) sobre `feat/mapas-calor`, en este mismo directorio (sin worktree separado).
+Ejecutado con subagent-driven-development (implementador + revisor de spec + revisor de calidad por tarea) sobre `feat/mapas-calor`. Tareas 1-8 en el directorio principal; Tareas 9-15 en un git worktree separado (`/home/san/Proyectos/zarza-workspace-mapas-calor`) para no interferir con otra sesión trabajando en paralelo sobre otra rama en el directorio principal.
 
 **Tareas 1-8: COMPLETAS y aprobadas.** Commits en orden (`d97b5dc`..`66bf042`):
 
@@ -30,11 +30,29 @@ Ejecutado con subagent-driven-development (implementador + revisor de spec + rev
 - `e423baa` — Task 8: `useMapasCalor.ts` (hooks) + `poligonoGps`/`useUpdateCampoPoligono` en `useCampos.ts`.
 - `66bf042` — fix post-revisión de Task 8: `useUpdateCampoPoligono` no invalidaba la caché de `mapas-calor` al guardar un polígono nuevo (solo `['campos']`), dejando el mapa general con el polígono viejo hasta expirar el `staleTime`. Ahora invalida ambos.
 
-**Pendientes: Tasks 9-15** (vista general del mapa, vista de campo con clustering, la página completa con filtros/impresión, editor de polígono en CamposPage, wiring en CamposPage, deep link `?id=` en `/analisis`, y verificación end-to-end). Ninguna tiene código escrito todavía.
+**Tareas 9-15: COMPLETAS y aprobadas**, ejecutadas en el worktree `/home/san/Proyectos/zarza-workspace-mapas-calor`. Commits en orden (`079338a`..`7cb95f9`):
 
-**Artefactos de build sueltos sin commitear:** hay cambios en `zarza-web/dist/` y `zarza-web/tsconfig.app.tsbuildinfo` generados por builds de verificación de tareas anteriores (no por ninguna tarea puntual). Quedan pendientes de un commit "chore: regenerar artefactos de build" al final, junto con Task 15.
+- `079338a` — Task 9: `CamposOverviewMap.tsx` (vista general, choropleth por campo).
+- `fe187f7` — Task 10: `AnalisisPopup.tsx` + `CampoDetailMap.tsx` (vista de campo con clustering).
+- `c8319f7` — fix post-revisión de Task 10: `CircleMarker` dentro de `MarkerClusterGroup` causaba `TypeError` en runtime (`leaflet.markercluster` llama `layer._setPos()`/`clusterHide()` sin guarda al animar hacia un cluster ya visible; esos métodos solo existen en `L.Marker`). Reemplazado por `Marker` + `divIcon` coloreado.
+- `1e15bb0` — Task 11: `MapasCalorPage.tsx` + ruta `/mapas-calor` + nav item.
+- `8429619` — fix post-revisión de Task 11: sin loading/error state (flash de "sin datos" antes de que resuelva la query; error de fetch indistinguible de "sin datos"); `campoId` obsoleto tras cambiar el rango de fechas dejaba el mapa en blanco sin explicación.
+- `90ffaa6` — fix post-revisión (ronda 2) de Task 11: ventana de carrera entre `camposQuery`/`analisisQuery` en el drill-in aún podía mostrar un mapa en blanco transitorio; agregado `role="status"` accesible al spinner; simetría de error entre vista general y detalle.
+- `4c5e722` — Task 12: `EditCampoPolygonModal.tsx` (editor de polígono con `leaflet-draw`).
+- `da3c0a6` — Task 13: acción "Editar límites" en `CamposPage.tsx`.
+- `3b1720d` — fix post-revisión de Task 13: `record.poligonoGps` como `[]` (default de un campo recién creado) es truthy en JS, así que la columna "Límites" mostraba "Definidos" para campos sin límites dibujados. Corregido a `(poligonoGps?.length ?? 0) >= 3`, igual que el backend y el editor.
+- `8a0e22e` — Task 14: deep link `?id=` en `AnalisisPage.tsx`.
+- `839bc14` — fix post-revisión de Task 14: `closeDeepLink` empujaba una entrada nueva al historial en vez de reemplazarla, dejando `/analisis?id=X` como destino del botón atrás del navegador — podía reabrir el modal del deep link mientras el modal de una fila seleccionada en las tabs seguía abierto (dos modales apilados). Corregido con `{ replace: true }`.
+- `7cb95f9` — Task 15: chore de artefactos de build regenerados.
+
+**Task 15 — verificación end-to-end:** completa.
+- Backend: `pnpm run test` → 138/138 tests pasan (incluye `campos.service.spec.ts` y `mapas-calor.service.spec.ts`). `pnpm run build` limpio. `pnpm run lint` no pudo correr por un crash preexistente de `ajv`/`@eslint/eslintrc` en el toolchain (confirmado sin relación con esta rama, mismo lockfile que `main`) — gap conocido, no bloqueante.
+- Frontend: `npm run build` (`tsc -b && vite build`) limpio, sin errores de tipos.
+- Golden path manual en navegador real (stack completo en modo dev sobre el worktree, datos de prueba sembrados directo vía Prisma): verificado para ADMIN, PRODUCTOR y AGRONOMO — vista general con polígono/círculo por campo, toggle de métrica, filtro de fecha con estado vacío, drill-in con clustering, popup con "Ver detecciones" (rutas correctas por rol), imprimir, editor de polígono (guardado + reflejo inmediato en el mapa por invalidación de caché), scoping de AGRONOMO a sus campos asignados. Sin bugs nuevos encontrados — todos los fixes de las revisiones de código se confirmaron funcionando correctamente en vivo. No se probó la capa satélite de Mapbox (requiere `VITE_MAPBOX_TOKEN`, no configurado en el entorno de prueba — el toggle queda oculto por diseño sin ese token).
 
 **PR #25 sigue abierto**, no mergeado — no se tomó ninguna decisión sobre mergearlo, es una decisión del usuario para más adelante.
+
+**Nota:** `main` avanzó durante la ejecución de las Tareas 9-15 (se mergearon `feat/deteccion-feedback-captura` y el PR del modal de validación). `feat/mapas-calor` todavía no se rebaseó/mergeó con ese `main` actualizado — pendiente, a decidir con el usuario.
 
 ---
 
@@ -1467,7 +1485,7 @@ git commit -m "feat(zarza-web): hooks de datos para mapas de calor y edición de
 **Files:**
 - Create: `zarza-web/src/mapas-calor/CamposOverviewMap.tsx`
 
-- [ ] **Step 1: Escribir el componente**
+- [x] **Step 1: Escribir el componente**
 
 `zarza-web/src/mapas-calor/CamposOverviewMap.tsx`:
 
@@ -1539,12 +1557,12 @@ export function CamposOverviewMap({ campos, metrica, layer, onSelectCampo }: Pro
 }
 ```
 
-- [ ] **Step 2: Verificar tipos**
+- [x] **Step 2: Verificar tipos**
 
 Run: `cd zarza-web && npx tsc -b --noEmit`
 Expected: sin errores nuevos.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add zarza-web/src/mapas-calor/CamposOverviewMap.tsx
@@ -1559,7 +1577,7 @@ git commit -m "feat(zarza-web): vista general del mapa de calor (choropleth por 
 - Create: `zarza-web/src/mapas-calor/AnalisisPopup.tsx`
 - Create: `zarza-web/src/mapas-calor/CampoDetailMap.tsx`
 
-- [ ] **Step 1: Popup de análisis**
+- [x] **Step 1: Popup de análisis**
 
 `zarza-web/src/mapas-calor/AnalisisPopup.tsx`:
 
@@ -1618,7 +1636,7 @@ export function AnalisisPopup({ analisis }: Props) {
 }
 ```
 
-- [ ] **Step 2: Mapa de detalle con clustering**
+- [x] **Step 2: Mapa de detalle con clustering**
 
 `zarza-web/src/mapas-calor/CampoDetailMap.tsx`:
 
@@ -1683,12 +1701,12 @@ export function CampoDetailMap({ analisis, metrica, layer, center }: Props) {
 }
 ```
 
-- [ ] **Step 3: Verificar tipos**
+- [x] **Step 3: Verificar tipos**
 
 Run: `cd zarza-web && npx tsc -b --noEmit`
 Expected: sin errores nuevos.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add zarza-web/src/mapas-calor/AnalisisPopup.tsx zarza-web/src/mapas-calor/CampoDetailMap.tsx
@@ -1704,7 +1722,7 @@ git commit -m "feat(zarza-web): vista de campo con clustering y popup de anális
 - Modify: `zarza-web/src/shared/AppShell.tsx`
 - Modify: `zarza-web/src/App.tsx`
 
-- [ ] **Step 1: Agregar clase de impresión al topbar de `AppShell`**
+- [x] **Step 1: Agregar clase de impresión al topbar de `AppShell`**
 
 En `zarza-web/src/shared/AppShell.tsx`, dentro de `TopBar`, agregar `className="app-topbar"` al `div` raíz devuelto por la función (el que tiene `padding: '16px 32px'`):
 
@@ -1714,7 +1732,7 @@ En `zarza-web/src/shared/AppShell.tsx`, dentro de `TopBar`, agregar `className="
       padding: '16px 32px', flexShrink: 0,
 ```
 
-- [ ] **Step 2: Agregar el item de navegación**
+- [x] **Step 2: Agregar el item de navegación**
 
 En `zarza-web/src/shared/AppShell.tsx`, en `GROUP_CAMPO`, agregar la entrada nueva junto a `/campos`:
 
@@ -1728,7 +1746,7 @@ const GROUP_CAMPO: NavItem[] = [
 ];
 ```
 
-- [ ] **Step 3: Escribir la página**
+- [x] **Step 3: Escribir la página**
 
 `zarza-web/src/mapas-calor/MapasCalorPage.tsx`:
 
@@ -1853,7 +1871,7 @@ export function MapasCalorPage() {
 }
 ```
 
-- [ ] **Step 4: Agregar la ruta**
+- [x] **Step 4: Agregar la ruta**
 
 En `zarza-web/src/App.tsx`, agregar el import:
 
@@ -1876,12 +1894,12 @@ Y la ruta, junto a la de `/campos`:
           </Route>
 ```
 
-- [ ] **Step 5: Verificar en el navegador**
+- [x] **Step 5: Verificar en el navegador**
 
 Run: `cd zarza-web && npm run dev` (con `fruit-backend` corriendo en paralelo)
 Expected: al loguearse como ADMIN/PRODUCTOR/AGRONOMO y navegar a `/mapas-calor`, aparece el nav item, la página carga (mapa vacío u con campos según los datos de prueba disponibles), el filtro de fecha y el selector de métrica responden, y "Imprimir" abre el diálogo de impresión del navegador con el topbar y los controles ocultos.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add zarza-web/src/mapas-calor/MapasCalorPage.tsx zarza-web/src/shared/AppShell.tsx zarza-web/src/App.tsx
@@ -1895,7 +1913,7 @@ git commit -m "feat(zarza-web): página de Mapas de Calor con filtros, drill-in 
 **Files:**
 - Create: `zarza-web/src/campos/EditCampoPolygonModal.tsx`
 
-- [ ] **Step 1: Escribir el componente**
+- [x] **Step 1: Escribir el componente**
 
 `zarza-web/src/campos/EditCampoPolygonModal.tsx`:
 
@@ -2032,12 +2050,12 @@ export function EditCampoPolygonModal({ campo, open, onClose }: Props) {
 }
 ```
 
-- [ ] **Step 2: Verificar tipos**
+- [x] **Step 2: Verificar tipos**
 
 Run: `cd zarza-web && npx tsc -b --noEmit`
 Expected: sin errores nuevos. Si `@types/leaflet-draw` no expone `L.Control.Draw`/`L.Draw.Event` correctamente, revisar que la versión instalada declare esos símbolos (son parte estándar del paquete de tipos).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add zarza-web/src/campos/EditCampoPolygonModal.tsx
@@ -2051,7 +2069,7 @@ git commit -m "feat(zarza-web): editor de polígono de campo con leaflet-draw"
 **Files:**
 - Modify: `zarza-web/src/campos/CamposPage.tsx`
 
-- [ ] **Step 1: Wirear el modal en la tabla**
+- [x] **Step 1: Wirear el modal en la tabla**
 
 En `zarza-web/src/campos/CamposPage.tsx`, actualizar los imports:
 
@@ -2141,12 +2159,12 @@ Y renderizar el modal al final del JSX devuelto, junto a `CreateCampoModal`:
       />
 ```
 
-- [ ] **Step 2: Verificar en el navegador**
+- [x] **Step 2: Verificar en el navegador**
 
 Run: `cd zarza-web && npm run dev`
 Expected: en `/campos`, un ADMIN ve "Editar límites" en toda fila; un PRODUCTOR solo en sus propios campos (los de otros productores muestran el `Tag`); un AGRONOMO no ve el botón en ninguna fila. Al abrir el editor, dibujar un polígono nuevo (3+ puntos) habilita "Aceptar"; al guardar, la tabla y (si se navega ahí) el mapa de calor reflejan el polígono nuevo.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add zarza-web/src/campos/CamposPage.tsx
@@ -2160,7 +2178,7 @@ git commit -m "feat(zarza-web): agregar acción de editar límites en CamposPage
 **Files:**
 - Modify: `zarza-web/src/analisis/AnalisisPage.tsx`
 
-- [ ] **Step 1: Leer el query param y abrir el modal**
+- [x] **Step 1: Leer el query param y abrir el modal**
 
 En `zarza-web/src/analisis/AnalisisPage.tsx`, agregar el import de `useSearchParams` junto al de `useState`:
 
@@ -2221,11 +2239,11 @@ export function AnalisisPage() {
 
 `AnalisisDetailModal` ya está importado en el archivo (lo usa `AnalisisTab`); no hace falta agregar el import.
 
-- [ ] **Step 2: Verificar en el navegador**
+- [x] **Step 2: Verificar en el navegador**
 
 Con la app corriendo, loguear como PRODUCTOR y navegar directo a `/analisis?id=<uuid-de-un-analisis-propio>`. Expected: el modal de detalle se abre automáticamente al cargar la página, sin necesidad de click en la tabla; al cerrarlo, el query param `id` desaparece de la URL. Repetir con un id que no le pertenece a ese productor: el modal debe mostrar el error/estado vacío que ya maneja `useAnalisisDetail` para un 404 (sin cambios adicionales, ya cubierto por el scoping existente del backend).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add zarza-web/src/analisis/AnalisisPage.tsx
@@ -2238,22 +2256,22 @@ git commit -m "feat(zarza-web): soportar ?id= en /analisis para abrir el detalle
 
 **Files:** ninguno (solo verificación manual).
 
-- [ ] **Step 1: Backend — suite completa**
+- [x] **Step 1: Backend — suite completa**
 
 Run: `cd fruit-backend && pnpm run test`
 Expected: PASS, incluyendo los tests nuevos de `campos.service.spec.ts` y `mapas-calor.service.spec.ts`.
 
-- [ ] **Step 2: Backend — lint y build**
+- [x] **Step 2: Backend — lint y build**
 
 Run: `cd fruit-backend && pnpm run lint && pnpm run build`
 Expected: sin errores nuevos.
 
-- [ ] **Step 3: Frontend — build**
+- [x] **Step 3: Frontend — build**
 
 Run: `cd zarza-web && npm run build`
 Expected: sin errores de tipos ni de build.
 
-- [ ] **Step 4: Golden path manual (ADMIN)**
+- [x] **Step 4: Golden path manual (ADMIN)**
 
 Con el stack corriendo (`docker compose up postgres rabbitmq redis` + `fruit-backend`/`fruit-ms` en dev + `zarza-web` en dev), y al menos un campo con análisis que tengan `ubicacionLat`/`ubicacionLng`:
 
@@ -2266,11 +2284,11 @@ Con el stack corriendo (`docker compose up postgres rabbitmq redis` + `fruit-bac
 7. Click en "Imprimir" → diálogo de impresión con el mapa a pantalla completa, sin topbar ni controles.
 8. Ir a `/campos`, click en "Editar límites" de un campo propio, dibujar un polígono, guardar, y confirmar que la vista general de `/mapas-calor` ahora pinta ese campo como polígono relleno en vez de círculo.
 
-- [ ] **Step 5: Golden path manual (PRODUCTOR)**
+- [x] **Step 5: Golden path manual (PRODUCTOR)**
 
 Repetir pasos 1, 2, 4 y 5 logueado como PRODUCTOR: en el paso 5, "Ver detecciones" debe navegar a `/analisis?id=:id` y abrir el modal de detalle (sin imagen, ya que `useAnalisisImage` sigue deshabilitado para PRODUCTOR).
 
-- [ ] **Step 6: Golden path manual (AGRONOMO)**
+- [x] **Step 6: Golden path manual (AGRONOMO)**
 
 Confirmar que solo ve sus campos asignados en la vista general, que no ve el botón "Editar límites" en `/campos`, y que "Ver detecciones" navega a `/analisis/:id/revision-detecciones` igual que ADMIN.
 
