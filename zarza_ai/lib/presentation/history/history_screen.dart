@@ -33,8 +33,7 @@ class HistoryScreen extends StatelessWidget {
           final analyses = state is HistoryLoaded
               ? state.analyses
               : (state as HistoryLoadingMore).current;
-          final hasMore =
-              state is HistoryLoaded ? state.hasMore : false;
+          final hasMore = state is HistoryLoaded ? state.hasMore : false;
 
           if (analyses.isEmpty) return const _EmptyView();
 
@@ -49,9 +48,9 @@ class HistoryScreen extends StatelessWidget {
                 if (index == analyses.length) {
                   return _LoadMoreButton(
                     isLoading: state is HistoryLoadingMore,
-                    onTap: () => context
-                        .read<HistoryBloc>()
-                        .add(const HistoryLoadMoreEvent()),
+                    onTap: () => context.read<HistoryBloc>().add(
+                      const HistoryLoadMoreEvent(),
+                    ),
                   );
                 }
                 return _HistoryCard(analysis: analyses[index]);
@@ -78,8 +77,8 @@ class _HistoryCard extends StatelessWidget {
     final scoreColor = score >= 70
         ? AppTheme.emerald
         : score >= 40
-            ? AppTheme.warn
-            : AppTheme.danger;
+        ? AppTheme.warn
+        : AppTheme.danger;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -88,12 +87,19 @@ class _HistoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => context.push('/results/${analysis.id}'),
+          onTap: () async {
+            final updated =
+                await context.push<FruitAnalysis?>('/results/${analysis.id}');
+            if (updated != null && context.mounted) {
+              context
+                  .read<HistoryBloc>()
+                  .add(HistoryAnalysisUpdatedEvent(updated));
+            }
+          },
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border:
-                  Border.all(color: Colors.white.withValues(alpha: 0.07)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -129,7 +135,17 @@ class _HistoryCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    StatusBadge(status: analysis.status),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        StatusBadge(status: analysis.status),
+                        const SizedBox(height: 4),
+                        ValidationStatusBadge(
+                          status: analysis.validationStatus,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 if (analysis.detections.isNotEmpty) ...[
@@ -139,16 +155,18 @@ class _HistoryCard extends StatelessWidget {
                     runSpacing: 6,
                     children: analysis.detections
                         .take(4)
-                        .map((d) =>
-                            StageBadge(label: d.label, count: d.count))
+                        .map((d) => StageBadge(label: d.label, count: d.count))
                         .toList(),
                   ),
                 ],
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    const Icon(Icons.monitor_weight_rounded,
-                        size: 14, color: AppTheme.emerald),
+                    const Icon(
+                      Icons.monitor_weight_rounded,
+                      size: 14,
+                      color: AppTheme.emerald,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${analysis.healthyWeightGrams.toStringAsFixed(1)} g',
@@ -160,8 +178,11 @@ class _HistoryCard extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    const Icon(Icons.chevron_right_rounded,
-                        color: AppTheme.dataGray, size: 18),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppTheme.dataGray,
+                      size: 18,
+                    ),
                   ],
                 ),
               ],
@@ -174,8 +195,7 @@ class _HistoryCard extends StatelessWidget {
 }
 
 class _LoadMoreButton extends StatelessWidget {
-  const _LoadMoreButton(
-      {required this.isLoading, required this.onTap});
+  const _LoadMoreButton({required this.isLoading, required this.onTap});
   final bool isLoading;
   final VoidCallback onTap;
 
@@ -185,15 +205,15 @@ class _LoadMoreButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: OutlinedButton(
         onPressed: isLoading ? null : onTap,
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(46),
-        ),
+        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(46)),
         child: isLoading
             ? const SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2, color: AppTheme.rubusLight),
+                  strokeWidth: 2,
+                  color: AppTheme.rubusLight,
+                ),
               )
             : const Text('Cargar más'),
       ),
@@ -210,15 +230,17 @@ class _EmptyView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.history_toggle_off_rounded,
-              size: 64, color: AppTheme.grayLine),
+          const Icon(
+            Icons.history_toggle_off_rounded,
+            size: 64,
+            color: AppTheme.grayLine,
+          ),
           const SizedBox(height: 16),
           Text(
             'No hay análisis registrados.',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(color: AppTheme.dataGray),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium!.copyWith(color: AppTheme.dataGray),
           ),
         ],
       ),
@@ -239,8 +261,11 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_rounded,
-                size: 56, color: AppTheme.grayLine),
+            const Icon(
+              Icons.cloud_off_rounded,
+              size: 56,
+              color: AppTheme.grayLine,
+            ),
             const SizedBox(height: 16),
             Text(
               message,

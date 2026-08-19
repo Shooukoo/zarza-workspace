@@ -13,6 +13,7 @@ import type {
 import type {
   AnalysisDomain,
   EtapaFenologica,
+  EstadoValidacion,
   Deteccion,
 } from '../domain/analysis.entity';
 
@@ -181,6 +182,8 @@ export class PrismaAnalysisRepository implements IAnalysisRepository {
             diagnostico_original: doc.validacionDiagnosticoOriginal ?? null,
           }
         : null,
+      validacion_estado: (doc.validacionEstado ??
+        'pendiente') as EstadoValidacion,
     };
   }
 }

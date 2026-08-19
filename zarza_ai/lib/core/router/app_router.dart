@@ -32,6 +32,7 @@ import '../../presentation/solicitudes/solicitud_detail_bloc.dart';
 import '../../presentation/notifications/notifications_screen.dart';
 import '../../core/models/capture_context.dart';
 import '../../domain/entities/solicitud_entity.dart';
+import '../../domain/entities/fruit_analysis.dart';
 
 /// Rutas que no requieren autenticación.
 const _publicRoutes = {'/login', '/'};
@@ -64,7 +65,8 @@ class AppRouter {
 
       // Con sesión y en login → home o admin
       if (isAuthenticated && state.matchedLocation == '/login') {
-        if (authState.user.role.canCreateUsers && PlatformUtils.useAdminLayout) {
+        if (authState.user.role.canCreateUsers &&
+            PlatformUtils.useAdminLayout) {
           return '/admin';
         }
         return '/home';
@@ -78,14 +80,8 @@ class AppRouter {
       return null;
     },
     routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const SplashScreen(),
-      ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
 
       // ── Shell móvil con NavigationBar ────────────────────────────────────
       ShellRoute(
@@ -102,8 +98,9 @@ class AppRouter {
             path: '/home',
             builder: (context, state) {
               final authState = GetIt.I<AuthCubit>().state;
-              final userId =
-                  authState is AuthAuthenticated ? authState.user.id : null;
+              final userId = authState is AuthAuthenticated
+                  ? authState.user.id
+                  : null;
               return BlocProvider(
                 create: (_) =>
                     sl<HistoryBloc>()..add(HistoryLoadEvent(userId: userId)),
@@ -120,8 +117,9 @@ class AppRouter {
             builder: (context, state) {
               final solicitud = state.extra as SolicitudEntity;
               return BlocProvider(
-                create: (_) => sl<SolicitudDetailBloc>()
-                  ..add(SolicitudDetailLoad(solicitud)),
+                create: (_) =>
+                    sl<SolicitudDetailBloc>()
+                      ..add(SolicitudDetailLoad(solicitud)),
                 child: const SolicitudDetailScreen(),
               );
             },
@@ -130,8 +128,9 @@ class AppRouter {
             path: '/history',
             builder: (context, state) {
               final authState = GetIt.I<AuthCubit>().state;
-              final userId =
-                  authState is AuthAuthenticated ? authState.user.id : null;
+              final userId = authState is AuthAuthenticated
+                  ? authState.user.id
+                  : null;
               return BlocProvider(
                 create: (_) =>
                     sl<HistoryBloc>()..add(HistoryLoadEvent(userId: userId)),
@@ -165,8 +164,16 @@ class AppRouter {
         path: '/results/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
+          final analysis = state.extra as FruitAnalysis?;
+
           return BlocProvider(
-            create: (_) => sl<ResultsBloc>()..add(ResultsLoadEvent(id: id)),
+            create: (_) => sl<ResultsBloc>()
+              ..add(
+                ResultsLoadEvent(
+                  id: id,
+                  analysis: analysis,
+                ),
+              ),
             child: const ResultsScreen(),
           );
         },
@@ -203,9 +210,7 @@ class AppRouter {
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Página no encontrada: ${state.error}'),
-      ),
+      body: Center(child: Text('Página no encontrada: ${state.error}')),
     ),
   );
 }

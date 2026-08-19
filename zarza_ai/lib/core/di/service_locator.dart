@@ -246,6 +246,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<GetAnalysisListUseCase>(
       () => GetAnalysisListUseCase(sl<IFruitsRepository>()));
 
+  sl.registerLazySingleton<ValidateAnalysisUseCase>(
+    () => ValidateAnalysisUseCase(sl<IFruitsRepository>()));
+
   sl.registerLazySingleton<WatchNotificationsUseCase>(
       () => WatchNotificationsUseCase(sl<INotificationsRepository>()));
 
@@ -270,7 +273,11 @@ Future<void> setupServiceLocator() async {
       ));
 
   sl.registerFactory<ResultsBloc>(
-      () => ResultsBloc(sl<GetAnalysisUseCase>()));
+    () => ResultsBloc(
+      sl<GetAnalysisUseCase>(),
+      sl<ValidateAnalysisUseCase>(),
+    ),
+  );
 
   sl.registerFactory<HistoryBloc>(
       () => HistoryBloc(sl<GetAnalysisListUseCase>(), sl<WatchNotificationsUseCase>()));

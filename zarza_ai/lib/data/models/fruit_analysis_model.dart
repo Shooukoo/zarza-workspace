@@ -1,9 +1,11 @@
 import '../../domain/entities/fruit_analysis.dart';
 import 'detection_model.dart';
 
-/// Maps the raw JSON from GET /api/fruits and GET /api/fruits/:id.
+/// Maps the raw JSON from either GET /api/fruits, GET /api/fruits/:id (nested
+/// MongoDB-style shape) or PATCH /api/analyses/:id/validate (flat Prisma
+/// `Analysis` record returned by fruit-backend).
 ///
-/// Real MongoDB document shape:
+/// GET /fruits shape:
 /// ```json
 /// {
 ///   "_id":              "<ObjectId>",
@@ -23,6 +25,25 @@ import 'detection_model.dart';
 ///   "createdAt": "2026-03-06T06:11:31.079+00:00"
 /// }
 /// ```
+///
+/// PATCH /analyses/:id/validate shape (fruit-backend, flat/camelCase):
+/// ```json
+/// {
+///   "id": "<uuid>",
+///   "imageId": "zarzamora_nueva_71.jpg",
+///   "storageKey": "raw/...",
+///   "variedad": null,
+///   "fechaAnalisis": "2026-03-06T06:11:31...",
+///   "totalElementosDetectados": 5,
+///   "elementosSanos": 3,
+///   "elementosEnfermos": 2,
+///   "porcentajeMermaGeneral": 40.0,
+///   "pesoSanoGramos": 12.5,
+///   "fenologiaEtapas": [ { "etapa": "...", "cantidad": 1,
+///     "cambiaA": "...", "enDias": 5, "diasParaCosecha": 14 } ],
+///   "createdAt": "2026-03-06T06:11:31.079+00:00"
+/// }
+/// ```
 class FruitAnalysisModel {
   const FruitAnalysisModel({
     required this.id,
@@ -37,6 +58,8 @@ class FruitAnalysisModel {
     required this.pesoSanoGramos,
     required this.cronograma,
     this.createdAt,
+    this.validacionEstado,
+    this.observaciones,
   });
 
   final String id;
@@ -51,6 +74,8 @@ class FruitAnalysisModel {
   final double pesoSanoGramos;
   final List<DetectionModel> cronograma;
   final DateTime? createdAt;
+  final String? validacionEstado;
+  final String? observaciones;
 
   factory FruitAnalysisModel.fromJson(Map<String, dynamic> json) {
     final metricas =
@@ -58,8 +83,10 @@ class FruitAnalysisModel {
     final proyeccion =
         json['proyeccion_financiera'] as Map<String, dynamic>? ?? const {};
 
-    final rawCronograma =
-        json['cronograma_fenologico'] as List<dynamic>? ?? [];
+    final rawCronograma = (json['cronograma_fenologico'] ??
+            json['fenologiaEtapas'] ??
+            json['fenologia_etapas']) as List<dynamic>? ??
+        [];
     final cronograma = rawCronograma
         .map((e) => DetectionModel.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -67,26 +94,50 @@ class FruitAnalysisModel {
     final rawCreatedAt =
         json['createdAt'] ?? json['created_at'] ?? json['fecha_analisis'];
 
+    final rawValidacionEstado =
+        json['validacionEstado'] ??
+        json['validacion_estado'];
+
+    final validacionEstado = rawValidacionEstado?.toString();
+
+    final observaciones = (json['validacionObservaciones'] ??
+            json['observaciones'])
+        ?.toString();
+
     return FruitAnalysisModel(
       id: (json['_id'] ?? json['id'] ?? '').toString(),
-      imageId: json['image_id'] as String? ?? '',
-      storageKey: json['storage_key'] as String? ?? '',
+      imageId: (json['image_id'] ?? json['imageId']) as String? ?? '',
+      storageKey: (json['storage_key'] ?? json['storageKey']) as String? ??
+          '',
       variedad: json['variedad'] as String?,
-      fechaAnalisis: json['fecha_analisis'] as String?,
-      totalDetectados:
-          (metricas['total_elementos_detectados'] as num?)?.toInt() ?? 0,
+      fechaAnalisis:
+          (json['fecha_analisis'] ?? json['fechaAnalisis'])?.toString(),
+      totalDetectados: ((metricas['total_elementos_detectados'] ??
+                  json['totalElementosDetectados']) as num?)
+              ?.toInt() ??
+          0,
       elementosSanos:
-          (metricas['elementos_sanos'] as num?)?.toInt() ?? 0,
-      elementosEnfermos:
-          (metricas['elementos_enfermos'] as num?)?.toInt() ?? 0,
-      porcentajeMerma:
-          (metricas['porcentaje_merma_general'] as num?)?.toDouble() ?? 0.0,
-      pesoSanoGramos:
-          (proyeccion['peso_sano_gramos'] as num?)?.toDouble() ?? 0.0,
+          ((metricas['elementos_sanos'] ?? json['elementosSanos']) as num?)
+                  ?.toInt() ??
+              0,
+      elementosEnfermos: ((metricas['elementos_enfermos'] ??
+                  json['elementosEnfermos']) as num?)
+              ?.toInt() ??
+          0,
+      porcentajeMerma: ((metricas['porcentaje_merma_general'] ??
+                  json['porcentajeMermaGeneral']) as num?)
+              ?.toDouble() ??
+          0.0,
+      pesoSanoGramos: ((proyeccion['peso_sano_gramos'] ??
+                  json['pesoSanoGramos']) as num?)
+              ?.toDouble() ??
+          0.0,
       cronograma: cronograma,
       createdAt: rawCreatedAt != null
           ? DateTime.tryParse(rawCreatedAt.toString())?.toLocal()
           : null,
+      validacionEstado: validacionEstado,
+      observaciones: observaciones,
     );
   }
 
@@ -104,5 +155,19 @@ class FruitAnalysisModel {
         variety: variedad,
         analysisDate: fechaAnalisis,
         createdAt: createdAt,
+        validationStatus: _parseValidationStatus(validacionEstado),
+        observaciones: observaciones,
       );
+
+  static AnalysisValidationStatus _parseValidationStatus(dynamic value) {
+    switch (value?.toString().toLowerCase()) {
+      case 'validado':
+        return AnalysisValidationStatus.validado;
+      case 'rechazado':
+        return AnalysisValidationStatus.rechazado;
+      case 'pendiente':
+      default:
+        return AnalysisValidationStatus.pendiente;
+    }
+  }
 }

@@ -11,6 +11,7 @@ class RemoteFruitsDatasource {
   Future<FruitAnalysisModel> getAnalysis(String id) async {
     final response =
         await _dio.get<dynamic>('${AppConstants.fruitsEndpoint}/$id');
+
     return FruitAnalysisModel.fromJson(
         response.data as Map<String, dynamic>);
   }
@@ -37,6 +38,34 @@ class RemoteFruitsDatasource {
       FruitAnalysisModel.fromJson,
       page: page,
       limit: limit,
+    );
+  }
+
+  Future<FruitAnalysisModel> validateAnalysis({
+    required String id,
+    required String action,
+    List<Map<String, dynamic>>? cronogramaCorregido,
+    String? observaciones,
+  }) async {
+    final data = <String, dynamic>{
+      'action': action,
+    };
+
+    if (cronogramaCorregido != null) {
+      data['cronograma_corregido'] = cronogramaCorregido;
+    }
+
+    if (observaciones != null) {
+      data['observaciones'] = observaciones;
+    }
+
+    final response = await _dio.patch<dynamic>(
+      '${AppConstants.analysesEndpoint}/$id/validate',
+      data: data,
+    );
+
+    return FruitAnalysisModel.fromJson(
+      response.data as Map<String, dynamic>,
     );
   }
 }

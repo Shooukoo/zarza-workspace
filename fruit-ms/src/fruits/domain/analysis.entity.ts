@@ -56,6 +56,9 @@ export type ValidacionExperto = {
   diagnostico_original: string | null;
 };
 
+/** Espejo del enum EstadoValidacion de Prisma (fruit-backend). */
+export type EstadoValidacion = 'pendiente' | 'validado' | 'rechazado';
+
 export interface AnalysisDomain {
   /** _id de MongoDB asignado tras la persistencia (undefined antes de guardar) */
   id?: string;
@@ -82,4 +85,6 @@ export interface AnalysisDomain {
   offline_sync_id?: string | null;
   /** Datos de auditoría de corrección humana (Agrónomo). */
   validacion_experto?: ValidacionExperto | null;
+  /** Estado de validación del análisis: pendiente | validado | rechazado. */
+  validacion_estado?: EstadoValidacion;
 }
