@@ -44,6 +44,26 @@ export type Analysis = $Result.DefaultSelection<Prisma.$AnalysisPayload>
  */
 export type FenologiaEtapa = $Result.DefaultSelection<Prisma.$FenologiaEtapaPayload>
 /**
+ * Model Detection
+ * 
+ */
+export type Detection = $Result.DefaultSelection<Prisma.$DetectionPayload>
+/**
+ * Model ModelFeedback
+ * 
+ */
+export type ModelFeedback = $Result.DefaultSelection<Prisma.$ModelFeedbackPayload>
+/**
+ * Model TrainingJob
+ * 
+ */
+export type TrainingJob = $Result.DefaultSelection<Prisma.$TrainingJobPayload>
+/**
+ * Model ModelVersion
+ * 
+ */
+export type ModelVersion = $Result.DefaultSelection<Prisma.$ModelVersionPayload>
+/**
  * Model RefreshToken
  * 
  */
@@ -86,6 +106,51 @@ export const EstadoValidacion: {
 
 export type EstadoValidacion = (typeof EstadoValidacion)[keyof typeof EstadoValidacion]
 
+
+export const OrigenDeteccion: {
+  MODELO: 'MODELO',
+  HUMANO: 'HUMANO'
+};
+
+export type OrigenDeteccion = (typeof OrigenDeteccion)[keyof typeof OrigenDeteccion]
+
+
+export const EstadoSalud: {
+  SANO: 'SANO',
+  ENFERMO: 'ENFERMO'
+};
+
+export type EstadoSalud = (typeof EstadoSalud)[keyof typeof EstadoSalud]
+
+
+export const AccionFeedback: {
+  EDITAR: 'EDITAR',
+  ELIMINAR: 'ELIMINAR'
+};
+
+export type AccionFeedback = (typeof AccionFeedback)[keyof typeof AccionFeedback]
+
+
+export const TrainingJobStatus: {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+export type TrainingJobStatus = (typeof TrainingJobStatus)[keyof typeof TrainingJobStatus]
+
+
+export const ModelVersionStatus: {
+  ENTRENADO: 'ENTRENADO',
+  LISTO_PARA_PROMOVER: 'LISTO_PARA_PROMOVER',
+  DESCARTADO: 'DESCARTADO',
+  PROMOVIDO: 'PROMOVIDO',
+  REEMPLAZADO: 'REEMPLAZADO'
+};
+
+export type ModelVersionStatus = (typeof ModelVersionStatus)[keyof typeof ModelVersionStatus]
+
 }
 
 export type Role = $Enums.Role
@@ -99,6 +164,26 @@ export const EstadoSolicitud: typeof $Enums.EstadoSolicitud
 export type EstadoValidacion = $Enums.EstadoValidacion
 
 export const EstadoValidacion: typeof $Enums.EstadoValidacion
+
+export type OrigenDeteccion = $Enums.OrigenDeteccion
+
+export const OrigenDeteccion: typeof $Enums.OrigenDeteccion
+
+export type EstadoSalud = $Enums.EstadoSalud
+
+export const EstadoSalud: typeof $Enums.EstadoSalud
+
+export type AccionFeedback = $Enums.AccionFeedback
+
+export const AccionFeedback: typeof $Enums.AccionFeedback
+
+export type TrainingJobStatus = $Enums.TrainingJobStatus
+
+export const TrainingJobStatus: typeof $Enums.TrainingJobStatus
+
+export type ModelVersionStatus = $Enums.ModelVersionStatus
+
+export const ModelVersionStatus: typeof $Enums.ModelVersionStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -277,6 +362,46 @@ export class PrismaClient<
     * ```
     */
   get fenologiaEtapa(): Prisma.FenologiaEtapaDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.detection`: Exposes CRUD operations for the **Detection** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Detections
+    * const detections = await prisma.detection.findMany()
+    * ```
+    */
+  get detection(): Prisma.DetectionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.modelFeedback`: Exposes CRUD operations for the **ModelFeedback** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ModelFeedbacks
+    * const modelFeedbacks = await prisma.modelFeedback.findMany()
+    * ```
+    */
+  get modelFeedback(): Prisma.ModelFeedbackDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.trainingJob`: Exposes CRUD operations for the **TrainingJob** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TrainingJobs
+    * const trainingJobs = await prisma.trainingJob.findMany()
+    * ```
+    */
+  get trainingJob(): Prisma.TrainingJobDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.modelVersion`: Exposes CRUD operations for the **ModelVersion** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ModelVersions
+    * const modelVersions = await prisma.modelVersion.findMany()
+    * ```
+    */
+  get modelVersion(): Prisma.ModelVersionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.refreshToken`: Exposes CRUD operations for the **RefreshToken** model.
@@ -744,6 +869,10 @@ export namespace Prisma {
     SolicitudMuestreo: 'SolicitudMuestreo',
     Analysis: 'Analysis',
     FenologiaEtapa: 'FenologiaEtapa',
+    Detection: 'Detection',
+    ModelFeedback: 'ModelFeedback',
+    TrainingJob: 'TrainingJob',
+    ModelVersion: 'ModelVersion',
     RefreshToken: 'RefreshToken',
     Notification: 'Notification'
   };
@@ -764,7 +893,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "campo" | "userCampo" | "solicitudMuestreo" | "analysis" | "fenologiaEtapa" | "refreshToken" | "notification"
+      modelProps: "user" | "campo" | "userCampo" | "solicitudMuestreo" | "analysis" | "fenologiaEtapa" | "detection" | "modelFeedback" | "trainingJob" | "modelVersion" | "refreshToken" | "notification"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1212,6 +1341,302 @@ export namespace Prisma {
           }
         }
       }
+      Detection: {
+        payload: Prisma.$DetectionPayload<ExtArgs>
+        fields: Prisma.DetectionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DetectionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DetectionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload>
+          }
+          findFirst: {
+            args: Prisma.DetectionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DetectionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload>
+          }
+          findMany: {
+            args: Prisma.DetectionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload>[]
+          }
+          create: {
+            args: Prisma.DetectionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload>
+          }
+          createMany: {
+            args: Prisma.DetectionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DetectionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload>[]
+          }
+          delete: {
+            args: Prisma.DetectionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload>
+          }
+          update: {
+            args: Prisma.DetectionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload>
+          }
+          deleteMany: {
+            args: Prisma.DetectionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DetectionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DetectionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload>[]
+          }
+          upsert: {
+            args: Prisma.DetectionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetectionPayload>
+          }
+          aggregate: {
+            args: Prisma.DetectionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDetection>
+          }
+          groupBy: {
+            args: Prisma.DetectionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DetectionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DetectionCountArgs<ExtArgs>
+            result: $Utils.Optional<DetectionCountAggregateOutputType> | number
+          }
+        }
+      }
+      ModelFeedback: {
+        payload: Prisma.$ModelFeedbackPayload<ExtArgs>
+        fields: Prisma.ModelFeedbackFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ModelFeedbackFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ModelFeedbackFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload>
+          }
+          findFirst: {
+            args: Prisma.ModelFeedbackFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ModelFeedbackFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload>
+          }
+          findMany: {
+            args: Prisma.ModelFeedbackFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload>[]
+          }
+          create: {
+            args: Prisma.ModelFeedbackCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload>
+          }
+          createMany: {
+            args: Prisma.ModelFeedbackCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ModelFeedbackCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload>[]
+          }
+          delete: {
+            args: Prisma.ModelFeedbackDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload>
+          }
+          update: {
+            args: Prisma.ModelFeedbackUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload>
+          }
+          deleteMany: {
+            args: Prisma.ModelFeedbackDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ModelFeedbackUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ModelFeedbackUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload>[]
+          }
+          upsert: {
+            args: Prisma.ModelFeedbackUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelFeedbackPayload>
+          }
+          aggregate: {
+            args: Prisma.ModelFeedbackAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateModelFeedback>
+          }
+          groupBy: {
+            args: Prisma.ModelFeedbackGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ModelFeedbackGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ModelFeedbackCountArgs<ExtArgs>
+            result: $Utils.Optional<ModelFeedbackCountAggregateOutputType> | number
+          }
+        }
+      }
+      TrainingJob: {
+        payload: Prisma.$TrainingJobPayload<ExtArgs>
+        fields: Prisma.TrainingJobFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TrainingJobFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TrainingJobFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          findFirst: {
+            args: Prisma.TrainingJobFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TrainingJobFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          findMany: {
+            args: Prisma.TrainingJobFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>[]
+          }
+          create: {
+            args: Prisma.TrainingJobCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          createMany: {
+            args: Prisma.TrainingJobCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TrainingJobCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>[]
+          }
+          delete: {
+            args: Prisma.TrainingJobDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          update: {
+            args: Prisma.TrainingJobUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          deleteMany: {
+            args: Prisma.TrainingJobDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TrainingJobUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TrainingJobUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>[]
+          }
+          upsert: {
+            args: Prisma.TrainingJobUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrainingJobPayload>
+          }
+          aggregate: {
+            args: Prisma.TrainingJobAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTrainingJob>
+          }
+          groupBy: {
+            args: Prisma.TrainingJobGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TrainingJobGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TrainingJobCountArgs<ExtArgs>
+            result: $Utils.Optional<TrainingJobCountAggregateOutputType> | number
+          }
+        }
+      }
+      ModelVersion: {
+        payload: Prisma.$ModelVersionPayload<ExtArgs>
+        fields: Prisma.ModelVersionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ModelVersionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ModelVersionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          findFirst: {
+            args: Prisma.ModelVersionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ModelVersionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          findMany: {
+            args: Prisma.ModelVersionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>[]
+          }
+          create: {
+            args: Prisma.ModelVersionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          createMany: {
+            args: Prisma.ModelVersionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ModelVersionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>[]
+          }
+          delete: {
+            args: Prisma.ModelVersionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          update: {
+            args: Prisma.ModelVersionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ModelVersionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ModelVersionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ModelVersionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>[]
+          }
+          upsert: {
+            args: Prisma.ModelVersionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ModelVersionPayload>
+          }
+          aggregate: {
+            args: Prisma.ModelVersionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateModelVersion>
+          }
+          groupBy: {
+            args: Prisma.ModelVersionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ModelVersionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ModelVersionCountArgs<ExtArgs>
+            result: $Utils.Optional<ModelVersionCountAggregateOutputType> | number
+          }
+        }
+      }
       RefreshToken: {
         payload: Prisma.$RefreshTokenPayload<ExtArgs>
         fields: Prisma.RefreshTokenFieldRefs
@@ -1462,6 +1887,10 @@ export namespace Prisma {
     solicitudMuestreo?: SolicitudMuestreoOmit
     analysis?: AnalysisOmit
     fenologiaEtapa?: FenologiaEtapaOmit
+    detection?: DetectionOmit
+    modelFeedback?: ModelFeedbackOmit
+    trainingJob?: TrainingJobOmit
+    modelVersion?: ModelVersionOmit
     refreshToken?: RefreshTokenOmit
     notification?: NotificationOmit
   }
@@ -1553,6 +1982,11 @@ export namespace Prisma {
     analysesValidadas: number
     refreshTokens: number
     notifications: number
+    detectionsCreadas: number
+    modelFeedbackCreado: number
+    analysesDeteccionesRevisadas: number
+    trainingJobsIniciados: number
+    modelVersionsPromovidas: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1565,6 +1999,11 @@ export namespace Prisma {
     analysesValidadas?: boolean | UserCountOutputTypeCountAnalysesValidadasArgs
     refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+    detectionsCreadas?: boolean | UserCountOutputTypeCountDetectionsCreadasArgs
+    modelFeedbackCreado?: boolean | UserCountOutputTypeCountModelFeedbackCreadoArgs
+    analysesDeteccionesRevisadas?: boolean | UserCountOutputTypeCountAnalysesDeteccionesRevisadasArgs
+    trainingJobsIniciados?: boolean | UserCountOutputTypeCountTrainingJobsIniciadosArgs
+    modelVersionsPromovidas?: boolean | UserCountOutputTypeCountModelVersionsPromovidasArgs
   }
 
   // Custom InputTypes
@@ -1641,6 +2080,41 @@ export namespace Prisma {
     where?: NotificationWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDetectionsCreadasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DetectionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountModelFeedbackCreadoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelFeedbackWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAnalysesDeteccionesRevisadasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnalysisWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTrainingJobsIniciadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrainingJobWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountModelVersionsPromovidasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelVersionWhereInput
+  }
+
 
   /**
    * Count Type CampoCountOutputType
@@ -1697,10 +2171,14 @@ export namespace Prisma {
 
   export type AnalysisCountOutputType = {
     fenologiaEtapas: number
+    detections: number
+    modelFeedback: number
   }
 
   export type AnalysisCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     fenologiaEtapas?: boolean | AnalysisCountOutputTypeCountFenologiaEtapasArgs
+    detections?: boolean | AnalysisCountOutputTypeCountDetectionsArgs
+    modelFeedback?: boolean | AnalysisCountOutputTypeCountModelFeedbackArgs
   }
 
   // Custom InputTypes
@@ -1719,6 +2197,51 @@ export namespace Prisma {
    */
   export type AnalysisCountOutputTypeCountFenologiaEtapasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FenologiaEtapaWhereInput
+  }
+
+  /**
+   * AnalysisCountOutputType without action
+   */
+  export type AnalysisCountOutputTypeCountDetectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DetectionWhereInput
+  }
+
+  /**
+   * AnalysisCountOutputType without action
+   */
+  export type AnalysisCountOutputTypeCountModelFeedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelFeedbackWhereInput
+  }
+
+
+  /**
+   * Count Type DetectionCountOutputType
+   */
+
+  export type DetectionCountOutputType = {
+    feedback: number
+  }
+
+  export type DetectionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    feedback?: boolean | DetectionCountOutputTypeCountFeedbackArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DetectionCountOutputType without action
+   */
+  export type DetectionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetectionCountOutputType
+     */
+    select?: DetectionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DetectionCountOutputType without action
+   */
+  export type DetectionCountOutputTypeCountFeedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelFeedbackWhereInput
   }
 
 
@@ -1931,6 +2454,11 @@ export namespace Prisma {
     analysesValidadas?: boolean | User$analysesValidadasArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
+    detectionsCreadas?: boolean | User$detectionsCreadasArgs<ExtArgs>
+    modelFeedbackCreado?: boolean | User$modelFeedbackCreadoArgs<ExtArgs>
+    analysesDeteccionesRevisadas?: boolean | User$analysesDeteccionesRevisadasArgs<ExtArgs>
+    trainingJobsIniciados?: boolean | User$trainingJobsIniciadosArgs<ExtArgs>
+    modelVersionsPromovidas?: boolean | User$modelVersionsPromovidasArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1981,6 +2509,11 @@ export namespace Prisma {
     analysesValidadas?: boolean | User$analysesValidadasArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
+    detectionsCreadas?: boolean | User$detectionsCreadasArgs<ExtArgs>
+    modelFeedbackCreado?: boolean | User$modelFeedbackCreadoArgs<ExtArgs>
+    analysesDeteccionesRevisadas?: boolean | User$analysesDeteccionesRevisadasArgs<ExtArgs>
+    trainingJobsIniciados?: boolean | User$trainingJobsIniciadosArgs<ExtArgs>
+    modelVersionsPromovidas?: boolean | User$modelVersionsPromovidasArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1998,6 +2531,11 @@ export namespace Prisma {
       analysesValidadas: Prisma.$AnalysisPayload<ExtArgs>[]
       refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
+      detectionsCreadas: Prisma.$DetectionPayload<ExtArgs>[]
+      modelFeedbackCreado: Prisma.$ModelFeedbackPayload<ExtArgs>[]
+      analysesDeteccionesRevisadas: Prisma.$AnalysisPayload<ExtArgs>[]
+      trainingJobsIniciados: Prisma.$TrainingJobPayload<ExtArgs>[]
+      modelVersionsPromovidas: Prisma.$ModelVersionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2412,6 +2950,11 @@ export namespace Prisma {
     analysesValidadas<T extends User$analysesValidadasArgs<ExtArgs> = {}>(args?: Subset<T, User$analysesValidadasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalysisPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    detectionsCreadas<T extends User$detectionsCreadasArgs<ExtArgs> = {}>(args?: Subset<T, User$detectionsCreadasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    modelFeedbackCreado<T extends User$modelFeedbackCreadoArgs<ExtArgs> = {}>(args?: Subset<T, User$modelFeedbackCreadoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    analysesDeteccionesRevisadas<T extends User$analysesDeteccionesRevisadasArgs<ExtArgs> = {}>(args?: Subset<T, User$analysesDeteccionesRevisadasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalysisPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    trainingJobsIniciados<T extends User$trainingJobsIniciadosArgs<ExtArgs> = {}>(args?: Subset<T, User$trainingJobsIniciadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    modelVersionsPromovidas<T extends User$modelVersionsPromovidasArgs<ExtArgs> = {}>(args?: Subset<T, User$modelVersionsPromovidasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3051,6 +3594,126 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
+  }
+
+  /**
+   * User.detectionsCreadas
+   */
+  export type User$detectionsCreadasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    where?: DetectionWhereInput
+    orderBy?: DetectionOrderByWithRelationInput | DetectionOrderByWithRelationInput[]
+    cursor?: DetectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DetectionScalarFieldEnum | DetectionScalarFieldEnum[]
+  }
+
+  /**
+   * User.modelFeedbackCreado
+   */
+  export type User$modelFeedbackCreadoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    where?: ModelFeedbackWhereInput
+    orderBy?: ModelFeedbackOrderByWithRelationInput | ModelFeedbackOrderByWithRelationInput[]
+    cursor?: ModelFeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ModelFeedbackScalarFieldEnum | ModelFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * User.analysesDeteccionesRevisadas
+   */
+  export type User$analysesDeteccionesRevisadasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Analysis
+     */
+    select?: AnalysisSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Analysis
+     */
+    omit?: AnalysisOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnalysisInclude<ExtArgs> | null
+    where?: AnalysisWhereInput
+    orderBy?: AnalysisOrderByWithRelationInput | AnalysisOrderByWithRelationInput[]
+    cursor?: AnalysisWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AnalysisScalarFieldEnum | AnalysisScalarFieldEnum[]
+  }
+
+  /**
+   * User.trainingJobsIniciados
+   */
+  export type User$trainingJobsIniciadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    where?: TrainingJobWhereInput
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    cursor?: TrainingJobWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TrainingJobScalarFieldEnum | TrainingJobScalarFieldEnum[]
+  }
+
+  /**
+   * User.modelVersionsPromovidas
+   */
+  export type User$modelVersionsPromovidasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    where?: ModelVersionWhereInput
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    cursor?: ModelVersionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ModelVersionScalarFieldEnum | ModelVersionScalarFieldEnum[]
   }
 
   /**
@@ -6446,6 +7109,9 @@ export namespace Prisma {
     validacionCorregidoPorId: string | null
     validacionDiagnosticoOriginal: string | null
     validacionObservaciones: string | null
+    deteccionesRevisadas: boolean | null
+    deteccionesRevisadasPorId: string | null
+    deteccionesRevisadasAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6473,6 +7139,9 @@ export namespace Prisma {
     validacionCorregidoPorId: string | null
     validacionDiagnosticoOriginal: string | null
     validacionObservaciones: string | null
+    deteccionesRevisadas: boolean | null
+    deteccionesRevisadasPorId: string | null
+    deteccionesRevisadasAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6501,6 +7170,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal: number
     validacionCronogramaCorregido: number
     validacionObservaciones: number
+    deteccionesRevisadas: number
+    deteccionesRevisadasPorId: number
+    deteccionesRevisadasAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -6550,6 +7222,9 @@ export namespace Prisma {
     validacionCorregidoPorId?: true
     validacionDiagnosticoOriginal?: true
     validacionObservaciones?: true
+    deteccionesRevisadas?: true
+    deteccionesRevisadasPorId?: true
+    deteccionesRevisadasAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6577,6 +7252,9 @@ export namespace Prisma {
     validacionCorregidoPorId?: true
     validacionDiagnosticoOriginal?: true
     validacionObservaciones?: true
+    deteccionesRevisadas?: true
+    deteccionesRevisadasPorId?: true
+    deteccionesRevisadasAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6605,6 +7283,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: true
     validacionCronogramaCorregido?: true
     validacionObservaciones?: true
+    deteccionesRevisadas?: true
+    deteccionesRevisadasPorId?: true
+    deteccionesRevisadasAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -6720,6 +7401,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal: string | null
     validacionCronogramaCorregido: JsonValue | null
     validacionObservaciones: string | null
+    deteccionesRevisadas: boolean
+    deteccionesRevisadasPorId: string | null
+    deteccionesRevisadasAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: AnalysisCountAggregateOutputType | null
@@ -6767,13 +7451,19 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: boolean
     validacionCronogramaCorregido?: boolean
     validacionObservaciones?: boolean
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: boolean
+    deteccionesRevisadasAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     requester?: boolean | UserDefaultArgs<ExtArgs>
     productor?: boolean | UserDefaultArgs<ExtArgs>
     campo?: boolean | CampoDefaultArgs<ExtArgs>
     validadoPor?: boolean | Analysis$validadoPorArgs<ExtArgs>
+    deteccionesRevisadasPor?: boolean | Analysis$deteccionesRevisadasPorArgs<ExtArgs>
     fenologiaEtapas?: boolean | Analysis$fenologiaEtapasArgs<ExtArgs>
+    detections?: boolean | Analysis$detectionsArgs<ExtArgs>
+    modelFeedback?: boolean | Analysis$modelFeedbackArgs<ExtArgs>
     _count?: boolean | AnalysisCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["analysis"]>
 
@@ -6801,12 +7491,16 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: boolean
     validacionCronogramaCorregido?: boolean
     validacionObservaciones?: boolean
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: boolean
+    deteccionesRevisadasAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     requester?: boolean | UserDefaultArgs<ExtArgs>
     productor?: boolean | UserDefaultArgs<ExtArgs>
     campo?: boolean | CampoDefaultArgs<ExtArgs>
     validadoPor?: boolean | Analysis$validadoPorArgs<ExtArgs>
+    deteccionesRevisadasPor?: boolean | Analysis$deteccionesRevisadasPorArgs<ExtArgs>
   }, ExtArgs["result"]["analysis"]>
 
   export type AnalysisSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6833,12 +7527,16 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: boolean
     validacionCronogramaCorregido?: boolean
     validacionObservaciones?: boolean
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: boolean
+    deteccionesRevisadasAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     requester?: boolean | UserDefaultArgs<ExtArgs>
     productor?: boolean | UserDefaultArgs<ExtArgs>
     campo?: boolean | CampoDefaultArgs<ExtArgs>
     validadoPor?: boolean | Analysis$validadoPorArgs<ExtArgs>
+    deteccionesRevisadasPor?: boolean | Analysis$deteccionesRevisadasPorArgs<ExtArgs>
   }, ExtArgs["result"]["analysis"]>
 
   export type AnalysisSelectScalar = {
@@ -6865,17 +7563,23 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: boolean
     validacionCronogramaCorregido?: boolean
     validacionObservaciones?: boolean
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: boolean
+    deteccionesRevisadasAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type AnalysisOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "imageId" | "storageKey" | "requesterUserId" | "requesterEmail" | "variedad" | "fechaAnalisis" | "totalElementosDetectados" | "elementosSanos" | "elementosEnfermos" | "porcentajeMermaGeneral" | "pesoSanoGramos" | "ubicacionLat" | "ubicacionLng" | "campoId" | "productorId" | "offlineSyncId" | "validacionEstado" | "validacionFueCorregido" | "validacionCorregidoPorId" | "validacionDiagnosticoOriginal" | "validacionCronogramaCorregido" | "validacionObservaciones" | "createdAt" | "updatedAt", ExtArgs["result"]["analysis"]>
+  export type AnalysisOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "imageId" | "storageKey" | "requesterUserId" | "requesterEmail" | "variedad" | "fechaAnalisis" | "totalElementosDetectados" | "elementosSanos" | "elementosEnfermos" | "porcentajeMermaGeneral" | "pesoSanoGramos" | "ubicacionLat" | "ubicacionLng" | "campoId" | "productorId" | "offlineSyncId" | "validacionEstado" | "validacionFueCorregido" | "validacionCorregidoPorId" | "validacionDiagnosticoOriginal" | "validacionCronogramaCorregido" | "validacionObservaciones" | "deteccionesRevisadas" | "deteccionesRevisadasPorId" | "deteccionesRevisadasAt" | "createdAt" | "updatedAt", ExtArgs["result"]["analysis"]>
   export type AnalysisInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     requester?: boolean | UserDefaultArgs<ExtArgs>
     productor?: boolean | UserDefaultArgs<ExtArgs>
     campo?: boolean | CampoDefaultArgs<ExtArgs>
     validadoPor?: boolean | Analysis$validadoPorArgs<ExtArgs>
+    deteccionesRevisadasPor?: boolean | Analysis$deteccionesRevisadasPorArgs<ExtArgs>
     fenologiaEtapas?: boolean | Analysis$fenologiaEtapasArgs<ExtArgs>
+    detections?: boolean | Analysis$detectionsArgs<ExtArgs>
+    modelFeedback?: boolean | Analysis$modelFeedbackArgs<ExtArgs>
     _count?: boolean | AnalysisCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AnalysisIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6883,12 +7587,14 @@ export namespace Prisma {
     productor?: boolean | UserDefaultArgs<ExtArgs>
     campo?: boolean | CampoDefaultArgs<ExtArgs>
     validadoPor?: boolean | Analysis$validadoPorArgs<ExtArgs>
+    deteccionesRevisadasPor?: boolean | Analysis$deteccionesRevisadasPorArgs<ExtArgs>
   }
   export type AnalysisIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     requester?: boolean | UserDefaultArgs<ExtArgs>
     productor?: boolean | UserDefaultArgs<ExtArgs>
     campo?: boolean | CampoDefaultArgs<ExtArgs>
     validadoPor?: boolean | Analysis$validadoPorArgs<ExtArgs>
+    deteccionesRevisadasPor?: boolean | Analysis$deteccionesRevisadasPorArgs<ExtArgs>
   }
 
   export type $AnalysisPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6898,7 +7604,10 @@ export namespace Prisma {
       productor: Prisma.$UserPayload<ExtArgs>
       campo: Prisma.$CampoPayload<ExtArgs>
       validadoPor: Prisma.$UserPayload<ExtArgs> | null
+      deteccionesRevisadasPor: Prisma.$UserPayload<ExtArgs> | null
       fenologiaEtapas: Prisma.$FenologiaEtapaPayload<ExtArgs>[]
+      detections: Prisma.$DetectionPayload<ExtArgs>[]
+      modelFeedback: Prisma.$ModelFeedbackPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6924,6 +7633,9 @@ export namespace Prisma {
       validacionDiagnosticoOriginal: string | null
       validacionCronogramaCorregido: Prisma.JsonValue | null
       validacionObservaciones: string | null
+      deteccionesRevisadas: boolean
+      deteccionesRevisadasPorId: string | null
+      deteccionesRevisadasAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["analysis"]>
@@ -7324,7 +8036,10 @@ export namespace Prisma {
     productor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     campo<T extends CampoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CampoDefaultArgs<ExtArgs>>): Prisma__CampoClient<$Result.GetResult<Prisma.$CampoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     validadoPor<T extends Analysis$validadoPorArgs<ExtArgs> = {}>(args?: Subset<T, Analysis$validadoPorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    deteccionesRevisadasPor<T extends Analysis$deteccionesRevisadasPorArgs<ExtArgs> = {}>(args?: Subset<T, Analysis$deteccionesRevisadasPorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     fenologiaEtapas<T extends Analysis$fenologiaEtapasArgs<ExtArgs> = {}>(args?: Subset<T, Analysis$fenologiaEtapasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FenologiaEtapaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    detections<T extends Analysis$detectionsArgs<ExtArgs> = {}>(args?: Subset<T, Analysis$detectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    modelFeedback<T extends Analysis$modelFeedbackArgs<ExtArgs> = {}>(args?: Subset<T, Analysis$modelFeedbackArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7377,6 +8092,9 @@ export namespace Prisma {
     readonly validacionDiagnosticoOriginal: FieldRef<"Analysis", 'String'>
     readonly validacionCronogramaCorregido: FieldRef<"Analysis", 'Json'>
     readonly validacionObservaciones: FieldRef<"Analysis", 'String'>
+    readonly deteccionesRevisadas: FieldRef<"Analysis", 'Boolean'>
+    readonly deteccionesRevisadasPorId: FieldRef<"Analysis", 'String'>
+    readonly deteccionesRevisadasAt: FieldRef<"Analysis", 'DateTime'>
     readonly createdAt: FieldRef<"Analysis", 'DateTime'>
     readonly updatedAt: FieldRef<"Analysis", 'DateTime'>
   }
@@ -7794,6 +8512,25 @@ export namespace Prisma {
   }
 
   /**
+   * Analysis.deteccionesRevisadasPor
+   */
+  export type Analysis$deteccionesRevisadasPorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
    * Analysis.fenologiaEtapas
    */
   export type Analysis$fenologiaEtapasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7815,6 +8552,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FenologiaEtapaScalarFieldEnum | FenologiaEtapaScalarFieldEnum[]
+  }
+
+  /**
+   * Analysis.detections
+   */
+  export type Analysis$detectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    where?: DetectionWhereInput
+    orderBy?: DetectionOrderByWithRelationInput | DetectionOrderByWithRelationInput[]
+    cursor?: DetectionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DetectionScalarFieldEnum | DetectionScalarFieldEnum[]
+  }
+
+  /**
+   * Analysis.modelFeedback
+   */
+  export type Analysis$modelFeedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    where?: ModelFeedbackWhereInput
+    orderBy?: ModelFeedbackOrderByWithRelationInput | ModelFeedbackOrderByWithRelationInput[]
+    cursor?: ModelFeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ModelFeedbackScalarFieldEnum | ModelFeedbackScalarFieldEnum[]
   }
 
   /**
@@ -8959,6 +9744,4832 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: FenologiaEtapaInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Detection
+   */
+
+  export type AggregateDetection = {
+    _count: DetectionCountAggregateOutputType | null
+    _avg: DetectionAvgAggregateOutputType | null
+    _sum: DetectionSumAggregateOutputType | null
+    _min: DetectionMinAggregateOutputType | null
+    _max: DetectionMaxAggregateOutputType | null
+  }
+
+  export type DetectionAvgAggregateOutputType = {
+    confidence: number | null
+    bboxX1: number | null
+    bboxY1: number | null
+    bboxX2: number | null
+    bboxY2: number | null
+  }
+
+  export type DetectionSumAggregateOutputType = {
+    confidence: number | null
+    bboxX1: number | null
+    bboxY1: number | null
+    bboxX2: number | null
+    bboxY2: number | null
+  }
+
+  export type DetectionMinAggregateOutputType = {
+    id: string | null
+    analysisId: string | null
+    origen: $Enums.OrigenDeteccion | null
+    claseDetectada: string | null
+    etapaDetectada: string | null
+    saludDetectada: $Enums.EstadoSalud | null
+    confidence: number | null
+    bboxX1: number | null
+    bboxY1: number | null
+    bboxX2: number | null
+    bboxY2: number | null
+    creadoPorId: string | null
+    createdAt: Date | null
+  }
+
+  export type DetectionMaxAggregateOutputType = {
+    id: string | null
+    analysisId: string | null
+    origen: $Enums.OrigenDeteccion | null
+    claseDetectada: string | null
+    etapaDetectada: string | null
+    saludDetectada: $Enums.EstadoSalud | null
+    confidence: number | null
+    bboxX1: number | null
+    bboxY1: number | null
+    bboxX2: number | null
+    bboxY2: number | null
+    creadoPorId: string | null
+    createdAt: Date | null
+  }
+
+  export type DetectionCountAggregateOutputType = {
+    id: number
+    analysisId: number
+    origen: number
+    claseDetectada: number
+    etapaDetectada: number
+    saludDetectada: number
+    confidence: number
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    creadoPorId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type DetectionAvgAggregateInputType = {
+    confidence?: true
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+  }
+
+  export type DetectionSumAggregateInputType = {
+    confidence?: true
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+  }
+
+  export type DetectionMinAggregateInputType = {
+    id?: true
+    analysisId?: true
+    origen?: true
+    claseDetectada?: true
+    etapaDetectada?: true
+    saludDetectada?: true
+    confidence?: true
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+    creadoPorId?: true
+    createdAt?: true
+  }
+
+  export type DetectionMaxAggregateInputType = {
+    id?: true
+    analysisId?: true
+    origen?: true
+    claseDetectada?: true
+    etapaDetectada?: true
+    saludDetectada?: true
+    confidence?: true
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+    creadoPorId?: true
+    createdAt?: true
+  }
+
+  export type DetectionCountAggregateInputType = {
+    id?: true
+    analysisId?: true
+    origen?: true
+    claseDetectada?: true
+    etapaDetectada?: true
+    saludDetectada?: true
+    confidence?: true
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+    creadoPorId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type DetectionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Detection to aggregate.
+     */
+    where?: DetectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Detections to fetch.
+     */
+    orderBy?: DetectionOrderByWithRelationInput | DetectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DetectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Detections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Detections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Detections
+    **/
+    _count?: true | DetectionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DetectionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DetectionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DetectionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DetectionMaxAggregateInputType
+  }
+
+  export type GetDetectionAggregateType<T extends DetectionAggregateArgs> = {
+        [P in keyof T & keyof AggregateDetection]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDetection[P]>
+      : GetScalarType<T[P], AggregateDetection[P]>
+  }
+
+
+
+
+  export type DetectionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DetectionWhereInput
+    orderBy?: DetectionOrderByWithAggregationInput | DetectionOrderByWithAggregationInput[]
+    by: DetectionScalarFieldEnum[] | DetectionScalarFieldEnum
+    having?: DetectionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DetectionCountAggregateInputType | true
+    _avg?: DetectionAvgAggregateInputType
+    _sum?: DetectionSumAggregateInputType
+    _min?: DetectionMinAggregateInputType
+    _max?: DetectionMaxAggregateInputType
+  }
+
+  export type DetectionGroupByOutputType = {
+    id: string
+    analysisId: string
+    origen: $Enums.OrigenDeteccion
+    claseDetectada: string | null
+    etapaDetectada: string
+    saludDetectada: $Enums.EstadoSalud
+    confidence: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    creadoPorId: string | null
+    createdAt: Date
+    _count: DetectionCountAggregateOutputType | null
+    _avg: DetectionAvgAggregateOutputType | null
+    _sum: DetectionSumAggregateOutputType | null
+    _min: DetectionMinAggregateOutputType | null
+    _max: DetectionMaxAggregateOutputType | null
+  }
+
+  type GetDetectionGroupByPayload<T extends DetectionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DetectionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DetectionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DetectionGroupByOutputType[P]>
+            : GetScalarType<T[P], DetectionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DetectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    analysisId?: boolean
+    origen?: boolean
+    claseDetectada?: boolean
+    etapaDetectada?: boolean
+    saludDetectada?: boolean
+    confidence?: boolean
+    bboxX1?: boolean
+    bboxY1?: boolean
+    bboxX2?: boolean
+    bboxY2?: boolean
+    creadoPorId?: boolean
+    createdAt?: boolean
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    creadoPor?: boolean | Detection$creadoPorArgs<ExtArgs>
+    feedback?: boolean | Detection$feedbackArgs<ExtArgs>
+    _count?: boolean | DetectionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["detection"]>
+
+  export type DetectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    analysisId?: boolean
+    origen?: boolean
+    claseDetectada?: boolean
+    etapaDetectada?: boolean
+    saludDetectada?: boolean
+    confidence?: boolean
+    bboxX1?: boolean
+    bboxY1?: boolean
+    bboxX2?: boolean
+    bboxY2?: boolean
+    creadoPorId?: boolean
+    createdAt?: boolean
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    creadoPor?: boolean | Detection$creadoPorArgs<ExtArgs>
+  }, ExtArgs["result"]["detection"]>
+
+  export type DetectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    analysisId?: boolean
+    origen?: boolean
+    claseDetectada?: boolean
+    etapaDetectada?: boolean
+    saludDetectada?: boolean
+    confidence?: boolean
+    bboxX1?: boolean
+    bboxY1?: boolean
+    bboxX2?: boolean
+    bboxY2?: boolean
+    creadoPorId?: boolean
+    createdAt?: boolean
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    creadoPor?: boolean | Detection$creadoPorArgs<ExtArgs>
+  }, ExtArgs["result"]["detection"]>
+
+  export type DetectionSelectScalar = {
+    id?: boolean
+    analysisId?: boolean
+    origen?: boolean
+    claseDetectada?: boolean
+    etapaDetectada?: boolean
+    saludDetectada?: boolean
+    confidence?: boolean
+    bboxX1?: boolean
+    bboxY1?: boolean
+    bboxX2?: boolean
+    bboxY2?: boolean
+    creadoPorId?: boolean
+    createdAt?: boolean
+  }
+
+  export type DetectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "analysisId" | "origen" | "claseDetectada" | "etapaDetectada" | "saludDetectada" | "confidence" | "bboxX1" | "bboxY1" | "bboxX2" | "bboxY2" | "creadoPorId" | "createdAt", ExtArgs["result"]["detection"]>
+  export type DetectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    creadoPor?: boolean | Detection$creadoPorArgs<ExtArgs>
+    feedback?: boolean | Detection$feedbackArgs<ExtArgs>
+    _count?: boolean | DetectionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type DetectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    creadoPor?: boolean | Detection$creadoPorArgs<ExtArgs>
+  }
+  export type DetectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    creadoPor?: boolean | Detection$creadoPorArgs<ExtArgs>
+  }
+
+  export type $DetectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Detection"
+    objects: {
+      analysis: Prisma.$AnalysisPayload<ExtArgs>
+      creadoPor: Prisma.$UserPayload<ExtArgs> | null
+      feedback: Prisma.$ModelFeedbackPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      analysisId: string
+      origen: $Enums.OrigenDeteccion
+      claseDetectada: string | null
+      etapaDetectada: string
+      saludDetectada: $Enums.EstadoSalud
+      confidence: number | null
+      bboxX1: number
+      bboxY1: number
+      bboxX2: number
+      bboxY2: number
+      creadoPorId: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["detection"]>
+    composites: {}
+  }
+
+  type DetectionGetPayload<S extends boolean | null | undefined | DetectionDefaultArgs> = $Result.GetResult<Prisma.$DetectionPayload, S>
+
+  type DetectionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DetectionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DetectionCountAggregateInputType | true
+    }
+
+  export interface DetectionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Detection'], meta: { name: 'Detection' } }
+    /**
+     * Find zero or one Detection that matches the filter.
+     * @param {DetectionFindUniqueArgs} args - Arguments to find a Detection
+     * @example
+     * // Get one Detection
+     * const detection = await prisma.detection.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DetectionFindUniqueArgs>(args: SelectSubset<T, DetectionFindUniqueArgs<ExtArgs>>): Prisma__DetectionClient<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Detection that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DetectionFindUniqueOrThrowArgs} args - Arguments to find a Detection
+     * @example
+     * // Get one Detection
+     * const detection = await prisma.detection.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DetectionFindUniqueOrThrowArgs>(args: SelectSubset<T, DetectionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DetectionClient<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Detection that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetectionFindFirstArgs} args - Arguments to find a Detection
+     * @example
+     * // Get one Detection
+     * const detection = await prisma.detection.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DetectionFindFirstArgs>(args?: SelectSubset<T, DetectionFindFirstArgs<ExtArgs>>): Prisma__DetectionClient<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Detection that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetectionFindFirstOrThrowArgs} args - Arguments to find a Detection
+     * @example
+     * // Get one Detection
+     * const detection = await prisma.detection.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DetectionFindFirstOrThrowArgs>(args?: SelectSubset<T, DetectionFindFirstOrThrowArgs<ExtArgs>>): Prisma__DetectionClient<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Detections that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetectionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Detections
+     * const detections = await prisma.detection.findMany()
+     * 
+     * // Get first 10 Detections
+     * const detections = await prisma.detection.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const detectionWithIdOnly = await prisma.detection.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DetectionFindManyArgs>(args?: SelectSubset<T, DetectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Detection.
+     * @param {DetectionCreateArgs} args - Arguments to create a Detection.
+     * @example
+     * // Create one Detection
+     * const Detection = await prisma.detection.create({
+     *   data: {
+     *     // ... data to create a Detection
+     *   }
+     * })
+     * 
+     */
+    create<T extends DetectionCreateArgs>(args: SelectSubset<T, DetectionCreateArgs<ExtArgs>>): Prisma__DetectionClient<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Detections.
+     * @param {DetectionCreateManyArgs} args - Arguments to create many Detections.
+     * @example
+     * // Create many Detections
+     * const detection = await prisma.detection.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DetectionCreateManyArgs>(args?: SelectSubset<T, DetectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Detections and returns the data saved in the database.
+     * @param {DetectionCreateManyAndReturnArgs} args - Arguments to create many Detections.
+     * @example
+     * // Create many Detections
+     * const detection = await prisma.detection.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Detections and only return the `id`
+     * const detectionWithIdOnly = await prisma.detection.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DetectionCreateManyAndReturnArgs>(args?: SelectSubset<T, DetectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Detection.
+     * @param {DetectionDeleteArgs} args - Arguments to delete one Detection.
+     * @example
+     * // Delete one Detection
+     * const Detection = await prisma.detection.delete({
+     *   where: {
+     *     // ... filter to delete one Detection
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DetectionDeleteArgs>(args: SelectSubset<T, DetectionDeleteArgs<ExtArgs>>): Prisma__DetectionClient<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Detection.
+     * @param {DetectionUpdateArgs} args - Arguments to update one Detection.
+     * @example
+     * // Update one Detection
+     * const detection = await prisma.detection.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DetectionUpdateArgs>(args: SelectSubset<T, DetectionUpdateArgs<ExtArgs>>): Prisma__DetectionClient<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Detections.
+     * @param {DetectionDeleteManyArgs} args - Arguments to filter Detections to delete.
+     * @example
+     * // Delete a few Detections
+     * const { count } = await prisma.detection.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DetectionDeleteManyArgs>(args?: SelectSubset<T, DetectionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Detections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetectionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Detections
+     * const detection = await prisma.detection.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DetectionUpdateManyArgs>(args: SelectSubset<T, DetectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Detections and returns the data updated in the database.
+     * @param {DetectionUpdateManyAndReturnArgs} args - Arguments to update many Detections.
+     * @example
+     * // Update many Detections
+     * const detection = await prisma.detection.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Detections and only return the `id`
+     * const detectionWithIdOnly = await prisma.detection.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DetectionUpdateManyAndReturnArgs>(args: SelectSubset<T, DetectionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Detection.
+     * @param {DetectionUpsertArgs} args - Arguments to update or create a Detection.
+     * @example
+     * // Update or create a Detection
+     * const detection = await prisma.detection.upsert({
+     *   create: {
+     *     // ... data to create a Detection
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Detection we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DetectionUpsertArgs>(args: SelectSubset<T, DetectionUpsertArgs<ExtArgs>>): Prisma__DetectionClient<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Detections.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetectionCountArgs} args - Arguments to filter Detections to count.
+     * @example
+     * // Count the number of Detections
+     * const count = await prisma.detection.count({
+     *   where: {
+     *     // ... the filter for the Detections we want to count
+     *   }
+     * })
+    **/
+    count<T extends DetectionCountArgs>(
+      args?: Subset<T, DetectionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DetectionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Detection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetectionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DetectionAggregateArgs>(args: Subset<T, DetectionAggregateArgs>): Prisma.PrismaPromise<GetDetectionAggregateType<T>>
+
+    /**
+     * Group by Detection.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetectionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DetectionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DetectionGroupByArgs['orderBy'] }
+        : { orderBy?: DetectionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DetectionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDetectionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Detection model
+   */
+  readonly fields: DetectionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Detection.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DetectionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    analysis<T extends AnalysisDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AnalysisDefaultArgs<ExtArgs>>): Prisma__AnalysisClient<$Result.GetResult<Prisma.$AnalysisPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    creadoPor<T extends Detection$creadoPorArgs<ExtArgs> = {}>(args?: Subset<T, Detection$creadoPorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    feedback<T extends Detection$feedbackArgs<ExtArgs> = {}>(args?: Subset<T, Detection$feedbackArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Detection model
+   */
+  interface DetectionFieldRefs {
+    readonly id: FieldRef<"Detection", 'String'>
+    readonly analysisId: FieldRef<"Detection", 'String'>
+    readonly origen: FieldRef<"Detection", 'OrigenDeteccion'>
+    readonly claseDetectada: FieldRef<"Detection", 'String'>
+    readonly etapaDetectada: FieldRef<"Detection", 'String'>
+    readonly saludDetectada: FieldRef<"Detection", 'EstadoSalud'>
+    readonly confidence: FieldRef<"Detection", 'Float'>
+    readonly bboxX1: FieldRef<"Detection", 'Float'>
+    readonly bboxY1: FieldRef<"Detection", 'Float'>
+    readonly bboxX2: FieldRef<"Detection", 'Float'>
+    readonly bboxY2: FieldRef<"Detection", 'Float'>
+    readonly creadoPorId: FieldRef<"Detection", 'String'>
+    readonly createdAt: FieldRef<"Detection", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Detection findUnique
+   */
+  export type DetectionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Detection to fetch.
+     */
+    where: DetectionWhereUniqueInput
+  }
+
+  /**
+   * Detection findUniqueOrThrow
+   */
+  export type DetectionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Detection to fetch.
+     */
+    where: DetectionWhereUniqueInput
+  }
+
+  /**
+   * Detection findFirst
+   */
+  export type DetectionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Detection to fetch.
+     */
+    where?: DetectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Detections to fetch.
+     */
+    orderBy?: DetectionOrderByWithRelationInput | DetectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Detections.
+     */
+    cursor?: DetectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Detections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Detections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Detections.
+     */
+    distinct?: DetectionScalarFieldEnum | DetectionScalarFieldEnum[]
+  }
+
+  /**
+   * Detection findFirstOrThrow
+   */
+  export type DetectionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Detection to fetch.
+     */
+    where?: DetectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Detections to fetch.
+     */
+    orderBy?: DetectionOrderByWithRelationInput | DetectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Detections.
+     */
+    cursor?: DetectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Detections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Detections.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Detections.
+     */
+    distinct?: DetectionScalarFieldEnum | DetectionScalarFieldEnum[]
+  }
+
+  /**
+   * Detection findMany
+   */
+  export type DetectionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    /**
+     * Filter, which Detections to fetch.
+     */
+    where?: DetectionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Detections to fetch.
+     */
+    orderBy?: DetectionOrderByWithRelationInput | DetectionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Detections.
+     */
+    cursor?: DetectionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Detections from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Detections.
+     */
+    skip?: number
+    distinct?: DetectionScalarFieldEnum | DetectionScalarFieldEnum[]
+  }
+
+  /**
+   * Detection create
+   */
+  export type DetectionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Detection.
+     */
+    data: XOR<DetectionCreateInput, DetectionUncheckedCreateInput>
+  }
+
+  /**
+   * Detection createMany
+   */
+  export type DetectionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Detections.
+     */
+    data: DetectionCreateManyInput | DetectionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Detection createManyAndReturn
+   */
+  export type DetectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * The data used to create many Detections.
+     */
+    data: DetectionCreateManyInput | DetectionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Detection update
+   */
+  export type DetectionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Detection.
+     */
+    data: XOR<DetectionUpdateInput, DetectionUncheckedUpdateInput>
+    /**
+     * Choose, which Detection to update.
+     */
+    where: DetectionWhereUniqueInput
+  }
+
+  /**
+   * Detection updateMany
+   */
+  export type DetectionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Detections.
+     */
+    data: XOR<DetectionUpdateManyMutationInput, DetectionUncheckedUpdateManyInput>
+    /**
+     * Filter which Detections to update
+     */
+    where?: DetectionWhereInput
+    /**
+     * Limit how many Detections to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Detection updateManyAndReturn
+   */
+  export type DetectionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * The data used to update Detections.
+     */
+    data: XOR<DetectionUpdateManyMutationInput, DetectionUncheckedUpdateManyInput>
+    /**
+     * Filter which Detections to update
+     */
+    where?: DetectionWhereInput
+    /**
+     * Limit how many Detections to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Detection upsert
+   */
+  export type DetectionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Detection to update in case it exists.
+     */
+    where: DetectionWhereUniqueInput
+    /**
+     * In case the Detection found by the `where` argument doesn't exist, create a new Detection with this data.
+     */
+    create: XOR<DetectionCreateInput, DetectionUncheckedCreateInput>
+    /**
+     * In case the Detection was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DetectionUpdateInput, DetectionUncheckedUpdateInput>
+  }
+
+  /**
+   * Detection delete
+   */
+  export type DetectionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+    /**
+     * Filter which Detection to delete.
+     */
+    where: DetectionWhereUniqueInput
+  }
+
+  /**
+   * Detection deleteMany
+   */
+  export type DetectionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Detections to delete
+     */
+    where?: DetectionWhereInput
+    /**
+     * Limit how many Detections to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Detection.creadoPor
+   */
+  export type Detection$creadoPorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Detection.feedback
+   */
+  export type Detection$feedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    where?: ModelFeedbackWhereInput
+    orderBy?: ModelFeedbackOrderByWithRelationInput | ModelFeedbackOrderByWithRelationInput[]
+    cursor?: ModelFeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ModelFeedbackScalarFieldEnum | ModelFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Detection without action
+   */
+  export type DetectionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Detection
+     */
+    select?: DetectionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Detection
+     */
+    omit?: DetectionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetectionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ModelFeedback
+   */
+
+  export type AggregateModelFeedback = {
+    _count: ModelFeedbackCountAggregateOutputType | null
+    _avg: ModelFeedbackAvgAggregateOutputType | null
+    _sum: ModelFeedbackSumAggregateOutputType | null
+    _min: ModelFeedbackMinAggregateOutputType | null
+    _max: ModelFeedbackMaxAggregateOutputType | null
+  }
+
+  export type ModelFeedbackAvgAggregateOutputType = {
+    bboxX1: number | null
+    bboxY1: number | null
+    bboxX2: number | null
+    bboxY2: number | null
+  }
+
+  export type ModelFeedbackSumAggregateOutputType = {
+    bboxX1: number | null
+    bboxY1: number | null
+    bboxX2: number | null
+    bboxY2: number | null
+  }
+
+  export type ModelFeedbackMinAggregateOutputType = {
+    id: string | null
+    analysisId: string | null
+    detectionId: string | null
+    accion: $Enums.AccionFeedback | null
+    etapaCorregida: string | null
+    saludCorregida: $Enums.EstadoSalud | null
+    bboxX1: number | null
+    bboxY1: number | null
+    bboxX2: number | null
+    bboxY2: number | null
+    observaciones: string | null
+    creadoPorId: string | null
+    createdAt: Date | null
+  }
+
+  export type ModelFeedbackMaxAggregateOutputType = {
+    id: string | null
+    analysisId: string | null
+    detectionId: string | null
+    accion: $Enums.AccionFeedback | null
+    etapaCorregida: string | null
+    saludCorregida: $Enums.EstadoSalud | null
+    bboxX1: number | null
+    bboxY1: number | null
+    bboxX2: number | null
+    bboxY2: number | null
+    observaciones: string | null
+    creadoPorId: string | null
+    createdAt: Date | null
+  }
+
+  export type ModelFeedbackCountAggregateOutputType = {
+    id: number
+    analysisId: number
+    detectionId: number
+    accion: number
+    etapaCorregida: number
+    saludCorregida: number
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    observaciones: number
+    creadoPorId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ModelFeedbackAvgAggregateInputType = {
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+  }
+
+  export type ModelFeedbackSumAggregateInputType = {
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+  }
+
+  export type ModelFeedbackMinAggregateInputType = {
+    id?: true
+    analysisId?: true
+    detectionId?: true
+    accion?: true
+    etapaCorregida?: true
+    saludCorregida?: true
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+    observaciones?: true
+    creadoPorId?: true
+    createdAt?: true
+  }
+
+  export type ModelFeedbackMaxAggregateInputType = {
+    id?: true
+    analysisId?: true
+    detectionId?: true
+    accion?: true
+    etapaCorregida?: true
+    saludCorregida?: true
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+    observaciones?: true
+    creadoPorId?: true
+    createdAt?: true
+  }
+
+  export type ModelFeedbackCountAggregateInputType = {
+    id?: true
+    analysisId?: true
+    detectionId?: true
+    accion?: true
+    etapaCorregida?: true
+    saludCorregida?: true
+    bboxX1?: true
+    bboxY1?: true
+    bboxX2?: true
+    bboxY2?: true
+    observaciones?: true
+    creadoPorId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ModelFeedbackAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ModelFeedback to aggregate.
+     */
+    where?: ModelFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelFeedbacks to fetch.
+     */
+    orderBy?: ModelFeedbackOrderByWithRelationInput | ModelFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ModelFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ModelFeedbacks
+    **/
+    _count?: true | ModelFeedbackCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ModelFeedbackAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ModelFeedbackSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ModelFeedbackMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ModelFeedbackMaxAggregateInputType
+  }
+
+  export type GetModelFeedbackAggregateType<T extends ModelFeedbackAggregateArgs> = {
+        [P in keyof T & keyof AggregateModelFeedback]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateModelFeedback[P]>
+      : GetScalarType<T[P], AggregateModelFeedback[P]>
+  }
+
+
+
+
+  export type ModelFeedbackGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelFeedbackWhereInput
+    orderBy?: ModelFeedbackOrderByWithAggregationInput | ModelFeedbackOrderByWithAggregationInput[]
+    by: ModelFeedbackScalarFieldEnum[] | ModelFeedbackScalarFieldEnum
+    having?: ModelFeedbackScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ModelFeedbackCountAggregateInputType | true
+    _avg?: ModelFeedbackAvgAggregateInputType
+    _sum?: ModelFeedbackSumAggregateInputType
+    _min?: ModelFeedbackMinAggregateInputType
+    _max?: ModelFeedbackMaxAggregateInputType
+  }
+
+  export type ModelFeedbackGroupByOutputType = {
+    id: string
+    analysisId: string
+    detectionId: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida: string | null
+    saludCorregida: $Enums.EstadoSalud | null
+    bboxX1: number | null
+    bboxY1: number | null
+    bboxX2: number | null
+    bboxY2: number | null
+    observaciones: string | null
+    creadoPorId: string
+    createdAt: Date
+    _count: ModelFeedbackCountAggregateOutputType | null
+    _avg: ModelFeedbackAvgAggregateOutputType | null
+    _sum: ModelFeedbackSumAggregateOutputType | null
+    _min: ModelFeedbackMinAggregateOutputType | null
+    _max: ModelFeedbackMaxAggregateOutputType | null
+  }
+
+  type GetModelFeedbackGroupByPayload<T extends ModelFeedbackGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ModelFeedbackGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ModelFeedbackGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ModelFeedbackGroupByOutputType[P]>
+            : GetScalarType<T[P], ModelFeedbackGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ModelFeedbackSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    analysisId?: boolean
+    detectionId?: boolean
+    accion?: boolean
+    etapaCorregida?: boolean
+    saludCorregida?: boolean
+    bboxX1?: boolean
+    bboxY1?: boolean
+    bboxX2?: boolean
+    bboxY2?: boolean
+    observaciones?: boolean
+    creadoPorId?: boolean
+    createdAt?: boolean
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    detection?: boolean | DetectionDefaultArgs<ExtArgs>
+    creadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["modelFeedback"]>
+
+  export type ModelFeedbackSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    analysisId?: boolean
+    detectionId?: boolean
+    accion?: boolean
+    etapaCorregida?: boolean
+    saludCorregida?: boolean
+    bboxX1?: boolean
+    bboxY1?: boolean
+    bboxX2?: boolean
+    bboxY2?: boolean
+    observaciones?: boolean
+    creadoPorId?: boolean
+    createdAt?: boolean
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    detection?: boolean | DetectionDefaultArgs<ExtArgs>
+    creadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["modelFeedback"]>
+
+  export type ModelFeedbackSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    analysisId?: boolean
+    detectionId?: boolean
+    accion?: boolean
+    etapaCorregida?: boolean
+    saludCorregida?: boolean
+    bboxX1?: boolean
+    bboxY1?: boolean
+    bboxX2?: boolean
+    bboxY2?: boolean
+    observaciones?: boolean
+    creadoPorId?: boolean
+    createdAt?: boolean
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    detection?: boolean | DetectionDefaultArgs<ExtArgs>
+    creadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["modelFeedback"]>
+
+  export type ModelFeedbackSelectScalar = {
+    id?: boolean
+    analysisId?: boolean
+    detectionId?: boolean
+    accion?: boolean
+    etapaCorregida?: boolean
+    saludCorregida?: boolean
+    bboxX1?: boolean
+    bboxY1?: boolean
+    bboxX2?: boolean
+    bboxY2?: boolean
+    observaciones?: boolean
+    creadoPorId?: boolean
+    createdAt?: boolean
+  }
+
+  export type ModelFeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "analysisId" | "detectionId" | "accion" | "etapaCorregida" | "saludCorregida" | "bboxX1" | "bboxY1" | "bboxX2" | "bboxY2" | "observaciones" | "creadoPorId" | "createdAt", ExtArgs["result"]["modelFeedback"]>
+  export type ModelFeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    detection?: boolean | DetectionDefaultArgs<ExtArgs>
+    creadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ModelFeedbackIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    detection?: boolean | DetectionDefaultArgs<ExtArgs>
+    creadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ModelFeedbackIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    analysis?: boolean | AnalysisDefaultArgs<ExtArgs>
+    detection?: boolean | DetectionDefaultArgs<ExtArgs>
+    creadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $ModelFeedbackPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ModelFeedback"
+    objects: {
+      analysis: Prisma.$AnalysisPayload<ExtArgs>
+      detection: Prisma.$DetectionPayload<ExtArgs>
+      creadoPor: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      analysisId: string
+      detectionId: string
+      accion: $Enums.AccionFeedback
+      etapaCorregida: string | null
+      saludCorregida: $Enums.EstadoSalud | null
+      bboxX1: number | null
+      bboxY1: number | null
+      bboxX2: number | null
+      bboxY2: number | null
+      observaciones: string | null
+      creadoPorId: string
+      createdAt: Date
+    }, ExtArgs["result"]["modelFeedback"]>
+    composites: {}
+  }
+
+  type ModelFeedbackGetPayload<S extends boolean | null | undefined | ModelFeedbackDefaultArgs> = $Result.GetResult<Prisma.$ModelFeedbackPayload, S>
+
+  type ModelFeedbackCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ModelFeedbackFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ModelFeedbackCountAggregateInputType | true
+    }
+
+  export interface ModelFeedbackDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ModelFeedback'], meta: { name: 'ModelFeedback' } }
+    /**
+     * Find zero or one ModelFeedback that matches the filter.
+     * @param {ModelFeedbackFindUniqueArgs} args - Arguments to find a ModelFeedback
+     * @example
+     * // Get one ModelFeedback
+     * const modelFeedback = await prisma.modelFeedback.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ModelFeedbackFindUniqueArgs>(args: SelectSubset<T, ModelFeedbackFindUniqueArgs<ExtArgs>>): Prisma__ModelFeedbackClient<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ModelFeedback that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ModelFeedbackFindUniqueOrThrowArgs} args - Arguments to find a ModelFeedback
+     * @example
+     * // Get one ModelFeedback
+     * const modelFeedback = await prisma.modelFeedback.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ModelFeedbackFindUniqueOrThrowArgs>(args: SelectSubset<T, ModelFeedbackFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ModelFeedbackClient<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ModelFeedback that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelFeedbackFindFirstArgs} args - Arguments to find a ModelFeedback
+     * @example
+     * // Get one ModelFeedback
+     * const modelFeedback = await prisma.modelFeedback.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ModelFeedbackFindFirstArgs>(args?: SelectSubset<T, ModelFeedbackFindFirstArgs<ExtArgs>>): Prisma__ModelFeedbackClient<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ModelFeedback that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelFeedbackFindFirstOrThrowArgs} args - Arguments to find a ModelFeedback
+     * @example
+     * // Get one ModelFeedback
+     * const modelFeedback = await prisma.modelFeedback.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ModelFeedbackFindFirstOrThrowArgs>(args?: SelectSubset<T, ModelFeedbackFindFirstOrThrowArgs<ExtArgs>>): Prisma__ModelFeedbackClient<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ModelFeedbacks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelFeedbackFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ModelFeedbacks
+     * const modelFeedbacks = await prisma.modelFeedback.findMany()
+     * 
+     * // Get first 10 ModelFeedbacks
+     * const modelFeedbacks = await prisma.modelFeedback.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const modelFeedbackWithIdOnly = await prisma.modelFeedback.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ModelFeedbackFindManyArgs>(args?: SelectSubset<T, ModelFeedbackFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ModelFeedback.
+     * @param {ModelFeedbackCreateArgs} args - Arguments to create a ModelFeedback.
+     * @example
+     * // Create one ModelFeedback
+     * const ModelFeedback = await prisma.modelFeedback.create({
+     *   data: {
+     *     // ... data to create a ModelFeedback
+     *   }
+     * })
+     * 
+     */
+    create<T extends ModelFeedbackCreateArgs>(args: SelectSubset<T, ModelFeedbackCreateArgs<ExtArgs>>): Prisma__ModelFeedbackClient<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ModelFeedbacks.
+     * @param {ModelFeedbackCreateManyArgs} args - Arguments to create many ModelFeedbacks.
+     * @example
+     * // Create many ModelFeedbacks
+     * const modelFeedback = await prisma.modelFeedback.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ModelFeedbackCreateManyArgs>(args?: SelectSubset<T, ModelFeedbackCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ModelFeedbacks and returns the data saved in the database.
+     * @param {ModelFeedbackCreateManyAndReturnArgs} args - Arguments to create many ModelFeedbacks.
+     * @example
+     * // Create many ModelFeedbacks
+     * const modelFeedback = await prisma.modelFeedback.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ModelFeedbacks and only return the `id`
+     * const modelFeedbackWithIdOnly = await prisma.modelFeedback.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ModelFeedbackCreateManyAndReturnArgs>(args?: SelectSubset<T, ModelFeedbackCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ModelFeedback.
+     * @param {ModelFeedbackDeleteArgs} args - Arguments to delete one ModelFeedback.
+     * @example
+     * // Delete one ModelFeedback
+     * const ModelFeedback = await prisma.modelFeedback.delete({
+     *   where: {
+     *     // ... filter to delete one ModelFeedback
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ModelFeedbackDeleteArgs>(args: SelectSubset<T, ModelFeedbackDeleteArgs<ExtArgs>>): Prisma__ModelFeedbackClient<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ModelFeedback.
+     * @param {ModelFeedbackUpdateArgs} args - Arguments to update one ModelFeedback.
+     * @example
+     * // Update one ModelFeedback
+     * const modelFeedback = await prisma.modelFeedback.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ModelFeedbackUpdateArgs>(args: SelectSubset<T, ModelFeedbackUpdateArgs<ExtArgs>>): Prisma__ModelFeedbackClient<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ModelFeedbacks.
+     * @param {ModelFeedbackDeleteManyArgs} args - Arguments to filter ModelFeedbacks to delete.
+     * @example
+     * // Delete a few ModelFeedbacks
+     * const { count } = await prisma.modelFeedback.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ModelFeedbackDeleteManyArgs>(args?: SelectSubset<T, ModelFeedbackDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ModelFeedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelFeedbackUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ModelFeedbacks
+     * const modelFeedback = await prisma.modelFeedback.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ModelFeedbackUpdateManyArgs>(args: SelectSubset<T, ModelFeedbackUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ModelFeedbacks and returns the data updated in the database.
+     * @param {ModelFeedbackUpdateManyAndReturnArgs} args - Arguments to update many ModelFeedbacks.
+     * @example
+     * // Update many ModelFeedbacks
+     * const modelFeedback = await prisma.modelFeedback.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ModelFeedbacks and only return the `id`
+     * const modelFeedbackWithIdOnly = await prisma.modelFeedback.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ModelFeedbackUpdateManyAndReturnArgs>(args: SelectSubset<T, ModelFeedbackUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ModelFeedback.
+     * @param {ModelFeedbackUpsertArgs} args - Arguments to update or create a ModelFeedback.
+     * @example
+     * // Update or create a ModelFeedback
+     * const modelFeedback = await prisma.modelFeedback.upsert({
+     *   create: {
+     *     // ... data to create a ModelFeedback
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ModelFeedback we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ModelFeedbackUpsertArgs>(args: SelectSubset<T, ModelFeedbackUpsertArgs<ExtArgs>>): Prisma__ModelFeedbackClient<$Result.GetResult<Prisma.$ModelFeedbackPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ModelFeedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelFeedbackCountArgs} args - Arguments to filter ModelFeedbacks to count.
+     * @example
+     * // Count the number of ModelFeedbacks
+     * const count = await prisma.modelFeedback.count({
+     *   where: {
+     *     // ... the filter for the ModelFeedbacks we want to count
+     *   }
+     * })
+    **/
+    count<T extends ModelFeedbackCountArgs>(
+      args?: Subset<T, ModelFeedbackCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ModelFeedbackCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ModelFeedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelFeedbackAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ModelFeedbackAggregateArgs>(args: Subset<T, ModelFeedbackAggregateArgs>): Prisma.PrismaPromise<GetModelFeedbackAggregateType<T>>
+
+    /**
+     * Group by ModelFeedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelFeedbackGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ModelFeedbackGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ModelFeedbackGroupByArgs['orderBy'] }
+        : { orderBy?: ModelFeedbackGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ModelFeedbackGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetModelFeedbackGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ModelFeedback model
+   */
+  readonly fields: ModelFeedbackFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ModelFeedback.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ModelFeedbackClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    analysis<T extends AnalysisDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AnalysisDefaultArgs<ExtArgs>>): Prisma__AnalysisClient<$Result.GetResult<Prisma.$AnalysisPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    detection<T extends DetectionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DetectionDefaultArgs<ExtArgs>>): Prisma__DetectionClient<$Result.GetResult<Prisma.$DetectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    creadoPor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ModelFeedback model
+   */
+  interface ModelFeedbackFieldRefs {
+    readonly id: FieldRef<"ModelFeedback", 'String'>
+    readonly analysisId: FieldRef<"ModelFeedback", 'String'>
+    readonly detectionId: FieldRef<"ModelFeedback", 'String'>
+    readonly accion: FieldRef<"ModelFeedback", 'AccionFeedback'>
+    readonly etapaCorregida: FieldRef<"ModelFeedback", 'String'>
+    readonly saludCorregida: FieldRef<"ModelFeedback", 'EstadoSalud'>
+    readonly bboxX1: FieldRef<"ModelFeedback", 'Float'>
+    readonly bboxY1: FieldRef<"ModelFeedback", 'Float'>
+    readonly bboxX2: FieldRef<"ModelFeedback", 'Float'>
+    readonly bboxY2: FieldRef<"ModelFeedback", 'Float'>
+    readonly observaciones: FieldRef<"ModelFeedback", 'String'>
+    readonly creadoPorId: FieldRef<"ModelFeedback", 'String'>
+    readonly createdAt: FieldRef<"ModelFeedback", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ModelFeedback findUnique
+   */
+  export type ModelFeedbackFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelFeedback to fetch.
+     */
+    where: ModelFeedbackWhereUniqueInput
+  }
+
+  /**
+   * ModelFeedback findUniqueOrThrow
+   */
+  export type ModelFeedbackFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelFeedback to fetch.
+     */
+    where: ModelFeedbackWhereUniqueInput
+  }
+
+  /**
+   * ModelFeedback findFirst
+   */
+  export type ModelFeedbackFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelFeedback to fetch.
+     */
+    where?: ModelFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelFeedbacks to fetch.
+     */
+    orderBy?: ModelFeedbackOrderByWithRelationInput | ModelFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ModelFeedbacks.
+     */
+    cursor?: ModelFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ModelFeedbacks.
+     */
+    distinct?: ModelFeedbackScalarFieldEnum | ModelFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * ModelFeedback findFirstOrThrow
+   */
+  export type ModelFeedbackFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelFeedback to fetch.
+     */
+    where?: ModelFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelFeedbacks to fetch.
+     */
+    orderBy?: ModelFeedbackOrderByWithRelationInput | ModelFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ModelFeedbacks.
+     */
+    cursor?: ModelFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ModelFeedbacks.
+     */
+    distinct?: ModelFeedbackScalarFieldEnum | ModelFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * ModelFeedback findMany
+   */
+  export type ModelFeedbackFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelFeedbacks to fetch.
+     */
+    where?: ModelFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelFeedbacks to fetch.
+     */
+    orderBy?: ModelFeedbackOrderByWithRelationInput | ModelFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ModelFeedbacks.
+     */
+    cursor?: ModelFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelFeedbacks.
+     */
+    skip?: number
+    distinct?: ModelFeedbackScalarFieldEnum | ModelFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * ModelFeedback create
+   */
+  export type ModelFeedbackCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ModelFeedback.
+     */
+    data: XOR<ModelFeedbackCreateInput, ModelFeedbackUncheckedCreateInput>
+  }
+
+  /**
+   * ModelFeedback createMany
+   */
+  export type ModelFeedbackCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ModelFeedbacks.
+     */
+    data: ModelFeedbackCreateManyInput | ModelFeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ModelFeedback createManyAndReturn
+   */
+  export type ModelFeedbackCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to create many ModelFeedbacks.
+     */
+    data: ModelFeedbackCreateManyInput | ModelFeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ModelFeedback update
+   */
+  export type ModelFeedbackUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ModelFeedback.
+     */
+    data: XOR<ModelFeedbackUpdateInput, ModelFeedbackUncheckedUpdateInput>
+    /**
+     * Choose, which ModelFeedback to update.
+     */
+    where: ModelFeedbackWhereUniqueInput
+  }
+
+  /**
+   * ModelFeedback updateMany
+   */
+  export type ModelFeedbackUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ModelFeedbacks.
+     */
+    data: XOR<ModelFeedbackUpdateManyMutationInput, ModelFeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which ModelFeedbacks to update
+     */
+    where?: ModelFeedbackWhereInput
+    /**
+     * Limit how many ModelFeedbacks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ModelFeedback updateManyAndReturn
+   */
+  export type ModelFeedbackUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to update ModelFeedbacks.
+     */
+    data: XOR<ModelFeedbackUpdateManyMutationInput, ModelFeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which ModelFeedbacks to update
+     */
+    where?: ModelFeedbackWhereInput
+    /**
+     * Limit how many ModelFeedbacks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ModelFeedback upsert
+   */
+  export type ModelFeedbackUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ModelFeedback to update in case it exists.
+     */
+    where: ModelFeedbackWhereUniqueInput
+    /**
+     * In case the ModelFeedback found by the `where` argument doesn't exist, create a new ModelFeedback with this data.
+     */
+    create: XOR<ModelFeedbackCreateInput, ModelFeedbackUncheckedCreateInput>
+    /**
+     * In case the ModelFeedback was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ModelFeedbackUpdateInput, ModelFeedbackUncheckedUpdateInput>
+  }
+
+  /**
+   * ModelFeedback delete
+   */
+  export type ModelFeedbackDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter which ModelFeedback to delete.
+     */
+    where: ModelFeedbackWhereUniqueInput
+  }
+
+  /**
+   * ModelFeedback deleteMany
+   */
+  export type ModelFeedbackDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ModelFeedbacks to delete
+     */
+    where?: ModelFeedbackWhereInput
+    /**
+     * Limit how many ModelFeedbacks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ModelFeedback without action
+   */
+  export type ModelFeedbackDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelFeedback
+     */
+    select?: ModelFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelFeedback
+     */
+    omit?: ModelFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelFeedbackInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TrainingJob
+   */
+
+  export type AggregateTrainingJob = {
+    _count: TrainingJobCountAggregateOutputType | null
+    _avg: TrainingJobAvgAggregateOutputType | null
+    _sum: TrainingJobSumAggregateOutputType | null
+    _min: TrainingJobMinAggregateOutputType | null
+    _max: TrainingJobMaxAggregateOutputType | null
+  }
+
+  export type TrainingJobAvgAggregateOutputType = {
+    datasetSize: number | null
+  }
+
+  export type TrainingJobSumAggregateOutputType = {
+    datasetSize: number | null
+  }
+
+  export type TrainingJobMinAggregateOutputType = {
+    id: string | null
+    status: $Enums.TrainingJobStatus | null
+    datasetSize: number | null
+    errorMessage: string | null
+    iniciadoPorId: string | null
+    iniciadoAt: Date | null
+    finalizadoAt: Date | null
+  }
+
+  export type TrainingJobMaxAggregateOutputType = {
+    id: string | null
+    status: $Enums.TrainingJobStatus | null
+    datasetSize: number | null
+    errorMessage: string | null
+    iniciadoPorId: string | null
+    iniciadoAt: Date | null
+    finalizadoAt: Date | null
+  }
+
+  export type TrainingJobCountAggregateOutputType = {
+    id: number
+    status: number
+    datasetSize: number
+    errorMessage: number
+    iniciadoPorId: number
+    iniciadoAt: number
+    finalizadoAt: number
+    _all: number
+  }
+
+
+  export type TrainingJobAvgAggregateInputType = {
+    datasetSize?: true
+  }
+
+  export type TrainingJobSumAggregateInputType = {
+    datasetSize?: true
+  }
+
+  export type TrainingJobMinAggregateInputType = {
+    id?: true
+    status?: true
+    datasetSize?: true
+    errorMessage?: true
+    iniciadoPorId?: true
+    iniciadoAt?: true
+    finalizadoAt?: true
+  }
+
+  export type TrainingJobMaxAggregateInputType = {
+    id?: true
+    status?: true
+    datasetSize?: true
+    errorMessage?: true
+    iniciadoPorId?: true
+    iniciadoAt?: true
+    finalizadoAt?: true
+  }
+
+  export type TrainingJobCountAggregateInputType = {
+    id?: true
+    status?: true
+    datasetSize?: true
+    errorMessage?: true
+    iniciadoPorId?: true
+    iniciadoAt?: true
+    finalizadoAt?: true
+    _all?: true
+  }
+
+  export type TrainingJobAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrainingJob to aggregate.
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrainingJobs to fetch.
+     */
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TrainingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrainingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrainingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TrainingJobs
+    **/
+    _count?: true | TrainingJobCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TrainingJobAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TrainingJobSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TrainingJobMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TrainingJobMaxAggregateInputType
+  }
+
+  export type GetTrainingJobAggregateType<T extends TrainingJobAggregateArgs> = {
+        [P in keyof T & keyof AggregateTrainingJob]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTrainingJob[P]>
+      : GetScalarType<T[P], AggregateTrainingJob[P]>
+  }
+
+
+
+
+  export type TrainingJobGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrainingJobWhereInput
+    orderBy?: TrainingJobOrderByWithAggregationInput | TrainingJobOrderByWithAggregationInput[]
+    by: TrainingJobScalarFieldEnum[] | TrainingJobScalarFieldEnum
+    having?: TrainingJobScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TrainingJobCountAggregateInputType | true
+    _avg?: TrainingJobAvgAggregateInputType
+    _sum?: TrainingJobSumAggregateInputType
+    _min?: TrainingJobMinAggregateInputType
+    _max?: TrainingJobMaxAggregateInputType
+  }
+
+  export type TrainingJobGroupByOutputType = {
+    id: string
+    status: $Enums.TrainingJobStatus
+    datasetSize: number | null
+    errorMessage: string | null
+    iniciadoPorId: string
+    iniciadoAt: Date
+    finalizadoAt: Date | null
+    _count: TrainingJobCountAggregateOutputType | null
+    _avg: TrainingJobAvgAggregateOutputType | null
+    _sum: TrainingJobSumAggregateOutputType | null
+    _min: TrainingJobMinAggregateOutputType | null
+    _max: TrainingJobMaxAggregateOutputType | null
+  }
+
+  type GetTrainingJobGroupByPayload<T extends TrainingJobGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TrainingJobGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TrainingJobGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TrainingJobGroupByOutputType[P]>
+            : GetScalarType<T[P], TrainingJobGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TrainingJobSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    status?: boolean
+    datasetSize?: boolean
+    errorMessage?: boolean
+    iniciadoPorId?: boolean
+    iniciadoAt?: boolean
+    finalizadoAt?: boolean
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+    modelVersion?: boolean | TrainingJob$modelVersionArgs<ExtArgs>
+  }, ExtArgs["result"]["trainingJob"]>
+
+  export type TrainingJobSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    status?: boolean
+    datasetSize?: boolean
+    errorMessage?: boolean
+    iniciadoPorId?: boolean
+    iniciadoAt?: boolean
+    finalizadoAt?: boolean
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trainingJob"]>
+
+  export type TrainingJobSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    status?: boolean
+    datasetSize?: boolean
+    errorMessage?: boolean
+    iniciadoPorId?: boolean
+    iniciadoAt?: boolean
+    finalizadoAt?: boolean
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trainingJob"]>
+
+  export type TrainingJobSelectScalar = {
+    id?: boolean
+    status?: boolean
+    datasetSize?: boolean
+    errorMessage?: boolean
+    iniciadoPorId?: boolean
+    iniciadoAt?: boolean
+    finalizadoAt?: boolean
+  }
+
+  export type TrainingJobOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "datasetSize" | "errorMessage" | "iniciadoPorId" | "iniciadoAt" | "finalizadoAt", ExtArgs["result"]["trainingJob"]>
+  export type TrainingJobInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+    modelVersion?: boolean | TrainingJob$modelVersionArgs<ExtArgs>
+  }
+  export type TrainingJobIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TrainingJobIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    iniciadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $TrainingJobPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TrainingJob"
+    objects: {
+      iniciadoPor: Prisma.$UserPayload<ExtArgs>
+      modelVersion: Prisma.$ModelVersionPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      status: $Enums.TrainingJobStatus
+      datasetSize: number | null
+      errorMessage: string | null
+      iniciadoPorId: string
+      iniciadoAt: Date
+      finalizadoAt: Date | null
+    }, ExtArgs["result"]["trainingJob"]>
+    composites: {}
+  }
+
+  type TrainingJobGetPayload<S extends boolean | null | undefined | TrainingJobDefaultArgs> = $Result.GetResult<Prisma.$TrainingJobPayload, S>
+
+  type TrainingJobCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TrainingJobFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TrainingJobCountAggregateInputType | true
+    }
+
+  export interface TrainingJobDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TrainingJob'], meta: { name: 'TrainingJob' } }
+    /**
+     * Find zero or one TrainingJob that matches the filter.
+     * @param {TrainingJobFindUniqueArgs} args - Arguments to find a TrainingJob
+     * @example
+     * // Get one TrainingJob
+     * const trainingJob = await prisma.trainingJob.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TrainingJobFindUniqueArgs>(args: SelectSubset<T, TrainingJobFindUniqueArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TrainingJob that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TrainingJobFindUniqueOrThrowArgs} args - Arguments to find a TrainingJob
+     * @example
+     * // Get one TrainingJob
+     * const trainingJob = await prisma.trainingJob.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TrainingJobFindUniqueOrThrowArgs>(args: SelectSubset<T, TrainingJobFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrainingJob that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobFindFirstArgs} args - Arguments to find a TrainingJob
+     * @example
+     * // Get one TrainingJob
+     * const trainingJob = await prisma.trainingJob.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TrainingJobFindFirstArgs>(args?: SelectSubset<T, TrainingJobFindFirstArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrainingJob that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobFindFirstOrThrowArgs} args - Arguments to find a TrainingJob
+     * @example
+     * // Get one TrainingJob
+     * const trainingJob = await prisma.trainingJob.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TrainingJobFindFirstOrThrowArgs>(args?: SelectSubset<T, TrainingJobFindFirstOrThrowArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TrainingJobs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TrainingJobs
+     * const trainingJobs = await prisma.trainingJob.findMany()
+     * 
+     * // Get first 10 TrainingJobs
+     * const trainingJobs = await prisma.trainingJob.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const trainingJobWithIdOnly = await prisma.trainingJob.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TrainingJobFindManyArgs>(args?: SelectSubset<T, TrainingJobFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TrainingJob.
+     * @param {TrainingJobCreateArgs} args - Arguments to create a TrainingJob.
+     * @example
+     * // Create one TrainingJob
+     * const TrainingJob = await prisma.trainingJob.create({
+     *   data: {
+     *     // ... data to create a TrainingJob
+     *   }
+     * })
+     * 
+     */
+    create<T extends TrainingJobCreateArgs>(args: SelectSubset<T, TrainingJobCreateArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TrainingJobs.
+     * @param {TrainingJobCreateManyArgs} args - Arguments to create many TrainingJobs.
+     * @example
+     * // Create many TrainingJobs
+     * const trainingJob = await prisma.trainingJob.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TrainingJobCreateManyArgs>(args?: SelectSubset<T, TrainingJobCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TrainingJobs and returns the data saved in the database.
+     * @param {TrainingJobCreateManyAndReturnArgs} args - Arguments to create many TrainingJobs.
+     * @example
+     * // Create many TrainingJobs
+     * const trainingJob = await prisma.trainingJob.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TrainingJobs and only return the `id`
+     * const trainingJobWithIdOnly = await prisma.trainingJob.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TrainingJobCreateManyAndReturnArgs>(args?: SelectSubset<T, TrainingJobCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TrainingJob.
+     * @param {TrainingJobDeleteArgs} args - Arguments to delete one TrainingJob.
+     * @example
+     * // Delete one TrainingJob
+     * const TrainingJob = await prisma.trainingJob.delete({
+     *   where: {
+     *     // ... filter to delete one TrainingJob
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TrainingJobDeleteArgs>(args: SelectSubset<T, TrainingJobDeleteArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TrainingJob.
+     * @param {TrainingJobUpdateArgs} args - Arguments to update one TrainingJob.
+     * @example
+     * // Update one TrainingJob
+     * const trainingJob = await prisma.trainingJob.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TrainingJobUpdateArgs>(args: SelectSubset<T, TrainingJobUpdateArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TrainingJobs.
+     * @param {TrainingJobDeleteManyArgs} args - Arguments to filter TrainingJobs to delete.
+     * @example
+     * // Delete a few TrainingJobs
+     * const { count } = await prisma.trainingJob.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TrainingJobDeleteManyArgs>(args?: SelectSubset<T, TrainingJobDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrainingJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TrainingJobs
+     * const trainingJob = await prisma.trainingJob.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TrainingJobUpdateManyArgs>(args: SelectSubset<T, TrainingJobUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrainingJobs and returns the data updated in the database.
+     * @param {TrainingJobUpdateManyAndReturnArgs} args - Arguments to update many TrainingJobs.
+     * @example
+     * // Update many TrainingJobs
+     * const trainingJob = await prisma.trainingJob.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TrainingJobs and only return the `id`
+     * const trainingJobWithIdOnly = await prisma.trainingJob.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TrainingJobUpdateManyAndReturnArgs>(args: SelectSubset<T, TrainingJobUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TrainingJob.
+     * @param {TrainingJobUpsertArgs} args - Arguments to update or create a TrainingJob.
+     * @example
+     * // Update or create a TrainingJob
+     * const trainingJob = await prisma.trainingJob.upsert({
+     *   create: {
+     *     // ... data to create a TrainingJob
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TrainingJob we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TrainingJobUpsertArgs>(args: SelectSubset<T, TrainingJobUpsertArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TrainingJobs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobCountArgs} args - Arguments to filter TrainingJobs to count.
+     * @example
+     * // Count the number of TrainingJobs
+     * const count = await prisma.trainingJob.count({
+     *   where: {
+     *     // ... the filter for the TrainingJobs we want to count
+     *   }
+     * })
+    **/
+    count<T extends TrainingJobCountArgs>(
+      args?: Subset<T, TrainingJobCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TrainingJobCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TrainingJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TrainingJobAggregateArgs>(args: Subset<T, TrainingJobAggregateArgs>): Prisma.PrismaPromise<GetTrainingJobAggregateType<T>>
+
+    /**
+     * Group by TrainingJob.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrainingJobGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TrainingJobGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TrainingJobGroupByArgs['orderBy'] }
+        : { orderBy?: TrainingJobGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TrainingJobGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTrainingJobGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TrainingJob model
+   */
+  readonly fields: TrainingJobFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TrainingJob.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TrainingJobClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    iniciadoPor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    modelVersion<T extends TrainingJob$modelVersionArgs<ExtArgs> = {}>(args?: Subset<T, TrainingJob$modelVersionArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TrainingJob model
+   */
+  interface TrainingJobFieldRefs {
+    readonly id: FieldRef<"TrainingJob", 'String'>
+    readonly status: FieldRef<"TrainingJob", 'TrainingJobStatus'>
+    readonly datasetSize: FieldRef<"TrainingJob", 'Int'>
+    readonly errorMessage: FieldRef<"TrainingJob", 'String'>
+    readonly iniciadoPorId: FieldRef<"TrainingJob", 'String'>
+    readonly iniciadoAt: FieldRef<"TrainingJob", 'DateTime'>
+    readonly finalizadoAt: FieldRef<"TrainingJob", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TrainingJob findUnique
+   */
+  export type TrainingJobFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJob to fetch.
+     */
+    where: TrainingJobWhereUniqueInput
+  }
+
+  /**
+   * TrainingJob findUniqueOrThrow
+   */
+  export type TrainingJobFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJob to fetch.
+     */
+    where: TrainingJobWhereUniqueInput
+  }
+
+  /**
+   * TrainingJob findFirst
+   */
+  export type TrainingJobFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJob to fetch.
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrainingJobs to fetch.
+     */
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrainingJobs.
+     */
+    cursor?: TrainingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrainingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrainingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrainingJobs.
+     */
+    distinct?: TrainingJobScalarFieldEnum | TrainingJobScalarFieldEnum[]
+  }
+
+  /**
+   * TrainingJob findFirstOrThrow
+   */
+  export type TrainingJobFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJob to fetch.
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrainingJobs to fetch.
+     */
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrainingJobs.
+     */
+    cursor?: TrainingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrainingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrainingJobs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrainingJobs.
+     */
+    distinct?: TrainingJobScalarFieldEnum | TrainingJobScalarFieldEnum[]
+  }
+
+  /**
+   * TrainingJob findMany
+   */
+  export type TrainingJobFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter, which TrainingJobs to fetch.
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrainingJobs to fetch.
+     */
+    orderBy?: TrainingJobOrderByWithRelationInput | TrainingJobOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TrainingJobs.
+     */
+    cursor?: TrainingJobWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrainingJobs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrainingJobs.
+     */
+    skip?: number
+    distinct?: TrainingJobScalarFieldEnum | TrainingJobScalarFieldEnum[]
+  }
+
+  /**
+   * TrainingJob create
+   */
+  export type TrainingJobCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TrainingJob.
+     */
+    data: XOR<TrainingJobCreateInput, TrainingJobUncheckedCreateInput>
+  }
+
+  /**
+   * TrainingJob createMany
+   */
+  export type TrainingJobCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TrainingJobs.
+     */
+    data: TrainingJobCreateManyInput | TrainingJobCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TrainingJob createManyAndReturn
+   */
+  export type TrainingJobCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * The data used to create many TrainingJobs.
+     */
+    data: TrainingJobCreateManyInput | TrainingJobCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrainingJob update
+   */
+  export type TrainingJobUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TrainingJob.
+     */
+    data: XOR<TrainingJobUpdateInput, TrainingJobUncheckedUpdateInput>
+    /**
+     * Choose, which TrainingJob to update.
+     */
+    where: TrainingJobWhereUniqueInput
+  }
+
+  /**
+   * TrainingJob updateMany
+   */
+  export type TrainingJobUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TrainingJobs.
+     */
+    data: XOR<TrainingJobUpdateManyMutationInput, TrainingJobUncheckedUpdateManyInput>
+    /**
+     * Filter which TrainingJobs to update
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * Limit how many TrainingJobs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrainingJob updateManyAndReturn
+   */
+  export type TrainingJobUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * The data used to update TrainingJobs.
+     */
+    data: XOR<TrainingJobUpdateManyMutationInput, TrainingJobUncheckedUpdateManyInput>
+    /**
+     * Filter which TrainingJobs to update
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * Limit how many TrainingJobs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrainingJob upsert
+   */
+  export type TrainingJobUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TrainingJob to update in case it exists.
+     */
+    where: TrainingJobWhereUniqueInput
+    /**
+     * In case the TrainingJob found by the `where` argument doesn't exist, create a new TrainingJob with this data.
+     */
+    create: XOR<TrainingJobCreateInput, TrainingJobUncheckedCreateInput>
+    /**
+     * In case the TrainingJob was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TrainingJobUpdateInput, TrainingJobUncheckedUpdateInput>
+  }
+
+  /**
+   * TrainingJob delete
+   */
+  export type TrainingJobDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+    /**
+     * Filter which TrainingJob to delete.
+     */
+    where: TrainingJobWhereUniqueInput
+  }
+
+  /**
+   * TrainingJob deleteMany
+   */
+  export type TrainingJobDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrainingJobs to delete
+     */
+    where?: TrainingJobWhereInput
+    /**
+     * Limit how many TrainingJobs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrainingJob.modelVersion
+   */
+  export type TrainingJob$modelVersionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    where?: ModelVersionWhereInput
+  }
+
+  /**
+   * TrainingJob without action
+   */
+  export type TrainingJobDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrainingJob
+     */
+    select?: TrainingJobSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrainingJob
+     */
+    omit?: TrainingJobOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrainingJobInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ModelVersion
+   */
+
+  export type AggregateModelVersion = {
+    _count: ModelVersionCountAggregateOutputType | null
+    _avg: ModelVersionAvgAggregateOutputType | null
+    _sum: ModelVersionSumAggregateOutputType | null
+    _min: ModelVersionMinAggregateOutputType | null
+    _max: ModelVersionMaxAggregateOutputType | null
+  }
+
+  export type ModelVersionAvgAggregateOutputType = {
+    version: number | null
+    mAP: number | null
+    mAPBase: number | null
+  }
+
+  export type ModelVersionSumAggregateOutputType = {
+    version: number | null
+    mAP: number | null
+    mAPBase: number | null
+  }
+
+  export type ModelVersionMinAggregateOutputType = {
+    id: string | null
+    version: number | null
+    r2Key: string | null
+    mAP: number | null
+    mAPBase: number | null
+    status: $Enums.ModelVersionStatus | null
+    trainingJobId: string | null
+    promovidoPorId: string | null
+    promovidoAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ModelVersionMaxAggregateOutputType = {
+    id: string | null
+    version: number | null
+    r2Key: string | null
+    mAP: number | null
+    mAPBase: number | null
+    status: $Enums.ModelVersionStatus | null
+    trainingJobId: string | null
+    promovidoPorId: string | null
+    promovidoAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ModelVersionCountAggregateOutputType = {
+    id: number
+    version: number
+    r2Key: number
+    mAP: number
+    mAPBase: number
+    status: number
+    trainingJobId: number
+    promovidoPorId: number
+    promovidoAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ModelVersionAvgAggregateInputType = {
+    version?: true
+    mAP?: true
+    mAPBase?: true
+  }
+
+  export type ModelVersionSumAggregateInputType = {
+    version?: true
+    mAP?: true
+    mAPBase?: true
+  }
+
+  export type ModelVersionMinAggregateInputType = {
+    id?: true
+    version?: true
+    r2Key?: true
+    mAP?: true
+    mAPBase?: true
+    status?: true
+    trainingJobId?: true
+    promovidoPorId?: true
+    promovidoAt?: true
+    createdAt?: true
+  }
+
+  export type ModelVersionMaxAggregateInputType = {
+    id?: true
+    version?: true
+    r2Key?: true
+    mAP?: true
+    mAPBase?: true
+    status?: true
+    trainingJobId?: true
+    promovidoPorId?: true
+    promovidoAt?: true
+    createdAt?: true
+  }
+
+  export type ModelVersionCountAggregateInputType = {
+    id?: true
+    version?: true
+    r2Key?: true
+    mAP?: true
+    mAPBase?: true
+    status?: true
+    trainingJobId?: true
+    promovidoPorId?: true
+    promovidoAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ModelVersionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ModelVersion to aggregate.
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelVersions to fetch.
+     */
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ModelVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ModelVersions
+    **/
+    _count?: true | ModelVersionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ModelVersionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ModelVersionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ModelVersionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ModelVersionMaxAggregateInputType
+  }
+
+  export type GetModelVersionAggregateType<T extends ModelVersionAggregateArgs> = {
+        [P in keyof T & keyof AggregateModelVersion]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateModelVersion[P]>
+      : GetScalarType<T[P], AggregateModelVersion[P]>
+  }
+
+
+
+
+  export type ModelVersionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ModelVersionWhereInput
+    orderBy?: ModelVersionOrderByWithAggregationInput | ModelVersionOrderByWithAggregationInput[]
+    by: ModelVersionScalarFieldEnum[] | ModelVersionScalarFieldEnum
+    having?: ModelVersionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ModelVersionCountAggregateInputType | true
+    _avg?: ModelVersionAvgAggregateInputType
+    _sum?: ModelVersionSumAggregateInputType
+    _min?: ModelVersionMinAggregateInputType
+    _max?: ModelVersionMaxAggregateInputType
+  }
+
+  export type ModelVersionGroupByOutputType = {
+    id: string
+    version: number
+    r2Key: string | null
+    mAP: number | null
+    mAPBase: number | null
+    status: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoPorId: string | null
+    promovidoAt: Date | null
+    createdAt: Date
+    _count: ModelVersionCountAggregateOutputType | null
+    _avg: ModelVersionAvgAggregateOutputType | null
+    _sum: ModelVersionSumAggregateOutputType | null
+    _min: ModelVersionMinAggregateOutputType | null
+    _max: ModelVersionMaxAggregateOutputType | null
+  }
+
+  type GetModelVersionGroupByPayload<T extends ModelVersionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ModelVersionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ModelVersionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ModelVersionGroupByOutputType[P]>
+            : GetScalarType<T[P], ModelVersionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ModelVersionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    version?: boolean
+    r2Key?: boolean
+    mAP?: boolean
+    mAPBase?: boolean
+    status?: boolean
+    trainingJobId?: boolean
+    promovidoPorId?: boolean
+    promovidoAt?: boolean
+    createdAt?: boolean
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }, ExtArgs["result"]["modelVersion"]>
+
+  export type ModelVersionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    version?: boolean
+    r2Key?: boolean
+    mAP?: boolean
+    mAPBase?: boolean
+    status?: boolean
+    trainingJobId?: boolean
+    promovidoPorId?: boolean
+    promovidoAt?: boolean
+    createdAt?: boolean
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }, ExtArgs["result"]["modelVersion"]>
+
+  export type ModelVersionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    version?: boolean
+    r2Key?: boolean
+    mAP?: boolean
+    mAPBase?: boolean
+    status?: boolean
+    trainingJobId?: boolean
+    promovidoPorId?: boolean
+    promovidoAt?: boolean
+    createdAt?: boolean
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }, ExtArgs["result"]["modelVersion"]>
+
+  export type ModelVersionSelectScalar = {
+    id?: boolean
+    version?: boolean
+    r2Key?: boolean
+    mAP?: boolean
+    mAPBase?: boolean
+    status?: boolean
+    trainingJobId?: boolean
+    promovidoPorId?: boolean
+    promovidoAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type ModelVersionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "version" | "r2Key" | "mAP" | "mAPBase" | "status" | "trainingJobId" | "promovidoPorId" | "promovidoAt" | "createdAt", ExtArgs["result"]["modelVersion"]>
+  export type ModelVersionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }
+  export type ModelVersionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }
+  export type ModelVersionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    trainingJob?: boolean | TrainingJobDefaultArgs<ExtArgs>
+    promovidoPor?: boolean | ModelVersion$promovidoPorArgs<ExtArgs>
+  }
+
+  export type $ModelVersionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ModelVersion"
+    objects: {
+      trainingJob: Prisma.$TrainingJobPayload<ExtArgs>
+      promovidoPor: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      version: number
+      r2Key: string | null
+      mAP: number | null
+      mAPBase: number | null
+      status: $Enums.ModelVersionStatus
+      trainingJobId: string
+      promovidoPorId: string | null
+      promovidoAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["modelVersion"]>
+    composites: {}
+  }
+
+  type ModelVersionGetPayload<S extends boolean | null | undefined | ModelVersionDefaultArgs> = $Result.GetResult<Prisma.$ModelVersionPayload, S>
+
+  type ModelVersionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ModelVersionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ModelVersionCountAggregateInputType | true
+    }
+
+  export interface ModelVersionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ModelVersion'], meta: { name: 'ModelVersion' } }
+    /**
+     * Find zero or one ModelVersion that matches the filter.
+     * @param {ModelVersionFindUniqueArgs} args - Arguments to find a ModelVersion
+     * @example
+     * // Get one ModelVersion
+     * const modelVersion = await prisma.modelVersion.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ModelVersionFindUniqueArgs>(args: SelectSubset<T, ModelVersionFindUniqueArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ModelVersion that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ModelVersionFindUniqueOrThrowArgs} args - Arguments to find a ModelVersion
+     * @example
+     * // Get one ModelVersion
+     * const modelVersion = await prisma.modelVersion.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ModelVersionFindUniqueOrThrowArgs>(args: SelectSubset<T, ModelVersionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ModelVersion that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionFindFirstArgs} args - Arguments to find a ModelVersion
+     * @example
+     * // Get one ModelVersion
+     * const modelVersion = await prisma.modelVersion.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ModelVersionFindFirstArgs>(args?: SelectSubset<T, ModelVersionFindFirstArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ModelVersion that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionFindFirstOrThrowArgs} args - Arguments to find a ModelVersion
+     * @example
+     * // Get one ModelVersion
+     * const modelVersion = await prisma.modelVersion.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ModelVersionFindFirstOrThrowArgs>(args?: SelectSubset<T, ModelVersionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ModelVersions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ModelVersions
+     * const modelVersions = await prisma.modelVersion.findMany()
+     * 
+     * // Get first 10 ModelVersions
+     * const modelVersions = await prisma.modelVersion.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const modelVersionWithIdOnly = await prisma.modelVersion.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ModelVersionFindManyArgs>(args?: SelectSubset<T, ModelVersionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ModelVersion.
+     * @param {ModelVersionCreateArgs} args - Arguments to create a ModelVersion.
+     * @example
+     * // Create one ModelVersion
+     * const ModelVersion = await prisma.modelVersion.create({
+     *   data: {
+     *     // ... data to create a ModelVersion
+     *   }
+     * })
+     * 
+     */
+    create<T extends ModelVersionCreateArgs>(args: SelectSubset<T, ModelVersionCreateArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ModelVersions.
+     * @param {ModelVersionCreateManyArgs} args - Arguments to create many ModelVersions.
+     * @example
+     * // Create many ModelVersions
+     * const modelVersion = await prisma.modelVersion.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ModelVersionCreateManyArgs>(args?: SelectSubset<T, ModelVersionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ModelVersions and returns the data saved in the database.
+     * @param {ModelVersionCreateManyAndReturnArgs} args - Arguments to create many ModelVersions.
+     * @example
+     * // Create many ModelVersions
+     * const modelVersion = await prisma.modelVersion.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ModelVersions and only return the `id`
+     * const modelVersionWithIdOnly = await prisma.modelVersion.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ModelVersionCreateManyAndReturnArgs>(args?: SelectSubset<T, ModelVersionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ModelVersion.
+     * @param {ModelVersionDeleteArgs} args - Arguments to delete one ModelVersion.
+     * @example
+     * // Delete one ModelVersion
+     * const ModelVersion = await prisma.modelVersion.delete({
+     *   where: {
+     *     // ... filter to delete one ModelVersion
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ModelVersionDeleteArgs>(args: SelectSubset<T, ModelVersionDeleteArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ModelVersion.
+     * @param {ModelVersionUpdateArgs} args - Arguments to update one ModelVersion.
+     * @example
+     * // Update one ModelVersion
+     * const modelVersion = await prisma.modelVersion.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ModelVersionUpdateArgs>(args: SelectSubset<T, ModelVersionUpdateArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ModelVersions.
+     * @param {ModelVersionDeleteManyArgs} args - Arguments to filter ModelVersions to delete.
+     * @example
+     * // Delete a few ModelVersions
+     * const { count } = await prisma.modelVersion.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ModelVersionDeleteManyArgs>(args?: SelectSubset<T, ModelVersionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ModelVersions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ModelVersions
+     * const modelVersion = await prisma.modelVersion.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ModelVersionUpdateManyArgs>(args: SelectSubset<T, ModelVersionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ModelVersions and returns the data updated in the database.
+     * @param {ModelVersionUpdateManyAndReturnArgs} args - Arguments to update many ModelVersions.
+     * @example
+     * // Update many ModelVersions
+     * const modelVersion = await prisma.modelVersion.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ModelVersions and only return the `id`
+     * const modelVersionWithIdOnly = await prisma.modelVersion.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ModelVersionUpdateManyAndReturnArgs>(args: SelectSubset<T, ModelVersionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ModelVersion.
+     * @param {ModelVersionUpsertArgs} args - Arguments to update or create a ModelVersion.
+     * @example
+     * // Update or create a ModelVersion
+     * const modelVersion = await prisma.modelVersion.upsert({
+     *   create: {
+     *     // ... data to create a ModelVersion
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ModelVersion we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ModelVersionUpsertArgs>(args: SelectSubset<T, ModelVersionUpsertArgs<ExtArgs>>): Prisma__ModelVersionClient<$Result.GetResult<Prisma.$ModelVersionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ModelVersions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionCountArgs} args - Arguments to filter ModelVersions to count.
+     * @example
+     * // Count the number of ModelVersions
+     * const count = await prisma.modelVersion.count({
+     *   where: {
+     *     // ... the filter for the ModelVersions we want to count
+     *   }
+     * })
+    **/
+    count<T extends ModelVersionCountArgs>(
+      args?: Subset<T, ModelVersionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ModelVersionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ModelVersion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ModelVersionAggregateArgs>(args: Subset<T, ModelVersionAggregateArgs>): Prisma.PrismaPromise<GetModelVersionAggregateType<T>>
+
+    /**
+     * Group by ModelVersion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ModelVersionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ModelVersionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ModelVersionGroupByArgs['orderBy'] }
+        : { orderBy?: ModelVersionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ModelVersionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetModelVersionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ModelVersion model
+   */
+  readonly fields: ModelVersionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ModelVersion.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ModelVersionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    trainingJob<T extends TrainingJobDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TrainingJobDefaultArgs<ExtArgs>>): Prisma__TrainingJobClient<$Result.GetResult<Prisma.$TrainingJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    promovidoPor<T extends ModelVersion$promovidoPorArgs<ExtArgs> = {}>(args?: Subset<T, ModelVersion$promovidoPorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ModelVersion model
+   */
+  interface ModelVersionFieldRefs {
+    readonly id: FieldRef<"ModelVersion", 'String'>
+    readonly version: FieldRef<"ModelVersion", 'Int'>
+    readonly r2Key: FieldRef<"ModelVersion", 'String'>
+    readonly mAP: FieldRef<"ModelVersion", 'Float'>
+    readonly mAPBase: FieldRef<"ModelVersion", 'Float'>
+    readonly status: FieldRef<"ModelVersion", 'ModelVersionStatus'>
+    readonly trainingJobId: FieldRef<"ModelVersion", 'String'>
+    readonly promovidoPorId: FieldRef<"ModelVersion", 'String'>
+    readonly promovidoAt: FieldRef<"ModelVersion", 'DateTime'>
+    readonly createdAt: FieldRef<"ModelVersion", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ModelVersion findUnique
+   */
+  export type ModelVersionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersion to fetch.
+     */
+    where: ModelVersionWhereUniqueInput
+  }
+
+  /**
+   * ModelVersion findUniqueOrThrow
+   */
+  export type ModelVersionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersion to fetch.
+     */
+    where: ModelVersionWhereUniqueInput
+  }
+
+  /**
+   * ModelVersion findFirst
+   */
+  export type ModelVersionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersion to fetch.
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelVersions to fetch.
+     */
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ModelVersions.
+     */
+    cursor?: ModelVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ModelVersions.
+     */
+    distinct?: ModelVersionScalarFieldEnum | ModelVersionScalarFieldEnum[]
+  }
+
+  /**
+   * ModelVersion findFirstOrThrow
+   */
+  export type ModelVersionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersion to fetch.
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelVersions to fetch.
+     */
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ModelVersions.
+     */
+    cursor?: ModelVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelVersions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ModelVersions.
+     */
+    distinct?: ModelVersionScalarFieldEnum | ModelVersionScalarFieldEnum[]
+  }
+
+  /**
+   * ModelVersion findMany
+   */
+  export type ModelVersionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter, which ModelVersions to fetch.
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ModelVersions to fetch.
+     */
+    orderBy?: ModelVersionOrderByWithRelationInput | ModelVersionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ModelVersions.
+     */
+    cursor?: ModelVersionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ModelVersions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ModelVersions.
+     */
+    skip?: number
+    distinct?: ModelVersionScalarFieldEnum | ModelVersionScalarFieldEnum[]
+  }
+
+  /**
+   * ModelVersion create
+   */
+  export type ModelVersionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ModelVersion.
+     */
+    data: XOR<ModelVersionCreateInput, ModelVersionUncheckedCreateInput>
+  }
+
+  /**
+   * ModelVersion createMany
+   */
+  export type ModelVersionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ModelVersions.
+     */
+    data: ModelVersionCreateManyInput | ModelVersionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ModelVersion createManyAndReturn
+   */
+  export type ModelVersionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * The data used to create many ModelVersions.
+     */
+    data: ModelVersionCreateManyInput | ModelVersionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ModelVersion update
+   */
+  export type ModelVersionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ModelVersion.
+     */
+    data: XOR<ModelVersionUpdateInput, ModelVersionUncheckedUpdateInput>
+    /**
+     * Choose, which ModelVersion to update.
+     */
+    where: ModelVersionWhereUniqueInput
+  }
+
+  /**
+   * ModelVersion updateMany
+   */
+  export type ModelVersionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ModelVersions.
+     */
+    data: XOR<ModelVersionUpdateManyMutationInput, ModelVersionUncheckedUpdateManyInput>
+    /**
+     * Filter which ModelVersions to update
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * Limit how many ModelVersions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ModelVersion updateManyAndReturn
+   */
+  export type ModelVersionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * The data used to update ModelVersions.
+     */
+    data: XOR<ModelVersionUpdateManyMutationInput, ModelVersionUncheckedUpdateManyInput>
+    /**
+     * Filter which ModelVersions to update
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * Limit how many ModelVersions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ModelVersion upsert
+   */
+  export type ModelVersionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ModelVersion to update in case it exists.
+     */
+    where: ModelVersionWhereUniqueInput
+    /**
+     * In case the ModelVersion found by the `where` argument doesn't exist, create a new ModelVersion with this data.
+     */
+    create: XOR<ModelVersionCreateInput, ModelVersionUncheckedCreateInput>
+    /**
+     * In case the ModelVersion was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ModelVersionUpdateInput, ModelVersionUncheckedUpdateInput>
+  }
+
+  /**
+   * ModelVersion delete
+   */
+  export type ModelVersionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
+    /**
+     * Filter which ModelVersion to delete.
+     */
+    where: ModelVersionWhereUniqueInput
+  }
+
+  /**
+   * ModelVersion deleteMany
+   */
+  export type ModelVersionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ModelVersions to delete
+     */
+    where?: ModelVersionWhereInput
+    /**
+     * Limit how many ModelVersions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ModelVersion.promovidoPor
+   */
+  export type ModelVersion$promovidoPorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * ModelVersion without action
+   */
+  export type ModelVersionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ModelVersion
+     */
+    select?: ModelVersionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ModelVersion
+     */
+    omit?: ModelVersionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ModelVersionInclude<ExtArgs> | null
   }
 
 
@@ -11241,6 +16852,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal: 'validacionDiagnosticoOriginal',
     validacionCronogramaCorregido: 'validacionCronogramaCorregido',
     validacionObservaciones: 'validacionObservaciones',
+    deteccionesRevisadas: 'deteccionesRevisadas',
+    deteccionesRevisadasPorId: 'deteccionesRevisadasPorId',
+    deteccionesRevisadasAt: 'deteccionesRevisadasAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -11259,6 +16873,73 @@ export namespace Prisma {
   };
 
   export type FenologiaEtapaScalarFieldEnum = (typeof FenologiaEtapaScalarFieldEnum)[keyof typeof FenologiaEtapaScalarFieldEnum]
+
+
+  export const DetectionScalarFieldEnum: {
+    id: 'id',
+    analysisId: 'analysisId',
+    origen: 'origen',
+    claseDetectada: 'claseDetectada',
+    etapaDetectada: 'etapaDetectada',
+    saludDetectada: 'saludDetectada',
+    confidence: 'confidence',
+    bboxX1: 'bboxX1',
+    bboxY1: 'bboxY1',
+    bboxX2: 'bboxX2',
+    bboxY2: 'bboxY2',
+    creadoPorId: 'creadoPorId',
+    createdAt: 'createdAt'
+  };
+
+  export type DetectionScalarFieldEnum = (typeof DetectionScalarFieldEnum)[keyof typeof DetectionScalarFieldEnum]
+
+
+  export const ModelFeedbackScalarFieldEnum: {
+    id: 'id',
+    analysisId: 'analysisId',
+    detectionId: 'detectionId',
+    accion: 'accion',
+    etapaCorregida: 'etapaCorregida',
+    saludCorregida: 'saludCorregida',
+    bboxX1: 'bboxX1',
+    bboxY1: 'bboxY1',
+    bboxX2: 'bboxX2',
+    bboxY2: 'bboxY2',
+    observaciones: 'observaciones',
+    creadoPorId: 'creadoPorId',
+    createdAt: 'createdAt'
+  };
+
+  export type ModelFeedbackScalarFieldEnum = (typeof ModelFeedbackScalarFieldEnum)[keyof typeof ModelFeedbackScalarFieldEnum]
+
+
+  export const TrainingJobScalarFieldEnum: {
+    id: 'id',
+    status: 'status',
+    datasetSize: 'datasetSize',
+    errorMessage: 'errorMessage',
+    iniciadoPorId: 'iniciadoPorId',
+    iniciadoAt: 'iniciadoAt',
+    finalizadoAt: 'finalizadoAt'
+  };
+
+  export type TrainingJobScalarFieldEnum = (typeof TrainingJobScalarFieldEnum)[keyof typeof TrainingJobScalarFieldEnum]
+
+
+  export const ModelVersionScalarFieldEnum: {
+    id: 'id',
+    version: 'version',
+    r2Key: 'r2Key',
+    mAP: 'mAP',
+    mAPBase: 'mAPBase',
+    status: 'status',
+    trainingJobId: 'trainingJobId',
+    promovidoPorId: 'promovidoPorId',
+    promovidoAt: 'promovidoAt',
+    createdAt: 'createdAt'
+  };
+
+  export type ModelVersionScalarFieldEnum = (typeof ModelVersionScalarFieldEnum)[keyof typeof ModelVersionScalarFieldEnum]
 
 
   export const RefreshTokenScalarFieldEnum: {
@@ -11452,6 +17133,76 @@ export namespace Prisma {
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
+
+
+  /**
+   * Reference to a field of type 'OrigenDeteccion'
+   */
+  export type EnumOrigenDeteccionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrigenDeteccion'>
+    
+
+
+  /**
+   * Reference to a field of type 'OrigenDeteccion[]'
+   */
+  export type ListEnumOrigenDeteccionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrigenDeteccion[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EstadoSalud'
+   */
+  export type EnumEstadoSaludFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoSalud'>
+    
+
+
+  /**
+   * Reference to a field of type 'EstadoSalud[]'
+   */
+  export type ListEnumEstadoSaludFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoSalud[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AccionFeedback'
+   */
+  export type EnumAccionFeedbackFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AccionFeedback'>
+    
+
+
+  /**
+   * Reference to a field of type 'AccionFeedback[]'
+   */
+  export type ListEnumAccionFeedbackFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AccionFeedback[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'TrainingJobStatus'
+   */
+  export type EnumTrainingJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrainingJobStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'TrainingJobStatus[]'
+   */
+  export type ListEnumTrainingJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TrainingJobStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ModelVersionStatus'
+   */
+  export type EnumModelVersionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModelVersionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ModelVersionStatus[]'
+   */
+  export type ListEnumModelVersionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModelVersionStatus[]'>
+    
   /**
    * Deep Input Types
    */
@@ -11479,6 +17230,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
     notifications?: NotificationListRelationFilter
+    detectionsCreadas?: DetectionListRelationFilter
+    modelFeedbackCreado?: ModelFeedbackListRelationFilter
+    analysesDeteccionesRevisadas?: AnalysisListRelationFilter
+    trainingJobsIniciados?: TrainingJobListRelationFilter
+    modelVersionsPromovidas?: ModelVersionListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -11500,6 +17256,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisOrderByRelationAggregateInput
     refreshTokens?: RefreshTokenOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
+    detectionsCreadas?: DetectionOrderByRelationAggregateInput
+    modelFeedbackCreado?: ModelFeedbackOrderByRelationAggregateInput
+    analysesDeteccionesRevisadas?: AnalysisOrderByRelationAggregateInput
+    trainingJobsIniciados?: TrainingJobOrderByRelationAggregateInput
+    modelVersionsPromovidas?: ModelVersionOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -11524,6 +17285,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
     notifications?: NotificationListRelationFilter
+    detectionsCreadas?: DetectionListRelationFilter
+    modelFeedbackCreado?: ModelFeedbackListRelationFilter
+    analysesDeteccionesRevisadas?: AnalysisListRelationFilter
+    trainingJobsIniciados?: TrainingJobListRelationFilter
+    modelVersionsPromovidas?: ModelVersionListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -11782,13 +17548,19 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: StringNullableFilter<"Analysis"> | string | null
     validacionCronogramaCorregido?: JsonNullableFilter<"Analysis">
     validacionObservaciones?: StringNullableFilter<"Analysis"> | string | null
+    deteccionesRevisadas?: BoolFilter<"Analysis"> | boolean
+    deteccionesRevisadasPorId?: UuidNullableFilter<"Analysis"> | string | null
+    deteccionesRevisadasAt?: DateTimeNullableFilter<"Analysis"> | Date | string | null
     createdAt?: DateTimeFilter<"Analysis"> | Date | string
     updatedAt?: DateTimeFilter<"Analysis"> | Date | string
     requester?: XOR<UserScalarRelationFilter, UserWhereInput>
     productor?: XOR<UserScalarRelationFilter, UserWhereInput>
     campo?: XOR<CampoScalarRelationFilter, CampoWhereInput>
     validadoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    deteccionesRevisadasPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     fenologiaEtapas?: FenologiaEtapaListRelationFilter
+    detections?: DetectionListRelationFilter
+    modelFeedback?: ModelFeedbackListRelationFilter
   }
 
   export type AnalysisOrderByWithRelationInput = {
@@ -11815,13 +17587,19 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: SortOrderInput | SortOrder
     validacionCronogramaCorregido?: SortOrderInput | SortOrder
     validacionObservaciones?: SortOrderInput | SortOrder
+    deteccionesRevisadas?: SortOrder
+    deteccionesRevisadasPorId?: SortOrderInput | SortOrder
+    deteccionesRevisadasAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     requester?: UserOrderByWithRelationInput
     productor?: UserOrderByWithRelationInput
     campo?: CampoOrderByWithRelationInput
     validadoPor?: UserOrderByWithRelationInput
+    deteccionesRevisadasPor?: UserOrderByWithRelationInput
     fenologiaEtapas?: FenologiaEtapaOrderByRelationAggregateInput
+    detections?: DetectionOrderByRelationAggregateInput
+    modelFeedback?: ModelFeedbackOrderByRelationAggregateInput
   }
 
   export type AnalysisWhereUniqueInput = Prisma.AtLeast<{
@@ -11851,13 +17629,19 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: StringNullableFilter<"Analysis"> | string | null
     validacionCronogramaCorregido?: JsonNullableFilter<"Analysis">
     validacionObservaciones?: StringNullableFilter<"Analysis"> | string | null
+    deteccionesRevisadas?: BoolFilter<"Analysis"> | boolean
+    deteccionesRevisadasPorId?: UuidNullableFilter<"Analysis"> | string | null
+    deteccionesRevisadasAt?: DateTimeNullableFilter<"Analysis"> | Date | string | null
     createdAt?: DateTimeFilter<"Analysis"> | Date | string
     updatedAt?: DateTimeFilter<"Analysis"> | Date | string
     requester?: XOR<UserScalarRelationFilter, UserWhereInput>
     productor?: XOR<UserScalarRelationFilter, UserWhereInput>
     campo?: XOR<CampoScalarRelationFilter, CampoWhereInput>
     validadoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    deteccionesRevisadasPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     fenologiaEtapas?: FenologiaEtapaListRelationFilter
+    detections?: DetectionListRelationFilter
+    modelFeedback?: ModelFeedbackListRelationFilter
   }, "id" | "imageId" | "offlineSyncId">
 
   export type AnalysisOrderByWithAggregationInput = {
@@ -11884,6 +17668,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: SortOrderInput | SortOrder
     validacionCronogramaCorregido?: SortOrderInput | SortOrder
     validacionObservaciones?: SortOrderInput | SortOrder
+    deteccionesRevisadas?: SortOrder
+    deteccionesRevisadasPorId?: SortOrderInput | SortOrder
+    deteccionesRevisadasAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: AnalysisCountOrderByAggregateInput
@@ -11920,6 +17707,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: StringNullableWithAggregatesFilter<"Analysis"> | string | null
     validacionCronogramaCorregido?: JsonNullableWithAggregatesFilter<"Analysis">
     validacionObservaciones?: StringNullableWithAggregatesFilter<"Analysis"> | string | null
+    deteccionesRevisadas?: BoolWithAggregatesFilter<"Analysis"> | boolean
+    deteccionesRevisadasPorId?: UuidNullableWithAggregatesFilter<"Analysis"> | string | null
+    deteccionesRevisadasAt?: DateTimeNullableWithAggregatesFilter<"Analysis"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Analysis"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Analysis"> | Date | string
   }
@@ -11989,6 +17779,367 @@ export namespace Prisma {
     cambiaA?: StringWithAggregatesFilter<"FenologiaEtapa"> | string
     enDias?: IntWithAggregatesFilter<"FenologiaEtapa"> | number
     diasParaCosecha?: IntWithAggregatesFilter<"FenologiaEtapa"> | number
+  }
+
+  export type DetectionWhereInput = {
+    AND?: DetectionWhereInput | DetectionWhereInput[]
+    OR?: DetectionWhereInput[]
+    NOT?: DetectionWhereInput | DetectionWhereInput[]
+    id?: UuidFilter<"Detection"> | string
+    analysisId?: UuidFilter<"Detection"> | string
+    origen?: EnumOrigenDeteccionFilter<"Detection"> | $Enums.OrigenDeteccion
+    claseDetectada?: StringNullableFilter<"Detection"> | string | null
+    etapaDetectada?: StringFilter<"Detection"> | string
+    saludDetectada?: EnumEstadoSaludFilter<"Detection"> | $Enums.EstadoSalud
+    confidence?: FloatNullableFilter<"Detection"> | number | null
+    bboxX1?: FloatFilter<"Detection"> | number
+    bboxY1?: FloatFilter<"Detection"> | number
+    bboxX2?: FloatFilter<"Detection"> | number
+    bboxY2?: FloatFilter<"Detection"> | number
+    creadoPorId?: UuidNullableFilter<"Detection"> | string | null
+    createdAt?: DateTimeFilter<"Detection"> | Date | string
+    analysis?: XOR<AnalysisScalarRelationFilter, AnalysisWhereInput>
+    creadoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    feedback?: ModelFeedbackListRelationFilter
+  }
+
+  export type DetectionOrderByWithRelationInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    origen?: SortOrder
+    claseDetectada?: SortOrderInput | SortOrder
+    etapaDetectada?: SortOrder
+    saludDetectada?: SortOrder
+    confidence?: SortOrderInput | SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+    creadoPorId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    analysis?: AnalysisOrderByWithRelationInput
+    creadoPor?: UserOrderByWithRelationInput
+    feedback?: ModelFeedbackOrderByRelationAggregateInput
+  }
+
+  export type DetectionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DetectionWhereInput | DetectionWhereInput[]
+    OR?: DetectionWhereInput[]
+    NOT?: DetectionWhereInput | DetectionWhereInput[]
+    analysisId?: UuidFilter<"Detection"> | string
+    origen?: EnumOrigenDeteccionFilter<"Detection"> | $Enums.OrigenDeteccion
+    claseDetectada?: StringNullableFilter<"Detection"> | string | null
+    etapaDetectada?: StringFilter<"Detection"> | string
+    saludDetectada?: EnumEstadoSaludFilter<"Detection"> | $Enums.EstadoSalud
+    confidence?: FloatNullableFilter<"Detection"> | number | null
+    bboxX1?: FloatFilter<"Detection"> | number
+    bboxY1?: FloatFilter<"Detection"> | number
+    bboxX2?: FloatFilter<"Detection"> | number
+    bboxY2?: FloatFilter<"Detection"> | number
+    creadoPorId?: UuidNullableFilter<"Detection"> | string | null
+    createdAt?: DateTimeFilter<"Detection"> | Date | string
+    analysis?: XOR<AnalysisScalarRelationFilter, AnalysisWhereInput>
+    creadoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    feedback?: ModelFeedbackListRelationFilter
+  }, "id">
+
+  export type DetectionOrderByWithAggregationInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    origen?: SortOrder
+    claseDetectada?: SortOrderInput | SortOrder
+    etapaDetectada?: SortOrder
+    saludDetectada?: SortOrder
+    confidence?: SortOrderInput | SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+    creadoPorId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: DetectionCountOrderByAggregateInput
+    _avg?: DetectionAvgOrderByAggregateInput
+    _max?: DetectionMaxOrderByAggregateInput
+    _min?: DetectionMinOrderByAggregateInput
+    _sum?: DetectionSumOrderByAggregateInput
+  }
+
+  export type DetectionScalarWhereWithAggregatesInput = {
+    AND?: DetectionScalarWhereWithAggregatesInput | DetectionScalarWhereWithAggregatesInput[]
+    OR?: DetectionScalarWhereWithAggregatesInput[]
+    NOT?: DetectionScalarWhereWithAggregatesInput | DetectionScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"Detection"> | string
+    analysisId?: UuidWithAggregatesFilter<"Detection"> | string
+    origen?: EnumOrigenDeteccionWithAggregatesFilter<"Detection"> | $Enums.OrigenDeteccion
+    claseDetectada?: StringNullableWithAggregatesFilter<"Detection"> | string | null
+    etapaDetectada?: StringWithAggregatesFilter<"Detection"> | string
+    saludDetectada?: EnumEstadoSaludWithAggregatesFilter<"Detection"> | $Enums.EstadoSalud
+    confidence?: FloatNullableWithAggregatesFilter<"Detection"> | number | null
+    bboxX1?: FloatWithAggregatesFilter<"Detection"> | number
+    bboxY1?: FloatWithAggregatesFilter<"Detection"> | number
+    bboxX2?: FloatWithAggregatesFilter<"Detection"> | number
+    bboxY2?: FloatWithAggregatesFilter<"Detection"> | number
+    creadoPorId?: UuidNullableWithAggregatesFilter<"Detection"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Detection"> | Date | string
+  }
+
+  export type ModelFeedbackWhereInput = {
+    AND?: ModelFeedbackWhereInput | ModelFeedbackWhereInput[]
+    OR?: ModelFeedbackWhereInput[]
+    NOT?: ModelFeedbackWhereInput | ModelFeedbackWhereInput[]
+    id?: UuidFilter<"ModelFeedback"> | string
+    analysisId?: UuidFilter<"ModelFeedback"> | string
+    detectionId?: UuidFilter<"ModelFeedback"> | string
+    accion?: EnumAccionFeedbackFilter<"ModelFeedback"> | $Enums.AccionFeedback
+    etapaCorregida?: StringNullableFilter<"ModelFeedback"> | string | null
+    saludCorregida?: EnumEstadoSaludNullableFilter<"ModelFeedback"> | $Enums.EstadoSalud | null
+    bboxX1?: FloatNullableFilter<"ModelFeedback"> | number | null
+    bboxY1?: FloatNullableFilter<"ModelFeedback"> | number | null
+    bboxX2?: FloatNullableFilter<"ModelFeedback"> | number | null
+    bboxY2?: FloatNullableFilter<"ModelFeedback"> | number | null
+    observaciones?: StringNullableFilter<"ModelFeedback"> | string | null
+    creadoPorId?: UuidFilter<"ModelFeedback"> | string
+    createdAt?: DateTimeFilter<"ModelFeedback"> | Date | string
+    analysis?: XOR<AnalysisScalarRelationFilter, AnalysisWhereInput>
+    detection?: XOR<DetectionScalarRelationFilter, DetectionWhereInput>
+    creadoPor?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type ModelFeedbackOrderByWithRelationInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    detectionId?: SortOrder
+    accion?: SortOrder
+    etapaCorregida?: SortOrderInput | SortOrder
+    saludCorregida?: SortOrderInput | SortOrder
+    bboxX1?: SortOrderInput | SortOrder
+    bboxY1?: SortOrderInput | SortOrder
+    bboxX2?: SortOrderInput | SortOrder
+    bboxY2?: SortOrderInput | SortOrder
+    observaciones?: SortOrderInput | SortOrder
+    creadoPorId?: SortOrder
+    createdAt?: SortOrder
+    analysis?: AnalysisOrderByWithRelationInput
+    detection?: DetectionOrderByWithRelationInput
+    creadoPor?: UserOrderByWithRelationInput
+  }
+
+  export type ModelFeedbackWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ModelFeedbackWhereInput | ModelFeedbackWhereInput[]
+    OR?: ModelFeedbackWhereInput[]
+    NOT?: ModelFeedbackWhereInput | ModelFeedbackWhereInput[]
+    analysisId?: UuidFilter<"ModelFeedback"> | string
+    detectionId?: UuidFilter<"ModelFeedback"> | string
+    accion?: EnumAccionFeedbackFilter<"ModelFeedback"> | $Enums.AccionFeedback
+    etapaCorregida?: StringNullableFilter<"ModelFeedback"> | string | null
+    saludCorregida?: EnumEstadoSaludNullableFilter<"ModelFeedback"> | $Enums.EstadoSalud | null
+    bboxX1?: FloatNullableFilter<"ModelFeedback"> | number | null
+    bboxY1?: FloatNullableFilter<"ModelFeedback"> | number | null
+    bboxX2?: FloatNullableFilter<"ModelFeedback"> | number | null
+    bboxY2?: FloatNullableFilter<"ModelFeedback"> | number | null
+    observaciones?: StringNullableFilter<"ModelFeedback"> | string | null
+    creadoPorId?: UuidFilter<"ModelFeedback"> | string
+    createdAt?: DateTimeFilter<"ModelFeedback"> | Date | string
+    analysis?: XOR<AnalysisScalarRelationFilter, AnalysisWhereInput>
+    detection?: XOR<DetectionScalarRelationFilter, DetectionWhereInput>
+    creadoPor?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type ModelFeedbackOrderByWithAggregationInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    detectionId?: SortOrder
+    accion?: SortOrder
+    etapaCorregida?: SortOrderInput | SortOrder
+    saludCorregida?: SortOrderInput | SortOrder
+    bboxX1?: SortOrderInput | SortOrder
+    bboxY1?: SortOrderInput | SortOrder
+    bboxX2?: SortOrderInput | SortOrder
+    bboxY2?: SortOrderInput | SortOrder
+    observaciones?: SortOrderInput | SortOrder
+    creadoPorId?: SortOrder
+    createdAt?: SortOrder
+    _count?: ModelFeedbackCountOrderByAggregateInput
+    _avg?: ModelFeedbackAvgOrderByAggregateInput
+    _max?: ModelFeedbackMaxOrderByAggregateInput
+    _min?: ModelFeedbackMinOrderByAggregateInput
+    _sum?: ModelFeedbackSumOrderByAggregateInput
+  }
+
+  export type ModelFeedbackScalarWhereWithAggregatesInput = {
+    AND?: ModelFeedbackScalarWhereWithAggregatesInput | ModelFeedbackScalarWhereWithAggregatesInput[]
+    OR?: ModelFeedbackScalarWhereWithAggregatesInput[]
+    NOT?: ModelFeedbackScalarWhereWithAggregatesInput | ModelFeedbackScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"ModelFeedback"> | string
+    analysisId?: UuidWithAggregatesFilter<"ModelFeedback"> | string
+    detectionId?: UuidWithAggregatesFilter<"ModelFeedback"> | string
+    accion?: EnumAccionFeedbackWithAggregatesFilter<"ModelFeedback"> | $Enums.AccionFeedback
+    etapaCorregida?: StringNullableWithAggregatesFilter<"ModelFeedback"> | string | null
+    saludCorregida?: EnumEstadoSaludNullableWithAggregatesFilter<"ModelFeedback"> | $Enums.EstadoSalud | null
+    bboxX1?: FloatNullableWithAggregatesFilter<"ModelFeedback"> | number | null
+    bboxY1?: FloatNullableWithAggregatesFilter<"ModelFeedback"> | number | null
+    bboxX2?: FloatNullableWithAggregatesFilter<"ModelFeedback"> | number | null
+    bboxY2?: FloatNullableWithAggregatesFilter<"ModelFeedback"> | number | null
+    observaciones?: StringNullableWithAggregatesFilter<"ModelFeedback"> | string | null
+    creadoPorId?: UuidWithAggregatesFilter<"ModelFeedback"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ModelFeedback"> | Date | string
+  }
+
+  export type TrainingJobWhereInput = {
+    AND?: TrainingJobWhereInput | TrainingJobWhereInput[]
+    OR?: TrainingJobWhereInput[]
+    NOT?: TrainingJobWhereInput | TrainingJobWhereInput[]
+    id?: UuidFilter<"TrainingJob"> | string
+    status?: EnumTrainingJobStatusFilter<"TrainingJob"> | $Enums.TrainingJobStatus
+    datasetSize?: IntNullableFilter<"TrainingJob"> | number | null
+    errorMessage?: StringNullableFilter<"TrainingJob"> | string | null
+    iniciadoPorId?: UuidFilter<"TrainingJob"> | string
+    iniciadoAt?: DateTimeFilter<"TrainingJob"> | Date | string
+    finalizadoAt?: DateTimeNullableFilter<"TrainingJob"> | Date | string | null
+    iniciadoPor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    modelVersion?: XOR<ModelVersionNullableScalarRelationFilter, ModelVersionWhereInput> | null
+  }
+
+  export type TrainingJobOrderByWithRelationInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrderInput | SortOrder
+    iniciadoPor?: UserOrderByWithRelationInput
+    modelVersion?: ModelVersionOrderByWithRelationInput
+  }
+
+  export type TrainingJobWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TrainingJobWhereInput | TrainingJobWhereInput[]
+    OR?: TrainingJobWhereInput[]
+    NOT?: TrainingJobWhereInput | TrainingJobWhereInput[]
+    status?: EnumTrainingJobStatusFilter<"TrainingJob"> | $Enums.TrainingJobStatus
+    datasetSize?: IntNullableFilter<"TrainingJob"> | number | null
+    errorMessage?: StringNullableFilter<"TrainingJob"> | string | null
+    iniciadoPorId?: UuidFilter<"TrainingJob"> | string
+    iniciadoAt?: DateTimeFilter<"TrainingJob"> | Date | string
+    finalizadoAt?: DateTimeNullableFilter<"TrainingJob"> | Date | string | null
+    iniciadoPor?: XOR<UserScalarRelationFilter, UserWhereInput>
+    modelVersion?: XOR<ModelVersionNullableScalarRelationFilter, ModelVersionWhereInput> | null
+  }, "id">
+
+  export type TrainingJobOrderByWithAggregationInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrderInput | SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrderInput | SortOrder
+    _count?: TrainingJobCountOrderByAggregateInput
+    _avg?: TrainingJobAvgOrderByAggregateInput
+    _max?: TrainingJobMaxOrderByAggregateInput
+    _min?: TrainingJobMinOrderByAggregateInput
+    _sum?: TrainingJobSumOrderByAggregateInput
+  }
+
+  export type TrainingJobScalarWhereWithAggregatesInput = {
+    AND?: TrainingJobScalarWhereWithAggregatesInput | TrainingJobScalarWhereWithAggregatesInput[]
+    OR?: TrainingJobScalarWhereWithAggregatesInput[]
+    NOT?: TrainingJobScalarWhereWithAggregatesInput | TrainingJobScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"TrainingJob"> | string
+    status?: EnumTrainingJobStatusWithAggregatesFilter<"TrainingJob"> | $Enums.TrainingJobStatus
+    datasetSize?: IntNullableWithAggregatesFilter<"TrainingJob"> | number | null
+    errorMessage?: StringNullableWithAggregatesFilter<"TrainingJob"> | string | null
+    iniciadoPorId?: UuidWithAggregatesFilter<"TrainingJob"> | string
+    iniciadoAt?: DateTimeWithAggregatesFilter<"TrainingJob"> | Date | string
+    finalizadoAt?: DateTimeNullableWithAggregatesFilter<"TrainingJob"> | Date | string | null
+  }
+
+  export type ModelVersionWhereInput = {
+    AND?: ModelVersionWhereInput | ModelVersionWhereInput[]
+    OR?: ModelVersionWhereInput[]
+    NOT?: ModelVersionWhereInput | ModelVersionWhereInput[]
+    id?: UuidFilter<"ModelVersion"> | string
+    version?: IntFilter<"ModelVersion"> | number
+    r2Key?: StringNullableFilter<"ModelVersion"> | string | null
+    mAP?: FloatNullableFilter<"ModelVersion"> | number | null
+    mAPBase?: FloatNullableFilter<"ModelVersion"> | number | null
+    status?: EnumModelVersionStatusFilter<"ModelVersion"> | $Enums.ModelVersionStatus
+    trainingJobId?: UuidFilter<"ModelVersion"> | string
+    promovidoPorId?: UuidNullableFilter<"ModelVersion"> | string | null
+    promovidoAt?: DateTimeNullableFilter<"ModelVersion"> | Date | string | null
+    createdAt?: DateTimeFilter<"ModelVersion"> | Date | string
+    trainingJob?: XOR<TrainingJobScalarRelationFilter, TrainingJobWhereInput>
+    promovidoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type ModelVersionOrderByWithRelationInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrderInput | SortOrder
+    mAP?: SortOrderInput | SortOrder
+    mAPBase?: SortOrderInput | SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrderInput | SortOrder
+    promovidoAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    trainingJob?: TrainingJobOrderByWithRelationInput
+    promovidoPor?: UserOrderByWithRelationInput
+  }
+
+  export type ModelVersionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    version?: number
+    trainingJobId?: string
+    AND?: ModelVersionWhereInput | ModelVersionWhereInput[]
+    OR?: ModelVersionWhereInput[]
+    NOT?: ModelVersionWhereInput | ModelVersionWhereInput[]
+    r2Key?: StringNullableFilter<"ModelVersion"> | string | null
+    mAP?: FloatNullableFilter<"ModelVersion"> | number | null
+    mAPBase?: FloatNullableFilter<"ModelVersion"> | number | null
+    status?: EnumModelVersionStatusFilter<"ModelVersion"> | $Enums.ModelVersionStatus
+    promovidoPorId?: UuidNullableFilter<"ModelVersion"> | string | null
+    promovidoAt?: DateTimeNullableFilter<"ModelVersion"> | Date | string | null
+    createdAt?: DateTimeFilter<"ModelVersion"> | Date | string
+    trainingJob?: XOR<TrainingJobScalarRelationFilter, TrainingJobWhereInput>
+    promovidoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "version" | "trainingJobId">
+
+  export type ModelVersionOrderByWithAggregationInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrderInput | SortOrder
+    mAP?: SortOrderInput | SortOrder
+    mAPBase?: SortOrderInput | SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrderInput | SortOrder
+    promovidoAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ModelVersionCountOrderByAggregateInput
+    _avg?: ModelVersionAvgOrderByAggregateInput
+    _max?: ModelVersionMaxOrderByAggregateInput
+    _min?: ModelVersionMinOrderByAggregateInput
+    _sum?: ModelVersionSumOrderByAggregateInput
+  }
+
+  export type ModelVersionScalarWhereWithAggregatesInput = {
+    AND?: ModelVersionScalarWhereWithAggregatesInput | ModelVersionScalarWhereWithAggregatesInput[]
+    OR?: ModelVersionScalarWhereWithAggregatesInput[]
+    NOT?: ModelVersionScalarWhereWithAggregatesInput | ModelVersionScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"ModelVersion"> | string
+    version?: IntWithAggregatesFilter<"ModelVersion"> | number
+    r2Key?: StringNullableWithAggregatesFilter<"ModelVersion"> | string | null
+    mAP?: FloatNullableWithAggregatesFilter<"ModelVersion"> | number | null
+    mAPBase?: FloatNullableWithAggregatesFilter<"ModelVersion"> | number | null
+    status?: EnumModelVersionStatusWithAggregatesFilter<"ModelVersion"> | $Enums.ModelVersionStatus
+    trainingJobId?: UuidWithAggregatesFilter<"ModelVersion"> | string
+    promovidoPorId?: UuidNullableWithAggregatesFilter<"ModelVersion"> | string | null
+    promovidoAt?: DateTimeNullableWithAggregatesFilter<"ModelVersion"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ModelVersion"> | Date | string
   }
 
   export type RefreshTokenWhereInput = {
@@ -12150,6 +18301,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -12171,6 +18327,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUpdateInput = {
@@ -12192,6 +18353,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -12213,6 +18379,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -12467,13 +18638,18 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     requester: UserCreateNestedOneWithoutAnalysesAsRequesterInput
     productor: UserCreateNestedOneWithoutAnalysesAsProductorInput
     campo: CampoCreateNestedOneWithoutAnalysesInput
     validadoPor?: UserCreateNestedOneWithoutAnalysesValidadasInput
+    deteccionesRevisadasPor?: UserCreateNestedOneWithoutAnalysesDeteccionesRevisadasInput
     fenologiaEtapas?: FenologiaEtapaCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisUncheckedCreateInput = {
@@ -12500,9 +18676,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionUncheckedCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackUncheckedCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisUpdateInput = {
@@ -12525,13 +18706,18 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     requester?: UserUpdateOneRequiredWithoutAnalysesAsRequesterNestedInput
     productor?: UserUpdateOneRequiredWithoutAnalysesAsProductorNestedInput
     campo?: CampoUpdateOneRequiredWithoutAnalysesNestedInput
     validadoPor?: UserUpdateOneWithoutAnalysesValidadasNestedInput
+    deteccionesRevisadasPor?: UserUpdateOneWithoutAnalysesDeteccionesRevisadasNestedInput
     fenologiaEtapas?: FenologiaEtapaUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateInput = {
@@ -12558,9 +18744,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUncheckedUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUncheckedUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisCreateManyInput = {
@@ -12587,6 +18778,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12611,6 +18805,8 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12639,6 +18835,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12710,6 +18909,391 @@ export namespace Prisma {
     cambiaA?: StringFieldUpdateOperationsInput | string
     enDias?: IntFieldUpdateOperationsInput | number
     diasParaCosecha?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DetectionCreateInput = {
+    id?: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    createdAt?: Date | string
+    analysis: AnalysisCreateNestedOneWithoutDetectionsInput
+    creadoPor?: UserCreateNestedOneWithoutDetectionsCreadasInput
+    feedback?: ModelFeedbackCreateNestedManyWithoutDetectionInput
+  }
+
+  export type DetectionUncheckedCreateInput = {
+    id?: string
+    analysisId: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    creadoPorId?: string | null
+    createdAt?: Date | string
+    feedback?: ModelFeedbackUncheckedCreateNestedManyWithoutDetectionInput
+  }
+
+  export type DetectionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    analysis?: AnalysisUpdateOneRequiredWithoutDetectionsNestedInput
+    creadoPor?: UserUpdateOneWithoutDetectionsCreadasNestedInput
+    feedback?: ModelFeedbackUpdateManyWithoutDetectionNestedInput
+  }
+
+  export type DetectionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    creadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: ModelFeedbackUncheckedUpdateManyWithoutDetectionNestedInput
+  }
+
+  export type DetectionCreateManyInput = {
+    id?: string
+    analysisId: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    creadoPorId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DetectionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DetectionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    creadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelFeedbackCreateInput = {
+    id?: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    createdAt?: Date | string
+    analysis: AnalysisCreateNestedOneWithoutModelFeedbackInput
+    detection: DetectionCreateNestedOneWithoutFeedbackInput
+    creadoPor: UserCreateNestedOneWithoutModelFeedbackCreadoInput
+  }
+
+  export type ModelFeedbackUncheckedCreateInput = {
+    id?: string
+    analysisId: string
+    detectionId: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    creadoPorId: string
+    createdAt?: Date | string
+  }
+
+  export type ModelFeedbackUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    analysis?: AnalysisUpdateOneRequiredWithoutModelFeedbackNestedInput
+    detection?: DetectionUpdateOneRequiredWithoutFeedbackNestedInput
+    creadoPor?: UserUpdateOneRequiredWithoutModelFeedbackCreadoNestedInput
+  }
+
+  export type ModelFeedbackUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    detectionId?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoPorId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelFeedbackCreateManyInput = {
+    id?: string
+    analysisId: string
+    detectionId: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    creadoPorId: string
+    createdAt?: Date | string
+  }
+
+  export type ModelFeedbackUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelFeedbackUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    detectionId?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoPorId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrainingJobCreateInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    iniciadoPor: UserCreateNestedOneWithoutTrainingJobsIniciadosInput
+    modelVersion?: ModelVersionCreateNestedOneWithoutTrainingJobInput
+  }
+
+  export type TrainingJobUncheckedCreateInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoPorId: string
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    modelVersion?: ModelVersionUncheckedCreateNestedOneWithoutTrainingJobInput
+  }
+
+  export type TrainingJobUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    iniciadoPor?: UserUpdateOneRequiredWithoutTrainingJobsIniciadosNestedInput
+    modelVersion?: ModelVersionUpdateOneWithoutTrainingJobNestedInput
+  }
+
+  export type TrainingJobUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoPorId?: StringFieldUpdateOperationsInput | string
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    modelVersion?: ModelVersionUncheckedUpdateOneWithoutTrainingJobNestedInput
+  }
+
+  export type TrainingJobCreateManyInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoPorId: string
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+  }
+
+  export type TrainingJobUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type TrainingJobUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoPorId?: StringFieldUpdateOperationsInput | string
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ModelVersionCreateInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+    trainingJob: TrainingJobCreateNestedOneWithoutModelVersionInput
+    promovidoPor?: UserCreateNestedOneWithoutModelVersionsPromovidasInput
+  }
+
+  export type ModelVersionUncheckedCreateInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoPorId?: string | null
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelVersionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trainingJob?: TrainingJobUpdateOneRequiredWithoutModelVersionNestedInput
+    promovidoPor?: UserUpdateOneWithoutModelVersionsPromovidasNestedInput
+  }
+
+  export type ModelVersionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    trainingJobId?: StringFieldUpdateOperationsInput | string
+    promovidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelVersionCreateManyInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoPorId?: string | null
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelVersionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelVersionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    trainingJobId?: StringFieldUpdateOperationsInput | string
+    promovidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RefreshTokenCreateInput = {
@@ -12960,6 +19544,30 @@ export namespace Prisma {
     none?: NotificationWhereInput
   }
 
+  export type DetectionListRelationFilter = {
+    every?: DetectionWhereInput
+    some?: DetectionWhereInput
+    none?: DetectionWhereInput
+  }
+
+  export type ModelFeedbackListRelationFilter = {
+    every?: ModelFeedbackWhereInput
+    some?: ModelFeedbackWhereInput
+    none?: ModelFeedbackWhereInput
+  }
+
+  export type TrainingJobListRelationFilter = {
+    every?: TrainingJobWhereInput
+    some?: TrainingJobWhereInput
+    none?: TrainingJobWhereInput
+  }
+
+  export type ModelVersionListRelationFilter = {
+    every?: ModelVersionWhereInput
+    some?: ModelVersionWhereInput
+    none?: ModelVersionWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -12986,6 +19594,22 @@ export namespace Prisma {
   }
 
   export type NotificationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DetectionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ModelFeedbackOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TrainingJobOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ModelVersionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -13381,6 +20005,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: SortOrder
     validacionCronogramaCorregido?: SortOrder
     validacionObservaciones?: SortOrder
+    deteccionesRevisadas?: SortOrder
+    deteccionesRevisadasPorId?: SortOrder
+    deteccionesRevisadasAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -13418,6 +20045,9 @@ export namespace Prisma {
     validacionCorregidoPorId?: SortOrder
     validacionDiagnosticoOriginal?: SortOrder
     validacionObservaciones?: SortOrder
+    deteccionesRevisadas?: SortOrder
+    deteccionesRevisadasPorId?: SortOrder
+    deteccionesRevisadasAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -13445,6 +20075,9 @@ export namespace Prisma {
     validacionCorregidoPorId?: SortOrder
     validacionDiagnosticoOriginal?: SortOrder
     validacionObservaciones?: SortOrder
+    deteccionesRevisadas?: SortOrder
+    deteccionesRevisadasPorId?: SortOrder
+    deteccionesRevisadasAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -13587,6 +20220,365 @@ export namespace Prisma {
     diasParaCosecha?: SortOrder
   }
 
+  export type EnumOrigenDeteccionFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrigenDeteccion | EnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    in?: $Enums.OrigenDeteccion[] | ListEnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrigenDeteccion[] | ListEnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrigenDeteccionFilter<$PrismaModel> | $Enums.OrigenDeteccion
+  }
+
+  export type EnumEstadoSaludFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstadoSalud | EnumEstadoSaludFieldRefInput<$PrismaModel>
+    in?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel>
+    not?: NestedEnumEstadoSaludFilter<$PrismaModel> | $Enums.EstadoSalud
+  }
+
+  export type DetectionCountOrderByAggregateInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    origen?: SortOrder
+    claseDetectada?: SortOrder
+    etapaDetectada?: SortOrder
+    saludDetectada?: SortOrder
+    confidence?: SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+    creadoPorId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DetectionAvgOrderByAggregateInput = {
+    confidence?: SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+  }
+
+  export type DetectionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    origen?: SortOrder
+    claseDetectada?: SortOrder
+    etapaDetectada?: SortOrder
+    saludDetectada?: SortOrder
+    confidence?: SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+    creadoPorId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DetectionMinOrderByAggregateInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    origen?: SortOrder
+    claseDetectada?: SortOrder
+    etapaDetectada?: SortOrder
+    saludDetectada?: SortOrder
+    confidence?: SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+    creadoPorId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DetectionSumOrderByAggregateInput = {
+    confidence?: SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+  }
+
+  export type EnumOrigenDeteccionWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrigenDeteccion | EnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    in?: $Enums.OrigenDeteccion[] | ListEnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrigenDeteccion[] | ListEnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrigenDeteccionWithAggregatesFilter<$PrismaModel> | $Enums.OrigenDeteccion
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrigenDeteccionFilter<$PrismaModel>
+    _max?: NestedEnumOrigenDeteccionFilter<$PrismaModel>
+  }
+
+  export type EnumEstadoSaludWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstadoSalud | EnumEstadoSaludFieldRefInput<$PrismaModel>
+    in?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel>
+    not?: NestedEnumEstadoSaludWithAggregatesFilter<$PrismaModel> | $Enums.EstadoSalud
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEstadoSaludFilter<$PrismaModel>
+    _max?: NestedEnumEstadoSaludFilter<$PrismaModel>
+  }
+
+  export type EnumAccionFeedbackFilter<$PrismaModel = never> = {
+    equals?: $Enums.AccionFeedback | EnumAccionFeedbackFieldRefInput<$PrismaModel>
+    in?: $Enums.AccionFeedback[] | ListEnumAccionFeedbackFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AccionFeedback[] | ListEnumAccionFeedbackFieldRefInput<$PrismaModel>
+    not?: NestedEnumAccionFeedbackFilter<$PrismaModel> | $Enums.AccionFeedback
+  }
+
+  export type EnumEstadoSaludNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstadoSalud | EnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEstadoSaludNullableFilter<$PrismaModel> | $Enums.EstadoSalud | null
+  }
+
+  export type DetectionScalarRelationFilter = {
+    is?: DetectionWhereInput
+    isNot?: DetectionWhereInput
+  }
+
+  export type ModelFeedbackCountOrderByAggregateInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    detectionId?: SortOrder
+    accion?: SortOrder
+    etapaCorregida?: SortOrder
+    saludCorregida?: SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+    observaciones?: SortOrder
+    creadoPorId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelFeedbackAvgOrderByAggregateInput = {
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+  }
+
+  export type ModelFeedbackMaxOrderByAggregateInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    detectionId?: SortOrder
+    accion?: SortOrder
+    etapaCorregida?: SortOrder
+    saludCorregida?: SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+    observaciones?: SortOrder
+    creadoPorId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelFeedbackMinOrderByAggregateInput = {
+    id?: SortOrder
+    analysisId?: SortOrder
+    detectionId?: SortOrder
+    accion?: SortOrder
+    etapaCorregida?: SortOrder
+    saludCorregida?: SortOrder
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+    observaciones?: SortOrder
+    creadoPorId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelFeedbackSumOrderByAggregateInput = {
+    bboxX1?: SortOrder
+    bboxY1?: SortOrder
+    bboxX2?: SortOrder
+    bboxY2?: SortOrder
+  }
+
+  export type EnumAccionFeedbackWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AccionFeedback | EnumAccionFeedbackFieldRefInput<$PrismaModel>
+    in?: $Enums.AccionFeedback[] | ListEnumAccionFeedbackFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AccionFeedback[] | ListEnumAccionFeedbackFieldRefInput<$PrismaModel>
+    not?: NestedEnumAccionFeedbackWithAggregatesFilter<$PrismaModel> | $Enums.AccionFeedback
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAccionFeedbackFilter<$PrismaModel>
+    _max?: NestedEnumAccionFeedbackFilter<$PrismaModel>
+  }
+
+  export type EnumEstadoSaludNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstadoSalud | EnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEstadoSaludNullableWithAggregatesFilter<$PrismaModel> | $Enums.EstadoSalud | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumEstadoSaludNullableFilter<$PrismaModel>
+    _max?: NestedEnumEstadoSaludNullableFilter<$PrismaModel>
+  }
+
+  export type EnumTrainingJobStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrainingJobStatus | EnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrainingJobStatusFilter<$PrismaModel> | $Enums.TrainingJobStatus
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type ModelVersionNullableScalarRelationFilter = {
+    is?: ModelVersionWhereInput | null
+    isNot?: ModelVersionWhereInput | null
+  }
+
+  export type TrainingJobCountOrderByAggregateInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrder
+    errorMessage?: SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrder
+  }
+
+  export type TrainingJobAvgOrderByAggregateInput = {
+    datasetSize?: SortOrder
+  }
+
+  export type TrainingJobMaxOrderByAggregateInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrder
+    errorMessage?: SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrder
+  }
+
+  export type TrainingJobMinOrderByAggregateInput = {
+    id?: SortOrder
+    status?: SortOrder
+    datasetSize?: SortOrder
+    errorMessage?: SortOrder
+    iniciadoPorId?: SortOrder
+    iniciadoAt?: SortOrder
+    finalizadoAt?: SortOrder
+  }
+
+  export type TrainingJobSumOrderByAggregateInput = {
+    datasetSize?: SortOrder
+  }
+
+  export type EnumTrainingJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrainingJobStatus | EnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrainingJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.TrainingJobStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrainingJobStatusFilter<$PrismaModel>
+    _max?: NestedEnumTrainingJobStatusFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type EnumModelVersionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ModelVersionStatus | EnumModelVersionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumModelVersionStatusFilter<$PrismaModel> | $Enums.ModelVersionStatus
+  }
+
+  export type TrainingJobScalarRelationFilter = {
+    is?: TrainingJobWhereInput
+    isNot?: TrainingJobWhereInput
+  }
+
+  export type ModelVersionCountOrderByAggregateInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrder
+    promovidoAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelVersionAvgOrderByAggregateInput = {
+    version?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+  }
+
+  export type ModelVersionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrder
+    promovidoAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelVersionMinOrderByAggregateInput = {
+    id?: SortOrder
+    version?: SortOrder
+    r2Key?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+    status?: SortOrder
+    trainingJobId?: SortOrder
+    promovidoPorId?: SortOrder
+    promovidoAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ModelVersionSumOrderByAggregateInput = {
+    version?: SortOrder
+    mAP?: SortOrder
+    mAPBase?: SortOrder
+  }
+
+  export type EnumModelVersionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ModelVersionStatus | EnumModelVersionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumModelVersionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ModelVersionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumModelVersionStatusFilter<$PrismaModel>
+    _max?: NestedEnumModelVersionStatusFilter<$PrismaModel>
+  }
+
   export type RefreshTokenCountOrderByAggregateInput = {
     id?: SortOrder
     tokenHash?: SortOrder
@@ -13714,6 +20706,41 @@ export namespace Prisma {
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
+  export type DetectionCreateNestedManyWithoutCreadoPorInput = {
+    create?: XOR<DetectionCreateWithoutCreadoPorInput, DetectionUncheckedCreateWithoutCreadoPorInput> | DetectionCreateWithoutCreadoPorInput[] | DetectionUncheckedCreateWithoutCreadoPorInput[]
+    connectOrCreate?: DetectionCreateOrConnectWithoutCreadoPorInput | DetectionCreateOrConnectWithoutCreadoPorInput[]
+    createMany?: DetectionCreateManyCreadoPorInputEnvelope
+    connect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+  }
+
+  export type ModelFeedbackCreateNestedManyWithoutCreadoPorInput = {
+    create?: XOR<ModelFeedbackCreateWithoutCreadoPorInput, ModelFeedbackUncheckedCreateWithoutCreadoPorInput> | ModelFeedbackCreateWithoutCreadoPorInput[] | ModelFeedbackUncheckedCreateWithoutCreadoPorInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutCreadoPorInput | ModelFeedbackCreateOrConnectWithoutCreadoPorInput[]
+    createMany?: ModelFeedbackCreateManyCreadoPorInputEnvelope
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+  }
+
+  export type AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput = {
+    create?: XOR<AnalysisCreateWithoutDeteccionesRevisadasPorInput, AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput> | AnalysisCreateWithoutDeteccionesRevisadasPorInput[] | AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput[]
+    connectOrCreate?: AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput | AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput[]
+    createMany?: AnalysisCreateManyDeteccionesRevisadasPorInputEnvelope
+    connect?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+  }
+
+  export type TrainingJobCreateNestedManyWithoutIniciadoPorInput = {
+    create?: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput> | TrainingJobCreateWithoutIniciadoPorInput[] | TrainingJobUncheckedCreateWithoutIniciadoPorInput[]
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutIniciadoPorInput | TrainingJobCreateOrConnectWithoutIniciadoPorInput[]
+    createMany?: TrainingJobCreateManyIniciadoPorInputEnvelope
+    connect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+  }
+
+  export type ModelVersionCreateNestedManyWithoutPromovidoPorInput = {
+    create?: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput> | ModelVersionCreateWithoutPromovidoPorInput[] | ModelVersionUncheckedCreateWithoutPromovidoPorInput[]
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutPromovidoPorInput | ModelVersionCreateOrConnectWithoutPromovidoPorInput[]
+    createMany?: ModelVersionCreateManyPromovidoPorInputEnvelope
+    connect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+  }
+
   export type UserCampoUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<UserCampoCreateWithoutUserInput, UserCampoUncheckedCreateWithoutUserInput> | UserCampoCreateWithoutUserInput[] | UserCampoUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UserCampoCreateOrConnectWithoutUserInput | UserCampoCreateOrConnectWithoutUserInput[]
@@ -13775,6 +20802,41 @@ export namespace Prisma {
     connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
     createMany?: NotificationCreateManyUserInputEnvelope
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type DetectionUncheckedCreateNestedManyWithoutCreadoPorInput = {
+    create?: XOR<DetectionCreateWithoutCreadoPorInput, DetectionUncheckedCreateWithoutCreadoPorInput> | DetectionCreateWithoutCreadoPorInput[] | DetectionUncheckedCreateWithoutCreadoPorInput[]
+    connectOrCreate?: DetectionCreateOrConnectWithoutCreadoPorInput | DetectionCreateOrConnectWithoutCreadoPorInput[]
+    createMany?: DetectionCreateManyCreadoPorInputEnvelope
+    connect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+  }
+
+  export type ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput = {
+    create?: XOR<ModelFeedbackCreateWithoutCreadoPorInput, ModelFeedbackUncheckedCreateWithoutCreadoPorInput> | ModelFeedbackCreateWithoutCreadoPorInput[] | ModelFeedbackUncheckedCreateWithoutCreadoPorInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutCreadoPorInput | ModelFeedbackCreateOrConnectWithoutCreadoPorInput[]
+    createMany?: ModelFeedbackCreateManyCreadoPorInputEnvelope
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+  }
+
+  export type AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput = {
+    create?: XOR<AnalysisCreateWithoutDeteccionesRevisadasPorInput, AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput> | AnalysisCreateWithoutDeteccionesRevisadasPorInput[] | AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput[]
+    connectOrCreate?: AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput | AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput[]
+    createMany?: AnalysisCreateManyDeteccionesRevisadasPorInputEnvelope
+    connect?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+  }
+
+  export type TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput = {
+    create?: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput> | TrainingJobCreateWithoutIniciadoPorInput[] | TrainingJobUncheckedCreateWithoutIniciadoPorInput[]
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutIniciadoPorInput | TrainingJobCreateOrConnectWithoutIniciadoPorInput[]
+    createMany?: TrainingJobCreateManyIniciadoPorInputEnvelope
+    connect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+  }
+
+  export type ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput = {
+    create?: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput> | ModelVersionCreateWithoutPromovidoPorInput[] | ModelVersionUncheckedCreateWithoutPromovidoPorInput[]
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutPromovidoPorInput | ModelVersionCreateOrConnectWithoutPromovidoPorInput[]
+    createMany?: ModelVersionCreateManyPromovidoPorInputEnvelope
+    connect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -13919,6 +20981,76 @@ export namespace Prisma {
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
+  export type DetectionUpdateManyWithoutCreadoPorNestedInput = {
+    create?: XOR<DetectionCreateWithoutCreadoPorInput, DetectionUncheckedCreateWithoutCreadoPorInput> | DetectionCreateWithoutCreadoPorInput[] | DetectionUncheckedCreateWithoutCreadoPorInput[]
+    connectOrCreate?: DetectionCreateOrConnectWithoutCreadoPorInput | DetectionCreateOrConnectWithoutCreadoPorInput[]
+    upsert?: DetectionUpsertWithWhereUniqueWithoutCreadoPorInput | DetectionUpsertWithWhereUniqueWithoutCreadoPorInput[]
+    createMany?: DetectionCreateManyCreadoPorInputEnvelope
+    set?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    disconnect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    delete?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    connect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    update?: DetectionUpdateWithWhereUniqueWithoutCreadoPorInput | DetectionUpdateWithWhereUniqueWithoutCreadoPorInput[]
+    updateMany?: DetectionUpdateManyWithWhereWithoutCreadoPorInput | DetectionUpdateManyWithWhereWithoutCreadoPorInput[]
+    deleteMany?: DetectionScalarWhereInput | DetectionScalarWhereInput[]
+  }
+
+  export type ModelFeedbackUpdateManyWithoutCreadoPorNestedInput = {
+    create?: XOR<ModelFeedbackCreateWithoutCreadoPorInput, ModelFeedbackUncheckedCreateWithoutCreadoPorInput> | ModelFeedbackCreateWithoutCreadoPorInput[] | ModelFeedbackUncheckedCreateWithoutCreadoPorInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutCreadoPorInput | ModelFeedbackCreateOrConnectWithoutCreadoPorInput[]
+    upsert?: ModelFeedbackUpsertWithWhereUniqueWithoutCreadoPorInput | ModelFeedbackUpsertWithWhereUniqueWithoutCreadoPorInput[]
+    createMany?: ModelFeedbackCreateManyCreadoPorInputEnvelope
+    set?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    disconnect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    delete?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    update?: ModelFeedbackUpdateWithWhereUniqueWithoutCreadoPorInput | ModelFeedbackUpdateWithWhereUniqueWithoutCreadoPorInput[]
+    updateMany?: ModelFeedbackUpdateManyWithWhereWithoutCreadoPorInput | ModelFeedbackUpdateManyWithWhereWithoutCreadoPorInput[]
+    deleteMany?: ModelFeedbackScalarWhereInput | ModelFeedbackScalarWhereInput[]
+  }
+
+  export type AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput = {
+    create?: XOR<AnalysisCreateWithoutDeteccionesRevisadasPorInput, AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput> | AnalysisCreateWithoutDeteccionesRevisadasPorInput[] | AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput[]
+    connectOrCreate?: AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput | AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput[]
+    upsert?: AnalysisUpsertWithWhereUniqueWithoutDeteccionesRevisadasPorInput | AnalysisUpsertWithWhereUniqueWithoutDeteccionesRevisadasPorInput[]
+    createMany?: AnalysisCreateManyDeteccionesRevisadasPorInputEnvelope
+    set?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+    disconnect?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+    delete?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+    connect?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+    update?: AnalysisUpdateWithWhereUniqueWithoutDeteccionesRevisadasPorInput | AnalysisUpdateWithWhereUniqueWithoutDeteccionesRevisadasPorInput[]
+    updateMany?: AnalysisUpdateManyWithWhereWithoutDeteccionesRevisadasPorInput | AnalysisUpdateManyWithWhereWithoutDeteccionesRevisadasPorInput[]
+    deleteMany?: AnalysisScalarWhereInput | AnalysisScalarWhereInput[]
+  }
+
+  export type TrainingJobUpdateManyWithoutIniciadoPorNestedInput = {
+    create?: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput> | TrainingJobCreateWithoutIniciadoPorInput[] | TrainingJobUncheckedCreateWithoutIniciadoPorInput[]
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutIniciadoPorInput | TrainingJobCreateOrConnectWithoutIniciadoPorInput[]
+    upsert?: TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput | TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput[]
+    createMany?: TrainingJobCreateManyIniciadoPorInputEnvelope
+    set?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    disconnect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    delete?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    connect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    update?: TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput | TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput[]
+    updateMany?: TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput | TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput[]
+    deleteMany?: TrainingJobScalarWhereInput | TrainingJobScalarWhereInput[]
+  }
+
+  export type ModelVersionUpdateManyWithoutPromovidoPorNestedInput = {
+    create?: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput> | ModelVersionCreateWithoutPromovidoPorInput[] | ModelVersionUncheckedCreateWithoutPromovidoPorInput[]
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutPromovidoPorInput | ModelVersionCreateOrConnectWithoutPromovidoPorInput[]
+    upsert?: ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput | ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput[]
+    createMany?: ModelVersionCreateManyPromovidoPorInputEnvelope
+    set?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    disconnect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    delete?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    connect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    update?: ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput | ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput[]
+    updateMany?: ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput | ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput[]
+    deleteMany?: ModelVersionScalarWhereInput | ModelVersionScalarWhereInput[]
+  }
+
   export type UserCampoUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<UserCampoCreateWithoutUserInput, UserCampoUncheckedCreateWithoutUserInput> | UserCampoCreateWithoutUserInput[] | UserCampoUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UserCampoCreateOrConnectWithoutUserInput | UserCampoCreateOrConnectWithoutUserInput[]
@@ -14043,6 +21175,76 @@ export namespace Prisma {
     update?: NotificationUpdateWithWhereUniqueWithoutUserInput | NotificationUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: NotificationUpdateManyWithWhereWithoutUserInput | NotificationUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
+  }
+
+  export type DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput = {
+    create?: XOR<DetectionCreateWithoutCreadoPorInput, DetectionUncheckedCreateWithoutCreadoPorInput> | DetectionCreateWithoutCreadoPorInput[] | DetectionUncheckedCreateWithoutCreadoPorInput[]
+    connectOrCreate?: DetectionCreateOrConnectWithoutCreadoPorInput | DetectionCreateOrConnectWithoutCreadoPorInput[]
+    upsert?: DetectionUpsertWithWhereUniqueWithoutCreadoPorInput | DetectionUpsertWithWhereUniqueWithoutCreadoPorInput[]
+    createMany?: DetectionCreateManyCreadoPorInputEnvelope
+    set?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    disconnect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    delete?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    connect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    update?: DetectionUpdateWithWhereUniqueWithoutCreadoPorInput | DetectionUpdateWithWhereUniqueWithoutCreadoPorInput[]
+    updateMany?: DetectionUpdateManyWithWhereWithoutCreadoPorInput | DetectionUpdateManyWithWhereWithoutCreadoPorInput[]
+    deleteMany?: DetectionScalarWhereInput | DetectionScalarWhereInput[]
+  }
+
+  export type ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput = {
+    create?: XOR<ModelFeedbackCreateWithoutCreadoPorInput, ModelFeedbackUncheckedCreateWithoutCreadoPorInput> | ModelFeedbackCreateWithoutCreadoPorInput[] | ModelFeedbackUncheckedCreateWithoutCreadoPorInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutCreadoPorInput | ModelFeedbackCreateOrConnectWithoutCreadoPorInput[]
+    upsert?: ModelFeedbackUpsertWithWhereUniqueWithoutCreadoPorInput | ModelFeedbackUpsertWithWhereUniqueWithoutCreadoPorInput[]
+    createMany?: ModelFeedbackCreateManyCreadoPorInputEnvelope
+    set?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    disconnect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    delete?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    update?: ModelFeedbackUpdateWithWhereUniqueWithoutCreadoPorInput | ModelFeedbackUpdateWithWhereUniqueWithoutCreadoPorInput[]
+    updateMany?: ModelFeedbackUpdateManyWithWhereWithoutCreadoPorInput | ModelFeedbackUpdateManyWithWhereWithoutCreadoPorInput[]
+    deleteMany?: ModelFeedbackScalarWhereInput | ModelFeedbackScalarWhereInput[]
+  }
+
+  export type AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput = {
+    create?: XOR<AnalysisCreateWithoutDeteccionesRevisadasPorInput, AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput> | AnalysisCreateWithoutDeteccionesRevisadasPorInput[] | AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput[]
+    connectOrCreate?: AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput | AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput[]
+    upsert?: AnalysisUpsertWithWhereUniqueWithoutDeteccionesRevisadasPorInput | AnalysisUpsertWithWhereUniqueWithoutDeteccionesRevisadasPorInput[]
+    createMany?: AnalysisCreateManyDeteccionesRevisadasPorInputEnvelope
+    set?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+    disconnect?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+    delete?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+    connect?: AnalysisWhereUniqueInput | AnalysisWhereUniqueInput[]
+    update?: AnalysisUpdateWithWhereUniqueWithoutDeteccionesRevisadasPorInput | AnalysisUpdateWithWhereUniqueWithoutDeteccionesRevisadasPorInput[]
+    updateMany?: AnalysisUpdateManyWithWhereWithoutDeteccionesRevisadasPorInput | AnalysisUpdateManyWithWhereWithoutDeteccionesRevisadasPorInput[]
+    deleteMany?: AnalysisScalarWhereInput | AnalysisScalarWhereInput[]
+  }
+
+  export type TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput = {
+    create?: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput> | TrainingJobCreateWithoutIniciadoPorInput[] | TrainingJobUncheckedCreateWithoutIniciadoPorInput[]
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutIniciadoPorInput | TrainingJobCreateOrConnectWithoutIniciadoPorInput[]
+    upsert?: TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput | TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput[]
+    createMany?: TrainingJobCreateManyIniciadoPorInputEnvelope
+    set?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    disconnect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    delete?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    connect?: TrainingJobWhereUniqueInput | TrainingJobWhereUniqueInput[]
+    update?: TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput | TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput[]
+    updateMany?: TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput | TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput[]
+    deleteMany?: TrainingJobScalarWhereInput | TrainingJobScalarWhereInput[]
+  }
+
+  export type ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput = {
+    create?: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput> | ModelVersionCreateWithoutPromovidoPorInput[] | ModelVersionUncheckedCreateWithoutPromovidoPorInput[]
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutPromovidoPorInput | ModelVersionCreateOrConnectWithoutPromovidoPorInput[]
+    upsert?: ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput | ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput[]
+    createMany?: ModelVersionCreateManyPromovidoPorInputEnvelope
+    set?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    disconnect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    delete?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    connect?: ModelVersionWhereUniqueInput | ModelVersionWhereUniqueInput[]
+    update?: ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput | ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput[]
+    updateMany?: ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput | ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput[]
+    deleteMany?: ModelVersionScalarWhereInput | ModelVersionScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutCamposProductorInput = {
@@ -14287,6 +21489,12 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type UserCreateNestedOneWithoutAnalysesDeteccionesRevisadasInput = {
+    create?: XOR<UserCreateWithoutAnalysesDeteccionesRevisadasInput, UserUncheckedCreateWithoutAnalysesDeteccionesRevisadasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAnalysesDeteccionesRevisadasInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type FenologiaEtapaCreateNestedManyWithoutAnalysisInput = {
     create?: XOR<FenologiaEtapaCreateWithoutAnalysisInput, FenologiaEtapaUncheckedCreateWithoutAnalysisInput> | FenologiaEtapaCreateWithoutAnalysisInput[] | FenologiaEtapaUncheckedCreateWithoutAnalysisInput[]
     connectOrCreate?: FenologiaEtapaCreateOrConnectWithoutAnalysisInput | FenologiaEtapaCreateOrConnectWithoutAnalysisInput[]
@@ -14294,11 +21502,39 @@ export namespace Prisma {
     connect?: FenologiaEtapaWhereUniqueInput | FenologiaEtapaWhereUniqueInput[]
   }
 
+  export type DetectionCreateNestedManyWithoutAnalysisInput = {
+    create?: XOR<DetectionCreateWithoutAnalysisInput, DetectionUncheckedCreateWithoutAnalysisInput> | DetectionCreateWithoutAnalysisInput[] | DetectionUncheckedCreateWithoutAnalysisInput[]
+    connectOrCreate?: DetectionCreateOrConnectWithoutAnalysisInput | DetectionCreateOrConnectWithoutAnalysisInput[]
+    createMany?: DetectionCreateManyAnalysisInputEnvelope
+    connect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+  }
+
+  export type ModelFeedbackCreateNestedManyWithoutAnalysisInput = {
+    create?: XOR<ModelFeedbackCreateWithoutAnalysisInput, ModelFeedbackUncheckedCreateWithoutAnalysisInput> | ModelFeedbackCreateWithoutAnalysisInput[] | ModelFeedbackUncheckedCreateWithoutAnalysisInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutAnalysisInput | ModelFeedbackCreateOrConnectWithoutAnalysisInput[]
+    createMany?: ModelFeedbackCreateManyAnalysisInputEnvelope
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+  }
+
   export type FenologiaEtapaUncheckedCreateNestedManyWithoutAnalysisInput = {
     create?: XOR<FenologiaEtapaCreateWithoutAnalysisInput, FenologiaEtapaUncheckedCreateWithoutAnalysisInput> | FenologiaEtapaCreateWithoutAnalysisInput[] | FenologiaEtapaUncheckedCreateWithoutAnalysisInput[]
     connectOrCreate?: FenologiaEtapaCreateOrConnectWithoutAnalysisInput | FenologiaEtapaCreateOrConnectWithoutAnalysisInput[]
     createMany?: FenologiaEtapaCreateManyAnalysisInputEnvelope
     connect?: FenologiaEtapaWhereUniqueInput | FenologiaEtapaWhereUniqueInput[]
+  }
+
+  export type DetectionUncheckedCreateNestedManyWithoutAnalysisInput = {
+    create?: XOR<DetectionCreateWithoutAnalysisInput, DetectionUncheckedCreateWithoutAnalysisInput> | DetectionCreateWithoutAnalysisInput[] | DetectionUncheckedCreateWithoutAnalysisInput[]
+    connectOrCreate?: DetectionCreateOrConnectWithoutAnalysisInput | DetectionCreateOrConnectWithoutAnalysisInput[]
+    createMany?: DetectionCreateManyAnalysisInputEnvelope
+    connect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+  }
+
+  export type ModelFeedbackUncheckedCreateNestedManyWithoutAnalysisInput = {
+    create?: XOR<ModelFeedbackCreateWithoutAnalysisInput, ModelFeedbackUncheckedCreateWithoutAnalysisInput> | ModelFeedbackCreateWithoutAnalysisInput[] | ModelFeedbackUncheckedCreateWithoutAnalysisInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutAnalysisInput | ModelFeedbackCreateOrConnectWithoutAnalysisInput[]
+    createMany?: ModelFeedbackCreateManyAnalysisInputEnvelope
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -14367,6 +21603,16 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAnalysesValidadasInput, UserUpdateWithoutAnalysesValidadasInput>, UserUncheckedUpdateWithoutAnalysesValidadasInput>
   }
 
+  export type UserUpdateOneWithoutAnalysesDeteccionesRevisadasNestedInput = {
+    create?: XOR<UserCreateWithoutAnalysesDeteccionesRevisadasInput, UserUncheckedCreateWithoutAnalysesDeteccionesRevisadasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAnalysesDeteccionesRevisadasInput
+    upsert?: UserUpsertWithoutAnalysesDeteccionesRevisadasInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAnalysesDeteccionesRevisadasInput, UserUpdateWithoutAnalysesDeteccionesRevisadasInput>, UserUncheckedUpdateWithoutAnalysesDeteccionesRevisadasInput>
+  }
+
   export type FenologiaEtapaUpdateManyWithoutAnalysisNestedInput = {
     create?: XOR<FenologiaEtapaCreateWithoutAnalysisInput, FenologiaEtapaUncheckedCreateWithoutAnalysisInput> | FenologiaEtapaCreateWithoutAnalysisInput[] | FenologiaEtapaUncheckedCreateWithoutAnalysisInput[]
     connectOrCreate?: FenologiaEtapaCreateOrConnectWithoutAnalysisInput | FenologiaEtapaCreateOrConnectWithoutAnalysisInput[]
@@ -14379,6 +21625,34 @@ export namespace Prisma {
     update?: FenologiaEtapaUpdateWithWhereUniqueWithoutAnalysisInput | FenologiaEtapaUpdateWithWhereUniqueWithoutAnalysisInput[]
     updateMany?: FenologiaEtapaUpdateManyWithWhereWithoutAnalysisInput | FenologiaEtapaUpdateManyWithWhereWithoutAnalysisInput[]
     deleteMany?: FenologiaEtapaScalarWhereInput | FenologiaEtapaScalarWhereInput[]
+  }
+
+  export type DetectionUpdateManyWithoutAnalysisNestedInput = {
+    create?: XOR<DetectionCreateWithoutAnalysisInput, DetectionUncheckedCreateWithoutAnalysisInput> | DetectionCreateWithoutAnalysisInput[] | DetectionUncheckedCreateWithoutAnalysisInput[]
+    connectOrCreate?: DetectionCreateOrConnectWithoutAnalysisInput | DetectionCreateOrConnectWithoutAnalysisInput[]
+    upsert?: DetectionUpsertWithWhereUniqueWithoutAnalysisInput | DetectionUpsertWithWhereUniqueWithoutAnalysisInput[]
+    createMany?: DetectionCreateManyAnalysisInputEnvelope
+    set?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    disconnect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    delete?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    connect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    update?: DetectionUpdateWithWhereUniqueWithoutAnalysisInput | DetectionUpdateWithWhereUniqueWithoutAnalysisInput[]
+    updateMany?: DetectionUpdateManyWithWhereWithoutAnalysisInput | DetectionUpdateManyWithWhereWithoutAnalysisInput[]
+    deleteMany?: DetectionScalarWhereInput | DetectionScalarWhereInput[]
+  }
+
+  export type ModelFeedbackUpdateManyWithoutAnalysisNestedInput = {
+    create?: XOR<ModelFeedbackCreateWithoutAnalysisInput, ModelFeedbackUncheckedCreateWithoutAnalysisInput> | ModelFeedbackCreateWithoutAnalysisInput[] | ModelFeedbackUncheckedCreateWithoutAnalysisInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutAnalysisInput | ModelFeedbackCreateOrConnectWithoutAnalysisInput[]
+    upsert?: ModelFeedbackUpsertWithWhereUniqueWithoutAnalysisInput | ModelFeedbackUpsertWithWhereUniqueWithoutAnalysisInput[]
+    createMany?: ModelFeedbackCreateManyAnalysisInputEnvelope
+    set?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    disconnect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    delete?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    update?: ModelFeedbackUpdateWithWhereUniqueWithoutAnalysisInput | ModelFeedbackUpdateWithWhereUniqueWithoutAnalysisInput[]
+    updateMany?: ModelFeedbackUpdateManyWithWhereWithoutAnalysisInput | ModelFeedbackUpdateManyWithWhereWithoutAnalysisInput[]
+    deleteMany?: ModelFeedbackScalarWhereInput | ModelFeedbackScalarWhereInput[]
   }
 
   export type FenologiaEtapaUncheckedUpdateManyWithoutAnalysisNestedInput = {
@@ -14395,6 +21669,34 @@ export namespace Prisma {
     deleteMany?: FenologiaEtapaScalarWhereInput | FenologiaEtapaScalarWhereInput[]
   }
 
+  export type DetectionUncheckedUpdateManyWithoutAnalysisNestedInput = {
+    create?: XOR<DetectionCreateWithoutAnalysisInput, DetectionUncheckedCreateWithoutAnalysisInput> | DetectionCreateWithoutAnalysisInput[] | DetectionUncheckedCreateWithoutAnalysisInput[]
+    connectOrCreate?: DetectionCreateOrConnectWithoutAnalysisInput | DetectionCreateOrConnectWithoutAnalysisInput[]
+    upsert?: DetectionUpsertWithWhereUniqueWithoutAnalysisInput | DetectionUpsertWithWhereUniqueWithoutAnalysisInput[]
+    createMany?: DetectionCreateManyAnalysisInputEnvelope
+    set?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    disconnect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    delete?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    connect?: DetectionWhereUniqueInput | DetectionWhereUniqueInput[]
+    update?: DetectionUpdateWithWhereUniqueWithoutAnalysisInput | DetectionUpdateWithWhereUniqueWithoutAnalysisInput[]
+    updateMany?: DetectionUpdateManyWithWhereWithoutAnalysisInput | DetectionUpdateManyWithWhereWithoutAnalysisInput[]
+    deleteMany?: DetectionScalarWhereInput | DetectionScalarWhereInput[]
+  }
+
+  export type ModelFeedbackUncheckedUpdateManyWithoutAnalysisNestedInput = {
+    create?: XOR<ModelFeedbackCreateWithoutAnalysisInput, ModelFeedbackUncheckedCreateWithoutAnalysisInput> | ModelFeedbackCreateWithoutAnalysisInput[] | ModelFeedbackUncheckedCreateWithoutAnalysisInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutAnalysisInput | ModelFeedbackCreateOrConnectWithoutAnalysisInput[]
+    upsert?: ModelFeedbackUpsertWithWhereUniqueWithoutAnalysisInput | ModelFeedbackUpsertWithWhereUniqueWithoutAnalysisInput[]
+    createMany?: ModelFeedbackCreateManyAnalysisInputEnvelope
+    set?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    disconnect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    delete?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    update?: ModelFeedbackUpdateWithWhereUniqueWithoutAnalysisInput | ModelFeedbackUpdateWithWhereUniqueWithoutAnalysisInput[]
+    updateMany?: ModelFeedbackUpdateManyWithWhereWithoutAnalysisInput | ModelFeedbackUpdateManyWithWhereWithoutAnalysisInput[]
+    deleteMany?: ModelFeedbackScalarWhereInput | ModelFeedbackScalarWhereInput[]
+  }
+
   export type AnalysisCreateNestedOneWithoutFenologiaEtapasInput = {
     create?: XOR<AnalysisCreateWithoutFenologiaEtapasInput, AnalysisUncheckedCreateWithoutFenologiaEtapasInput>
     connectOrCreate?: AnalysisCreateOrConnectWithoutFenologiaEtapasInput
@@ -14407,6 +21709,228 @@ export namespace Prisma {
     upsert?: AnalysisUpsertWithoutFenologiaEtapasInput
     connect?: AnalysisWhereUniqueInput
     update?: XOR<XOR<AnalysisUpdateToOneWithWhereWithoutFenologiaEtapasInput, AnalysisUpdateWithoutFenologiaEtapasInput>, AnalysisUncheckedUpdateWithoutFenologiaEtapasInput>
+  }
+
+  export type AnalysisCreateNestedOneWithoutDetectionsInput = {
+    create?: XOR<AnalysisCreateWithoutDetectionsInput, AnalysisUncheckedCreateWithoutDetectionsInput>
+    connectOrCreate?: AnalysisCreateOrConnectWithoutDetectionsInput
+    connect?: AnalysisWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutDetectionsCreadasInput = {
+    create?: XOR<UserCreateWithoutDetectionsCreadasInput, UserUncheckedCreateWithoutDetectionsCreadasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDetectionsCreadasInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ModelFeedbackCreateNestedManyWithoutDetectionInput = {
+    create?: XOR<ModelFeedbackCreateWithoutDetectionInput, ModelFeedbackUncheckedCreateWithoutDetectionInput> | ModelFeedbackCreateWithoutDetectionInput[] | ModelFeedbackUncheckedCreateWithoutDetectionInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutDetectionInput | ModelFeedbackCreateOrConnectWithoutDetectionInput[]
+    createMany?: ModelFeedbackCreateManyDetectionInputEnvelope
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+  }
+
+  export type ModelFeedbackUncheckedCreateNestedManyWithoutDetectionInput = {
+    create?: XOR<ModelFeedbackCreateWithoutDetectionInput, ModelFeedbackUncheckedCreateWithoutDetectionInput> | ModelFeedbackCreateWithoutDetectionInput[] | ModelFeedbackUncheckedCreateWithoutDetectionInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutDetectionInput | ModelFeedbackCreateOrConnectWithoutDetectionInput[]
+    createMany?: ModelFeedbackCreateManyDetectionInputEnvelope
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+  }
+
+  export type EnumOrigenDeteccionFieldUpdateOperationsInput = {
+    set?: $Enums.OrigenDeteccion
+  }
+
+  export type EnumEstadoSaludFieldUpdateOperationsInput = {
+    set?: $Enums.EstadoSalud
+  }
+
+  export type AnalysisUpdateOneRequiredWithoutDetectionsNestedInput = {
+    create?: XOR<AnalysisCreateWithoutDetectionsInput, AnalysisUncheckedCreateWithoutDetectionsInput>
+    connectOrCreate?: AnalysisCreateOrConnectWithoutDetectionsInput
+    upsert?: AnalysisUpsertWithoutDetectionsInput
+    connect?: AnalysisWhereUniqueInput
+    update?: XOR<XOR<AnalysisUpdateToOneWithWhereWithoutDetectionsInput, AnalysisUpdateWithoutDetectionsInput>, AnalysisUncheckedUpdateWithoutDetectionsInput>
+  }
+
+  export type UserUpdateOneWithoutDetectionsCreadasNestedInput = {
+    create?: XOR<UserCreateWithoutDetectionsCreadasInput, UserUncheckedCreateWithoutDetectionsCreadasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDetectionsCreadasInput
+    upsert?: UserUpsertWithoutDetectionsCreadasInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDetectionsCreadasInput, UserUpdateWithoutDetectionsCreadasInput>, UserUncheckedUpdateWithoutDetectionsCreadasInput>
+  }
+
+  export type ModelFeedbackUpdateManyWithoutDetectionNestedInput = {
+    create?: XOR<ModelFeedbackCreateWithoutDetectionInput, ModelFeedbackUncheckedCreateWithoutDetectionInput> | ModelFeedbackCreateWithoutDetectionInput[] | ModelFeedbackUncheckedCreateWithoutDetectionInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutDetectionInput | ModelFeedbackCreateOrConnectWithoutDetectionInput[]
+    upsert?: ModelFeedbackUpsertWithWhereUniqueWithoutDetectionInput | ModelFeedbackUpsertWithWhereUniqueWithoutDetectionInput[]
+    createMany?: ModelFeedbackCreateManyDetectionInputEnvelope
+    set?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    disconnect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    delete?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    update?: ModelFeedbackUpdateWithWhereUniqueWithoutDetectionInput | ModelFeedbackUpdateWithWhereUniqueWithoutDetectionInput[]
+    updateMany?: ModelFeedbackUpdateManyWithWhereWithoutDetectionInput | ModelFeedbackUpdateManyWithWhereWithoutDetectionInput[]
+    deleteMany?: ModelFeedbackScalarWhereInput | ModelFeedbackScalarWhereInput[]
+  }
+
+  export type ModelFeedbackUncheckedUpdateManyWithoutDetectionNestedInput = {
+    create?: XOR<ModelFeedbackCreateWithoutDetectionInput, ModelFeedbackUncheckedCreateWithoutDetectionInput> | ModelFeedbackCreateWithoutDetectionInput[] | ModelFeedbackUncheckedCreateWithoutDetectionInput[]
+    connectOrCreate?: ModelFeedbackCreateOrConnectWithoutDetectionInput | ModelFeedbackCreateOrConnectWithoutDetectionInput[]
+    upsert?: ModelFeedbackUpsertWithWhereUniqueWithoutDetectionInput | ModelFeedbackUpsertWithWhereUniqueWithoutDetectionInput[]
+    createMany?: ModelFeedbackCreateManyDetectionInputEnvelope
+    set?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    disconnect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    delete?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    connect?: ModelFeedbackWhereUniqueInput | ModelFeedbackWhereUniqueInput[]
+    update?: ModelFeedbackUpdateWithWhereUniqueWithoutDetectionInput | ModelFeedbackUpdateWithWhereUniqueWithoutDetectionInput[]
+    updateMany?: ModelFeedbackUpdateManyWithWhereWithoutDetectionInput | ModelFeedbackUpdateManyWithWhereWithoutDetectionInput[]
+    deleteMany?: ModelFeedbackScalarWhereInput | ModelFeedbackScalarWhereInput[]
+  }
+
+  export type AnalysisCreateNestedOneWithoutModelFeedbackInput = {
+    create?: XOR<AnalysisCreateWithoutModelFeedbackInput, AnalysisUncheckedCreateWithoutModelFeedbackInput>
+    connectOrCreate?: AnalysisCreateOrConnectWithoutModelFeedbackInput
+    connect?: AnalysisWhereUniqueInput
+  }
+
+  export type DetectionCreateNestedOneWithoutFeedbackInput = {
+    create?: XOR<DetectionCreateWithoutFeedbackInput, DetectionUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: DetectionCreateOrConnectWithoutFeedbackInput
+    connect?: DetectionWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutModelFeedbackCreadoInput = {
+    create?: XOR<UserCreateWithoutModelFeedbackCreadoInput, UserUncheckedCreateWithoutModelFeedbackCreadoInput>
+    connectOrCreate?: UserCreateOrConnectWithoutModelFeedbackCreadoInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumAccionFeedbackFieldUpdateOperationsInput = {
+    set?: $Enums.AccionFeedback
+  }
+
+  export type NullableEnumEstadoSaludFieldUpdateOperationsInput = {
+    set?: $Enums.EstadoSalud | null
+  }
+
+  export type AnalysisUpdateOneRequiredWithoutModelFeedbackNestedInput = {
+    create?: XOR<AnalysisCreateWithoutModelFeedbackInput, AnalysisUncheckedCreateWithoutModelFeedbackInput>
+    connectOrCreate?: AnalysisCreateOrConnectWithoutModelFeedbackInput
+    upsert?: AnalysisUpsertWithoutModelFeedbackInput
+    connect?: AnalysisWhereUniqueInput
+    update?: XOR<XOR<AnalysisUpdateToOneWithWhereWithoutModelFeedbackInput, AnalysisUpdateWithoutModelFeedbackInput>, AnalysisUncheckedUpdateWithoutModelFeedbackInput>
+  }
+
+  export type DetectionUpdateOneRequiredWithoutFeedbackNestedInput = {
+    create?: XOR<DetectionCreateWithoutFeedbackInput, DetectionUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: DetectionCreateOrConnectWithoutFeedbackInput
+    upsert?: DetectionUpsertWithoutFeedbackInput
+    connect?: DetectionWhereUniqueInput
+    update?: XOR<XOR<DetectionUpdateToOneWithWhereWithoutFeedbackInput, DetectionUpdateWithoutFeedbackInput>, DetectionUncheckedUpdateWithoutFeedbackInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutModelFeedbackCreadoNestedInput = {
+    create?: XOR<UserCreateWithoutModelFeedbackCreadoInput, UserUncheckedCreateWithoutModelFeedbackCreadoInput>
+    connectOrCreate?: UserCreateOrConnectWithoutModelFeedbackCreadoInput
+    upsert?: UserUpsertWithoutModelFeedbackCreadoInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutModelFeedbackCreadoInput, UserUpdateWithoutModelFeedbackCreadoInput>, UserUncheckedUpdateWithoutModelFeedbackCreadoInput>
+  }
+
+  export type UserCreateNestedOneWithoutTrainingJobsIniciadosInput = {
+    create?: XOR<UserCreateWithoutTrainingJobsIniciadosInput, UserUncheckedCreateWithoutTrainingJobsIniciadosInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTrainingJobsIniciadosInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ModelVersionCreateNestedOneWithoutTrainingJobInput = {
+    create?: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutTrainingJobInput
+    connect?: ModelVersionWhereUniqueInput
+  }
+
+  export type ModelVersionUncheckedCreateNestedOneWithoutTrainingJobInput = {
+    create?: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutTrainingJobInput
+    connect?: ModelVersionWhereUniqueInput
+  }
+
+  export type EnumTrainingJobStatusFieldUpdateOperationsInput = {
+    set?: $Enums.TrainingJobStatus
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type UserUpdateOneRequiredWithoutTrainingJobsIniciadosNestedInput = {
+    create?: XOR<UserCreateWithoutTrainingJobsIniciadosInput, UserUncheckedCreateWithoutTrainingJobsIniciadosInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTrainingJobsIniciadosInput
+    upsert?: UserUpsertWithoutTrainingJobsIniciadosInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTrainingJobsIniciadosInput, UserUpdateWithoutTrainingJobsIniciadosInput>, UserUncheckedUpdateWithoutTrainingJobsIniciadosInput>
+  }
+
+  export type ModelVersionUpdateOneWithoutTrainingJobNestedInput = {
+    create?: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutTrainingJobInput
+    upsert?: ModelVersionUpsertWithoutTrainingJobInput
+    disconnect?: ModelVersionWhereInput | boolean
+    delete?: ModelVersionWhereInput | boolean
+    connect?: ModelVersionWhereUniqueInput
+    update?: XOR<XOR<ModelVersionUpdateToOneWithWhereWithoutTrainingJobInput, ModelVersionUpdateWithoutTrainingJobInput>, ModelVersionUncheckedUpdateWithoutTrainingJobInput>
+  }
+
+  export type ModelVersionUncheckedUpdateOneWithoutTrainingJobNestedInput = {
+    create?: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    connectOrCreate?: ModelVersionCreateOrConnectWithoutTrainingJobInput
+    upsert?: ModelVersionUpsertWithoutTrainingJobInput
+    disconnect?: ModelVersionWhereInput | boolean
+    delete?: ModelVersionWhereInput | boolean
+    connect?: ModelVersionWhereUniqueInput
+    update?: XOR<XOR<ModelVersionUpdateToOneWithWhereWithoutTrainingJobInput, ModelVersionUpdateWithoutTrainingJobInput>, ModelVersionUncheckedUpdateWithoutTrainingJobInput>
+  }
+
+  export type TrainingJobCreateNestedOneWithoutModelVersionInput = {
+    create?: XOR<TrainingJobCreateWithoutModelVersionInput, TrainingJobUncheckedCreateWithoutModelVersionInput>
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutModelVersionInput
+    connect?: TrainingJobWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutModelVersionsPromovidasInput = {
+    create?: XOR<UserCreateWithoutModelVersionsPromovidasInput, UserUncheckedCreateWithoutModelVersionsPromovidasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutModelVersionsPromovidasInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumModelVersionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ModelVersionStatus
+  }
+
+  export type TrainingJobUpdateOneRequiredWithoutModelVersionNestedInput = {
+    create?: XOR<TrainingJobCreateWithoutModelVersionInput, TrainingJobUncheckedCreateWithoutModelVersionInput>
+    connectOrCreate?: TrainingJobCreateOrConnectWithoutModelVersionInput
+    upsert?: TrainingJobUpsertWithoutModelVersionInput
+    connect?: TrainingJobWhereUniqueInput
+    update?: XOR<XOR<TrainingJobUpdateToOneWithWhereWithoutModelVersionInput, TrainingJobUpdateWithoutModelVersionInput>, TrainingJobUncheckedUpdateWithoutModelVersionInput>
+  }
+
+  export type UserUpdateOneWithoutModelVersionsPromovidasNestedInput = {
+    create?: XOR<UserCreateWithoutModelVersionsPromovidasInput, UserUncheckedCreateWithoutModelVersionsPromovidasInput>
+    connectOrCreate?: UserCreateOrConnectWithoutModelVersionsPromovidasInput
+    upsert?: UserUpsertWithoutModelVersionsPromovidasInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutModelVersionsPromovidasInput, UserUpdateWithoutModelVersionsPromovidasInput>, UserUncheckedUpdateWithoutModelVersionsPromovidasInput>
   }
 
   export type UserCreateNestedOneWithoutRefreshTokensInput = {
@@ -14778,6 +22302,124 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type NestedEnumOrigenDeteccionFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrigenDeteccion | EnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    in?: $Enums.OrigenDeteccion[] | ListEnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrigenDeteccion[] | ListEnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrigenDeteccionFilter<$PrismaModel> | $Enums.OrigenDeteccion
+  }
+
+  export type NestedEnumEstadoSaludFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstadoSalud | EnumEstadoSaludFieldRefInput<$PrismaModel>
+    in?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel>
+    not?: NestedEnumEstadoSaludFilter<$PrismaModel> | $Enums.EstadoSalud
+  }
+
+  export type NestedEnumOrigenDeteccionWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrigenDeteccion | EnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    in?: $Enums.OrigenDeteccion[] | ListEnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrigenDeteccion[] | ListEnumOrigenDeteccionFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrigenDeteccionWithAggregatesFilter<$PrismaModel> | $Enums.OrigenDeteccion
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumOrigenDeteccionFilter<$PrismaModel>
+    _max?: NestedEnumOrigenDeteccionFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEstadoSaludWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstadoSalud | EnumEstadoSaludFieldRefInput<$PrismaModel>
+    in?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel>
+    not?: NestedEnumEstadoSaludWithAggregatesFilter<$PrismaModel> | $Enums.EstadoSalud
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEstadoSaludFilter<$PrismaModel>
+    _max?: NestedEnumEstadoSaludFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAccionFeedbackFilter<$PrismaModel = never> = {
+    equals?: $Enums.AccionFeedback | EnumAccionFeedbackFieldRefInput<$PrismaModel>
+    in?: $Enums.AccionFeedback[] | ListEnumAccionFeedbackFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AccionFeedback[] | ListEnumAccionFeedbackFieldRefInput<$PrismaModel>
+    not?: NestedEnumAccionFeedbackFilter<$PrismaModel> | $Enums.AccionFeedback
+  }
+
+  export type NestedEnumEstadoSaludNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstadoSalud | EnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEstadoSaludNullableFilter<$PrismaModel> | $Enums.EstadoSalud | null
+  }
+
+  export type NestedEnumAccionFeedbackWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AccionFeedback | EnumAccionFeedbackFieldRefInput<$PrismaModel>
+    in?: $Enums.AccionFeedback[] | ListEnumAccionFeedbackFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AccionFeedback[] | ListEnumAccionFeedbackFieldRefInput<$PrismaModel>
+    not?: NestedEnumAccionFeedbackWithAggregatesFilter<$PrismaModel> | $Enums.AccionFeedback
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAccionFeedbackFilter<$PrismaModel>
+    _max?: NestedEnumAccionFeedbackFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEstadoSaludNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EstadoSalud | EnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EstadoSalud[] | ListEnumEstadoSaludFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEstadoSaludNullableWithAggregatesFilter<$PrismaModel> | $Enums.EstadoSalud | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumEstadoSaludNullableFilter<$PrismaModel>
+    _max?: NestedEnumEstadoSaludNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTrainingJobStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrainingJobStatus | EnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrainingJobStatusFilter<$PrismaModel> | $Enums.TrainingJobStatus
+  }
+
+  export type NestedEnumTrainingJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TrainingJobStatus | EnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TrainingJobStatus[] | ListEnumTrainingJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTrainingJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.TrainingJobStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTrainingJobStatusFilter<$PrismaModel>
+    _max?: NestedEnumTrainingJobStatusFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumModelVersionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ModelVersionStatus | EnumModelVersionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumModelVersionStatusFilter<$PrismaModel> | $Enums.ModelVersionStatus
+  }
+
+  export type NestedEnumModelVersionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ModelVersionStatus | EnumModelVersionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ModelVersionStatus[] | ListEnumModelVersionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumModelVersionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ModelVersionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumModelVersionStatusFilter<$PrismaModel>
+    _max?: NestedEnumModelVersionStatusFilter<$PrismaModel>
+  }
+
   export type UserCampoCreateWithoutUserInput = {
     campo: CampoCreateNestedOneWithoutUsuariosInput
   }
@@ -14914,12 +22556,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     productor: UserCreateNestedOneWithoutAnalysesAsProductorInput
     campo: CampoCreateNestedOneWithoutAnalysesInput
     validadoPor?: UserCreateNestedOneWithoutAnalysesValidadasInput
+    deteccionesRevisadasPor?: UserCreateNestedOneWithoutAnalysesDeteccionesRevisadasInput
     fenologiaEtapas?: FenologiaEtapaCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisUncheckedCreateWithoutRequesterInput = {
@@ -14945,9 +22592,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionUncheckedCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackUncheckedCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisCreateOrConnectWithoutRequesterInput = {
@@ -14980,12 +22632,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     requester: UserCreateNestedOneWithoutAnalysesAsRequesterInput
     campo: CampoCreateNestedOneWithoutAnalysesInput
     validadoPor?: UserCreateNestedOneWithoutAnalysesValidadasInput
+    deteccionesRevisadasPor?: UserCreateNestedOneWithoutAnalysesDeteccionesRevisadasInput
     fenologiaEtapas?: FenologiaEtapaCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisUncheckedCreateWithoutProductorInput = {
@@ -15011,9 +22668,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionUncheckedCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackUncheckedCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisCreateOrConnectWithoutProductorInput = {
@@ -15046,12 +22708,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     requester: UserCreateNestedOneWithoutAnalysesAsRequesterInput
     productor: UserCreateNestedOneWithoutAnalysesAsProductorInput
     campo: CampoCreateNestedOneWithoutAnalysesInput
+    deteccionesRevisadasPor?: UserCreateNestedOneWithoutAnalysesDeteccionesRevisadasInput
     fenologiaEtapas?: FenologiaEtapaCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisUncheckedCreateWithoutValidadoPorInput = {
@@ -15077,9 +22744,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionUncheckedCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackUncheckedCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisCreateOrConnectWithoutValidadoPorInput = {
@@ -15149,6 +22821,228 @@ export namespace Prisma {
 
   export type NotificationCreateManyUserInputEnvelope = {
     data: NotificationCreateManyUserInput | NotificationCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DetectionCreateWithoutCreadoPorInput = {
+    id?: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    createdAt?: Date | string
+    analysis: AnalysisCreateNestedOneWithoutDetectionsInput
+    feedback?: ModelFeedbackCreateNestedManyWithoutDetectionInput
+  }
+
+  export type DetectionUncheckedCreateWithoutCreadoPorInput = {
+    id?: string
+    analysisId: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    createdAt?: Date | string
+    feedback?: ModelFeedbackUncheckedCreateNestedManyWithoutDetectionInput
+  }
+
+  export type DetectionCreateOrConnectWithoutCreadoPorInput = {
+    where: DetectionWhereUniqueInput
+    create: XOR<DetectionCreateWithoutCreadoPorInput, DetectionUncheckedCreateWithoutCreadoPorInput>
+  }
+
+  export type DetectionCreateManyCreadoPorInputEnvelope = {
+    data: DetectionCreateManyCreadoPorInput | DetectionCreateManyCreadoPorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ModelFeedbackCreateWithoutCreadoPorInput = {
+    id?: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    createdAt?: Date | string
+    analysis: AnalysisCreateNestedOneWithoutModelFeedbackInput
+    detection: DetectionCreateNestedOneWithoutFeedbackInput
+  }
+
+  export type ModelFeedbackUncheckedCreateWithoutCreadoPorInput = {
+    id?: string
+    analysisId: string
+    detectionId: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelFeedbackCreateOrConnectWithoutCreadoPorInput = {
+    where: ModelFeedbackWhereUniqueInput
+    create: XOR<ModelFeedbackCreateWithoutCreadoPorInput, ModelFeedbackUncheckedCreateWithoutCreadoPorInput>
+  }
+
+  export type ModelFeedbackCreateManyCreadoPorInputEnvelope = {
+    data: ModelFeedbackCreateManyCreadoPorInput | ModelFeedbackCreateManyCreadoPorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AnalysisCreateWithoutDeteccionesRevisadasPorInput = {
+    id?: string
+    imageId: string
+    storageKey: string
+    requesterEmail: string
+    variedad?: string | null
+    fechaAnalisis: Date | string
+    totalElementosDetectados: number
+    elementosSanos: number
+    elementosEnfermos: number
+    porcentajeMermaGeneral: number
+    pesoSanoGramos: number
+    ubicacionLat?: number | null
+    ubicacionLng?: number | null
+    offlineSyncId?: string | null
+    validacionEstado?: $Enums.EstadoValidacion
+    validacionFueCorregido?: boolean
+    validacionDiagnosticoOriginal?: string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    requester: UserCreateNestedOneWithoutAnalysesAsRequesterInput
+    productor: UserCreateNestedOneWithoutAnalysesAsProductorInput
+    campo: CampoCreateNestedOneWithoutAnalysesInput
+    validadoPor?: UserCreateNestedOneWithoutAnalysesValidadasInput
+    fenologiaEtapas?: FenologiaEtapaCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackCreateNestedManyWithoutAnalysisInput
+  }
+
+  export type AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput = {
+    id?: string
+    imageId: string
+    storageKey: string
+    requesterUserId: string
+    requesterEmail: string
+    variedad?: string | null
+    fechaAnalisis: Date | string
+    totalElementosDetectados: number
+    elementosSanos: number
+    elementosEnfermos: number
+    porcentajeMermaGeneral: number
+    pesoSanoGramos: number
+    ubicacionLat?: number | null
+    ubicacionLng?: number | null
+    campoId: string
+    productorId: string
+    offlineSyncId?: string | null
+    validacionEstado?: $Enums.EstadoValidacion
+    validacionFueCorregido?: boolean
+    validacionCorregidoPorId?: string | null
+    validacionDiagnosticoOriginal?: string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    fenologiaEtapas?: FenologiaEtapaUncheckedCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionUncheckedCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackUncheckedCreateNestedManyWithoutAnalysisInput
+  }
+
+  export type AnalysisCreateOrConnectWithoutDeteccionesRevisadasPorInput = {
+    where: AnalysisWhereUniqueInput
+    create: XOR<AnalysisCreateWithoutDeteccionesRevisadasPorInput, AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput>
+  }
+
+  export type AnalysisCreateManyDeteccionesRevisadasPorInputEnvelope = {
+    data: AnalysisCreateManyDeteccionesRevisadasPorInput | AnalysisCreateManyDeteccionesRevisadasPorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TrainingJobCreateWithoutIniciadoPorInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    modelVersion?: ModelVersionCreateNestedOneWithoutTrainingJobInput
+  }
+
+  export type TrainingJobUncheckedCreateWithoutIniciadoPorInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    modelVersion?: ModelVersionUncheckedCreateNestedOneWithoutTrainingJobInput
+  }
+
+  export type TrainingJobCreateOrConnectWithoutIniciadoPorInput = {
+    where: TrainingJobWhereUniqueInput
+    create: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput>
+  }
+
+  export type TrainingJobCreateManyIniciadoPorInputEnvelope = {
+    data: TrainingJobCreateManyIniciadoPorInput | TrainingJobCreateManyIniciadoPorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ModelVersionCreateWithoutPromovidoPorInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+    trainingJob: TrainingJobCreateNestedOneWithoutModelVersionInput
+  }
+
+  export type ModelVersionUncheckedCreateWithoutPromovidoPorInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelVersionCreateOrConnectWithoutPromovidoPorInput = {
+    where: ModelVersionWhereUniqueInput
+    create: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput>
+  }
+
+  export type ModelVersionCreateManyPromovidoPorInputEnvelope = {
+    data: ModelVersionCreateManyPromovidoPorInput | ModelVersionCreateManyPromovidoPorInput[]
     skipDuplicates?: boolean
   }
 
@@ -15295,6 +23189,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: StringNullableFilter<"Analysis"> | string | null
     validacionCronogramaCorregido?: JsonNullableFilter<"Analysis">
     validacionObservaciones?: StringNullableFilter<"Analysis"> | string | null
+    deteccionesRevisadas?: BoolFilter<"Analysis"> | boolean
+    deteccionesRevisadasPorId?: UuidNullableFilter<"Analysis"> | string | null
+    deteccionesRevisadasAt?: DateTimeNullableFilter<"Analysis"> | Date | string | null
     createdAt?: DateTimeFilter<"Analysis"> | Date | string
     updatedAt?: DateTimeFilter<"Analysis"> | Date | string
   }
@@ -15391,6 +23288,153 @@ export namespace Prisma {
     expiresAt?: DateTimeFilter<"Notification"> | Date | string
   }
 
+  export type DetectionUpsertWithWhereUniqueWithoutCreadoPorInput = {
+    where: DetectionWhereUniqueInput
+    update: XOR<DetectionUpdateWithoutCreadoPorInput, DetectionUncheckedUpdateWithoutCreadoPorInput>
+    create: XOR<DetectionCreateWithoutCreadoPorInput, DetectionUncheckedCreateWithoutCreadoPorInput>
+  }
+
+  export type DetectionUpdateWithWhereUniqueWithoutCreadoPorInput = {
+    where: DetectionWhereUniqueInput
+    data: XOR<DetectionUpdateWithoutCreadoPorInput, DetectionUncheckedUpdateWithoutCreadoPorInput>
+  }
+
+  export type DetectionUpdateManyWithWhereWithoutCreadoPorInput = {
+    where: DetectionScalarWhereInput
+    data: XOR<DetectionUpdateManyMutationInput, DetectionUncheckedUpdateManyWithoutCreadoPorInput>
+  }
+
+  export type DetectionScalarWhereInput = {
+    AND?: DetectionScalarWhereInput | DetectionScalarWhereInput[]
+    OR?: DetectionScalarWhereInput[]
+    NOT?: DetectionScalarWhereInput | DetectionScalarWhereInput[]
+    id?: UuidFilter<"Detection"> | string
+    analysisId?: UuidFilter<"Detection"> | string
+    origen?: EnumOrigenDeteccionFilter<"Detection"> | $Enums.OrigenDeteccion
+    claseDetectada?: StringNullableFilter<"Detection"> | string | null
+    etapaDetectada?: StringFilter<"Detection"> | string
+    saludDetectada?: EnumEstadoSaludFilter<"Detection"> | $Enums.EstadoSalud
+    confidence?: FloatNullableFilter<"Detection"> | number | null
+    bboxX1?: FloatFilter<"Detection"> | number
+    bboxY1?: FloatFilter<"Detection"> | number
+    bboxX2?: FloatFilter<"Detection"> | number
+    bboxY2?: FloatFilter<"Detection"> | number
+    creadoPorId?: UuidNullableFilter<"Detection"> | string | null
+    createdAt?: DateTimeFilter<"Detection"> | Date | string
+  }
+
+  export type ModelFeedbackUpsertWithWhereUniqueWithoutCreadoPorInput = {
+    where: ModelFeedbackWhereUniqueInput
+    update: XOR<ModelFeedbackUpdateWithoutCreadoPorInput, ModelFeedbackUncheckedUpdateWithoutCreadoPorInput>
+    create: XOR<ModelFeedbackCreateWithoutCreadoPorInput, ModelFeedbackUncheckedCreateWithoutCreadoPorInput>
+  }
+
+  export type ModelFeedbackUpdateWithWhereUniqueWithoutCreadoPorInput = {
+    where: ModelFeedbackWhereUniqueInput
+    data: XOR<ModelFeedbackUpdateWithoutCreadoPorInput, ModelFeedbackUncheckedUpdateWithoutCreadoPorInput>
+  }
+
+  export type ModelFeedbackUpdateManyWithWhereWithoutCreadoPorInput = {
+    where: ModelFeedbackScalarWhereInput
+    data: XOR<ModelFeedbackUpdateManyMutationInput, ModelFeedbackUncheckedUpdateManyWithoutCreadoPorInput>
+  }
+
+  export type ModelFeedbackScalarWhereInput = {
+    AND?: ModelFeedbackScalarWhereInput | ModelFeedbackScalarWhereInput[]
+    OR?: ModelFeedbackScalarWhereInput[]
+    NOT?: ModelFeedbackScalarWhereInput | ModelFeedbackScalarWhereInput[]
+    id?: UuidFilter<"ModelFeedback"> | string
+    analysisId?: UuidFilter<"ModelFeedback"> | string
+    detectionId?: UuidFilter<"ModelFeedback"> | string
+    accion?: EnumAccionFeedbackFilter<"ModelFeedback"> | $Enums.AccionFeedback
+    etapaCorregida?: StringNullableFilter<"ModelFeedback"> | string | null
+    saludCorregida?: EnumEstadoSaludNullableFilter<"ModelFeedback"> | $Enums.EstadoSalud | null
+    bboxX1?: FloatNullableFilter<"ModelFeedback"> | number | null
+    bboxY1?: FloatNullableFilter<"ModelFeedback"> | number | null
+    bboxX2?: FloatNullableFilter<"ModelFeedback"> | number | null
+    bboxY2?: FloatNullableFilter<"ModelFeedback"> | number | null
+    observaciones?: StringNullableFilter<"ModelFeedback"> | string | null
+    creadoPorId?: UuidFilter<"ModelFeedback"> | string
+    createdAt?: DateTimeFilter<"ModelFeedback"> | Date | string
+  }
+
+  export type AnalysisUpsertWithWhereUniqueWithoutDeteccionesRevisadasPorInput = {
+    where: AnalysisWhereUniqueInput
+    update: XOR<AnalysisUpdateWithoutDeteccionesRevisadasPorInput, AnalysisUncheckedUpdateWithoutDeteccionesRevisadasPorInput>
+    create: XOR<AnalysisCreateWithoutDeteccionesRevisadasPorInput, AnalysisUncheckedCreateWithoutDeteccionesRevisadasPorInput>
+  }
+
+  export type AnalysisUpdateWithWhereUniqueWithoutDeteccionesRevisadasPorInput = {
+    where: AnalysisWhereUniqueInput
+    data: XOR<AnalysisUpdateWithoutDeteccionesRevisadasPorInput, AnalysisUncheckedUpdateWithoutDeteccionesRevisadasPorInput>
+  }
+
+  export type AnalysisUpdateManyWithWhereWithoutDeteccionesRevisadasPorInput = {
+    where: AnalysisScalarWhereInput
+    data: XOR<AnalysisUpdateManyMutationInput, AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorInput>
+  }
+
+  export type TrainingJobUpsertWithWhereUniqueWithoutIniciadoPorInput = {
+    where: TrainingJobWhereUniqueInput
+    update: XOR<TrainingJobUpdateWithoutIniciadoPorInput, TrainingJobUncheckedUpdateWithoutIniciadoPorInput>
+    create: XOR<TrainingJobCreateWithoutIniciadoPorInput, TrainingJobUncheckedCreateWithoutIniciadoPorInput>
+  }
+
+  export type TrainingJobUpdateWithWhereUniqueWithoutIniciadoPorInput = {
+    where: TrainingJobWhereUniqueInput
+    data: XOR<TrainingJobUpdateWithoutIniciadoPorInput, TrainingJobUncheckedUpdateWithoutIniciadoPorInput>
+  }
+
+  export type TrainingJobUpdateManyWithWhereWithoutIniciadoPorInput = {
+    where: TrainingJobScalarWhereInput
+    data: XOR<TrainingJobUpdateManyMutationInput, TrainingJobUncheckedUpdateManyWithoutIniciadoPorInput>
+  }
+
+  export type TrainingJobScalarWhereInput = {
+    AND?: TrainingJobScalarWhereInput | TrainingJobScalarWhereInput[]
+    OR?: TrainingJobScalarWhereInput[]
+    NOT?: TrainingJobScalarWhereInput | TrainingJobScalarWhereInput[]
+    id?: UuidFilter<"TrainingJob"> | string
+    status?: EnumTrainingJobStatusFilter<"TrainingJob"> | $Enums.TrainingJobStatus
+    datasetSize?: IntNullableFilter<"TrainingJob"> | number | null
+    errorMessage?: StringNullableFilter<"TrainingJob"> | string | null
+    iniciadoPorId?: UuidFilter<"TrainingJob"> | string
+    iniciadoAt?: DateTimeFilter<"TrainingJob"> | Date | string
+    finalizadoAt?: DateTimeNullableFilter<"TrainingJob"> | Date | string | null
+  }
+
+  export type ModelVersionUpsertWithWhereUniqueWithoutPromovidoPorInput = {
+    where: ModelVersionWhereUniqueInput
+    update: XOR<ModelVersionUpdateWithoutPromovidoPorInput, ModelVersionUncheckedUpdateWithoutPromovidoPorInput>
+    create: XOR<ModelVersionCreateWithoutPromovidoPorInput, ModelVersionUncheckedCreateWithoutPromovidoPorInput>
+  }
+
+  export type ModelVersionUpdateWithWhereUniqueWithoutPromovidoPorInput = {
+    where: ModelVersionWhereUniqueInput
+    data: XOR<ModelVersionUpdateWithoutPromovidoPorInput, ModelVersionUncheckedUpdateWithoutPromovidoPorInput>
+  }
+
+  export type ModelVersionUpdateManyWithWhereWithoutPromovidoPorInput = {
+    where: ModelVersionScalarWhereInput
+    data: XOR<ModelVersionUpdateManyMutationInput, ModelVersionUncheckedUpdateManyWithoutPromovidoPorInput>
+  }
+
+  export type ModelVersionScalarWhereInput = {
+    AND?: ModelVersionScalarWhereInput | ModelVersionScalarWhereInput[]
+    OR?: ModelVersionScalarWhereInput[]
+    NOT?: ModelVersionScalarWhereInput | ModelVersionScalarWhereInput[]
+    id?: UuidFilter<"ModelVersion"> | string
+    version?: IntFilter<"ModelVersion"> | number
+    r2Key?: StringNullableFilter<"ModelVersion"> | string | null
+    mAP?: FloatNullableFilter<"ModelVersion"> | number | null
+    mAPBase?: FloatNullableFilter<"ModelVersion"> | number | null
+    status?: EnumModelVersionStatusFilter<"ModelVersion"> | $Enums.ModelVersionStatus
+    trainingJobId?: UuidFilter<"ModelVersion"> | string
+    promovidoPorId?: UuidNullableFilter<"ModelVersion"> | string | null
+    promovidoAt?: DateTimeNullableFilter<"ModelVersion"> | Date | string | null
+    createdAt?: DateTimeFilter<"ModelVersion"> | Date | string
+  }
+
   export type UserCreateWithoutCamposProductorInput = {
     id?: string
     email: string
@@ -15409,6 +23453,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutCamposProductorInput = {
@@ -15429,6 +23478,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutCamposProductorInput = {
@@ -15506,12 +23560,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     requester: UserCreateNestedOneWithoutAnalysesAsRequesterInput
     productor: UserCreateNestedOneWithoutAnalysesAsProductorInput
     validadoPor?: UserCreateNestedOneWithoutAnalysesValidadasInput
+    deteccionesRevisadasPor?: UserCreateNestedOneWithoutAnalysesDeteccionesRevisadasInput
     fenologiaEtapas?: FenologiaEtapaCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisUncheckedCreateWithoutCampoInput = {
@@ -15537,9 +23596,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionUncheckedCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackUncheckedCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisCreateOrConnectWithoutCampoInput = {
@@ -15581,6 +23645,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCamposProductorInput = {
@@ -15601,6 +23670,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserCampoUpsertWithWhereUniqueWithoutCampoInput = {
@@ -15669,6 +23743,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutCamposAsignadosInput = {
@@ -15689,6 +23768,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutCamposAsignadosInput = {
@@ -15754,6 +23838,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCamposAsignadosInput = {
@@ -15774,6 +23863,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type CampoUpsertWithoutUsuariosInput = {
@@ -15829,6 +23923,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutSolicitudesCreadasInput = {
@@ -15849,6 +23948,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutSolicitudesCreadasInput = {
@@ -15874,6 +23978,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutSolicitudesAsignadasInput = {
@@ -15894,6 +24003,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutSolicitudesAsignadasInput = {
@@ -15959,6 +24073,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSolicitudesCreadasInput = {
@@ -15979,6 +24098,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUpsertWithoutSolicitudesAsignadasInput = {
@@ -16010,6 +24134,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSolicitudesAsignadasInput = {
@@ -16030,6 +24159,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type CampoUpsertWithoutSolicitudesInput = {
@@ -16085,6 +24219,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutAnalysesAsRequesterInput = {
@@ -16105,6 +24244,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutAnalysesAsRequesterInput = {
@@ -16130,6 +24274,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutAnalysesAsProductorInput = {
@@ -16150,6 +24299,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutAnalysesAsProductorInput = {
@@ -16204,6 +24358,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutAnalysesValidadasInput = {
@@ -16224,11 +24383,71 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutAnalysesValidadasInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutAnalysesValidadasInput, UserUncheckedCreateWithoutAnalysesValidadasInput>
+  }
+
+  export type UserCreateWithoutAnalysesDeteccionesRevisadasInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
+    camposProductor?: CampoCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserUncheckedCreateWithoutAnalysesDeteccionesRevisadasInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
+    camposProductor?: CampoUncheckedCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisUncheckedCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserCreateOrConnectWithoutAnalysesDeteccionesRevisadasInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAnalysesDeteccionesRevisadasInput, UserUncheckedCreateWithoutAnalysesDeteccionesRevisadasInput>
   }
 
   export type FenologiaEtapaCreateWithoutAnalysisInput = {
@@ -16256,6 +24475,88 @@ export namespace Prisma {
 
   export type FenologiaEtapaCreateManyAnalysisInputEnvelope = {
     data: FenologiaEtapaCreateManyAnalysisInput | FenologiaEtapaCreateManyAnalysisInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DetectionCreateWithoutAnalysisInput = {
+    id?: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    createdAt?: Date | string
+    creadoPor?: UserCreateNestedOneWithoutDetectionsCreadasInput
+    feedback?: ModelFeedbackCreateNestedManyWithoutDetectionInput
+  }
+
+  export type DetectionUncheckedCreateWithoutAnalysisInput = {
+    id?: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    creadoPorId?: string | null
+    createdAt?: Date | string
+    feedback?: ModelFeedbackUncheckedCreateNestedManyWithoutDetectionInput
+  }
+
+  export type DetectionCreateOrConnectWithoutAnalysisInput = {
+    where: DetectionWhereUniqueInput
+    create: XOR<DetectionCreateWithoutAnalysisInput, DetectionUncheckedCreateWithoutAnalysisInput>
+  }
+
+  export type DetectionCreateManyAnalysisInputEnvelope = {
+    data: DetectionCreateManyAnalysisInput | DetectionCreateManyAnalysisInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ModelFeedbackCreateWithoutAnalysisInput = {
+    id?: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    createdAt?: Date | string
+    detection: DetectionCreateNestedOneWithoutFeedbackInput
+    creadoPor: UserCreateNestedOneWithoutModelFeedbackCreadoInput
+  }
+
+  export type ModelFeedbackUncheckedCreateWithoutAnalysisInput = {
+    id?: string
+    detectionId: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    creadoPorId: string
+    createdAt?: Date | string
+  }
+
+  export type ModelFeedbackCreateOrConnectWithoutAnalysisInput = {
+    where: ModelFeedbackWhereUniqueInput
+    create: XOR<ModelFeedbackCreateWithoutAnalysisInput, ModelFeedbackUncheckedCreateWithoutAnalysisInput>
+  }
+
+  export type ModelFeedbackCreateManyAnalysisInputEnvelope = {
+    data: ModelFeedbackCreateManyAnalysisInput | ModelFeedbackCreateManyAnalysisInput[]
     skipDuplicates?: boolean
   }
 
@@ -16288,6 +24589,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnalysesAsRequesterInput = {
@@ -16308,6 +24614,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUpsertWithoutAnalysesAsProductorInput = {
@@ -16339,6 +24650,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnalysesAsProductorInput = {
@@ -16359,6 +24675,11 @@ export namespace Prisma {
     analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type CampoUpsertWithoutAnalysesInput = {
@@ -16425,6 +24746,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAnalysesValidadasInput = {
@@ -16445,6 +24771,72 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type UserUpsertWithoutAnalysesDeteccionesRevisadasInput = {
+    update: XOR<UserUpdateWithoutAnalysesDeteccionesRevisadasInput, UserUncheckedUpdateWithoutAnalysesDeteccionesRevisadasInput>
+    create: XOR<UserCreateWithoutAnalysesDeteccionesRevisadasInput, UserUncheckedCreateWithoutAnalysesDeteccionesRevisadasInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAnalysesDeteccionesRevisadasInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAnalysesDeteccionesRevisadasInput, UserUncheckedUpdateWithoutAnalysesDeteccionesRevisadasInput>
+  }
+
+  export type UserUpdateWithoutAnalysesDeteccionesRevisadasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAnalysesDeteccionesRevisadasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUncheckedUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUncheckedUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type FenologiaEtapaUpsertWithWhereUniqueWithoutAnalysisInput = {
@@ -16476,6 +24868,38 @@ export namespace Prisma {
     diasParaCosecha?: IntFilter<"FenologiaEtapa"> | number
   }
 
+  export type DetectionUpsertWithWhereUniqueWithoutAnalysisInput = {
+    where: DetectionWhereUniqueInput
+    update: XOR<DetectionUpdateWithoutAnalysisInput, DetectionUncheckedUpdateWithoutAnalysisInput>
+    create: XOR<DetectionCreateWithoutAnalysisInput, DetectionUncheckedCreateWithoutAnalysisInput>
+  }
+
+  export type DetectionUpdateWithWhereUniqueWithoutAnalysisInput = {
+    where: DetectionWhereUniqueInput
+    data: XOR<DetectionUpdateWithoutAnalysisInput, DetectionUncheckedUpdateWithoutAnalysisInput>
+  }
+
+  export type DetectionUpdateManyWithWhereWithoutAnalysisInput = {
+    where: DetectionScalarWhereInput
+    data: XOR<DetectionUpdateManyMutationInput, DetectionUncheckedUpdateManyWithoutAnalysisInput>
+  }
+
+  export type ModelFeedbackUpsertWithWhereUniqueWithoutAnalysisInput = {
+    where: ModelFeedbackWhereUniqueInput
+    update: XOR<ModelFeedbackUpdateWithoutAnalysisInput, ModelFeedbackUncheckedUpdateWithoutAnalysisInput>
+    create: XOR<ModelFeedbackCreateWithoutAnalysisInput, ModelFeedbackUncheckedCreateWithoutAnalysisInput>
+  }
+
+  export type ModelFeedbackUpdateWithWhereUniqueWithoutAnalysisInput = {
+    where: ModelFeedbackWhereUniqueInput
+    data: XOR<ModelFeedbackUpdateWithoutAnalysisInput, ModelFeedbackUncheckedUpdateWithoutAnalysisInput>
+  }
+
+  export type ModelFeedbackUpdateManyWithWhereWithoutAnalysisInput = {
+    where: ModelFeedbackScalarWhereInput
+    data: XOR<ModelFeedbackUpdateManyMutationInput, ModelFeedbackUncheckedUpdateManyWithoutAnalysisInput>
+  }
+
   export type AnalysisCreateWithoutFenologiaEtapasInput = {
     id?: string
     imageId: string
@@ -16496,12 +24920,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     requester: UserCreateNestedOneWithoutAnalysesAsRequesterInput
     productor: UserCreateNestedOneWithoutAnalysesAsProductorInput
     campo: CampoCreateNestedOneWithoutAnalysesInput
     validadoPor?: UserCreateNestedOneWithoutAnalysesValidadasInput
+    deteccionesRevisadasPor?: UserCreateNestedOneWithoutAnalysesDeteccionesRevisadasInput
+    detections?: DetectionCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisUncheckedCreateWithoutFenologiaEtapasInput = {
@@ -16528,8 +24957,13 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    detections?: DetectionUncheckedCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackUncheckedCreateNestedManyWithoutAnalysisInput
   }
 
   export type AnalysisCreateOrConnectWithoutFenologiaEtapasInput = {
@@ -16568,12 +25002,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     requester?: UserUpdateOneRequiredWithoutAnalysesAsRequesterNestedInput
     productor?: UserUpdateOneRequiredWithoutAnalysesAsProductorNestedInput
     campo?: CampoUpdateOneRequiredWithoutAnalysesNestedInput
     validadoPor?: UserUpdateOneWithoutAnalysesValidadasNestedInput
+    deteccionesRevisadasPor?: UserUpdateOneWithoutAnalysesDeteccionesRevisadasNestedInput
+    detections?: DetectionUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateWithoutFenologiaEtapasInput = {
@@ -16600,8 +25039,1029 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    detections?: DetectionUncheckedUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUncheckedUpdateManyWithoutAnalysisNestedInput
+  }
+
+  export type AnalysisCreateWithoutDetectionsInput = {
+    id?: string
+    imageId: string
+    storageKey: string
+    requesterEmail: string
+    variedad?: string | null
+    fechaAnalisis: Date | string
+    totalElementosDetectados: number
+    elementosSanos: number
+    elementosEnfermos: number
+    porcentajeMermaGeneral: number
+    pesoSanoGramos: number
+    ubicacionLat?: number | null
+    ubicacionLng?: number | null
+    offlineSyncId?: string | null
+    validacionEstado?: $Enums.EstadoValidacion
+    validacionFueCorregido?: boolean
+    validacionDiagnosticoOriginal?: string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    requester: UserCreateNestedOneWithoutAnalysesAsRequesterInput
+    productor: UserCreateNestedOneWithoutAnalysesAsProductorInput
+    campo: CampoCreateNestedOneWithoutAnalysesInput
+    validadoPor?: UserCreateNestedOneWithoutAnalysesValidadasInput
+    deteccionesRevisadasPor?: UserCreateNestedOneWithoutAnalysesDeteccionesRevisadasInput
+    fenologiaEtapas?: FenologiaEtapaCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackCreateNestedManyWithoutAnalysisInput
+  }
+
+  export type AnalysisUncheckedCreateWithoutDetectionsInput = {
+    id?: string
+    imageId: string
+    storageKey: string
+    requesterUserId: string
+    requesterEmail: string
+    variedad?: string | null
+    fechaAnalisis: Date | string
+    totalElementosDetectados: number
+    elementosSanos: number
+    elementosEnfermos: number
+    porcentajeMermaGeneral: number
+    pesoSanoGramos: number
+    ubicacionLat?: number | null
+    ubicacionLng?: number | null
+    campoId: string
+    productorId: string
+    offlineSyncId?: string | null
+    validacionEstado?: $Enums.EstadoValidacion
+    validacionFueCorregido?: boolean
+    validacionCorregidoPorId?: string | null
+    validacionDiagnosticoOriginal?: string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    fenologiaEtapas?: FenologiaEtapaUncheckedCreateNestedManyWithoutAnalysisInput
+    modelFeedback?: ModelFeedbackUncheckedCreateNestedManyWithoutAnalysisInput
+  }
+
+  export type AnalysisCreateOrConnectWithoutDetectionsInput = {
+    where: AnalysisWhereUniqueInput
+    create: XOR<AnalysisCreateWithoutDetectionsInput, AnalysisUncheckedCreateWithoutDetectionsInput>
+  }
+
+  export type UserCreateWithoutDetectionsCreadasInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
+    camposProductor?: CampoCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserUncheckedCreateWithoutDetectionsCreadasInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
+    camposProductor?: CampoUncheckedCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisUncheckedCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserCreateOrConnectWithoutDetectionsCreadasInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDetectionsCreadasInput, UserUncheckedCreateWithoutDetectionsCreadasInput>
+  }
+
+  export type ModelFeedbackCreateWithoutDetectionInput = {
+    id?: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    createdAt?: Date | string
+    analysis: AnalysisCreateNestedOneWithoutModelFeedbackInput
+    creadoPor: UserCreateNestedOneWithoutModelFeedbackCreadoInput
+  }
+
+  export type ModelFeedbackUncheckedCreateWithoutDetectionInput = {
+    id?: string
+    analysisId: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    creadoPorId: string
+    createdAt?: Date | string
+  }
+
+  export type ModelFeedbackCreateOrConnectWithoutDetectionInput = {
+    where: ModelFeedbackWhereUniqueInput
+    create: XOR<ModelFeedbackCreateWithoutDetectionInput, ModelFeedbackUncheckedCreateWithoutDetectionInput>
+  }
+
+  export type ModelFeedbackCreateManyDetectionInputEnvelope = {
+    data: ModelFeedbackCreateManyDetectionInput | ModelFeedbackCreateManyDetectionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AnalysisUpsertWithoutDetectionsInput = {
+    update: XOR<AnalysisUpdateWithoutDetectionsInput, AnalysisUncheckedUpdateWithoutDetectionsInput>
+    create: XOR<AnalysisCreateWithoutDetectionsInput, AnalysisUncheckedCreateWithoutDetectionsInput>
+    where?: AnalysisWhereInput
+  }
+
+  export type AnalysisUpdateToOneWithWhereWithoutDetectionsInput = {
+    where?: AnalysisWhereInput
+    data: XOR<AnalysisUpdateWithoutDetectionsInput, AnalysisUncheckedUpdateWithoutDetectionsInput>
+  }
+
+  export type AnalysisUpdateWithoutDetectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    imageId?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    requesterEmail?: StringFieldUpdateOperationsInput | string
+    variedad?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAnalisis?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalElementosDetectados?: IntFieldUpdateOperationsInput | number
+    elementosSanos?: IntFieldUpdateOperationsInput | number
+    elementosEnfermos?: IntFieldUpdateOperationsInput | number
+    porcentajeMermaGeneral?: FloatFieldUpdateOperationsInput | number
+    pesoSanoGramos?: FloatFieldUpdateOperationsInput | number
+    ubicacionLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    ubicacionLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    offlineSyncId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionEstado?: EnumEstadoValidacionFieldUpdateOperationsInput | $Enums.EstadoValidacion
+    validacionFueCorregido?: BoolFieldUpdateOperationsInput | boolean
+    validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    requester?: UserUpdateOneRequiredWithoutAnalysesAsRequesterNestedInput
+    productor?: UserUpdateOneRequiredWithoutAnalysesAsProductorNestedInput
+    campo?: CampoUpdateOneRequiredWithoutAnalysesNestedInput
+    validadoPor?: UserUpdateOneWithoutAnalysesValidadasNestedInput
+    deteccionesRevisadasPor?: UserUpdateOneWithoutAnalysesDeteccionesRevisadasNestedInput
+    fenologiaEtapas?: FenologiaEtapaUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUpdateManyWithoutAnalysisNestedInput
+  }
+
+  export type AnalysisUncheckedUpdateWithoutDetectionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    imageId?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    requesterUserId?: StringFieldUpdateOperationsInput | string
+    requesterEmail?: StringFieldUpdateOperationsInput | string
+    variedad?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAnalisis?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalElementosDetectados?: IntFieldUpdateOperationsInput | number
+    elementosSanos?: IntFieldUpdateOperationsInput | number
+    elementosEnfermos?: IntFieldUpdateOperationsInput | number
+    porcentajeMermaGeneral?: FloatFieldUpdateOperationsInput | number
+    pesoSanoGramos?: FloatFieldUpdateOperationsInput | number
+    ubicacionLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    ubicacionLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    campoId?: StringFieldUpdateOperationsInput | string
+    productorId?: StringFieldUpdateOperationsInput | string
+    offlineSyncId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionEstado?: EnumEstadoValidacionFieldUpdateOperationsInput | $Enums.EstadoValidacion
+    validacionFueCorregido?: BoolFieldUpdateOperationsInput | boolean
+    validacionCorregidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fenologiaEtapas?: FenologiaEtapaUncheckedUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUncheckedUpdateManyWithoutAnalysisNestedInput
+  }
+
+  export type UserUpsertWithoutDetectionsCreadasInput = {
+    update: XOR<UserUpdateWithoutDetectionsCreadasInput, UserUncheckedUpdateWithoutDetectionsCreadasInput>
+    create: XOR<UserCreateWithoutDetectionsCreadasInput, UserUncheckedCreateWithoutDetectionsCreadasInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDetectionsCreadasInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDetectionsCreadasInput, UserUncheckedUpdateWithoutDetectionsCreadasInput>
+  }
+
+  export type UserUpdateWithoutDetectionsCreadasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDetectionsCreadasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUncheckedUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUncheckedUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type ModelFeedbackUpsertWithWhereUniqueWithoutDetectionInput = {
+    where: ModelFeedbackWhereUniqueInput
+    update: XOR<ModelFeedbackUpdateWithoutDetectionInput, ModelFeedbackUncheckedUpdateWithoutDetectionInput>
+    create: XOR<ModelFeedbackCreateWithoutDetectionInput, ModelFeedbackUncheckedCreateWithoutDetectionInput>
+  }
+
+  export type ModelFeedbackUpdateWithWhereUniqueWithoutDetectionInput = {
+    where: ModelFeedbackWhereUniqueInput
+    data: XOR<ModelFeedbackUpdateWithoutDetectionInput, ModelFeedbackUncheckedUpdateWithoutDetectionInput>
+  }
+
+  export type ModelFeedbackUpdateManyWithWhereWithoutDetectionInput = {
+    where: ModelFeedbackScalarWhereInput
+    data: XOR<ModelFeedbackUpdateManyMutationInput, ModelFeedbackUncheckedUpdateManyWithoutDetectionInput>
+  }
+
+  export type AnalysisCreateWithoutModelFeedbackInput = {
+    id?: string
+    imageId: string
+    storageKey: string
+    requesterEmail: string
+    variedad?: string | null
+    fechaAnalisis: Date | string
+    totalElementosDetectados: number
+    elementosSanos: number
+    elementosEnfermos: number
+    porcentajeMermaGeneral: number
+    pesoSanoGramos: number
+    ubicacionLat?: number | null
+    ubicacionLng?: number | null
+    offlineSyncId?: string | null
+    validacionEstado?: $Enums.EstadoValidacion
+    validacionFueCorregido?: boolean
+    validacionDiagnosticoOriginal?: string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    requester: UserCreateNestedOneWithoutAnalysesAsRequesterInput
+    productor: UserCreateNestedOneWithoutAnalysesAsProductorInput
+    campo: CampoCreateNestedOneWithoutAnalysesInput
+    validadoPor?: UserCreateNestedOneWithoutAnalysesValidadasInput
+    deteccionesRevisadasPor?: UserCreateNestedOneWithoutAnalysesDeteccionesRevisadasInput
+    fenologiaEtapas?: FenologiaEtapaCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionCreateNestedManyWithoutAnalysisInput
+  }
+
+  export type AnalysisUncheckedCreateWithoutModelFeedbackInput = {
+    id?: string
+    imageId: string
+    storageKey: string
+    requesterUserId: string
+    requesterEmail: string
+    variedad?: string | null
+    fechaAnalisis: Date | string
+    totalElementosDetectados: number
+    elementosSanos: number
+    elementosEnfermos: number
+    porcentajeMermaGeneral: number
+    pesoSanoGramos: number
+    ubicacionLat?: number | null
+    ubicacionLng?: number | null
+    campoId: string
+    productorId: string
+    offlineSyncId?: string | null
+    validacionEstado?: $Enums.EstadoValidacion
+    validacionFueCorregido?: boolean
+    validacionCorregidoPorId?: string | null
+    validacionDiagnosticoOriginal?: string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    fenologiaEtapas?: FenologiaEtapaUncheckedCreateNestedManyWithoutAnalysisInput
+    detections?: DetectionUncheckedCreateNestedManyWithoutAnalysisInput
+  }
+
+  export type AnalysisCreateOrConnectWithoutModelFeedbackInput = {
+    where: AnalysisWhereUniqueInput
+    create: XOR<AnalysisCreateWithoutModelFeedbackInput, AnalysisUncheckedCreateWithoutModelFeedbackInput>
+  }
+
+  export type DetectionCreateWithoutFeedbackInput = {
+    id?: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    createdAt?: Date | string
+    analysis: AnalysisCreateNestedOneWithoutDetectionsInput
+    creadoPor?: UserCreateNestedOneWithoutDetectionsCreadasInput
+  }
+
+  export type DetectionUncheckedCreateWithoutFeedbackInput = {
+    id?: string
+    analysisId: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    creadoPorId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DetectionCreateOrConnectWithoutFeedbackInput = {
+    where: DetectionWhereUniqueInput
+    create: XOR<DetectionCreateWithoutFeedbackInput, DetectionUncheckedCreateWithoutFeedbackInput>
+  }
+
+  export type UserCreateWithoutModelFeedbackCreadoInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
+    camposProductor?: CampoCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserUncheckedCreateWithoutModelFeedbackCreadoInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
+    camposProductor?: CampoUncheckedCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisUncheckedCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserCreateOrConnectWithoutModelFeedbackCreadoInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutModelFeedbackCreadoInput, UserUncheckedCreateWithoutModelFeedbackCreadoInput>
+  }
+
+  export type AnalysisUpsertWithoutModelFeedbackInput = {
+    update: XOR<AnalysisUpdateWithoutModelFeedbackInput, AnalysisUncheckedUpdateWithoutModelFeedbackInput>
+    create: XOR<AnalysisCreateWithoutModelFeedbackInput, AnalysisUncheckedCreateWithoutModelFeedbackInput>
+    where?: AnalysisWhereInput
+  }
+
+  export type AnalysisUpdateToOneWithWhereWithoutModelFeedbackInput = {
+    where?: AnalysisWhereInput
+    data: XOR<AnalysisUpdateWithoutModelFeedbackInput, AnalysisUncheckedUpdateWithoutModelFeedbackInput>
+  }
+
+  export type AnalysisUpdateWithoutModelFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    imageId?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    requesterEmail?: StringFieldUpdateOperationsInput | string
+    variedad?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAnalisis?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalElementosDetectados?: IntFieldUpdateOperationsInput | number
+    elementosSanos?: IntFieldUpdateOperationsInput | number
+    elementosEnfermos?: IntFieldUpdateOperationsInput | number
+    porcentajeMermaGeneral?: FloatFieldUpdateOperationsInput | number
+    pesoSanoGramos?: FloatFieldUpdateOperationsInput | number
+    ubicacionLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    ubicacionLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    offlineSyncId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionEstado?: EnumEstadoValidacionFieldUpdateOperationsInput | $Enums.EstadoValidacion
+    validacionFueCorregido?: BoolFieldUpdateOperationsInput | boolean
+    validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    requester?: UserUpdateOneRequiredWithoutAnalysesAsRequesterNestedInput
+    productor?: UserUpdateOneRequiredWithoutAnalysesAsProductorNestedInput
+    campo?: CampoUpdateOneRequiredWithoutAnalysesNestedInput
+    validadoPor?: UserUpdateOneWithoutAnalysesValidadasNestedInput
+    deteccionesRevisadasPor?: UserUpdateOneWithoutAnalysesDeteccionesRevisadasNestedInput
+    fenologiaEtapas?: FenologiaEtapaUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUpdateManyWithoutAnalysisNestedInput
+  }
+
+  export type AnalysisUncheckedUpdateWithoutModelFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    imageId?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    requesterUserId?: StringFieldUpdateOperationsInput | string
+    requesterEmail?: StringFieldUpdateOperationsInput | string
+    variedad?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAnalisis?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalElementosDetectados?: IntFieldUpdateOperationsInput | number
+    elementosSanos?: IntFieldUpdateOperationsInput | number
+    elementosEnfermos?: IntFieldUpdateOperationsInput | number
+    porcentajeMermaGeneral?: FloatFieldUpdateOperationsInput | number
+    pesoSanoGramos?: FloatFieldUpdateOperationsInput | number
+    ubicacionLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    ubicacionLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    campoId?: StringFieldUpdateOperationsInput | string
+    productorId?: StringFieldUpdateOperationsInput | string
+    offlineSyncId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionEstado?: EnumEstadoValidacionFieldUpdateOperationsInput | $Enums.EstadoValidacion
+    validacionFueCorregido?: BoolFieldUpdateOperationsInput | boolean
+    validacionCorregidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fenologiaEtapas?: FenologiaEtapaUncheckedUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUncheckedUpdateManyWithoutAnalysisNestedInput
+  }
+
+  export type DetectionUpsertWithoutFeedbackInput = {
+    update: XOR<DetectionUpdateWithoutFeedbackInput, DetectionUncheckedUpdateWithoutFeedbackInput>
+    create: XOR<DetectionCreateWithoutFeedbackInput, DetectionUncheckedCreateWithoutFeedbackInput>
+    where?: DetectionWhereInput
+  }
+
+  export type DetectionUpdateToOneWithWhereWithoutFeedbackInput = {
+    where?: DetectionWhereInput
+    data: XOR<DetectionUpdateWithoutFeedbackInput, DetectionUncheckedUpdateWithoutFeedbackInput>
+  }
+
+  export type DetectionUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    analysis?: AnalysisUpdateOneRequiredWithoutDetectionsNestedInput
+    creadoPor?: UserUpdateOneWithoutDetectionsCreadasNestedInput
+  }
+
+  export type DetectionUncheckedUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    creadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpsertWithoutModelFeedbackCreadoInput = {
+    update: XOR<UserUpdateWithoutModelFeedbackCreadoInput, UserUncheckedUpdateWithoutModelFeedbackCreadoInput>
+    create: XOR<UserCreateWithoutModelFeedbackCreadoInput, UserUncheckedCreateWithoutModelFeedbackCreadoInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutModelFeedbackCreadoInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutModelFeedbackCreadoInput, UserUncheckedUpdateWithoutModelFeedbackCreadoInput>
+  }
+
+  export type UserUpdateWithoutModelFeedbackCreadoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutModelFeedbackCreadoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUncheckedUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUncheckedUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type UserCreateWithoutTrainingJobsIniciadosInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
+    camposProductor?: CampoCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserUncheckedCreateWithoutTrainingJobsIniciadosInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
+    camposProductor?: CampoUncheckedCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisUncheckedCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
+  }
+
+  export type UserCreateOrConnectWithoutTrainingJobsIniciadosInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTrainingJobsIniciadosInput, UserUncheckedCreateWithoutTrainingJobsIniciadosInput>
+  }
+
+  export type ModelVersionCreateWithoutTrainingJobInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+    promovidoPor?: UserCreateNestedOneWithoutModelVersionsPromovidasInput
+  }
+
+  export type ModelVersionUncheckedCreateWithoutTrainingJobInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    promovidoPorId?: string | null
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelVersionCreateOrConnectWithoutTrainingJobInput = {
+    where: ModelVersionWhereUniqueInput
+    create: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+  }
+
+  export type UserUpsertWithoutTrainingJobsIniciadosInput = {
+    update: XOR<UserUpdateWithoutTrainingJobsIniciadosInput, UserUncheckedUpdateWithoutTrainingJobsIniciadosInput>
+    create: XOR<UserCreateWithoutTrainingJobsIniciadosInput, UserUncheckedCreateWithoutTrainingJobsIniciadosInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTrainingJobsIniciadosInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTrainingJobsIniciadosInput, UserUncheckedUpdateWithoutTrainingJobsIniciadosInput>
+  }
+
+  export type UserUpdateWithoutTrainingJobsIniciadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTrainingJobsIniciadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUncheckedUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUncheckedUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
+  }
+
+  export type ModelVersionUpsertWithoutTrainingJobInput = {
+    update: XOR<ModelVersionUpdateWithoutTrainingJobInput, ModelVersionUncheckedUpdateWithoutTrainingJobInput>
+    create: XOR<ModelVersionCreateWithoutTrainingJobInput, ModelVersionUncheckedCreateWithoutTrainingJobInput>
+    where?: ModelVersionWhereInput
+  }
+
+  export type ModelVersionUpdateToOneWithWhereWithoutTrainingJobInput = {
+    where?: ModelVersionWhereInput
+    data: XOR<ModelVersionUpdateWithoutTrainingJobInput, ModelVersionUncheckedUpdateWithoutTrainingJobInput>
+  }
+
+  export type ModelVersionUpdateWithoutTrainingJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    promovidoPor?: UserUpdateOneWithoutModelVersionsPromovidasNestedInput
+  }
+
+  export type ModelVersionUncheckedUpdateWithoutTrainingJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrainingJobCreateWithoutModelVersionInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+    iniciadoPor: UserCreateNestedOneWithoutTrainingJobsIniciadosInput
+  }
+
+  export type TrainingJobUncheckedCreateWithoutModelVersionInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoPorId: string
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+  }
+
+  export type TrainingJobCreateOrConnectWithoutModelVersionInput = {
+    where: TrainingJobWhereUniqueInput
+    create: XOR<TrainingJobCreateWithoutModelVersionInput, TrainingJobUncheckedCreateWithoutModelVersionInput>
+  }
+
+  export type UserCreateWithoutModelVersionsPromovidasInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoCreateNestedManyWithoutUserInput
+    camposProductor?: CampoCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+  }
+
+  export type UserUncheckedCreateWithoutModelVersionsPromovidasInput = {
+    id?: string
+    email: string
+    passwordHash: string
+    role: $Enums.Role
+    fcmToken?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    camposAsignados?: UserCampoUncheckedCreateNestedManyWithoutUserInput
+    camposProductor?: CampoUncheckedCreateNestedManyWithoutProductorInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutCreadoPorInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedCreateNestedManyWithoutAsignadoAInput
+    analysesAsRequester?: AnalysisUncheckedCreateNestedManyWithoutRequesterInput
+    analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
+    analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+  }
+
+  export type UserCreateOrConnectWithoutModelVersionsPromovidasInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutModelVersionsPromovidasInput, UserUncheckedCreateWithoutModelVersionsPromovidasInput>
+  }
+
+  export type TrainingJobUpsertWithoutModelVersionInput = {
+    update: XOR<TrainingJobUpdateWithoutModelVersionInput, TrainingJobUncheckedUpdateWithoutModelVersionInput>
+    create: XOR<TrainingJobCreateWithoutModelVersionInput, TrainingJobUncheckedCreateWithoutModelVersionInput>
+    where?: TrainingJobWhereInput
+  }
+
+  export type TrainingJobUpdateToOneWithWhereWithoutModelVersionInput = {
+    where?: TrainingJobWhereInput
+    data: XOR<TrainingJobUpdateWithoutModelVersionInput, TrainingJobUncheckedUpdateWithoutModelVersionInput>
+  }
+
+  export type TrainingJobUpdateWithoutModelVersionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    iniciadoPor?: UserUpdateOneRequiredWithoutTrainingJobsIniciadosNestedInput
+  }
+
+  export type TrainingJobUncheckedUpdateWithoutModelVersionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoPorId?: StringFieldUpdateOperationsInput | string
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserUpsertWithoutModelVersionsPromovidasInput = {
+    update: XOR<UserUpdateWithoutModelVersionsPromovidasInput, UserUncheckedUpdateWithoutModelVersionsPromovidasInput>
+    create: XOR<UserCreateWithoutModelVersionsPromovidasInput, UserUncheckedCreateWithoutModelVersionsPromovidasInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutModelVersionsPromovidasInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutModelVersionsPromovidasInput, UserUncheckedUpdateWithoutModelVersionsPromovidasInput>
+  }
+
+  export type UserUpdateWithoutModelVersionsPromovidasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutModelVersionsPromovidasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    camposAsignados?: UserCampoUncheckedUpdateManyWithoutUserNestedInput
+    camposProductor?: CampoUncheckedUpdateManyWithoutProductorNestedInput
+    solicitudesCreadas?: SolicitudMuestreoUncheckedUpdateManyWithoutCreadoPorNestedInput
+    solicitudesAsignadas?: SolicitudMuestreoUncheckedUpdateManyWithoutAsignadoANestedInput
+    analysesAsRequester?: AnalysisUncheckedUpdateManyWithoutRequesterNestedInput
+    analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
+    analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
   }
 
   export type UserCreateWithoutRefreshTokensInput = {
@@ -16622,6 +26082,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
     analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -16642,6 +26107,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
     analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -16678,6 +26148,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
     analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -16698,6 +26173,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
     analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -16718,6 +26198,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisCreateNestedManyWithoutProductorInput
     analysesValidadas?: AnalysisCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -16738,6 +26223,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisUncheckedCreateNestedManyWithoutProductorInput
     analysesValidadas?: AnalysisUncheckedCreateNestedManyWithoutValidadoPorInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    detectionsCreadas?: DetectionUncheckedCreateNestedManyWithoutCreadoPorInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedCreateNestedManyWithoutCreadoPorInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedCreateNestedManyWithoutDeteccionesRevisadasPorInput
+    trainingJobsIniciados?: TrainingJobUncheckedCreateNestedManyWithoutIniciadoPorInput
+    modelVersionsPromovidas?: ModelVersionUncheckedCreateNestedManyWithoutPromovidoPorInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -16774,6 +26264,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisUpdateManyWithoutProductorNestedInput
     analysesValidadas?: AnalysisUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -16794,6 +26289,11 @@ export namespace Prisma {
     analysesAsProductor?: AnalysisUncheckedUpdateManyWithoutProductorNestedInput
     analysesValidadas?: AnalysisUncheckedUpdateManyWithoutValidadoPorNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    detectionsCreadas?: DetectionUncheckedUpdateManyWithoutCreadoPorNestedInput
+    modelFeedbackCreado?: ModelFeedbackUncheckedUpdateManyWithoutCreadoPorNestedInput
+    analysesDeteccionesRevisadas?: AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorNestedInput
+    trainingJobsIniciados?: TrainingJobUncheckedUpdateManyWithoutIniciadoPorNestedInput
+    modelVersionsPromovidas?: ModelVersionUncheckedUpdateManyWithoutPromovidoPorNestedInput
   }
 
   export type UserCampoCreateManyUserInput = {
@@ -16854,6 +26354,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16881,6 +26384,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16908,6 +26414,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16930,6 +26439,87 @@ export namespace Prisma {
     read?: boolean
     createdAt?: Date | string
     expiresAt: Date | string
+  }
+
+  export type DetectionCreateManyCreadoPorInput = {
+    id?: string
+    analysisId: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    createdAt?: Date | string
+  }
+
+  export type ModelFeedbackCreateManyCreadoPorInput = {
+    id?: string
+    analysisId: string
+    detectionId: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AnalysisCreateManyDeteccionesRevisadasPorInput = {
+    id?: string
+    imageId: string
+    storageKey: string
+    requesterUserId: string
+    requesterEmail: string
+    variedad?: string | null
+    fechaAnalisis: Date | string
+    totalElementosDetectados: number
+    elementosSanos: number
+    elementosEnfermos: number
+    porcentajeMermaGeneral: number
+    pesoSanoGramos: number
+    ubicacionLat?: number | null
+    ubicacionLng?: number | null
+    campoId: string
+    productorId: string
+    offlineSyncId?: string | null
+    validacionEstado?: $Enums.EstadoValidacion
+    validacionFueCorregido?: boolean
+    validacionCorregidoPorId?: string | null
+    validacionDiagnosticoOriginal?: string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TrainingJobCreateManyIniciadoPorInput = {
+    id?: string
+    status?: $Enums.TrainingJobStatus
+    datasetSize?: number | null
+    errorMessage?: string | null
+    iniciadoAt?: Date | string
+    finalizadoAt?: Date | string | null
+  }
+
+  export type ModelVersionCreateManyPromovidoPorInput = {
+    id?: string
+    version: number
+    r2Key?: string | null
+    mAP?: number | null
+    mAPBase?: number | null
+    status?: $Enums.ModelVersionStatus
+    trainingJobId: string
+    promovidoAt?: Date | string | null
+    createdAt?: Date | string
   }
 
   export type UserCampoUpdateWithoutUserInput = {
@@ -17063,12 +26653,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     productor?: UserUpdateOneRequiredWithoutAnalysesAsProductorNestedInput
     campo?: CampoUpdateOneRequiredWithoutAnalysesNestedInput
     validadoPor?: UserUpdateOneWithoutAnalysesValidadasNestedInput
+    deteccionesRevisadasPor?: UserUpdateOneWithoutAnalysesDeteccionesRevisadasNestedInput
     fenologiaEtapas?: FenologiaEtapaUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateWithoutRequesterInput = {
@@ -17094,9 +26689,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUncheckedUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUncheckedUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateManyWithoutRequesterInput = {
@@ -17122,6 +26722,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17146,12 +26749,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     requester?: UserUpdateOneRequiredWithoutAnalysesAsRequesterNestedInput
     campo?: CampoUpdateOneRequiredWithoutAnalysesNestedInput
     validadoPor?: UserUpdateOneWithoutAnalysesValidadasNestedInput
+    deteccionesRevisadasPor?: UserUpdateOneWithoutAnalysesDeteccionesRevisadasNestedInput
     fenologiaEtapas?: FenologiaEtapaUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateWithoutProductorInput = {
@@ -17177,9 +26785,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUncheckedUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUncheckedUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateManyWithoutProductorInput = {
@@ -17205,6 +26818,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17229,12 +26845,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     requester?: UserUpdateOneRequiredWithoutAnalysesAsRequesterNestedInput
     productor?: UserUpdateOneRequiredWithoutAnalysesAsProductorNestedInput
     campo?: CampoUpdateOneRequiredWithoutAnalysesNestedInput
+    deteccionesRevisadasPor?: UserUpdateOneWithoutAnalysesDeteccionesRevisadasNestedInput
     fenologiaEtapas?: FenologiaEtapaUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateWithoutValidadoPorInput = {
@@ -17260,9 +26881,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUncheckedUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUncheckedUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateManyWithoutValidadoPorInput = {
@@ -17288,6 +26914,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17352,6 +26981,259 @@ export namespace Prisma {
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DetectionUpdateWithoutCreadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    analysis?: AnalysisUpdateOneRequiredWithoutDetectionsNestedInput
+    feedback?: ModelFeedbackUpdateManyWithoutDetectionNestedInput
+  }
+
+  export type DetectionUncheckedUpdateWithoutCreadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: ModelFeedbackUncheckedUpdateManyWithoutDetectionNestedInput
+  }
+
+  export type DetectionUncheckedUpdateManyWithoutCreadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelFeedbackUpdateWithoutCreadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    analysis?: AnalysisUpdateOneRequiredWithoutModelFeedbackNestedInput
+    detection?: DetectionUpdateOneRequiredWithoutFeedbackNestedInput
+  }
+
+  export type ModelFeedbackUncheckedUpdateWithoutCreadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    detectionId?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelFeedbackUncheckedUpdateManyWithoutCreadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    detectionId?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalysisUpdateWithoutDeteccionesRevisadasPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    imageId?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    requesterEmail?: StringFieldUpdateOperationsInput | string
+    variedad?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAnalisis?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalElementosDetectados?: IntFieldUpdateOperationsInput | number
+    elementosSanos?: IntFieldUpdateOperationsInput | number
+    elementosEnfermos?: IntFieldUpdateOperationsInput | number
+    porcentajeMermaGeneral?: FloatFieldUpdateOperationsInput | number
+    pesoSanoGramos?: FloatFieldUpdateOperationsInput | number
+    ubicacionLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    ubicacionLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    offlineSyncId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionEstado?: EnumEstadoValidacionFieldUpdateOperationsInput | $Enums.EstadoValidacion
+    validacionFueCorregido?: BoolFieldUpdateOperationsInput | boolean
+    validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    requester?: UserUpdateOneRequiredWithoutAnalysesAsRequesterNestedInput
+    productor?: UserUpdateOneRequiredWithoutAnalysesAsProductorNestedInput
+    campo?: CampoUpdateOneRequiredWithoutAnalysesNestedInput
+    validadoPor?: UserUpdateOneWithoutAnalysesValidadasNestedInput
+    fenologiaEtapas?: FenologiaEtapaUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUpdateManyWithoutAnalysisNestedInput
+  }
+
+  export type AnalysisUncheckedUpdateWithoutDeteccionesRevisadasPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    imageId?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    requesterUserId?: StringFieldUpdateOperationsInput | string
+    requesterEmail?: StringFieldUpdateOperationsInput | string
+    variedad?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAnalisis?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalElementosDetectados?: IntFieldUpdateOperationsInput | number
+    elementosSanos?: IntFieldUpdateOperationsInput | number
+    elementosEnfermos?: IntFieldUpdateOperationsInput | number
+    porcentajeMermaGeneral?: FloatFieldUpdateOperationsInput | number
+    pesoSanoGramos?: FloatFieldUpdateOperationsInput | number
+    ubicacionLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    ubicacionLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    campoId?: StringFieldUpdateOperationsInput | string
+    productorId?: StringFieldUpdateOperationsInput | string
+    offlineSyncId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionEstado?: EnumEstadoValidacionFieldUpdateOperationsInput | $Enums.EstadoValidacion
+    validacionFueCorregido?: BoolFieldUpdateOperationsInput | boolean
+    validacionCorregidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fenologiaEtapas?: FenologiaEtapaUncheckedUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUncheckedUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUncheckedUpdateManyWithoutAnalysisNestedInput
+  }
+
+  export type AnalysisUncheckedUpdateManyWithoutDeteccionesRevisadasPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    imageId?: StringFieldUpdateOperationsInput | string
+    storageKey?: StringFieldUpdateOperationsInput | string
+    requesterUserId?: StringFieldUpdateOperationsInput | string
+    requesterEmail?: StringFieldUpdateOperationsInput | string
+    variedad?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAnalisis?: DateTimeFieldUpdateOperationsInput | Date | string
+    totalElementosDetectados?: IntFieldUpdateOperationsInput | number
+    elementosSanos?: IntFieldUpdateOperationsInput | number
+    elementosEnfermos?: IntFieldUpdateOperationsInput | number
+    porcentajeMermaGeneral?: FloatFieldUpdateOperationsInput | number
+    pesoSanoGramos?: FloatFieldUpdateOperationsInput | number
+    ubicacionLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    ubicacionLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    campoId?: StringFieldUpdateOperationsInput | string
+    productorId?: StringFieldUpdateOperationsInput | string
+    offlineSyncId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionEstado?: EnumEstadoValidacionFieldUpdateOperationsInput | $Enums.EstadoValidacion
+    validacionFueCorregido?: BoolFieldUpdateOperationsInput | boolean
+    validacionCorregidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
+    validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
+    validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrainingJobUpdateWithoutIniciadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    modelVersion?: ModelVersionUpdateOneWithoutTrainingJobNestedInput
+  }
+
+  export type TrainingJobUncheckedUpdateWithoutIniciadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    modelVersion?: ModelVersionUncheckedUpdateOneWithoutTrainingJobNestedInput
+  }
+
+  export type TrainingJobUncheckedUpdateManyWithoutIniciadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumTrainingJobStatusFieldUpdateOperationsInput | $Enums.TrainingJobStatus
+    datasetSize?: NullableIntFieldUpdateOperationsInput | number | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciadoAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finalizadoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ModelVersionUpdateWithoutPromovidoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    trainingJob?: TrainingJobUpdateOneRequiredWithoutModelVersionNestedInput
+  }
+
+  export type ModelVersionUncheckedUpdateWithoutPromovidoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    trainingJobId?: StringFieldUpdateOperationsInput | string
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelVersionUncheckedUpdateManyWithoutPromovidoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    r2Key?: NullableStringFieldUpdateOperationsInput | string | null
+    mAP?: NullableFloatFieldUpdateOperationsInput | number | null
+    mAPBase?: NullableFloatFieldUpdateOperationsInput | number | null
+    status?: EnumModelVersionStatusFieldUpdateOperationsInput | $Enums.ModelVersionStatus
+    trainingJobId?: StringFieldUpdateOperationsInput | string
+    promovidoAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserCampoCreateManyCampoInput = {
     userId: string
   }
@@ -17390,6 +27272,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: string | null
+    deteccionesRevisadas?: boolean
+    deteccionesRevisadasPorId?: string | null
+    deteccionesRevisadasAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17459,12 +27344,17 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     requester?: UserUpdateOneRequiredWithoutAnalysesAsRequesterNestedInput
     productor?: UserUpdateOneRequiredWithoutAnalysesAsProductorNestedInput
     validadoPor?: UserUpdateOneWithoutAnalysesValidadasNestedInput
+    deteccionesRevisadasPor?: UserUpdateOneWithoutAnalysesDeteccionesRevisadasNestedInput
     fenologiaEtapas?: FenologiaEtapaUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateWithoutCampoInput = {
@@ -17490,9 +27380,14 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fenologiaEtapas?: FenologiaEtapaUncheckedUpdateManyWithoutAnalysisNestedInput
+    detections?: DetectionUncheckedUpdateManyWithoutAnalysisNestedInput
+    modelFeedback?: ModelFeedbackUncheckedUpdateManyWithoutAnalysisNestedInput
   }
 
   export type AnalysisUncheckedUpdateManyWithoutCampoInput = {
@@ -17518,6 +27413,9 @@ export namespace Prisma {
     validacionDiagnosticoOriginal?: NullableStringFieldUpdateOperationsInput | string | null
     validacionCronogramaCorregido?: NullableJsonNullValueInput | InputJsonValue
     validacionObservaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadas?: BoolFieldUpdateOperationsInput | boolean
+    deteccionesRevisadasPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    deteccionesRevisadasAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17529,6 +27427,36 @@ export namespace Prisma {
     cambiaA: string
     enDias: number
     diasParaCosecha: number
+  }
+
+  export type DetectionCreateManyAnalysisInput = {
+    id?: string
+    origen?: $Enums.OrigenDeteccion
+    claseDetectada?: string | null
+    etapaDetectada: string
+    saludDetectada?: $Enums.EstadoSalud
+    confidence?: number | null
+    bboxX1: number
+    bboxY1: number
+    bboxX2: number
+    bboxY2: number
+    creadoPorId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ModelFeedbackCreateManyAnalysisInput = {
+    id?: string
+    detectionId: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    creadoPorId: string
+    createdAt?: Date | string
   }
 
   export type FenologiaEtapaUpdateWithoutAnalysisInput = {
@@ -17556,6 +27484,158 @@ export namespace Prisma {
     cambiaA?: StringFieldUpdateOperationsInput | string
     enDias?: IntFieldUpdateOperationsInput | number
     diasParaCosecha?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DetectionUpdateWithoutAnalysisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    creadoPor?: UserUpdateOneWithoutDetectionsCreadasNestedInput
+    feedback?: ModelFeedbackUpdateManyWithoutDetectionNestedInput
+  }
+
+  export type DetectionUncheckedUpdateWithoutAnalysisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    creadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: ModelFeedbackUncheckedUpdateManyWithoutDetectionNestedInput
+  }
+
+  export type DetectionUncheckedUpdateManyWithoutAnalysisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    origen?: EnumOrigenDeteccionFieldUpdateOperationsInput | $Enums.OrigenDeteccion
+    claseDetectada?: NullableStringFieldUpdateOperationsInput | string | null
+    etapaDetectada?: StringFieldUpdateOperationsInput | string
+    saludDetectada?: EnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud
+    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX1?: FloatFieldUpdateOperationsInput | number
+    bboxY1?: FloatFieldUpdateOperationsInput | number
+    bboxX2?: FloatFieldUpdateOperationsInput | number
+    bboxY2?: FloatFieldUpdateOperationsInput | number
+    creadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelFeedbackUpdateWithoutAnalysisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    detection?: DetectionUpdateOneRequiredWithoutFeedbackNestedInput
+    creadoPor?: UserUpdateOneRequiredWithoutModelFeedbackCreadoNestedInput
+  }
+
+  export type ModelFeedbackUncheckedUpdateWithoutAnalysisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    detectionId?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoPorId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelFeedbackUncheckedUpdateManyWithoutAnalysisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    detectionId?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoPorId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelFeedbackCreateManyDetectionInput = {
+    id?: string
+    analysisId: string
+    accion: $Enums.AccionFeedback
+    etapaCorregida?: string | null
+    saludCorregida?: $Enums.EstadoSalud | null
+    bboxX1?: number | null
+    bboxY1?: number | null
+    bboxX2?: number | null
+    bboxY2?: number | null
+    observaciones?: string | null
+    creadoPorId: string
+    createdAt?: Date | string
+  }
+
+  export type ModelFeedbackUpdateWithoutDetectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    analysis?: AnalysisUpdateOneRequiredWithoutModelFeedbackNestedInput
+    creadoPor?: UserUpdateOneRequiredWithoutModelFeedbackCreadoNestedInput
+  }
+
+  export type ModelFeedbackUncheckedUpdateWithoutDetectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoPorId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ModelFeedbackUncheckedUpdateManyWithoutDetectionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisId?: StringFieldUpdateOperationsInput | string
+    accion?: EnumAccionFeedbackFieldUpdateOperationsInput | $Enums.AccionFeedback
+    etapaCorregida?: NullableStringFieldUpdateOperationsInput | string | null
+    saludCorregida?: NullableEnumEstadoSaludFieldUpdateOperationsInput | $Enums.EstadoSalud | null
+    bboxX1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY1?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxX2?: NullableFloatFieldUpdateOperationsInput | number | null
+    bboxY2?: NullableFloatFieldUpdateOperationsInput | number | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoPorId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

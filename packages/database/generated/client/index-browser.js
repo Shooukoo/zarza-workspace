@@ -184,6 +184,9 @@ exports.Prisma.AnalysisScalarFieldEnum = {
   validacionDiagnosticoOriginal: 'validacionDiagnosticoOriginal',
   validacionCronogramaCorregido: 'validacionCronogramaCorregido',
   validacionObservaciones: 'validacionObservaciones',
+  deteccionesRevisadas: 'deteccionesRevisadas',
+  deteccionesRevisadasPorId: 'deteccionesRevisadasPorId',
+  deteccionesRevisadasAt: 'deteccionesRevisadasAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -196,6 +199,61 @@ exports.Prisma.FenologiaEtapaScalarFieldEnum = {
   cambiaA: 'cambiaA',
   enDias: 'enDias',
   diasParaCosecha: 'diasParaCosecha'
+};
+
+exports.Prisma.DetectionScalarFieldEnum = {
+  id: 'id',
+  analysisId: 'analysisId',
+  origen: 'origen',
+  claseDetectada: 'claseDetectada',
+  etapaDetectada: 'etapaDetectada',
+  saludDetectada: 'saludDetectada',
+  confidence: 'confidence',
+  bboxX1: 'bboxX1',
+  bboxY1: 'bboxY1',
+  bboxX2: 'bboxX2',
+  bboxY2: 'bboxY2',
+  creadoPorId: 'creadoPorId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ModelFeedbackScalarFieldEnum = {
+  id: 'id',
+  analysisId: 'analysisId',
+  detectionId: 'detectionId',
+  accion: 'accion',
+  etapaCorregida: 'etapaCorregida',
+  saludCorregida: 'saludCorregida',
+  bboxX1: 'bboxX1',
+  bboxY1: 'bboxY1',
+  bboxX2: 'bboxX2',
+  bboxY2: 'bboxY2',
+  observaciones: 'observaciones',
+  creadoPorId: 'creadoPorId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.TrainingJobScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  datasetSize: 'datasetSize',
+  errorMessage: 'errorMessage',
+  iniciadoPorId: 'iniciadoPorId',
+  iniciadoAt: 'iniciadoAt',
+  finalizadoAt: 'finalizadoAt'
+};
+
+exports.Prisma.ModelVersionScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  r2Key: 'r2Key',
+  mAP: 'mAP',
+  mAPBase: 'mAPBase',
+  status: 'status',
+  trainingJobId: 'trainingJobId',
+  promovidoPorId: 'promovidoPorId',
+  promovidoAt: 'promovidoAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.RefreshTokenScalarFieldEnum = {
@@ -265,6 +323,36 @@ exports.EstadoValidacion = exports.$Enums.EstadoValidacion = {
   rechazado: 'rechazado'
 };
 
+exports.OrigenDeteccion = exports.$Enums.OrigenDeteccion = {
+  MODELO: 'MODELO',
+  HUMANO: 'HUMANO'
+};
+
+exports.EstadoSalud = exports.$Enums.EstadoSalud = {
+  SANO: 'SANO',
+  ENFERMO: 'ENFERMO'
+};
+
+exports.AccionFeedback = exports.$Enums.AccionFeedback = {
+  EDITAR: 'EDITAR',
+  ELIMINAR: 'ELIMINAR'
+};
+
+exports.TrainingJobStatus = exports.$Enums.TrainingJobStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+exports.ModelVersionStatus = exports.$Enums.ModelVersionStatus = {
+  ENTRENADO: 'ENTRENADO',
+  LISTO_PARA_PROMOVER: 'LISTO_PARA_PROMOVER',
+  DESCARTADO: 'DESCARTADO',
+  PROMOVIDO: 'PROMOVIDO',
+  REEMPLAZADO: 'REEMPLAZADO'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Campo: 'Campo',
@@ -272,6 +360,10 @@ exports.Prisma.ModelName = {
   SolicitudMuestreo: 'SolicitudMuestreo',
   Analysis: 'Analysis',
   FenologiaEtapa: 'FenologiaEtapa',
+  Detection: 'Detection',
+  ModelFeedback: 'ModelFeedback',
+  TrainingJob: 'TrainingJob',
+  ModelVersion: 'ModelVersion',
   RefreshToken: 'RefreshToken',
   Notification: 'Notification'
 };

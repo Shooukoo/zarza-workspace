@@ -7,10 +7,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
   Cell,
-  Legend,
 } from 'recharts';
 import {
   useYieldForecast,
@@ -39,7 +36,7 @@ function chipFor(color: string) {
   return CHIP[color] ?? { bg: '#F3F4F6', fg: '#374151' };
 }
 
-function formatPercent(value: number) {
+function formatDecimal(value: number) {
   return new Intl.NumberFormat('es-MX', {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
@@ -285,7 +282,7 @@ export function DashboardPage() {
                     contentStyle={{ background: T.surface, border: `1px solid ${T.grayLine}`, borderRadius: 10, fontFamily: 'Lexend', fontSize: 12, boxShadow: '0 8px 24px rgba(17,17,40,0.10)' }}
                     labelStyle={{ color: T.gray }}
                     itemStyle={{ color: T.ink }}
-                    formatter={(v) => [`${v as number} g`, 'Peso estimado']}
+                    formatter={(v) => [`${formatDecimal(v as number)} g`, 'Peso estimado']}
                     labelFormatter={(l) => `${l} días`}
                   />
                   <Bar dataKey="estimatedWeightGrams" shape={(props: unknown) => <GradientBar {...(props as Record<string, unknown>)}/>}/>
@@ -294,7 +291,7 @@ export function DashboardPage() {
             )}
           </SurfaceCard>
 
-          {/* Phenology donut */}
+          {/* Phenology bar chart */}
           <SurfaceCard>
             <div style={{ fontSize: 15, fontWeight: 600, color: T.ink, marginBottom: 4 }}>Distribución Fenológica</div>
             <div style={{ fontSize: 12, color: T.gray, marginBottom: 16 }}>Por etapa de madurez</div>
@@ -302,37 +299,40 @@ export function DashboardPage() {
               <div role="status" aria-label="Cargando…" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}><Spin/></div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
+                <BarChart
+                  data={phenologyQuery.data ?? []}
+                  layout="vertical"
+                  margin={{ top: 4, right: 12, bottom: 4, left: 0 }}
+                >
                   <defs>
                     {phenoColors.map((c, i) => (
-                      <linearGradient key={i} id={`pc${i}`} x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor={c} stopOpacity="0.9"/>
-                        <stop offset="100%" stopColor={c} stopOpacity="0.6"/>
+                      <linearGradient key={i} id={`pc${i}`} x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor={c} stopOpacity="0.6"/>
+                        <stop offset="100%" stopColor={c} stopOpacity="0.9"/>
                       </linearGradient>
                     ))}
                   </defs>
-                  <Pie
-                    data={phenologyQuery.data ?? []}
-                    dataKey="count"
-                    nameKey="stage"
-                    innerRadius="45%"
-                    outerRadius="70%"
-                    paddingAngle={3}
-                    strokeWidth={0}
-                  >
-                    {(phenologyQuery.data ?? []).map((_, i) => (
-                      <Cell key={i} fill={`url(#pc${i % phenoColors.length})`}/>
-                    ))}
-                  </Pie>
+                  <XAxis type="number" hide/>
+                  <YAxis
+                    dataKey="stage"
+                    type="category"
+                    width={90}
+                    tick={{ fill: T.gray, fontSize: 11, fontFamily: 'Lexend' }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <Tooltip
+                    cursor={{ fill: 'rgba(17,17,40,0.04)' }}
                     contentStyle={{ background: T.surface, border: `1px solid ${T.grayLine}`, borderRadius: 10, fontFamily: 'Lexend', fontSize: 12, boxShadow: '0 8px 24px rgba(17,17,40,0.10)' }}
                     itemStyle={{ color: T.ink }}
                     formatter={(v) => [v as number, 'Elementos']}
                   />
-                  <Legend
-                    wrapperStyle={{ fontSize: 11, fontFamily: 'Lexend', color: T.gray }}
-                  />
-                </PieChart>
+                  <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={14}>
+                    {(phenologyQuery.data ?? []).map((_, i) => (
+                      <Cell key={i} fill={`url(#pc${i % phenoColors.length})`}/>
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             )}
           </SurfaceCard>
@@ -355,7 +355,7 @@ export function DashboardPage() {
                 </div>
                 <div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: T.ink, lineHeight: 1 }}>
-                    {formatPercent(mermaCard.value)}
+                    {formatDecimal(mermaCard.value)}
                     <span style={{ fontSize: 14, fontWeight: 400, color: T.gray, marginLeft: 2 }}>{mermaCard.unit}</span>
                   </div>
                   <div style={{ fontSize: 12, color: T.gray, marginTop: 4 }}>{mermaCard.label}</div>

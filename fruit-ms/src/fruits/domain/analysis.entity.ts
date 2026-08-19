@@ -25,6 +25,14 @@ export type EtapaFenologica = {
   prediccion: Prediccion;
 };
 
+export type Deteccion = {
+  clase: string;
+  etapa: string;
+  sano: boolean;
+  confidence: number;
+  bbox: [number, number, number, number];
+};
+
 export type MetricasSalud = {
   total_elementos_detectados: number;
   elementos_sanos: number;
@@ -64,6 +72,7 @@ export interface AnalysisDomain {
   metricas_salud: MetricasSalud;
   proyeccion_financiera: ProyeccionFinanciera;
   cronograma_fenologico: EtapaFenologica[];
+  detecciones: Deteccion[];
 
   // ── V2: trazabilidad, geolocalización, offline, validación ──
   /** ObjectId del campo donde se realizó el muestreo (como string). Opcional para retro-compat. */

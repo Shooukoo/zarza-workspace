@@ -56,6 +56,13 @@ export class InferenceMapper {
           dias_para_cosecha: etapa.prediccion.dias_para_cosecha,
         },
       })),
+      detecciones: dto.detecciones.map((d) => ({
+        clase: d.clase,
+        etapa: d.etapa,
+        sano: d.sano,
+        confidence: d.confidence,
+        bbox: d.bbox,
+      })),
       // V2 fields
       campo_id: context?.campoId ?? null,
       productor_id: context?.productorId ?? requester.userId,

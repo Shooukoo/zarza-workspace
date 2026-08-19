@@ -7,4 +7,9 @@ export interface IStoragePort {
     mimeType: string,
   ): Promise<string>;
   getPresignedUrl(key: string, expiresIn: number): Promise<string>;
+  downloadBuffer(key: string): Promise<Buffer>;
+  getOrCreateDisplayVariant(
+    originalKey: string,
+    maxSide: number,
+  ): Promise<{ key: string; originalWidth: number; originalHeight: number }>;
 }

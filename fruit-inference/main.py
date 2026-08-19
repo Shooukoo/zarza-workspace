@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 # INFERENCE_AUTH_TOKEN a nivel de módulo (fail-fast).
 load_dotenv()
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from ultralytics import YOLO
@@ -38,6 +38,7 @@ from infrastructure.logger import AppLogger
 MODEL_PATH          = os.getenv("MODEL_PATH", "model.pt")
 R2_BUCKET           = os.getenv("R2_BUCKET_NAME", "")
 CONF_THRESHOLD      = float(os.getenv("CONF_THRESHOLD", "0.25"))
+ENABLE_COLOR_PREPROCESSING = os.getenv("ENABLE_COLOR_PREPROCESSING", "false").lower() == "true"
 PREPROCESSING_DEBUG = os.getenv("PREPROCESSING_DEBUG", "false").lower() == "true"
 MAX_IMAGE_SIZE_BYTES = int(os.getenv("MAX_IMAGE_SIZE_MB", "5")) * 1_000_000
 
@@ -105,19 +106,24 @@ def analyze(request: Request, req: AnalyzeRequest):
     # 3. Decodificar una sola vez a BGR
     bgr_img = bytes_to_bgr(image_bytes)
 
-    # 4. Preprocesar (fallback a imagen original si algo falla)
+    # 4. Preprocesar (opcional; desactivado por defecto, ver ENABLE_COLOR_PREPROCESSING)
     debug_meta = None
-    try:
-        if PREPROCESSING_DEBUG:
-            bgr_preprocessed, debug_meta = preprocess(bgr_img, return_debug=True)
-        else:
-            bgr_preprocessed = preprocess(bgr_img)
-    except Exception as e:
-        logger.warn(
-            "Preprocesamiento falló, usando imagen original",
-            error=str(e),
-        )
+    if ENABLE_COLOR_PREPROCESSING:
+        try:
+            if PREPROCESSING_DEBUG:
+                bgr_preprocessed, debug_meta = preprocess(bgr_img, return_debug=True)
+            else:
+                bgr_preprocessed = preprocess(bgr_img)
+        except Exception as e:
+            logger.warn(
+                "Preprocesamiento falló, usando imagen original",
+                error=str(e),
+            )
+            bgr_preprocessed = bgr_img
+    else:
         bgr_preprocessed = bgr_img
+        if PREPROCESSING_DEBUG:
+            debug_meta = {"preprocessing_enabled": False}
 
     # 5. Inferencia YOLO
     detections = run_inference(state["model"], bgr_preprocessed, CONF_THRESHOLD)
@@ -135,3 +141,16 @@ def analyze(request: Request, req: AnalyzeRequest):
     )
 
     return JSONResponse(content=report)
+
+
+@app.post(
+    "/internal/prepare-restart", dependencies=[Depends(verify_inference_token)]
+)
+def prepare_restart(background_tasks: BackgroundTasks):
+    """
+    Responde 200 de inmediato y, tras enviar la respuesta, termina el proceso.
+    Docker (restart: unless-stopped) relanza el contenedor y el lifespan
+    recoge el best.pt reemplazado sin cambios adicionales.
+    """
+    background_tasks.add_task(os._exit, 0)
+    return {"status": "restarting"}

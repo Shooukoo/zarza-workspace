@@ -23,10 +23,12 @@ const GROUP_CAMPO: NavItem[] = [
   { key: '/campos', label: 'Campos / Huertas', roles: [Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO] },
   { key: '/solicitudes', label: 'Solicitudes', roles: [Role.ADMIN, Role.AGRONOMO, Role.MONITOR] },
   { key: '/analisis', label: 'Revisión IA', roles: [Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR] },
+  { key: '/revision-detecciones', label: 'Revisión de Detecciones', roles: [Role.ADMIN, Role.AGRONOMO] },
 ];
 
 const GROUP_ADMIN: NavItem[] = [
   { key: '/usuarios', label: 'Usuarios', roles: [Role.ADMIN] },
+  { key: '/modelos-ia', label: 'Modelos IA', roles: [Role.ADMIN] },
 ];
 
 const NAV_GROUPS: NavItem[][] = [GROUP_VISION, GROUP_CAMPO, GROUP_ADMIN];

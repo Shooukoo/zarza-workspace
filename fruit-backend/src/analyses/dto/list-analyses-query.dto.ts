@@ -11,6 +11,15 @@ export const ANALYSIS_ESTADO_VALUES = [
 
 export type AnalysisEstadoFilter = (typeof ANALYSIS_ESTADO_VALUES)[number];
 
+export const REVISION_DETECCIONES_VALUES = [
+  'pendiente',
+  'revisado',
+  'all',
+] as const;
+
+export type RevisionDeteccionesFilter =
+  (typeof REVISION_DETECCIONES_VALUES)[number];
+
 export class ListAnalysesQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
     enum: ANALYSIS_ESTADO_VALUES,
@@ -29,4 +38,12 @@ export class ListAnalysesQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   campo_id?: string;
+
+  @ApiPropertyOptional({
+    enum: REVISION_DETECCIONES_VALUES,
+    description: 'Filtrar por estado de revisión de detecciones.',
+  })
+  @IsOptional()
+  @IsIn(REVISION_DETECCIONES_VALUES)
+  revision_detecciones?: RevisionDeteccionesFilter;
 }

@@ -1,6 +1,7 @@
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import '@fastify/multipart';
+import { Readable } from 'stream';
 import { ParsedMultipartDto } from '../dto/parsed-multipart.dto';
 
 /**
@@ -16,10 +17,9 @@ export class MultipartImagePipe implements PipeTransform<
   async transform(req: FastifyRequest): Promise<ParsedMultipartDto> {
     const parts = req.parts();
     let capturedAt: Date | null = null;
-    let fileResult: Pick<
-      ParsedMultipartDto,
-      'file' | 'filename' | 'mimetype'
-    > | null = null;
+    let fileMeta: Pick<ParsedMultipartDto, 'filename' | 'mimetype'> | null =
+      null;
+    let fileBuffer: Buffer | null = null;
 
     // V2 metadata
     let campoId: string | null = null;
@@ -73,21 +73,26 @@ export class MultipartImagePipe implements PipeTransform<
       }
 
       if (part.type === 'file') {
-        fileResult = {
-          file: part.file,
+        // Se bufferiza aquí (en vez de pasar part.file como stream) para poder
+        // seguir consumiendo el iterador y capturar campos de metadata que
+        // lleguen después del archivo — busboy bloquea el avance del parseo
+        // hasta que el stream del part actual se consume.
+        fileMeta = {
           filename: part.filename,
           mimetype: part.mimetype,
         };
-        break;
+        fileBuffer = await part.toBuffer();
       }
     }
 
-    if (!fileResult) {
+    if (!fileMeta || !fileBuffer) {
       throw new BadRequestException('No file uploaded');
     }
 
     return {
-      ...fileResult,
+      file: Readable.from(fileBuffer),
+      filename: fileMeta.filename,
+      mimetype: fileMeta.mimetype,
       capturedAt,
       campoId,
       productorId,

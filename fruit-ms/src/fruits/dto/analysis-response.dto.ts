@@ -1,11 +1,14 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsNumber,
   IsString,
   IsDateString,
   ValidateNested,
   IsOptional,
+  ArrayMinSize,
+  ArrayMaxSize,
 } from 'class-validator';
 
 export class MetricasSaludDto {
@@ -50,6 +53,26 @@ export class EtapaFenologicaDto {
   prediccion: PrediccionDto;
 }
 
+export class DeteccionDto {
+  @IsString()
+  clase: string;
+
+  @IsString()
+  etapa: string;
+
+  @IsBoolean()
+  sano: boolean;
+
+  @IsNumber()
+  confidence: number;
+
+  @IsArray()
+  @ArrayMinSize(4)
+  @ArrayMaxSize(4)
+  @IsNumber({}, { each: true })
+  bbox: [number, number, number, number];
+}
+
 /** DTO para la respuesta completa de fruit-inference POST /analyze */
 export class AnalysisResponseDto {
   @IsString()
@@ -74,4 +97,9 @@ export class AnalysisResponseDto {
   @ValidateNested({ each: true })
   @Type(() => EtapaFenologicaDto)
   cronograma_fenologico: EtapaFenologicaDto[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => DeteccionDto)
+  detecciones: DeteccionDto[];
 }

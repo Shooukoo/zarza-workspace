@@ -14,6 +14,11 @@ def preprocess(
     """
     Aplica Gray World White Balance + CLAHE a una imagen BGR de OpenCV.
 
+    Desactivado por defecto en main.py (ver ENABLE_COLOR_PREPROCESSING): el
+    modelo se entrenó sin ninguna corrección determinista de color, y este
+    preprocesado reducía las detecciones frente al pipeline de entrenamiento.
+    Solo se invoca para pruebas A/B puntuales.
+
     Args:
         bgr_img:      Array BGR uint8 de OpenCV.
         return_debug: Si True, retorna (imagen, metadata_dict).

@@ -162,7 +162,7 @@ export function LoginPage() {
 
             <div style={{ marginTop: 56 }}>
               <span style={{ fontSize: 11, color: '#9CA3AF' }}>
-                Plataforma de inteligencia agrícola · <span style={{ color: T.emerald, fontWeight: 600 }}>v2.0</span>
+                Plataforma de inteligencia agrícola · <span style={{ color: T.emerald, fontWeight: 600 }}>v1.0</span>
               </span>
             </div>
           </div>
