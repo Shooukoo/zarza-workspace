@@ -78,7 +78,7 @@ export function CamposPage() {
           >
             Editar límites
           </Button>
-        ) : record.poligonoGps ? (
+        ) : (record.poligonoGps?.length ?? 0) >= 3 ? (
           <Tag color="green">Definidos</Tag>
         ) : (
           <Tag>Sin definir</Tag>
