@@ -5,10 +5,11 @@ import {
   Select,
   Space,
   Table,
+  Tag,
   Typography,
   notification,
 } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import {
   useCampos,
@@ -18,6 +19,7 @@ import {
   type Campo,
 } from './hooks/useCampos';
 import { CreateCampoModal } from './CreateCampoModal';
+import { EditCampoPolygonModal } from './EditCampoPolygonModal';
 import { useAuth } from '../auth/useAuth';
 import { Role } from '../auth/types';
 
@@ -30,9 +32,15 @@ export function CamposPage() {
   const agronoms = useAgronomosList(user?.role === Role.ADMIN);
   const assignMutation = useAssignAgronomoToCampo();
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingCampo, setEditingCampo] = useState<Campo | null>(null);
 
   const canCreate = user?.role === Role.ADMIN || user?.role === Role.PRODUCTOR;
   const canDelete = user?.role === Role.ADMIN;
+
+  function canEditPoligono(campo: Campo): boolean {
+    if (user?.role === Role.ADMIN) return true;
+    return user?.role === Role.PRODUCTOR && campo.productorId === user.sub;
+  }
 
   async function handleDelete(id: string) {
     try {
@@ -57,6 +65,24 @@ export function CamposPage() {
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (v: string) => new Date(v).toLocaleDateString('es-MX'),
+    },
+    {
+      title: 'Límites',
+      key: 'poligono',
+      render: (_: unknown, record: Campo) =>
+        canEditPoligono(record) ? (
+          <Button
+            size="small"
+            icon={<EnvironmentOutlined />}
+            onClick={() => setEditingCampo(record)}
+          >
+            Editar límites
+          </Button>
+        ) : (record.poligonoGps?.length ?? 0) >= 3 ? (
+          <Tag color="green">Definidos</Tag>
+        ) : (
+          <Tag>Sin definir</Tag>
+        ),
     },
     ...(canDelete
       ? [
@@ -157,6 +183,12 @@ export function CamposPage() {
       <CreateCampoModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
+      />
+
+      <EditCampoPolygonModal
+        campo={editingCampo}
+        open={!!editingCampo}
+        onClose={() => setEditingCampo(null)}
       />
     </div>
   );

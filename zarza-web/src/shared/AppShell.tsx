@@ -21,6 +21,7 @@ const GROUP_VISION: NavItem[] = [
 
 const GROUP_CAMPO: NavItem[] = [
   { key: '/campos', label: 'Campos / Huertas', roles: [Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO] },
+  { key: '/mapas-calor', label: 'Mapas de Calor', roles: [Role.ADMIN, Role.PRODUCTOR, Role.AGRONOMO] },
   { key: '/solicitudes', label: 'Solicitudes', roles: [Role.ADMIN, Role.AGRONOMO, Role.MONITOR] },
   { key: '/analisis', label: 'Revisión IA', roles: [Role.ADMIN, Role.AGRONOMO, Role.PRODUCTOR] },
   { key: '/revision-detecciones', label: 'Revisión de Detecciones', roles: [Role.ADMIN, Role.AGRONOMO] },
@@ -54,7 +55,7 @@ function TopBar({ user, activePath, scrolled, onLogout }: {
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? '?';
 
   return (
-    <div style={{
+    <div className="app-topbar" style={{
       display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 20,
       padding: '16px 32px', flexShrink: 0,
       background: scrolled ? T.surface : 'transparent',

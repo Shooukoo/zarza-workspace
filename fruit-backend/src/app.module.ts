@@ -11,6 +11,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/infrastructure/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { CamposModule } from './campos/campos.module';
+import { MapasCalorModule } from './mapas-calor/mapas-calor.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
 import { AnalysesModule } from './analyses/analyses.module';
 import { TrainingModule } from './training/training.module';
@@ -61,6 +62,7 @@ import { envs } from './config/envs';
     FruitsQueryModule,
     NotificationsModule,
     CamposModule,
+    MapasCalorModule,
     SolicitudesModule,
     AnalysesModule,
     TrainingModule,

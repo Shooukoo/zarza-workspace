@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button, Space, Table, Tabs, Tag, Typography, notification } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useAnalisisList, useValidateAnalisis } from './useAnalisis';
@@ -126,6 +127,20 @@ function AnalisisTab({ estado }: { estado: EstadoValidacion }) {
 }
 
 export function AnalisisPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const deepLinkId = searchParams.get('id');
+
+  function closeDeepLink() {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('id');
+        return next;
+      },
+      { replace: true },
+    );
+  }
+
   return (
     <div>
       <Title level={4} style={{ marginBottom: 16 }}>
@@ -150,6 +165,11 @@ export function AnalisisPage() {
             children: <AnalisisTab estado="rechazado" />,
           },
         ]}
+      />
+      <AnalisisDetailModal
+        analysisId={deepLinkId}
+        open={!!deepLinkId}
+        onClose={closeDeepLink}
       />
     </div>
   );

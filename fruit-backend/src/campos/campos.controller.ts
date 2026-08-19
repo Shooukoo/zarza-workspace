@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Param,
   Body,
@@ -13,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { CamposService } from './campos.service';
 import { CreateCampoDto } from './dto/create-campo.dto';
+import { UpdatePoligonoDto } from './dto/update-poligono.dto';
 import { JwtAuthGuard } from '../auth/infrastructure/http/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/infrastructure/http/guards/roles.guard';
 import { Roles } from '../auth/infrastructure/http/decorators/roles.decorator';
@@ -145,6 +147,49 @@ export class CamposController {
   })
   create(@Body() dto: CreateCampoDto) {
     return this.camposService.create(dto);
+  }
+
+  @Patch(':id/poligono')
+  @Roles(Role.ADMIN, Role.PRODUCTOR)
+  @ApiOperation({
+    summary: 'Actualizar el polígono de límites de un campo',
+    description:
+      'Reemplaza el polígono GPS del campo. Solo el administrador o el productor dueño del campo pueden hacerlo.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Campo UUID.',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Polígono actualizado correctamente.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'El polígono tiene menos de 3 puntos o coordenadas inválidas.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Se requiere autenticación.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El usuario no es dueño de este campo.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Campo no encontrado.',
+  })
+  updatePoligono(
+    @Param('id') id: string,
+    @Body() dto: UpdatePoligonoDto,
+    @Req() req: { user: JwtPayload },
+  ) {
+    return this.camposService.updatePoligono(id, dto.poligono_gps, {
+      sub: req.user.sub,
+      role: req.user.role,
+    });
   }
 
   @Delete(':id')
