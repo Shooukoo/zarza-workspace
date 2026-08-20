@@ -81,6 +81,7 @@ export function EditCampoPolygonModal({ campo, open, onClose }: Props) {
   const [layer, setLayer] = useState<MapLayer>('calles');
   const [draftPoints, setDraftPoints] = useState<number[][]>(campo?.poligonoGps ?? []);
   const updateMutation = useUpdateCampoPoligono();
+  const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
     setDraftPoints(campo?.poligonoGps ?? []);
@@ -113,13 +114,16 @@ export function EditCampoPolygonModal({ campo, open, onClose }: Props) {
       width="90vw"
       style={{ top: 20 }}
       okButtonProps={{ disabled: draftPoints.length < 3 }}
+      afterOpenChange={(visible) => {
+        if (visible) mapRef.current?.invalidateSize();
+      }}
     >
       <div style={{ marginBottom: 8 }}>
         <MapLayerToggle value={layer} onChange={setLayer} />
       </div>
       <div style={{ height: '70vh' }}>
         {open && (
-          <MapContainer center={[19.7, -103.3]} zoom={13} style={{ height: '100%', width: '100%' }}>
+          <MapContainer ref={mapRef} center={[19.7, -103.3]} zoom={13} style={{ height: '100%', width: '100%' }}>
             <TileLayer url={tile.url} attribution={tile.attribution} />
             <DrawLayer initialPoligono={campo?.poligonoGps ?? null} onChange={setDraftPoints} />
           </MapContainer>
