@@ -55,6 +55,18 @@ function StatusChip({ pointCount, areaHa }: { pointCount: number; areaHa: number
   return createPortal(<div style={CHIP_STYLE}>{statusChipText(pointCount, areaHa)}</div>, container);
 }
 
+function MapLayerToggleControl({
+  layer,
+  onChange,
+}: {
+  layer: MapLayer;
+  onChange: (layer: MapLayer) => void;
+}) {
+  const container = useMapControl('topright');
+  if (!container) return null;
+  return createPortal(<MapLayerToggle value={layer} onChange={onChange} />, container);
+}
+
 function DrawLayer({
   initialPoligono,
   onChange,
@@ -186,14 +198,12 @@ export function EditCampoPolygonModal({ campo, open, onClose }: Props) {
         if (visible) mapRef.current?.invalidateSize();
       }}
     >
-      <div style={{ marginBottom: 8 }}>
-        <MapLayerToggle value={layer} onChange={setLayer} />
-      </div>
       <div style={{ height: '70vh' }}>
         {open && (
           <MapContainer ref={mapRef} center={[19.7, -103.3]} zoom={13} style={{ height: '100%', width: '100%' }}>
             <TileLayer url={tile.url} attribution={tile.attribution} />
             <PlaceSearchControl />
+            <MapLayerToggleControl layer={layer} onChange={setLayer} />
             <DrawLayer initialPoligono={campo?.poligonoGps ?? null} onChange={setDraftPoints} />
           </MapContainer>
         )}
