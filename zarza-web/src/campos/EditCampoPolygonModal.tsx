@@ -116,6 +116,14 @@ function DrawLayer({
     });
     map.on(L.Draw.Event.EDITED, emitCurrentPolygon);
     map.on(L.Draw.Event.DELETED, emitCurrentPolygon);
+    map.on(L.Draw.Event.DRAWVERTEX, (e: L.LeafletEvent) => {
+      const { layers } = e as unknown as L.DrawEvents.DrawVertex;
+      const latlngs = layers.getLayers().map((marker) => (marker as L.Marker).getLatLng());
+      setStatus({
+        count: latlngs.length,
+        areaHa: latlngs.length >= 3 ? computeAreaHa(latlngs) : 0,
+      });
+    });
 
     return () => {
       map.removeControl(drawControl);
@@ -123,6 +131,7 @@ function DrawLayer({
       map.off(L.Draw.Event.CREATED);
       map.off(L.Draw.Event.EDITED);
       map.off(L.Draw.Event.DELETED);
+      map.off(L.Draw.Event.DRAWVERTEX);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map]);
