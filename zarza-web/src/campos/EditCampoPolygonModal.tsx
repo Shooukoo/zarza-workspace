@@ -1,15 +1,57 @@
 import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
 import { Modal, notification } from 'antd';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet-draw';
 import { useUpdateCampoPoligono, type Campo } from './hooks/useCampos';
 import { MapLayerToggle, tileLayerFor, type MapLayer } from '../mapas-calor/MapLayerToggle';
+import { useMapControl } from '../mapas-calor/useMapControl';
 
 interface Props {
   campo: Campo | null;
   open: boolean;
   onClose: () => void;
+}
+
+const CHIP_STYLE: CSSProperties = {
+  background: '#fff',
+  padding: '4px 10px',
+  borderRadius: 4,
+  boxShadow: '0 1px 5px rgba(0,0,0,0.4)',
+  fontSize: 13,
+  whiteSpace: 'nowrap',
+};
+
+const AREA_FORMATTER = new Intl.NumberFormat('es-MX', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
+function statusChipText(pointCount: number, areaHa: number): string {
+  if (pointCount === 0) return '0 puntos · dibuja el polígono';
+  if (pointCount < 3) return `${pointCount} puntos · agrega ${3 - pointCount} más`;
+  return `${pointCount} puntos · ${AREA_FORMATTER.format(areaHa)} ha · ✓ válido`;
+}
+
+function computeAreaHa(latlngs: L.LatLng[]): number {
+  return L.GeometryUtil.geodesicArea(latlngs) / 10000;
+}
+
+function InstructionsChip() {
+  const container = useMapControl('bottomleft');
+  if (!container) return null;
+  return createPortal(
+    <div style={CHIP_STYLE}>Click para agregar puntos · doble click para cerrar el polígono</div>,
+    container,
+  );
+}
+
+function StatusChip({ pointCount, areaHa }: { pointCount: number; areaHa: number }) {
+  const container = useMapControl('bottomright');
+  if (!container) return null;
+  return createPortal(<div style={CHIP_STYLE}>{statusChipText(pointCount, areaHa)}</div>, container);
 }
 
 function DrawLayer({
@@ -21,6 +63,12 @@ function DrawLayer({
 }) {
   const map = useMap();
   const featureGroupRef = useRef(new L.FeatureGroup());
+  const [status, setStatus] = useState(() => {
+    const count = initialPoligono?.length ?? 0;
+    if (count < 3) return { count, areaHa: 0 };
+    const latlngs = initialPoligono!.map(([lng, lat]) => L.latLng(lat, lng));
+    return { count, areaHa: computeAreaHa(latlngs) };
+  });
 
   useEffect(() => {
     const featureGroup = featureGroupRef.current;
@@ -50,10 +98,15 @@ function DrawLayer({
       const layers = featureGroup.getLayers() as L.Polygon[];
       if (layers.length === 0) {
         onChange([]);
+        setStatus({ count: 0, areaHa: 0 });
         return;
       }
       const latlngs = layers[0].getLatLngs()[0] as L.LatLng[];
       onChange(latlngs.map((ll) => [ll.lng, ll.lat]));
+      setStatus({
+        count: latlngs.length,
+        areaHa: latlngs.length >= 3 ? computeAreaHa(latlngs) : 0,
+      });
     }
 
     map.on(L.Draw.Event.CREATED, (e: L.LeafletEvent) => {
@@ -74,7 +127,12 @@ function DrawLayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map]);
 
-  return null;
+  return (
+    <>
+      <InstructionsChip />
+      <StatusChip pointCount={status.count} areaHa={status.areaHa} />
+    </>
+  );
 }
 
 export function EditCampoPolygonModal({ campo, open, onClose }: Props) {
