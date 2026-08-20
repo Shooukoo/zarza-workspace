@@ -7,6 +7,7 @@ import L from 'leaflet';
 import 'leaflet-draw';
 import { useUpdateCampoPoligono, type Campo } from './hooks/useCampos';
 import { MapLayerToggle, tileLayerFor, type MapLayer } from '../mapas-calor/MapLayerToggle';
+import { PlaceSearchControl } from '../mapas-calor/PlaceSearchControl';
 import { useMapControl } from '../mapas-calor/useMapControl';
 
 interface Props {
@@ -192,6 +193,7 @@ export function EditCampoPolygonModal({ campo, open, onClose }: Props) {
         {open && (
           <MapContainer ref={mapRef} center={[19.7, -103.3]} zoom={13} style={{ height: '100%', width: '100%' }}>
             <TileLayer url={tile.url} attribution={tile.attribution} />
+            <PlaceSearchControl />
             <DrawLayer initialPoligono={campo?.poligonoGps ?? null} onChange={setDraftPoints} />
           </MapContainer>
         )}
