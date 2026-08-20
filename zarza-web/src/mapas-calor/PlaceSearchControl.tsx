@@ -84,6 +84,7 @@ export function PlaceSearchControl() {
       return;
     }
 
+    let ignore = false;
     debounceRef.current = setTimeout(() => {
       const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(trimmed)}.json?access_token=${MAPBOX_TOKEN}&country=mx&limit=5`;
       fetch(url)
@@ -91,11 +92,16 @@ export function PlaceSearchControl() {
           if (!res.ok) throw new Error('geocoding failed');
           return res.json() as Promise<{ features: MapboxFeature[] }>;
         })
-        .then((data) => setResults(data.features ?? []))
-        .catch(() => setResults([]));
+        .then((data) => {
+          if (!ignore) setResults(data.features ?? []);
+        })
+        .catch(() => {
+          if (!ignore) setResults([]);
+        });
     }, 400);
 
     return () => {
+      ignore = true;
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [query]);
