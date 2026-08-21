@@ -99,7 +99,17 @@ function DrawLayer({
 
     const drawControl = new L.Control.Draw({
       draw: {
-        polygon: { allowIntersection: false, showArea: true },
+        // showArea:false — el tooltip nativo de área de leaflet-draw llama a
+        // L.GeometryUtil.readableArea, que en esta versión (1.0.4) tiene un bug real
+        // (usa `type` sin declararlo con var/let/const dentro de la función). Bajo
+        // módulos ES (siempre en modo estricto, como los que genera Vite) esa asignación
+        // a una variable no declarada lanza "ReferenceError: type is not defined" en
+        // cuanto hay área que mostrar (a partir del 3er punto). Esa excepción interrumpe
+        // _endPoint() de leaflet-draw a mitad de camino y nunca llega a _enableNewMarkers(),
+        // dejando el dibujo trabado para siempre después del punto que la disparó. El chip
+        // de estado (StatusChip) ya muestra puntos/área/validez, así que el tooltip nativo
+        // es redundante — se desactiva en vez de parchear la librería.
+        polygon: { allowIntersection: false, showArea: false },
         marker: false,
         circle: false,
         circlemarker: false,
