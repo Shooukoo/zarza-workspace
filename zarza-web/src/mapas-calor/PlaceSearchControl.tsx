@@ -76,7 +76,7 @@ const GEO_BUTTON_STYLE: CSSProperties = {
 
 export function PlaceSearchControl() {
   const map = useMap();
-  const container = useMapControl('topright');
+  const container = useMapControl('topright', 1000);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<MapboxFeature[]>([]);
   const [showResults, setShowResults] = useState(false);
