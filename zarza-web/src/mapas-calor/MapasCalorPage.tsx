@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, DatePicker, Empty, Segmented, Space, Spin, Typography } from 'antd';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Alert, Button, DatePicker, Divider, Empty, Segmented, Space, Spin, Typography } from 'antd';
 import { ArrowLeftOutlined, PrinterOutlined } from '@ant-design/icons';
 import type { Dayjs } from 'dayjs';
 import { useCamposHeatmap, useAnalisisHeatmap } from './hooks/useMapasCalor';
@@ -68,17 +68,30 @@ export function MapasCalorPage() {
               {campoSeleccionado ? campoSeleccionado.nombre : 'Mapas de Calor'}
             </Title>
           </Space>
-          <Space wrap>
-            <Segmented
-              value={metrica}
-              onChange={(v) => setMetrica(v as MetricaMapaCalor)}
-              options={[
-                { label: 'Merma / enfermedad', value: 'merma' },
-                { label: 'Densidad de detecciones', value: 'densidad' },
-              ]}
-            />
-            <RangePicker value={range} onChange={(v) => setRange(v as [Dayjs, Dayjs] | null)} />
-            <MapLayerToggle value={layer} onChange={setLayer} />
+          <Space align="end" size={20} wrap style={{ rowGap: 16 }}>
+            <Field label="Métrica">
+              <Segmented
+                aria-label="Métrica del mapa de calor"
+                value={metrica}
+                onChange={(v) => setMetrica(v as MetricaMapaCalor)}
+                options={[
+                  { label: 'Merma / enfermedad', value: 'merma' },
+                  { label: 'Densidad de detecciones', value: 'densidad' },
+                ]}
+              />
+            </Field>
+            <Field label="Rango de fechas">
+              <RangePicker
+                aria-label="Rango de fechas"
+                value={range}
+                onChange={(v) => setRange(v as [Dayjs, Dayjs] | null)}
+                placeholder={['Fecha inicial…', 'Fecha final…']}
+              />
+            </Field>
+            <Field label="Capa">
+              <MapLayerToggle value={layer} onChange={setLayer} />
+            </Field>
+            <Divider type="vertical" style={{ height: 32, margin: 0 }} />
             <Button icon={<PrinterOutlined />} onClick={() => window.print()}>
               Imprimir
             </Button>
@@ -136,6 +149,15 @@ export function MapasCalorPage() {
         )}
       </div>
     </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <Space direction="vertical" size={4}>
+      <span style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.45)', lineHeight: 1 }}>{label}</span>
+      {children}
+    </Space>
   );
 }
 
