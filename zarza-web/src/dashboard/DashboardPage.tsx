@@ -1,5 +1,6 @@
 import React from 'react';
-import { Spin } from 'antd';
+import { Spin, Empty, Alert } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import {
   BarChart,
   Bar,
@@ -14,6 +15,8 @@ import {
   useHealthMetrics,
   usePhenologyDistribution,
 } from './hooks/useDashboard';
+import { useCamposHeatmap } from '../mapas-calor/hooks/useMapasCalor';
+import { CamposOverviewMap } from '../mapas-calor/CamposOverviewMap';
 import { lightTheme } from '../shared/lightTheme';
 import { useAuth } from '../auth/useAuth';
 import { displayName } from '../auth/types';
@@ -43,22 +46,10 @@ function formatDecimal(value: number) {
   }).format(value);
 }
 
-const srOnly: React.CSSProperties = {
-  position: 'absolute', width: 1, height: 1, padding: 0, margin: -1,
-  overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0,
-};
-
 const surfaceCard = {
   background: T.surface,
   borderRadius: 16,
 } as const;
-
-const PARCELAS = [
-  { x: 30, y: 20, w: 80, h: 50, label: 'P1', color: T.emerald, status: 'Saludable' },
-  { x: 130, y: 15, w: 90, h: 55, label: 'P2', color: T.emerald, status: 'Saludable' },
-  { x: 30, y: 85, w: 70, h: 40, label: 'P3', color: T.warn, status: 'Alerta' },
-  { x: 240, y: 30, w: 65, h: 70, label: 'P4', color: T.terracotta, status: 'Monitoreada' },
-] as const;
 
 // ── Sub-components ─────────────────────────────────────────────────
 function SurfaceCard({ children, style, glow }: {
@@ -158,9 +149,12 @@ function SpotlightCard({ value, label, loading }: {
 // ── Main component ─────────────────────────────────────────────────
 export function DashboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const yieldQuery = useYieldForecast();
   const healthQuery = useHealthMetrics();
   const phenologyQuery = usePhenologyDistribution();
+  const camposQuery = useCamposHeatmap({});
+  const campos = camposQuery.data?.campos ?? [];
 
   const h = healthQuery.data;
 
@@ -367,56 +361,64 @@ export function DashboardPage() {
 
         {/* ── Bottom row ── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
-          {/* Field map placeholder */}
+          {/* Field map */}
           <SurfaceCard>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ fontSize: 15, fontWeight: 600, color: T.ink }}>Mapa de Parcelas</div>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center',
-                padding: '2px 10px', borderRadius: 100,
-                background: chipFor(T.brand).bg,
-                color: chipFor(T.brand).fg, fontSize: 11, fontWeight: 600,
-              }}>4 activas</span>
-            </div>
-            <div style={{ position: 'relative' }}>
-              <div style={{
-                height: 140, borderRadius: 10, overflow: 'hidden', position: 'relative',
-                background: T.canvas, border: `1px solid ${T.grayLine}`,
-              }}>
-                <svg aria-hidden="true" width="100%" height="100%" viewBox="0 0 320 140" style={{ position: 'absolute', inset: 0 }}>
-                  <defs>
-                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                      <path d="M 20 0 L 0 0 0 20" fill="none" stroke={T.grayLine} strokeWidth="0.5"/>
-                    </pattern>
-                  </defs>
-                  <rect width="320" height="140" fill="url(#grid)"/>
-                  {PARCELAS.map((p, i) => {
-                    const chip = chipFor(p.color);
-                    return (
-                      <g key={i}>
-                        <rect x={p.x} y={p.y} width={p.w} height={p.h} rx={4}
-                          fill={chip.bg} stroke={chip.fg} strokeWidth="1.5"/>
-                        <text x={p.x + p.w / 2} y={p.y + p.h / 2 + 4} textAnchor="middle"
-                          fill={chip.fg} fontSize="11" fontFamily="Lexend" fontWeight="600">{p.label}</text>
-                      </g>
-                    );
-                  })}
-                </svg>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {!camposQuery.isLoading && !camposQuery.isError && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center',
+                    padding: '2px 10px', borderRadius: 100,
+                    background: chipFor(T.brand).bg,
+                    color: chipFor(T.brand).fg, fontSize: 11, fontWeight: 600,
+                  }}>{campos.length} {campos.length === 1 ? 'activa' : 'activas'}</span>
+                )}
+                <button
+                  onClick={() => navigate('/mapas-calor')}
+                  style={{
+                    border: 'none', background: 'transparent', cursor: 'pointer',
+                    color: T.brand, fontSize: 12, fontWeight: 600, padding: 0,
+                  }}
+                >
+                  Ver mapa completo →
+                </button>
               </div>
-              <ul style={srOnly}>
-                {PARCELAS.map((p, i) => (
-                  <li key={i}>{p.label}: {p.status}</li>
-                ))}
-              </ul>
             </div>
+
+            {camposQuery.isLoading ? (
+              <div role="status" aria-label="Cargando…" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 220 }}><Spin/></div>
+            ) : camposQuery.isError ? (
+              <Alert type="error" showIcon message="No se pudo cargar el mapa de parcelas."/>
+            ) : campos.length === 0 ? (
+              <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Empty description="No hay campos con análisis geolocalizados"/>
+              </div>
+            ) : (
+              <div
+                style={{
+                  height: 220, borderRadius: 10, overflow: 'hidden',
+                  border: `1px solid ${T.grayLine}`, cursor: 'pointer',
+                }}
+                onClick={() => navigate('/mapas-calor')}
+              >
+                <CamposOverviewMap
+                  campos={campos}
+                  metrica="merma"
+                  layer="calles"
+                  onSelectCampo={() => navigate('/mapas-calor')}
+                />
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
               {([
-                { c: T.emerald, l: 'Saludable' },
-                { c: T.warn, l: 'Alerta' },
-                { c: T.terracotta, l: 'Monitoreada' },
+                { c: 'rgb(34, 139, 34)', l: 'Merma baja' },
+                { c: 'rgb(230, 180, 40)', l: 'Merma media' },
+                { c: 'rgb(220, 50, 40)', l: 'Merma alta' },
               ] as const).map((s, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: T.gray }}>
-                  <div style={{ width: 8, height: 8, background: chipFor(s.c).fg, borderRadius: 2 }}/>
+                  <div style={{ width: 8, height: 8, background: s.c, borderRadius: 2 }}/>
                   {s.l}
                 </div>
               ))}
