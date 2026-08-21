@@ -13,6 +13,7 @@ export function MapLayerToggle({ value, onChange }: Props) {
   if (!MAPBOX_TOKEN) return null;
   return (
     <Segmented
+      aria-label="Tipo de capa del mapa"
       value={value}
       onChange={(v) => onChange(v as MapLayer)}
       options={[
