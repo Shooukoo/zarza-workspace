@@ -9,6 +9,7 @@ import { useUpdateCampoPoligono, type Campo } from './hooks/useCampos';
 import { MapLayerToggle, tileLayerFor, type MapLayer } from '../mapas-calor/MapLayerToggle';
 import { PlaceSearchControl } from '../mapas-calor/PlaceSearchControl';
 import { useMapControl } from '../mapas-calor/useMapControl';
+import { lightTheme } from '../shared/lightTheme';
 
 interface Props {
   campo: Campo | null;
@@ -17,10 +18,12 @@ interface Props {
 }
 
 const CHIP_STYLE: CSSProperties = {
-  background: '#fff',
-  padding: '4px 10px',
-  borderRadius: 4,
-  boxShadow: '0 1px 5px rgba(0,0,0,0.4)',
+  background: lightTheme.surface,
+  color: lightTheme.ink,
+  padding: '6px 12px',
+  borderRadius: 8,
+  border: `1px solid ${lightTheme.grayLine}`,
+  boxShadow: '0 2px 8px rgba(19, 16, 43, 0.12)',
   fontSize: 13,
   whiteSpace: 'nowrap',
 };

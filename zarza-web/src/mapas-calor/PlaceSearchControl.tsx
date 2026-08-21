@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { notification } from 'antd';
+import { EnvironmentOutlined } from '@ant-design/icons';
 import { useMap } from 'react-leaflet';
 import { useMapControl } from './useMapControl';
+import { lightTheme } from '../shared/lightTheme';
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined;
 
@@ -17,10 +19,11 @@ const CONTROL_STYLE: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: 6,
-  background: '#fff',
-  padding: '4px 6px',
-  borderRadius: 4,
-  boxShadow: '0 1px 5px rgba(0,0,0,0.4)',
+  background: lightTheme.surface,
+  padding: 6,
+  borderRadius: 8,
+  border: `1px solid ${lightTheme.grayLine}`,
+  boxShadow: '0 2px 8px rgba(19, 16, 43, 0.12)',
 };
 
 const INPUT_WRAPPER_STYLE: CSSProperties = {
@@ -28,12 +31,13 @@ const INPUT_WRAPPER_STYLE: CSSProperties = {
 };
 
 const INPUT_STYLE: CSSProperties = {
-  border: '1px solid #d9d9d9',
-  borderRadius: 4,
+  border: `1px solid ${lightTheme.grayLine}`,
+  borderRadius: 6,
   padding: '4px 8px',
   fontSize: 13,
   width: 220,
   outline: 'none',
+  color: lightTheme.ink,
 };
 
 const DROPDOWN_STYLE: CSSProperties = {
@@ -41,10 +45,11 @@ const DROPDOWN_STYLE: CSSProperties = {
   top: '100%',
   left: 0,
   right: 0,
-  marginTop: 2,
-  background: '#fff',
-  borderRadius: 4,
-  boxShadow: '0 1px 5px rgba(0,0,0,0.4)',
+  marginTop: 4,
+  background: lightTheme.surface,
+  borderRadius: 8,
+  border: `1px solid ${lightTheme.grayLine}`,
+  boxShadow: '0 2px 8px rgba(19, 16, 43, 0.12)',
   maxHeight: 200,
   overflowY: 'auto',
   zIndex: 1000,
@@ -54,7 +59,8 @@ const DROPDOWN_ITEM_STYLE: CSSProperties = {
   padding: '6px 10px',
   fontSize: 13,
   cursor: 'pointer',
-  borderBottom: '1px solid #f0f0f0',
+  borderBottom: `1px solid ${lightTheme.grayLine}`,
+  color: lightTheme.ink,
 };
 
 const GEO_BUTTON_STYLE: CSSProperties = {
@@ -64,6 +70,8 @@ const GEO_BUTTON_STYLE: CSSProperties = {
   fontSize: 16,
   lineHeight: 1,
   padding: '4px 6px',
+  borderRadius: 6,
+  color: lightTheme.ink,
 };
 
 export function PlaceSearchControl() {
@@ -125,6 +133,7 @@ export function PlaceSearchControl() {
       () => {
         notification.error({ message: 'No se pudo obtener tu ubicación' });
       },
+      { enableHighAccuracy: true },
     );
   }
 
@@ -165,7 +174,7 @@ export function PlaceSearchControl() {
         </div>
       )}
       <button type="button" onClick={handleGeolocate} style={GEO_BUTTON_STYLE} title="Usar mi ubicación">
-        📍
+        <EnvironmentOutlined />
       </button>
     </div>,
     container,
