@@ -133,12 +133,20 @@ function DrawLayer({
     map.on(L.Draw.Event.EDITED, emitCurrentPolygon);
     map.on(L.Draw.Event.DELETED, emitCurrentPolygon);
     map.on(L.Draw.Event.DRAWVERTEX, (e: L.LeafletEvent) => {
-      const { layers } = e as unknown as L.DrawEvents.DrawVertex;
-      const latlngs = layers.getLayers().map((marker) => (marker as L.Marker).getLatLng());
-      setStatus({
-        count: latlngs.length,
-        areaHa: latlngs.length >= 3 ? computeAreaHa(latlngs) : 0,
-      });
+      // Leaflet's map.fire() no aísla errores entre listeners (llama a cada uno
+      // sin try/catch): si esto lanza, aborta el resto de _vertexChanged/_endPoint
+      // en leaflet-draw, incluido el paso que reactiva la colocación de vértices,
+      // dejando el dibujo "trabado" después del punto que causó el error.
+      try {
+        const { layers } = e as unknown as L.DrawEvents.DrawVertex;
+        const latlngs = layers.getLayers().map((marker) => (marker as L.Marker).getLatLng());
+        setStatus({
+          count: latlngs.length,
+          areaHa: latlngs.length >= 3 ? computeAreaHa(latlngs) : 0,
+        });
+      } catch (err) {
+        console.error('Error actualizando el chip de estado en DRAWVERTEX', err);
+      }
     });
 
     return () => {
