@@ -75,11 +75,11 @@ importarse si falta).
 scripts/rotate-secret.sh INFERENCE_AUTH_TOKEN fruit-ms fruit-backend fruit-inference
 ```
 
-El script genera un valor nuevo, actualiza el `.env` de ambos servicios (con
-backup automático), redespliega los contenedores afectados y verifica que
-el healthcheck vuelva a reportar `healthy` y que no haya rechazos de token
-en los logs recientes de `fruit-backend`. Si algo falla, el script termina
-con error y deja el backup del `.env` viejo para revertir a mano.
+El script genera un valor nuevo, actualiza el `.env` de los servicios
+afectados (con backup automático), redespliega los contenedores y verifica
+que el healthcheck de cada uno vuelva a reportar `healthy`. Si algo falla,
+el script termina con error y deja el backup del `.env` viejo para
+revertir a mano.
 
 *Nota: La verificación automática de logs no aplica hoy para este token
 porque `fruit-inference` no loguea el rechazo de token todavía. Confirmá
@@ -102,11 +102,11 @@ sentidos: `fruit-backend` lo envía en `POST /train` (header
 scripts/rotate-secret.sh TRAINING_INTERNAL_TOKEN fruit-backend fruit-training
 ```
 
-El script genera un valor nuevo, actualiza el `.env` de ambos servicios (con
-backup automático), redespliega los contenedores afectados y verifica que
-el healthcheck vuelva a reportar `healthy` y que no haya rechazos de token
-en los logs recientes de `fruit-backend`. Si algo falla, el script termina
-con error y deja el backup del `.env` viejo para revertir a mano.
+El script genera un valor nuevo, actualiza el `.env` de ambos servicios
+(con backup automático), redespliega los contenedores y verifica que el
+healthcheck de cada uno vuelva a reportar `healthy`. Si algo falla, el
+script termina con error y deja el backup del `.env` viejo para revertir
+a mano.
 
 *Nota: La verificación automática de logs no aplica hoy para este token
 porque `fruit-training` no loguea el rechazo de token todavía. Confirmá
