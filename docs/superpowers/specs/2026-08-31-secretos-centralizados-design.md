@@ -45,18 +45,21 @@ scripts/rotate-secret.sh INFERENCE_AUTH_TOKEN fruit-ms fruit-backend fruit-infer
 scripts/rotate-secret.sh TRAINING_INTERNAL_TOKEN fruit-backend fruit-training
 ```
 
-## Sección 2 — `fruit-backend/scripts/rotate-fcm-key.js` (`FCM_TOKEN_ENCRYPTION_KEY`)
+## Sección 2 — `fruit-backend/scripts/rotate-fcm-key.ts` (`FCM_TOKEN_ENCRYPTION_KEY`)
 
-Sigue el mismo patrón que `fruit-backend/scripts/seed-admin.js` (Node plano, `require` del `PrismaClient` generado en `packages/database/generated/client`, carga `.env` con `dotenv`) — no un comando Nest, para no arrastrar todo el bootstrap de la aplicación por un script de uso puntual.
+**Nota de implementación (ajustada durante el plan):** el `jest` de `fruit-backend` tiene `rootDir: "src"` — cualquier `.spec.ts` fuera de `src/` no corre con `pnpm run test`, así que un script `.js` plano en `scripts/` (como `seed-admin.js`) no puede tener su lógica cubierta por tests automatizados. Por eso, a diferencia de `seed-admin.js`, este script se divide en dos piezas:
+
+- **Lógica pura y testeable** en `fruit-backend/src/auth/infrastructure/adapters/fcm-key-rotation.ts` (cubierta por jest, vive junto a `AesGcmCrypto`) — calcula qué re-encriptar sin tocar la BD.
+- **CLI delgado** en `fruit-backend/scripts/rotate-fcm-key.ts`, ejecutado con `ts-node` (ya es devDependency del proyecto, usado hoy en `test:debug`) en vez de `node` plano — esto permite importar directamente la clase `AesGcmCrypto` real y el `PrismaClient` de `@rubus/database`, sin reimplementar el cifrado ni arrastrar el bootstrap de Nest.
 
 **Modo dry-run por defecto; `--apply` para ejecutar de verdad:**
 
 ```bash
-node fruit-backend/scripts/rotate-fcm-key.js          # dry-run: solo reporta
-node fruit-backend/scripts/rotate-fcm-key.js --apply  # rota de verdad
+pnpm --filter fruit-backend run rotate:fcm-key             # dry-run: solo reporta
+pnpm --filter fruit-backend run rotate:fcm-key -- --apply  # rota de verdad
 ```
 
-También expuesto como script de package: `"rotate:fcm-key": "node scripts/rotate-fcm-key.js"` en `fruit-backend/package.json`, igual que `seed:admin`.
+Expuesto como script de package: `"rotate:fcm-key": "ts-node -r tsconfig-paths/register scripts/rotate-fcm-key.ts"` en `fruit-backend/package.json`.
 
 **Pasos (usa `AesGcmCrypto` directamente — misma clase que ya existe en `fruit-backend/src/auth/infrastructure/adapters/aes-gcm-crypto.adapter.ts`, instanciada dos veces: una con la clave vieja, otra con la nueva):**
 
@@ -77,7 +80,7 @@ También expuesto como script de package: `"rotate:fcm-key": "node scripts/rotat
 ## Sección 3 — Documentación (`SECURITY.md`)
 
 - Reemplazar los pasos manuales actuales de `INTERNAL_NOTIFY_TOKEN`, `INFERENCE_AUTH_TOKEN` y `TRAINING_INTERNAL_TOKEN` por el comando único de `scripts/rotate-secret.sh` correspondiente.
-- Agregar sección nueva "`FCM_TOKEN_ENCRYPTION_KEY`" (hoy no existe) documentando `rotate-fcm-key.js`, incluyendo que la primera corrida con `--apply` también resuelve el backfill de tokens en texto plano.
+- Agregar sección nueva "`FCM_TOKEN_ENCRYPTION_KEY`" (hoy no existe) documentando `rotate-fcm-key.ts`, incluyendo que la primera corrida con `--apply` también resuelve el backfill de tokens en texto plano.
 - Quitar cualquier mención de "backfill pendiente" en `SECURITY.md`/spec previo una vez implementado esto.
 - Mantener la cadencia recomendada (90 días o ante sospecha de filtración) para los 4 secretos por igual.
 
@@ -86,7 +89,8 @@ También expuesto como script de package: `"rotate:fcm-key": "node scripts/rotat
 | Componente | Qué probar |
 |---|---|
 | `rotate-secret.sh` | Test con un `.env` de prueba en un directorio temporal (sin Docker real): reemplaza la línea correcta, crea backup, falla limpio si la variable no existe en algún `.env` listado. Se puede probar con `bats` o un script de shell simple — no hay convención previa de test de shell en el repo, así que se documenta el propio script como "probado manualmente + casos cubiertos en comentarios", ya que agregar un framework de test de bash nuevo para un solo script no se justifica. |
-| `rotate-fcm-key.js` | Contra una BD de prueba (mismo patrón que usan los tests de integración existentes de Prisma, si los hay, o una BD sqlite/postgres de test dedicada): tokens `v1:` se re-encriptan correctamente y siguen desencriptando al texto plano original con la clave nueva; tokens en texto plano legado se cifran (backfill); una fila con `authTag` corrupto hace fallar toda la transacción sin dejar cambios parciales; dry-run no escribe nada. |
+| `fcm-key-rotation.ts` (lógica pura) | Con instancias reales de `AesGcmCrypto` (clave vieja/nueva generadas en el test, sin BD): tokens `v1:` se re-encriptan correctamente y siguen desencriptando al texto plano original con la clave nueva; tokens en texto plano legado se cifran (backfill); un valor cifrado corrupto propaga el error; lista vacía no genera updates. Mismo patrón de test que `aes-gcm-crypto.adapter.spec.ts` (ya existe en el repo), sin necesidad de mockear ni de una BD real. |
+| `rotate-fcm-key.ts` (CLI) | No tiene test automatizado — hace I/O real (Prisma, filesystem, `docker compose`) y vive fuera de `rootDir: "src"` del jest de `fruit-backend`, mismo motivo por el que `seed-admin.js`/`clean-db.js` tampoco lo tienen hoy. Se verifica con un dry-run real contra la BD local (sin `--apply`) y, en la corrida end-to-end del plan, con `--apply` de verdad. |
 | Verificación manual end-to-end | Una corrida real de cada uno de los 4 scripts contra el stack local, documentada como paso del plan de implementación (no automatizada). |
 
 ## No incluido en este diseño
