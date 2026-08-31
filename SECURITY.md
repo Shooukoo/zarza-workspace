@@ -38,25 +38,27 @@ al endpoint queda registrada en los logs de `fruit-backend` con evento
 e IP de origen (`ip=` conexión directa, `xff=` header `x-forwarded-for`
 si hay proxy), incluidos los intentos con token inválido.
 
-**Proceso de rotación (manual):**
+**Proceso de rotación (automatizado):**
 
-1. Generar un nuevo valor: `openssl rand -hex 32` (mínimo 32 caracteres).
-2. Actualizar `INTERNAL_NOTIFY_TOKEN` en el `.env` de **ambos**
-   servicios (`fruit-backend` y `fruit-ms`); los valores deben coincidir.
-3. Redesplegar/reiniciar ambos servicios (idealmente juntos, ej.
-   `docker compose up -d --build fruit-backend fruit-ms`). Las
-   notificaciones que fallen durante la ventana de despliegue no son
-   críticas: `fruit-ms` no reintenta y la app móvil hace polling.
-4. Verificar en los logs de `fruit-backend` que las llamadas a
-   `/internal/notify` vuelven a responder 204 (sin warnings de token
-   inválido).
+```bash
+scripts/rotate-secret.sh INTERNAL_NOTIFY_TOKEN fruit-backend fruit-ms
+```
+
+El script genera un valor nuevo, actualiza el `.env` de ambos servicios (con
+backup automático), redespliega los contenedores afectados y verifica que
+el healthcheck vuelva a reportar `healthy` y que no haya rechazos de token
+en los logs recientes de `fruit-backend`. Si algo falla, el script termina
+con error y deja el backup del `.env` viejo (`fruit-backend/.env.bak-<timestamp>`,
+`fruit-ms/.env.bak-<timestamp>`) para revertir a mano.
 
 **Cadencia recomendada:** cada 90 días, o de inmediato ante cualquier
 sospecha de filtración.
 
-**Mejora futura:** migrar este y otros secretos estáticos (`JWT_SECRET`,
-credenciales R2) a un gestor de secretos (HashiCorp Vault, AWS Secrets
-Manager) en lugar de variables de entorno planas.
+**Mejora futura:** migrar `JWT_SECRET`, credenciales R2 y otros secretos
+estáticos a un gestor de secretos externo (HashiCorp Vault, AWS Secrets
+Manager) en lugar de variables de entorno planas. La rotación automática
+de los tokens compartidos arriba ya está implementada; esta mejora
+cubriría secretos de infraestructura además de simplificar la rotación.
 
 ### `INFERENCE_AUTH_TOKEN`
 
@@ -67,16 +69,22 @@ modelo) por un lado, y `fruit-inference` (endpoint, header
 valor configurado (`infrastructure/auth.py` lanza `RuntimeError` al
 importarse si falta).
 
-**Proceso de rotación (manual):**
+**Proceso de rotación (automatizado):**
 
-1. Generar un nuevo valor: `openssl rand -hex 32`.
-2. Actualizar `INFERENCE_AUTH_TOKEN` en el `.env` de los **tres** servicios
-   (`fruit-ms`, `fruit-backend` y `fruit-inference`); los valores deben
-   coincidir.
-3. Redesplegar/reiniciar los tres servicios juntos, ej.
-   `docker compose up -d --build fruit-ms fruit-backend fruit-inference`.
-4. Verificar que `POST /analyze` vuelve a responder `200` y que no hay
-   `401` por token inválido en los logs de `fruit-inference`.
+```bash
+scripts/rotate-secret.sh INFERENCE_AUTH_TOKEN fruit-ms fruit-backend fruit-inference
+```
+
+El script genera un valor nuevo, actualiza el `.env` de ambos servicios (con
+backup automático), redespliega los contenedores afectados y verifica que
+el healthcheck vuelva a reportar `healthy` y que no haya rechazos de token
+en los logs recientes de `fruit-backend`. Si algo falla, el script termina
+con error y deja el backup del `.env` viejo para revertir a mano.
+
+*Nota: La verificación automática de logs no aplica hoy para este token
+porque `fruit-inference` no loguea el rechazo de token todavía. Confirmá
+manualmente con un uso real (ej. disparar una inferencia) antes de borrar
+el backup.*
 
 **Cadencia recomendada:** la misma que `INTERNAL_NOTIFY_TOKEN` (cada 90
 días, o de inmediato ante sospecha de filtración).
@@ -88,12 +96,54 @@ sentidos: `fruit-backend` lo envía en `POST /train` (header
 `x-training-token`), y `fruit-training` lo envía en
 `GET /internal/training/dataset` y `POST /internal/training-complete`.
 
-**Rotación:**
-1. Generar un token nuevo: `openssl rand -hex 32`.
-2. Actualizar `TRAINING_INTERNAL_TOKEN` en el `.env` de **ambos** servicios
-   (`fruit-backend` y `fruit-training`); los valores deben coincidir.
-3. Redesplegar/reiniciar ambos servicios juntos, ej.
-   `docker compose up -d --build fruit-backend fruit-training`.
+**Proceso de rotación (automatizado):**
+
+```bash
+scripts/rotate-secret.sh TRAINING_INTERNAL_TOKEN fruit-backend fruit-training
+```
+
+El script genera un valor nuevo, actualiza el `.env` de ambos servicios (con
+backup automático), redespliega los contenedores afectados y verifica que
+el healthcheck vuelva a reportar `healthy` y que no haya rechazos de token
+en los logs recientes de `fruit-backend`. Si algo falla, el script termina
+con error y deja el backup del `.env` viejo para revertir a mano.
+
+*Nota: La verificación automática de logs no aplica hoy para este token
+porque `fruit-training` no loguea el rechazo de token todavía. Confirmá
+manualmente con un uso real (ej. revisar el flujo de entrenamiento) antes
+de borrar el backup.*
 
 **Cadencia recomendada:** la misma que `INTERNAL_NOTIFY_TOKEN`/`INFERENCE_AUTH_TOKEN`
 (cada 90 días, o de inmediato ante sospecha de filtración).
+
+### `FCM_TOKEN_ENCRYPTION_KEY`
+
+Clave de cifrado simétrico (AES-256-GCM) usada por `fruit-backend` para
+cifrar el campo `fcmToken` de cada usuario antes de guardarlo en Postgres.
+A diferencia de los tokens compartidos de arriba, rotarla **también
+re-encripta los datos ya guardados** — no alcanza con cambiar la variable
+de entorno y redesplegar, porque los tokens ya cifrados con la clave vieja
+dejarían de poder desencriptarse.
+
+**Proceso de rotación (automatizado):**
+
+```bash
+# 1. Dry-run: cuántos tokens se re-encriptarían, sin escribir nada.
+pnpm --filter fruit-backend run rotate:fcm-key
+
+# 2. Ejecutar de verdad.
+pnpm --filter fruit-backend run rotate:fcm-key -- --apply
+```
+
+El script lee todos los `fcmToken` no nulos, desencripta cada uno con la
+clave vieja (o los toma tal cual si están en texto plano legado — esto
+resuelve el backfill pendiente en la misma pasada), y los re-encripta con
+una clave nueva dentro de una transacción de base de datos. Si cualquier
+fila falla, la transacción entera revierte y no se toca `fruit-backend/.env`
+ni se redespliega — la base de datos queda consistente con la clave vieja.
+Solo si la transacción completa sin errores, el script actualiza
+`FCM_TOKEN_ENCRYPTION_KEY` en `fruit-backend/.env` (con backup) y
+redespliega `fruit-backend`.
+
+**Cadencia recomendada:** la misma que los demás secretos (cada 90 días, o
+de inmediato ante sospecha de filtración).
