@@ -75,9 +75,8 @@ async function main(): Promise<void> {
     await prisma.$disconnect();
     process.exit(1);
   }
-  await prisma.$disconnect();
-
   try {
+    await prisma.$disconnect();
     const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '');
     const backupPath = `${ENV_PATH}.bak-${timestamp}`;
     copyFileSync(ENV_PATH, backupPath);
