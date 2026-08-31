@@ -77,21 +77,53 @@ async function main(): Promise<void> {
   }
   await prisma.$disconnect();
 
-  const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '');
-  const backupPath = `${ENV_PATH}.bak-${timestamp}`;
-  copyFileSync(ENV_PATH, backupPath);
-  writeFileSync(ENV_PATH, envContent.replace(FCM_KEY_LINE, `FCM_TOKEN_ENCRYPTION_KEY=${newKey}`));
+  try {
+    const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '');
+    const backupPath = `${ENV_PATH}.bak-${timestamp}`;
+    copyFileSync(ENV_PATH, backupPath);
+    writeFileSync(
+      ENV_PATH,
+      envContent.replace(FCM_KEY_LINE, `FCM_TOKEN_ENCRYPTION_KEY=${newKey}`),
+    );
+    console.log(
+      `✓ ${plan.updates.length} tokens re-encriptados en la base de datos.`,
+    );
+    console.log(
+      `✓ FCM_TOKEN_ENCRYPTION_KEY actualizada (backup: ${backupPath})`,
+    );
+  } catch (err) {
+    console.error(
+      '❌ La base de datos YA fue re-encriptada con la clave nueva, pero no se pudo actualizar fruit-backend/.env:',
+      err,
+    );
+    console.error(
+      '   CLAVE NUEVA (guardala ahora, no hay otra forma de recuperarla):',
+    );
+    console.error(`   FCM_TOKEN_ENCRYPTION_KEY=${newKey}`);
+    console.error(
+      '   Actualizá fruit-backend/.env manualmente con este valor y redesplegá fruit-backend.',
+    );
+    process.exit(1);
+  }
 
-  console.log(
-    `✓ ${plan.updates.length} tokens re-encriptados en la base de datos.`,
-  );
-  console.log(`✓ FCM_TOKEN_ENCRYPTION_KEY actualizada (backup: ${backupPath})`);
-  console.log('Redesplegando fruit-backend...');
-  execSync('docker compose up -d --build fruit-backend', {
-    cwd: REPO_ROOT,
-    stdio: 'inherit',
-  });
-  console.log('✓ Listo.');
+  try {
+    console.log('Redesplegando fruit-backend...');
+    execSync('docker compose up -d --build fruit-backend', {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+      env: { ...process.env, FCM_TOKEN_ENCRYPTION_KEY: newKey },
+    });
+    console.log('✓ Listo.');
+  } catch (err) {
+    console.error(
+      '❌ La base de datos y fruit-backend/.env ya están actualizados con la clave nueva, pero el redeploy falló:',
+      err,
+    );
+    console.error(
+      '   Corré manualmente: docker compose up -d --build fruit-backend',
+    );
+    process.exit(1);
+  }
 }
 
 main().catch((err) => {
