@@ -145,5 +145,12 @@ Solo si la transacción completa sin errores, el script actualiza
 `FCM_TOKEN_ENCRYPTION_KEY` en `fruit-backend/.env` (con backup) y
 redespliega `fruit-backend`.
 
+*Nota — si la base de datos ya se re-encriptó pero falla el paso
+siguiente (escribir `.env` o redesplegar): el script imprime la clave
+nueva por consola con instrucciones de recuperación manual. Si eso pasa,
+copiá esa clave del output ANTES de cerrar la terminal — es la única
+copia que vas a tener; sin ella los `fcmToken` ya re-encriptados quedan
+indescifrables de forma permanente.*
+
 **Cadencia recomendada:** la misma que los demás secretos (cada 90 días, o
 de inmediato ante sospecha de filtración).

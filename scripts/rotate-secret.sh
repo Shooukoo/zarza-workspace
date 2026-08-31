@@ -4,6 +4,13 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+for cmd in docker jq openssl; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "Error: falta '$cmd' (requerido por este script)." >&2
+    exit 1
+  fi
+done
+
 VALID_VARS=("INTERNAL_NOTIFY_TOKEN" "INFERENCE_AUTH_TOKEN" "TRAINING_INTERNAL_TOKEN")
 
 # Solo INTERNAL_NOTIFY_TOKEN tiene hoy un mensaje de log confirmado para
