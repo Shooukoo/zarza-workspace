@@ -1,8 +1,10 @@
 # RubusAI — Roadmap de Tareas Pendientes
-**Fecha:** 2026-06-24 (última revisión de estado: 2026-08-09)
+**Fecha:** 2026-06-24 (última revisión de estado: 2026-08-31)
 **Origen:** Cruce entre la auditoría técnica del 2026-05-22 ([[2026-05-22-audit-estado-proyecto]]) y la lista de tareas pendientes del equipo.
 
 > **Nota de la revisión 2026-08-09:** varios ítems se completaron en commits posteriores a la fecha original del roadmap. Se marcaron ✅ con referencia al commit/PR correspondiente. También se agregó una sección de trabajo nuevo (rebrand visual, tema claro, KPIs del dashboard) que no estaba contemplado en la versión original.
+>
+> **Nota de la revisión 2026-08-31:** se completaron el pipeline de reentrenamiento con feedback humano (#1, la tarea más grande del roadmap), el modal de validación en Flutter (#8), los tests de `fruit-ms` (#5), el mapa geográfico de análisis vía mapas de calor, y el soporte multi-campo en captura. Las mejoras UX/UI en Flutter (#12) avanzaron a mitad de camino (timeline visual e indicador de "procesando" resueltos; modo oscuro real y manejo de errores siguen incompletos).
 ---
 
 ## Cómo está organizado
@@ -20,7 +22,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ## Prioridad Alta
 
-### 1. Pipeline de reentrenamiento del modelo con feedback humano
+### 1. Pipeline de reentrenamiento del modelo con feedback humano — ✅ Completada (PR #20, #25)
+
+> Resuelta en dos fases: **fase 1** — captura de detecciones y corrección humana, `ModelFeedback` en BD, pantalla de revisión en `zarza-web` (PR #20, `6ca42e4`), ver spec [[2026-08-11-deteccion-feedback-design]]. **Fase 2** — servicio `fruit-training` nuevo (dataset export, fine-tuning YOLO, `ModelVersion`/`TrainingJob` en BD, promoción/rollback), pantalla `/modelos-ia` en `zarza-web` (PR #25, `1566b8d`), ver spec [[2026-08-12-pipeline-reentrenamiento-design]]. Nota: la taxonomía de enfermedad sigue siendo binaria (`SANO`/`ENFERMO` genérico, sin tipos específicos de plaga/enfermedad) — quedó fuera de alcance a propósito en ambas fases.
 
 **Qué es:** Ahora mismo el modelo de IA (YOLOv8, archivo `best.pt`) detecta etapas fenológicas de la zarzamora pero nunca aprende de sus propios errores: si se equivoca, nadie se lo puede corregir desde la aplicación. Esta tarea crea ese mecanismo de corrección y reentrenamiento.
 
@@ -100,9 +104,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 5. Tests en fruit-ms — 🟡 Parcial
+### 5. Tests en fruit-ms — ✅ Completada
 
-> En progreso: existen specs para `fruits.controller`, `fruits.service`, `rabbitmq-topology.spec.ts` e `inference-http.adapter.spec.ts`. Sigue faltando el test del `InferenceMapper` mencionado explícitamente en el punto 1 de "en qué consiste" — no se encontró `inference.mapper.spec.ts` en el repo.
+> Resuelta: `fruit-ms/src/fruits/infrastructure/inference.mapper.spec.ts` ya existe, junto con los specs de `fruits.controller`, `fruits.service`, `rabbitmq-topology.spec.ts` e `inference-http.adapter.spec.ts` que ya estaban.
 
 **Qué es:** `fruit-ms` es el microservicio que recibe el evento de "nueva fruta", llama a la inferencia, y guarda el resultado. Actualmente tiene **cero archivos de test** — ningún cambio futuro está protegido contra romper este flujo sin darse cuenta.
 
@@ -157,7 +161,9 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 8. Modal de validación de análisis en Flutter — ⬜ Sigue pendiente
+### 8. Modal de validación de análisis en Flutter — ✅ Completada (PR #24)
+
+> Resuelta: modal de validación con observaciones y feedback visual (`1f95b53`), incluyendo fixes de parseo de `FruitAnalysisModel`/`DetectionModel` para el formato de respuesta de `PATCH /analyses/:id/validate` y actualización correcta de `HistoryScreen`/`ResultsScreen` tras validar/rechazar.
 
 **Qué es:** Un agrónomo puede aprobar o rechazar un análisis, y el backend ya soporta esto completamente (`PATCH /analyses/:id/validate`). Pero en la app Flutter ese flujo no tiene una pantalla real: hoy solo existe un aviso (snackbar) que dice "un agrónomo rechazó tu análisis", sin que el agrónomo tenga una forma cómoda de hacer esa validación con observaciones.
 
@@ -239,17 +245,17 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 ---
 
-### 12. Mejoras de diseño (UX/UI en Flutter) — ⬜ Sigue pendiente
+### 12. Mejoras de diseño (UX/UI en Flutter) — 🟡 Parcial (2 de 4 ítems resueltos)
 
-> No confundir con el rebrand/tema claro de **zarza-web** (ver [[#Trabajo nuevo no contemplado en la versión original|Trabajo nuevo]] al final) — esos commits son del panel web, no de la app Flutter. Ninguno de los cuatro ítems de abajo tiene commits asociados en `zarza_ai` todavía.
+> No confundir con el rebrand/tema claro de **zarza-web** (ver [[#Trabajo nuevo no contemplado en la versión original|Trabajo nuevo]] al final) — esos commits son del panel web, no de la app Flutter.
 
 **Qué es:** Conjunto de mejoras visuales y de experiencia de usuario en la app móvil, agrupadas como una sola línea de trabajo que se puede repartir en tickets individuales.
 
 **En qué consiste:**
-- **Modo oscuro real:** ya existe un `darkTheme` definido, pero está fijo — falta que respete `ThemeMode.system` (que siga la preferencia del sistema operativo del usuario).
-- **Manejo de errores más descriptivo:** hoy los errores de red se muestran genéricos; traducir códigos de error comunes a mensajes accionables en español (ej. "Sin conexión — la imagen se guardó para sincronizar automáticamente").
-- **Timeline visual de etapas fenológicas:** en la pantalla de detalle de un análisis (`ResultsScreen`), mostrar una barra de progreso o línea de tiempo visual en vez de solo texto.
-- **Indicador de "procesando":** en el historial (`HistoryScreen`), mostrar un spinner o skeleton en el ítem mientras se espera el resultado del análisis vía WebSocket.
+- **Modo oscuro real:** ⬜ sigue pendiente. `main.dart` sigue fijando `theme: AppTheme.darkTheme` a secas — no hay `ThemeMode.system` ni theme claro definido.
+- **Manejo de errores más descriptivo:** 🟡 parcial. `CaptureBloc._errorMessage` ya traduce `SocketException`/`413` a mensajes en español ("No se pudo conectar al servidor...", "La imagen es demasiado grande"), pero no llega al nivel descrito originalmente (ej. mencionar que la imagen quedó en la cola offline para sync automático) ni cubre otras pantallas más allá de captura.
+- **Timeline visual de etapas fenológicas:** ✅ resuelto — `_HarvestTimeline`/`_TimelineItem` en `results_screen.dart`.
+- **Indicador de "procesando":** ✅ resuelto — `StatusBadge` (`stage_badge.dart`) muestra `ANALIZANDO` para `AnalysisStatus.processing` en el historial.
 
 **Objetivo:** Mejorar la experiencia diaria de productores y monitores usando la app.
 
@@ -284,14 +290,14 @@ Las tareas están agrupadas por prioridad: Alta, Media, Baja/Investigación. Al 
 
 Estas ideas están documentadas en la auditoría original pero no han tenido ningún movimiento. Se quedan en el backlog para retomar cuando haya espacio:
 
-- **Mapa geográfico de análisis** — ⬜ sigue pendiente. Visualizar en un mapa (Google Maps/Mapbox) la ubicación de los análisis por campo, usando los datos GPS que ya existen.
+- **Mapa geográfico de análisis** — ✅ resuelto en [[2026-08-16-mapas-calor-design]] (PR #26 `a427b18`, mapas de calor por campo en `zarza-web`) y [[2026-08-19-editor-poligono-ux-design]] (PR #27 `44be032`). Se implementó como mapa de calor en vez de marcadores simples; clustering, exportar a PNG y edición geométrica avanzada quedaron fuera de alcance a propósito.
 - **Exportación de reportes PDF/Excel** — ⬜ sigue pendiente. Endpoint para que un agrónomo exporte los análisis de un campo.
 - **Cache en Redis para el dashboard** — ✅ resuelto en [[2026-07-08-redis-dashboard-cache]] (merge `c5e6686`).
 - **Healthchecks en `docker-compose.yml`** — ✅ resuelto (commit `6a710f3`, "feat(health): endpoints de health y healthchecks en Docker Compose").
 - **Compresión de imágenes antes del upload** — ✅ resuelto en [[2026-06-25-image-compression-flutter]] (merge PR #5, `69ecac3`).
 - **Paginación consistente** — ✅ resuelto: DTOs de query validados en `fruit-backend` (`5c470c0`) y paginación en repositorios de `zarza_ai` (`9b01b54`).
 - **Notificaciones in-app persistentes** — ✅ resuelto en [[2026-06-25-persistent-notifications-implementation]] (`dc96cee` y commits relacionados).
-- **Soporte multi-campo en captura** — ⬜ sigue pendiente. Permitir elegir entre varios campos asignados antes de tomar la foto, en vez de uno fijo.
+- **Soporte multi-campo en captura** — ✅ resuelto. `CaptureScreen` (`zarza_ai`) tiene un selector `CampoEntity? _selectedCampo` con dropdown de los campos asignados al usuario antes de tomar la foto.
 
 ---
 
