@@ -88,4 +88,31 @@ describe('planFcmKeyRotation', () => {
     expect(plan.reencryptedCount).toBe(0);
     expect(plan.legacyPlaintextCount).toBe(0);
   });
+
+  it('trata un valor malformado que empieza con "v1:" pero no tiene el formato real de sobre cifrado como texto plano legado', () => {
+    const oldCrypto = makeCrypto();
+    const newCrypto = makeCrypto();
+    const malformed = 'v1:no-es-un-sobre-cifrado-real';
+
+    const plan = planFcmKeyRotation(
+      [{ id: 'user-4', fcmToken: malformed }],
+      oldCrypto,
+      newCrypto,
+    );
+
+    expect(plan.legacyPlaintextCount).toBe(1);
+    expect(plan.reencryptedCount).toBe(0);
+    expect(newCrypto.decrypt(plan.updates[0].newValue)).toBe(malformed);
+  });
+
+  it('no muta el array de entrada', () => {
+    const oldCrypto = makeCrypto();
+    const newCrypto = makeCrypto();
+    const rows = [{ id: 'x', fcmToken: 'plano' }];
+    const rowsCopy = JSON.parse(JSON.stringify(rows));
+
+    planFcmKeyRotation(rows, oldCrypto, newCrypto);
+
+    expect(rows).toEqual(rowsCopy);
+  });
 });
