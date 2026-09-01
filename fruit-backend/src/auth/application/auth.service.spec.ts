@@ -1,6 +1,10 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { InvalidCredentialsError } from '../domain/errors/auth.errors';
+import {
+  InvalidCredentialsError,
+  InvalidCurrentPasswordError,
+  SamePasswordError,
+} from '../domain/errors/auth.errors';
 import { Role } from '../domain/enums/role.enum';
 import { User } from '../domain/entities/user.entity';
 
@@ -249,6 +253,91 @@ describe('AuthService', () => {
       await expect(service.getProfile('missing-id')).rejects.toThrow(
         UnauthorizedException,
       );
+    });
+  });
+
+  describe('changePassword()', () => {
+    it('cambia la contraseña y revoca las demás sesiones excluyendo la familia actual', async () => {
+      const user = makeUser({ id: 'user-1' });
+      mockUserRepo.findUserById.mockResolvedValue(user);
+      mockHasher.compare
+        .mockResolvedValueOnce(true) // currentPassword coincide
+        .mockResolvedValueOnce(false); // newPassword no es igual a la actual
+      mockHasher.hash.mockResolvedValue('new-hashed-value');
+      mockRefreshRepo.findByTokenHash.mockResolvedValue({
+        id: 'rt-1',
+        tokenHash: 'hash-actual',
+        userId: 'user-1',
+        familyId: 'family-actual',
+        expiresAt: new Date(Date.now() + 60_000),
+        revokedAt: null,
+      });
+
+      await service.changePassword(
+        'user-1',
+        'old-password',
+        'New-Strong-Pass9!',
+        'raw-current-refresh-token',
+      );
+
+      expect(mockUserRepo.updatePassword).toHaveBeenCalledWith(
+        'user-1',
+        'new-hashed-value',
+      );
+      expect(mockRefreshRepo.revokeAllByUserId).toHaveBeenCalledWith(
+        'user-1',
+        'family-actual',
+      );
+    });
+
+    it('revoca todas las sesiones sin excepción si no hay refresh token actual', async () => {
+      const user = makeUser({ id: 'user-1' });
+      mockUserRepo.findUserById.mockResolvedValue(user);
+      mockHasher.compare.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+      mockHasher.hash.mockResolvedValue('new-hashed-value');
+
+      await service.changePassword(
+        'user-1',
+        'old-password',
+        'New-Strong-Pass9!',
+        undefined,
+      );
+
+      expect(mockRefreshRepo.findByTokenHash).not.toHaveBeenCalled();
+      expect(mockRefreshRepo.revokeAllByUserId).toHaveBeenCalledWith(
+        'user-1',
+        undefined,
+      );
+    });
+
+    it('lanza InvalidCurrentPasswordError si la contraseña actual no coincide', async () => {
+      const user = makeUser({ id: 'user-1' });
+      mockUserRepo.findUserById.mockResolvedValue(user);
+      mockHasher.compare.mockResolvedValueOnce(false);
+
+      await expect(
+        service.changePassword('user-1', 'wrong', 'New-Strong-Pass9!'),
+      ).rejects.toThrow(InvalidCurrentPasswordError);
+      expect(mockUserRepo.updatePassword).not.toHaveBeenCalled();
+    });
+
+    it('lanza SamePasswordError si la nueva contraseña es igual a la actual', async () => {
+      const user = makeUser({ id: 'user-1' });
+      mockUserRepo.findUserById.mockResolvedValue(user);
+      mockHasher.compare.mockResolvedValueOnce(true).mockResolvedValueOnce(true);
+
+      await expect(
+        service.changePassword('user-1', 'same-pass', 'same-pass'),
+      ).rejects.toThrow(SamePasswordError);
+      expect(mockUserRepo.updatePassword).not.toHaveBeenCalled();
+    });
+
+    it('lanza 401 si el userId no corresponde a ningún usuario', async () => {
+      mockUserRepo.findUserById.mockResolvedValue(null);
+
+      await expect(
+        service.changePassword('missing-id', 'x', 'y'),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 });

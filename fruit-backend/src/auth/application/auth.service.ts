@@ -8,6 +8,8 @@ import { ITokenPort } from '../ports/token.port';
 import { IRefreshTokenRepository } from '../ports/refresh-token-repository.port';
 import {
   InvalidCredentialsError,
+  InvalidCurrentPasswordError,
+  SamePasswordError,
   UserAlreadyExistsError,
 } from '../domain/errors/auth.errors';
 
@@ -160,6 +162,40 @@ export class AuthService {
     const user = await this.userRepository.findUserById(userId);
     if (!user) throw new UnauthorizedException('Usuario no encontrado');
     return this._toProfile(user);
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+    currentRawRefreshToken?: string,
+  ): Promise<void> {
+    const user = await this.userRepository.findUserById(userId);
+    if (!user) throw new UnauthorizedException('Usuario no encontrado');
+
+    const isCurrentValid = await this.hasher.compare(
+      currentPassword,
+      user.hashedPassword,
+    );
+    if (!isCurrentValid) throw new InvalidCurrentPasswordError();
+
+    const isSameAsCurrent = await this.hasher.compare(
+      newPassword,
+      user.hashedPassword,
+    );
+    if (isSameAsCurrent) throw new SamePasswordError();
+
+    const newHash = await this.hasher.hash(newPassword);
+    await this.userRepository.updatePassword(userId, newHash);
+
+    let exceptFamilyId: string | undefined;
+    if (currentRawRefreshToken) {
+      const record = await this.refreshTokenRepo.findByTokenHash(
+        this._hashToken(currentRawRefreshToken),
+      );
+      exceptFamilyId = record?.familyId;
+    }
+    await this.refreshTokenRepo.revokeAllByUserId(userId, exceptFamilyId);
   }
 
   private _generateRefreshToken(): string {
