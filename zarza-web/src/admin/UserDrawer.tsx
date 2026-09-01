@@ -22,6 +22,8 @@ import {
 import { useAuth } from '../auth/useAuth';
 import { Role } from '../auth/types';
 import type { User } from './types';
+import { PasswordStrengthMeter } from '../shared/PasswordStrengthMeter';
+import { evaluatePassword } from '../shared/passwordPolicy';
 
 const { Text } = Typography;
 
@@ -50,6 +52,10 @@ export function UserDrawer({ user, open, onClose }: Props) {
   const [selectedCampos, setSelectedCampos] = useState<string[]>([]);
   const [passwordForm] = Form.useForm<{ password: string }>();
   const [nameForm] = Form.useForm<{ firstName?: string; lastName?: string }>();
+
+  const watchedPassword = Form.useWatch('password', passwordForm);
+  const passwordUserInputs = user?.email ? [user.email] : [];
+  const passwordEvaluation = evaluatePassword(watchedPassword ?? '', passwordUserInputs);
 
   useEffect(() => {
     if (user) {
@@ -264,11 +270,21 @@ export function UserDrawer({ user, open, onClose }: Props) {
                 label="Nueva contraseña"
                 rules={[
                   { required: true, message: 'Ingresa la contraseña' },
-                  { min: 6, message: 'Mínimo 6 caracteres' },
+                  {
+                    validator: async (_, value: string) => {
+                      if (!value || evaluatePassword(value, passwordUserInputs).valid) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error('La contraseña no cumple los requisitos de seguridad'),
+                      );
+                    },
+                  },
                 ]}
               >
                 <Input.Password placeholder="••••••" />
               </Form.Item>
+              <PasswordStrengthMeter evaluation={passwordEvaluation} />
               <Button
                 htmlType="submit"
                 block
