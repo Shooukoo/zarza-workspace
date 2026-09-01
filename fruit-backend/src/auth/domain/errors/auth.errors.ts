@@ -27,3 +27,19 @@ export class UserNotFoundError extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
+
+export class InvalidCurrentPasswordError extends Error {
+  constructor() {
+    super('Current password is incorrect');
+    this.name = 'InvalidCurrentPasswordError';
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+export class SamePasswordError extends Error {
+  constructor() {
+    super('New password must be different from the current password');
+    this.name = 'SamePasswordError';
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
