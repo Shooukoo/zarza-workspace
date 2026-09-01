@@ -119,6 +119,18 @@ function TopBar({ user, activePath, scrolled, onLogout }: {
                 {user ? ROLE_LABEL[user.role] : ''}
               </div>
             </div>
+            <Link
+              to="/perfil"
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+              style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '10px 14px', fontSize: 13, color: T.ink, cursor: 'pointer',
+                textDecoration: 'none',
+              }}
+            >
+              Configuración
+            </Link>
             <button
               type="button"
               role="menuitem"
