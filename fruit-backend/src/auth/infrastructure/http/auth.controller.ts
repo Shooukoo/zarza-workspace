@@ -20,10 +20,13 @@ import { AuthService } from '../../application/auth.service';
 import {
   UserAlreadyExistsError,
   InvalidCredentialsError,
+  InvalidCurrentPasswordError,
+  SamePasswordError,
 } from '../../domain/errors/auth.errors';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import { UpdateProfileDto } from './dtos/update-profile.dto';
+import { ChangePasswordDto } from './dtos/change-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
@@ -221,6 +224,62 @@ export class AuthController {
       firstName: dto.firstName,
       lastName: dto.lastName,
     });
+  }
+
+  @Patch('password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
+  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
+  @ApiOperation({
+    summary: 'Cambiar contraseña propia',
+    description:
+      'Cambia la contraseña del usuario autenticado, validando la contraseña ' +
+      'actual. Revoca todas las demás sesiones activas, preservando la sesión ' +
+      'actual cuando se puede identificar por su cookie de refresh token.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Contraseña actualizada correctamente.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description:
+      'La contraseña actual no es correcta, la nueva no cumple la política, ' +
+      'o es igual a la actual.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Se requiere autenticación.',
+  })
+  async changePassword(
+    @Req()
+    req: FastifyRequest & {
+      user?: { sub: string };
+      cookies?: Record<string, string>;
+    },
+    @Body() dto: ChangePasswordDto,
+  ) {
+    try {
+      const rawRefreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
+      await this.authService.changePassword(
+        req.user!.sub,
+        dto.currentPassword,
+        dto.newPassword,
+        rawRefreshToken,
+      );
+    } catch (error) {
+      if (error instanceof InvalidCurrentPasswordError) {
+        throw new BadRequestException('La contraseña actual no es correcta');
+      }
+      if (error instanceof SamePasswordError) {
+        throw new BadRequestException(
+          'La nueva contraseña debe ser distinta a la actual',
+        );
+      }
+      throw error;
+    }
   }
 
   @Patch('fcm-token')
