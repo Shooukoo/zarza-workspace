@@ -310,6 +310,26 @@ describe('AuthService', () => {
       );
     });
 
+    it('revoca todas las sesiones sin excepción si el refresh token actual no resuelve a ningún registro (cookie obsoleta/manipulada)', async () => {
+      const user = makeUser({ id: 'user-1' });
+      mockUserRepo.findUserById.mockResolvedValue(user);
+      mockHasher.compare.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+      mockHasher.hash.mockResolvedValue('new-hashed-value');
+      mockRefreshRepo.findByTokenHash.mockResolvedValue(null);
+
+      await service.changePassword(
+        'user-1',
+        'old-password',
+        'New-Strong-Pass9!',
+        'raw-current-refresh-token',
+      );
+
+      expect(mockRefreshRepo.revokeAllByUserId).toHaveBeenCalledWith(
+        'user-1',
+        undefined,
+      );
+    });
+
     it('lanza InvalidCurrentPasswordError si la contraseña actual no coincide', async () => {
       const user = makeUser({ id: 'user-1' });
       mockUserRepo.findUserById.mockResolvedValue(user);
