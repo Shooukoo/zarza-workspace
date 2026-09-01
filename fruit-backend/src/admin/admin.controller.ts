@@ -25,10 +25,10 @@ import {
   IsEnum,
   IsString,
   IsOptional,
-  MinLength,
   IsArray,
   IsUUID,
 } from 'class-validator';
+import { IsStrongPassword } from '../common/validators/is-strong-password.validator';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
   ApiBearerAuth,
@@ -62,7 +62,7 @@ class ListUsersQueryDto extends PaginationQueryDto {
   rol?: Role;
 }
 
-class CreateUserDto {
+export class CreateUserDto {
   @ApiProperty({
     description: 'Dirección de correo electrónico del usuario.',
     example: 'usuario@example.com',
@@ -71,12 +71,13 @@ class CreateUserDto {
   email: string;
 
   @ApiProperty({
-    description: 'Contraseña de usuario.',
-    example: 'contraseña123',
-    minLength: 6,
+    description:
+      'Contraseña de usuario. Mínimo 10 caracteres, al menos 3 de: ' +
+      'mayúscula, minúscula, número, símbolo, y no debe ser fácil de adivinar.',
+    example: 'Tr0pic@lBerry9',
+    minLength: 10,
   })
-  @IsString()
-  @MinLength(6)
+  @IsStrongPassword()
   password: string;
 
   @ApiProperty({
@@ -137,14 +138,15 @@ class UpdateCamposDto {
   campos_ids: string[];
 }
 
-class UpdatePasswordDto {
+export class UpdatePasswordDto {
   @ApiProperty({
-    description: 'Nueva contraseña para el usuario.',
-    example: 'nuevaContraseñad123',
-    minLength: 6,
+    description:
+      'Nueva contraseña para el usuario. Mínimo 10 caracteres, al menos 3 ' +
+      'de: mayúscula, minúscula, número, símbolo, y no debe ser fácil de adivinar.',
+    example: 'Tr0pic@lBerry9',
+    minLength: 10,
   })
-  @IsString()
-  @MinLength(6)
+  @IsStrongPassword()
   password: string;
 }
 
