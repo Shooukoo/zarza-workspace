@@ -13,8 +13,8 @@
 Rotación automatizada de los 4 secretos (`INTERNAL_NOTIFY_TOKEN`, `INFERENCE_AUTH_TOKEN`, `TRAINING_INTERNAL_TOKEN`, `FCM_TOKEN_ENCRYPTION_KEY`) vía `scripts/rotate-secret.sh` y `fruit-backend/scripts/rotate-fcm-key.ts`, con backfill de tokens FCM en texto plano resuelto en la misma pasada. Spec: [[2026-08-31-secretos-centralizados-design]]. Verificación E2E (2026-08-31) contra el stack local: los 4 secretos rotados de verdad y redesplegados con éxito — los 3 tokens compartidos vía `rotate-secret.sh` (healthcheck + logs sin rechazos) y `FCM_TOKEN_ENCRYPTION_KEY` vía `rotate-fcm-key.ts --apply` (corrido por el usuario, ya que la mutación de BD quedó bloqueada para el agente por el classifier de auto mode; `fruit-backend` healthy tras el redeploy). No se adoptó secret manager externo (evaluado y descartado en el spec).
 *Por qué primero:* bajo esfuerzo, gana seguridad rápido, sin dependencias de otros grupos.
 
-### 2. Autogestión de cuenta/perfil — ⬜ No iniciado
-Cambio de contraseña por el propio usuario + página de perfil/configuración en `zarza-web` (la opción "Configuración" del menú del avatar, mencionada pero nunca construida).
+### 2. Autogestión de cuenta/perfil — ✅ Completado
+Cambio de contraseña por el propio usuario + página de perfil/configuración en `zarza-web` (ruta `/perfil`, ítem "Configuración" en el dropdown del avatar). Incluye política de contraseña fuerte compartida (mínimo 10 caracteres, 3 de 4 tipos, score zxcvbn ≥ 2) aplicada también en alta y reseteo de contraseña por admin. Spec: [[2026-08-31-autogestion-perfil-design]].
 *Por qué segundo:* proyecto chico, independiente de los demás.
 
 ### 3. Tema claro completo — ⬜ No iniciado
