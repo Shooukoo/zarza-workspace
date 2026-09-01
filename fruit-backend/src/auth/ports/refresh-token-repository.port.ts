@@ -23,5 +23,7 @@ export interface IRefreshTokenRepository {
 
   revokeByFamilyId(familyId: string): Promise<void>;
 
+  revokeAllByUserId(userId: string, exceptFamilyId?: string): Promise<void>;
+
   deleteExpired(): Promise<number>;
 }

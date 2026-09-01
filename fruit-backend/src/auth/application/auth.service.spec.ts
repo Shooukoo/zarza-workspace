@@ -33,6 +33,7 @@ const mockRefreshRepo = {
   findByTokenHash: jest.fn(),
   revokeByTokenHash: jest.fn(),
   revokeByFamilyId: jest.fn(),
+  revokeAllByUserId: jest.fn(),
   deleteExpired: jest.fn(),
 };
 

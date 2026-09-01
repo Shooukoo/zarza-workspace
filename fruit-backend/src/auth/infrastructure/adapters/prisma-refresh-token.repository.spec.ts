@@ -107,6 +107,36 @@ describe('PrismaRefreshTokenRepository', () => {
     });
   });
 
+  describe('revokeAllByUserId()', () => {
+    it('revoca todos los tokens activos del usuario cuando no se excluye ninguna familia', async () => {
+      mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 2 });
+
+      await repo.revokeAllByUserId('user-1');
+
+      expect(mockPrisma.refreshToken.updateMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1', revokedAt: null },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        data: { revokedAt: expect.any(Date) },
+      });
+    });
+
+    it('excluye la familia indicada al revocar', async () => {
+      mockPrisma.refreshToken.updateMany.mockResolvedValue({ count: 1 });
+
+      await repo.revokeAllByUserId('user-1', 'family-actual');
+
+      expect(mockPrisma.refreshToken.updateMany).toHaveBeenCalledWith({
+        where: {
+          userId: 'user-1',
+          revokedAt: null,
+          familyId: { not: 'family-actual' },
+        },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        data: { revokedAt: expect.any(Date) },
+      });
+    });
+  });
+
   describe('deleteExpired()', () => {
     it('elimina registros con expiresAt en el pasado y devuelve el conteo', async () => {
       mockPrisma.refreshToken.deleteMany.mockResolvedValue({ count: 5 });
