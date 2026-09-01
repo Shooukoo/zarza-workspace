@@ -13,6 +13,7 @@ import { ColaRevisionPage } from './revision-detecciones/ColaRevisionPage';
 import { RevisionDeteccionesPage } from './revision-detecciones/RevisionDeteccionesPage';
 import { UsersPage } from './admin/UsersPage';
 import { ModelosIAPage } from './modelos-ia/ModelosIAPage';
+import { ProfilePage } from './perfil/ProfilePage';
 import { Role } from './auth/types';
 import { useAuth } from './auth/useAuth';
 import { defaultRouteForRole } from './auth/defaultRoute';
@@ -32,6 +33,7 @@ export function App() {
       <Route element={<PrivateRoute />}>
         <Route element={<AppShell />}>
           <Route path="/" element={<RootRedirect />} />
+          <Route path="/perfil" element={<ProfilePage />} />
 
           <Route
             element={
