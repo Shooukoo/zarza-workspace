@@ -1,6 +1,8 @@
 import { Modal, Form, Input, Select, notification } from 'antd';
 import { useCreateUser } from './hooks/useUsers';
 import { Role } from '../auth/types';
+import { PasswordStrengthMeter } from '../shared/PasswordStrengthMeter';
+import { evaluatePassword } from '../shared/passwordPolicy';
 
 interface Props {
   open: boolean;
@@ -24,6 +26,11 @@ const ROLE_OPTIONS = [
 export function CreateUserModal({ open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
   const createMutation = useCreateUser();
+
+  const email = Form.useWatch('email', form);
+  const password = Form.useWatch('password', form);
+  const userInputs = [email].filter((v): v is string => Boolean(v));
+  const passwordEvaluation = evaluatePassword(password ?? '', userInputs);
 
   async function onFinish(values: FormValues) {
     try {
@@ -79,11 +86,22 @@ export function CreateUserModal({ open, onClose }: Props) {
           name="password"
           rules={[
             { required: true, message: 'Ingresa la contraseña' },
-            { min: 6, message: 'Mínimo 6 caracteres' },
+            {
+              validator: async (_, value: string) => {
+                if (!value || evaluatePassword(value, userInputs).valid) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error('La contraseña no cumple los requisitos de seguridad'),
+                );
+              },
+            },
           ]}
         >
           <Input.Password />
         </Form.Item>
+
+        <PasswordStrengthMeter evaluation={passwordEvaluation} />
 
         <Form.Item
           label="Rol"
