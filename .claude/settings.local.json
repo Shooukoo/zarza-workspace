@@ -80,7 +80,8 @@
       "Bash(python -c \"from main import app; print\\('OK'\\)\")",
       "Bash(git check-ignore *)",
       "Bash(node -e ' *)",
-      "Bash(git status *)"
+      "Bash(git status *)",
+      "Bash(git push *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\shoxd\\Proyecto Dalet\\docs\\superpowers\\specs"
