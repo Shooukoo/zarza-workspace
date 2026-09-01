@@ -15,6 +15,7 @@ const mockUserRepo = {
   clearFcmToken: jest.fn(),
   saveFcmToken: jest.fn(),
   updateProfile: jest.fn(),
+  updatePassword: jest.fn(),
 };
 
 const mockHasher = {

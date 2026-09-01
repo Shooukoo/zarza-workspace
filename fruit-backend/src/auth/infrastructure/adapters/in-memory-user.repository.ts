@@ -61,4 +61,11 @@ export class InMemoryUserRepository implements IUserRepository {
   ): Promise<void> {
     // No-op in tests — User is immutable; test state is verified through the array directly
   }
+
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
+    const idx = this.users.findIndex((u) => u.id === userId);
+    if (idx !== -1) {
+      this.users[idx] = this.users[idx].withUpdatedPassword(hashedPassword);
+    }
+  }
 }

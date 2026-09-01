@@ -66,4 +66,17 @@ describe('PrismaUserRepository — cifrado de fcmToken', () => {
 
     expect(await repo.findFcmTokenById('user-1')).toBeNull();
   });
+
+  describe('updatePassword()', () => {
+    it('actualiza passwordHash del usuario indicado', async () => {
+      mockPrisma.user.update.mockResolvedValue({});
+
+      await repo.updatePassword('user-1', 'new-hashed-value');
+
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+        data: { passwordHash: 'new-hashed-value' },
+      });
+    });
+  });
 });
