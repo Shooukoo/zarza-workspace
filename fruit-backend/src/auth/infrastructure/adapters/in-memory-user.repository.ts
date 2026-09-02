@@ -68,4 +68,15 @@ export class InMemoryUserRepository implements IUserRepository {
       this.users[idx] = this.users[idx].withUpdatedPassword(hashedPassword);
     }
   }
+
+  async updateNotificationPreferences(
+    userId: string,
+    pushNotificationsEnabled: boolean,
+  ): Promise<void> {
+    const idx = this.users.findIndex((u) => u.id === userId);
+    if (idx !== -1) {
+      this.users[idx] =
+        this.users[idx].withPushNotificationsEnabled(pushNotificationsEnabled);
+    }
+  }
 }

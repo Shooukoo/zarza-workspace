@@ -19,6 +19,8 @@ export type UserProfile = {
   role: Role;
   firstName: string | null;
   lastName: string | null;
+  createdAt: Date | null;
+  pushNotificationsEnabled: boolean;
 };
 
 export type RegisteredUserResult = {
@@ -188,6 +190,13 @@ export class AuthService {
     const newHash = await this.hasher.hash(newPassword);
     await this.userRepository.updatePassword(userId, newHash);
 
+    await this.revokeOtherSessions(userId, currentRawRefreshToken);
+  }
+
+  async revokeOtherSessions(
+    userId: string,
+    currentRawRefreshToken?: string,
+  ): Promise<void> {
     let exceptFamilyId: string | undefined;
     if (currentRawRefreshToken) {
       const record = await this.refreshTokenRepo.findByTokenHash(
@@ -196,6 +205,16 @@ export class AuthService {
       exceptFamilyId = record?.familyId;
     }
     await this.refreshTokenRepo.revokeAllByUserId(userId, exceptFamilyId);
+  }
+
+  async updateNotificationPreferences(
+    userId: string,
+    pushNotificationsEnabled: boolean,
+  ): Promise<void> {
+    await this.userRepository.updateNotificationPreferences(
+      userId,
+      pushNotificationsEnabled,
+    );
   }
 
   private _generateRefreshToken(): string {
@@ -213,6 +232,8 @@ export class AuthService {
       role: user.role,
       firstName: user.firstName,
       lastName: user.lastName,
+      createdAt: user.createdAt,
+      pushNotificationsEnabled: user.pushNotificationsEnabled,
     };
   }
 }

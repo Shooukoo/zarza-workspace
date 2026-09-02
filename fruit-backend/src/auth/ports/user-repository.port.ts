@@ -29,4 +29,8 @@ export interface IUserRepository {
     data: { firstName?: string; lastName?: string },
   ): Promise<void>;
   updatePassword(userId: string, hashedPassword: string): Promise<void>;
+  updateNotificationPreferences(
+    userId: string,
+    pushNotificationsEnabled: boolean,
+  ): Promise<void>;
 }

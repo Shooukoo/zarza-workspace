@@ -41,6 +41,8 @@ export class PrismaUserRepository implements IUserRepository {
       created.role as Role,
       created.firstName ?? null,
       created.lastName ?? null,
+      created.createdAt,
+      created.pushNotificationsEnabled,
     );
   }
 
@@ -65,9 +67,9 @@ export class PrismaUserRepository implements IUserRepository {
   async findFcmTokenById(userId: string): Promise<string | null> {
     const doc = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { fcmToken: true },
+      select: { fcmToken: true, pushNotificationsEnabled: true },
     });
-    if (!doc?.fcmToken) return null;
+    if (!doc?.fcmToken || !doc.pushNotificationsEnabled) return null;
     return this.crypto.decrypt(doc.fcmToken);
   }
 
@@ -105,6 +107,16 @@ export class PrismaUserRepository implements IUserRepository {
     });
   }
 
+  async updateNotificationPreferences(
+    userId: string,
+    pushNotificationsEnabled: boolean,
+  ): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { pushNotificationsEnabled },
+    });
+  }
+
   private toDomain(doc: PrismaUser): User {
     return new User(
       doc.id,
@@ -113,6 +125,8 @@ export class PrismaUserRepository implements IUserRepository {
       doc.role as Role,
       doc.firstName ?? null,
       doc.lastName ?? null,
+      doc.createdAt,
+      doc.pushNotificationsEnabled,
     );
   }
 }
