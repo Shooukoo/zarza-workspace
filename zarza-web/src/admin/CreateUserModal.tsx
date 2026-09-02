@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Modal, Form, Input, Select, notification } from 'antd';
 import { useCreateUser } from './hooks/useUsers';
 import { Role } from '../auth/types';
 import { PasswordStrengthMeter } from '../shared/PasswordStrengthMeter';
-import { evaluatePassword } from '../shared/passwordPolicy';
+import { FormLabelRow } from '../shared/FormLabelRow';
+import { evaluatePassword, generatePassword } from '../shared/passwordPolicy';
 
 interface Props {
   open: boolean;
@@ -26,11 +28,17 @@ const ROLE_OPTIONS = [
 export function CreateUserModal({ open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
   const createMutation = useCreateUser();
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const email = Form.useWatch('email', form);
   const password = Form.useWatch('password', form);
   const userInputs = [email].filter((v): v is string => Boolean(v));
   const passwordEvaluation = evaluatePassword(password ?? '', userInputs);
+
+  function handleGeneratePassword() {
+    form.setFieldValue('password', generatePassword());
+    setPasswordVisible(true);
+  }
 
   async function onFinish(values: FormValues) {
     try {
@@ -50,6 +58,7 @@ export function CreateUserModal({ open, onClose }: Props) {
       onOk={form.submit}
       onCancel={() => {
         form.resetFields();
+        setPasswordVisible(false);
         onClose();
       }}
       confirmLoading={createMutation.isPending}
@@ -81,8 +90,13 @@ export function CreateUserModal({ open, onClose }: Props) {
           <Input placeholder="usuario@rubus.com" />
         </Form.Item>
 
-        <Form.Item
+        <FormLabelRow
+          htmlFor="create-user-password"
           label="Contraseña"
+          required
+          action={{ label: 'Generar', onClick: handleGeneratePassword }}
+        />
+        <Form.Item
           name="password"
           rules={[
             { required: true, message: 'Ingresa la contraseña' },
@@ -98,7 +112,10 @@ export function CreateUserModal({ open, onClose }: Props) {
             },
           ]}
         >
-          <Input.Password />
+          <Input.Password
+            id="create-user-password"
+            visibilityToggle={{ visible: passwordVisible, onVisibleChange: setPasswordVisible }}
+          />
         </Form.Item>
 
         <PasswordStrengthMeter evaluation={passwordEvaluation} />

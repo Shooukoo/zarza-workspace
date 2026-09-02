@@ -20,6 +20,7 @@ const mockUserRepo = {
   saveFcmToken: jest.fn(),
   updateProfile: jest.fn(),
   updatePassword: jest.fn(),
+  updateNotificationPreferences: jest.fn(),
 };
 
 const mockHasher = {
@@ -243,6 +244,8 @@ describe('AuthService', () => {
         role: Role.PRODUCTOR,
         firstName: 'Ana',
         lastName: 'Pérez',
+        createdAt: null,
+        pushNotificationsEnabled: true,
       });
       expect(mockUserRepo.findUserById).toHaveBeenCalledWith('user-1');
     });
@@ -358,6 +361,47 @@ describe('AuthService', () => {
       await expect(
         service.changePassword('missing-id', 'x', 'y'),
       ).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('revokeOtherSessions()', () => {
+    it('revoca todas las sesiones excluyendo la familia de la cookie actual', async () => {
+      mockRefreshRepo.findByTokenHash.mockResolvedValue({
+        id: 'rt-1',
+        tokenHash: 'hash-actual',
+        userId: 'user-1',
+        familyId: 'family-actual',
+        expiresAt: new Date(Date.now() + 60_000),
+        revokedAt: null,
+      });
+
+      await service.revokeOtherSessions('user-1', 'raw-current-refresh-token');
+
+      expect(mockRefreshRepo.revokeAllByUserId).toHaveBeenCalledWith(
+        'user-1',
+        'family-actual',
+      );
+    });
+
+    it('revoca todas las sesiones sin excepción si no hay refresh token actual', async () => {
+      await service.revokeOtherSessions('user-1', undefined);
+
+      expect(mockRefreshRepo.findByTokenHash).not.toHaveBeenCalled();
+      expect(mockRefreshRepo.revokeAllByUserId).toHaveBeenCalledWith(
+        'user-1',
+        undefined,
+      );
+    });
+  });
+
+  describe('updateNotificationPreferences()', () => {
+    it('delega en el repositorio de usuarios', async () => {
+      await service.updateNotificationPreferences('user-1', false);
+
+      expect(mockUserRepo.updateNotificationPreferences).toHaveBeenCalledWith(
+        'user-1',
+        false,
+      );
     });
   });
 });

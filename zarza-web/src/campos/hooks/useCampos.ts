@@ -16,10 +16,11 @@ export interface UserOption {
   email: string;
 }
 
-export function useCampos() {
+export function useCampos(enabled = true) {
   return useQuery<Campo[]>({
     queryKey: ['campos'],
     queryFn: () => apiClient.get<Campo[]>('/campos').then((r) => r.data),
+    enabled,
   });
 }
 

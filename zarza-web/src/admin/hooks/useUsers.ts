@@ -12,7 +12,7 @@ interface UsersResponse {
   hasMore: boolean;
 }
 
-export function useUsers(page: number, rol?: Role) {
+export function useUsers(page: number, rol?: Role, enabled = true) {
   return useQuery<UsersResponse>({
     queryKey: ['admin', 'users', page, rol],
     queryFn: () => {
@@ -22,6 +22,7 @@ export function useUsers(page: number, rol?: Role) {
         .get<UsersResponse>(`/admin/users?${params}`)
         .then((r) => r.data);
     },
+    enabled,
   });
 }
 

@@ -11,6 +11,8 @@ export class User {
     public readonly role: Role,
     public readonly firstName: string | null = null,
     public readonly lastName: string | null = null,
+    public readonly createdAt: Date | null = null,
+    public readonly pushNotificationsEnabled: boolean = true,
   ) {
     this._passwordHash = passwordHash;
   }
@@ -27,6 +29,21 @@ export class User {
       this.role,
       this.firstName,
       this.lastName,
+      this.createdAt,
+      this.pushNotificationsEnabled,
+    );
+  }
+
+  withPushNotificationsEnabled(enabled: boolean): User {
+    return new User(
+      this.id,
+      this.email,
+      this.hashedPassword,
+      this.role,
+      this.firstName,
+      this.lastName,
+      this.createdAt,
+      enabled,
     );
   }
 }

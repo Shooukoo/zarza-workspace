@@ -24,6 +24,8 @@ type BackendUserProfile = {
   role: Role;
   firstName: string | null;
   lastName: string | null;
+  createdAt: string;
+  pushNotificationsEnabled: boolean;
 };
 
 function toAuthUser(u: BackendUserProfile): AuthUser {
@@ -33,6 +35,8 @@ function toAuthUser(u: BackendUserProfile): AuthUser {
     role: u.role,
     firstName: u.firstName,
     lastName: u.lastName,
+    createdAt: u.createdAt,
+    pushNotificationsEnabled: u.pushNotificationsEnabled,
   };
 }
 

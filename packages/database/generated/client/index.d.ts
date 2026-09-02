@@ -2265,6 +2265,7 @@ export namespace Prisma {
     passwordHash: string | null
     role: $Enums.Role | null
     fcmToken: string | null
+    pushNotificationsEnabled: boolean | null
     firstName: string | null
     lastName: string | null
     createdAt: Date | null
@@ -2277,6 +2278,7 @@ export namespace Prisma {
     passwordHash: string | null
     role: $Enums.Role | null
     fcmToken: string | null
+    pushNotificationsEnabled: boolean | null
     firstName: string | null
     lastName: string | null
     createdAt: Date | null
@@ -2289,6 +2291,7 @@ export namespace Prisma {
     passwordHash: number
     role: number
     fcmToken: number
+    pushNotificationsEnabled: number
     firstName: number
     lastName: number
     createdAt: number
@@ -2303,6 +2306,7 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     fcmToken?: true
+    pushNotificationsEnabled?: true
     firstName?: true
     lastName?: true
     createdAt?: true
@@ -2315,6 +2319,7 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     fcmToken?: true
+    pushNotificationsEnabled?: true
     firstName?: true
     lastName?: true
     createdAt?: true
@@ -2327,6 +2332,7 @@ export namespace Prisma {
     passwordHash?: true
     role?: true
     fcmToken?: true
+    pushNotificationsEnabled?: true
     firstName?: true
     lastName?: true
     createdAt?: true
@@ -2412,6 +2418,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken: string | null
+    pushNotificationsEnabled: boolean
     firstName: string | null
     lastName: string | null
     createdAt: Date
@@ -2441,6 +2448,7 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     fcmToken?: boolean
+    pushNotificationsEnabled?: boolean
     firstName?: boolean
     lastName?: boolean
     createdAt?: boolean
@@ -2468,6 +2476,7 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     fcmToken?: boolean
+    pushNotificationsEnabled?: boolean
     firstName?: boolean
     lastName?: boolean
     createdAt?: boolean
@@ -2480,6 +2489,7 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     fcmToken?: boolean
+    pushNotificationsEnabled?: boolean
     firstName?: boolean
     lastName?: boolean
     createdAt?: boolean
@@ -2492,13 +2502,14 @@ export namespace Prisma {
     passwordHash?: boolean
     role?: boolean
     fcmToken?: boolean
+    pushNotificationsEnabled?: boolean
     firstName?: boolean
     lastName?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "fcmToken" | "firstName" | "lastName" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "fcmToken" | "pushNotificationsEnabled" | "firstName" | "lastName" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     camposAsignados?: boolean | User$camposAsignadosArgs<ExtArgs>
     camposProductor?: boolean | User$camposProductorArgs<ExtArgs>
@@ -2543,6 +2554,7 @@ export namespace Prisma {
       passwordHash: string
       role: $Enums.Role
       fcmToken: string | null
+      pushNotificationsEnabled: boolean
       firstName: string | null
       lastName: string | null
       createdAt: Date
@@ -2989,6 +3001,7 @@ export namespace Prisma {
     readonly passwordHash: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
     readonly fcmToken: FieldRef<"User", 'String'>
+    readonly pushNotificationsEnabled: FieldRef<"User", 'Boolean'>
     readonly firstName: FieldRef<"User", 'String'>
     readonly lastName: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
@@ -16783,6 +16796,7 @@ export namespace Prisma {
     passwordHash: 'passwordHash',
     role: 'role',
     fcmToken: 'fcmToken',
+    pushNotificationsEnabled: 'pushNotificationsEnabled',
     firstName: 'firstName',
     lastName: 'lastName',
     createdAt: 'createdAt',
@@ -17045,6 +17059,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -17125,13 +17146,6 @@ export namespace Prisma {
    * Reference to a field of type 'EstadoValidacion[]'
    */
   export type ListEnumEstadoValidacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoValidacion[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -17217,6 +17231,7 @@ export namespace Prisma {
     passwordHash?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     fcmToken?: StringNullableFilter<"User"> | string | null
+    pushNotificationsEnabled?: BoolFilter<"User"> | boolean
     firstName?: StringNullableFilter<"User"> | string | null
     lastName?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -17243,6 +17258,7 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrderInput | SortOrder
+    pushNotificationsEnabled?: SortOrder
     firstName?: SortOrderInput | SortOrder
     lastName?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -17272,6 +17288,7 @@ export namespace Prisma {
     passwordHash?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
     fcmToken?: StringNullableFilter<"User"> | string | null
+    pushNotificationsEnabled?: BoolFilter<"User"> | boolean
     firstName?: StringNullableFilter<"User"> | string | null
     lastName?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -17298,6 +17315,7 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrderInput | SortOrder
+    pushNotificationsEnabled?: SortOrder
     firstName?: SortOrderInput | SortOrder
     lastName?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -17316,6 +17334,7 @@ export namespace Prisma {
     passwordHash?: StringWithAggregatesFilter<"User"> | string
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     fcmToken?: StringNullableWithAggregatesFilter<"User"> | string | null
+    pushNotificationsEnabled?: BoolWithAggregatesFilter<"User"> | boolean
     firstName?: StringNullableWithAggregatesFilter<"User"> | string | null
     lastName?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -18288,6 +18307,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -18314,6 +18334,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -18340,6 +18361,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18366,6 +18388,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18392,6 +18415,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -18404,6 +18428,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18416,6 +18441,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19497,6 +19523,11 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -19619,6 +19650,7 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrder
+    pushNotificationsEnabled?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
     createdAt?: SortOrder
@@ -19631,6 +19663,7 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrder
+    pushNotificationsEnabled?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
     createdAt?: SortOrder
@@ -19643,6 +19676,7 @@ export namespace Prisma {
     passwordHash?: SortOrder
     role?: SortOrder
     fcmToken?: SortOrder
+    pushNotificationsEnabled?: SortOrder
     firstName?: SortOrder
     lastName?: SortOrder
     createdAt?: SortOrder
@@ -19708,6 +19742,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -19949,11 +19991,6 @@ export namespace Prisma {
     not?: NestedEnumEstadoValidacionFilter<$PrismaModel> | $Enums.EstadoValidacion
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type UuidNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -20148,14 +20185,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEstadoValidacionFilter<$PrismaModel>
     _max?: NestedEnumEstadoValidacionFilter<$PrismaModel>
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -20849,6 +20878,10 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -21565,10 +21598,6 @@ export namespace Prisma {
     set?: $Enums.EstadoValidacion
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
-  }
-
   export type UserUpdateOneRequiredWithoutAnalysesAsRequesterNestedInput = {
     create?: XOR<UserCreateWithoutAnalysesAsRequesterInput, UserUncheckedCreateWithoutAnalysesAsRequesterInput>
     connectOrCreate?: UserCreateOrConnectWithoutAnalysesAsRequesterInput
@@ -22007,6 +22036,11 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -22096,6 +22130,14 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -22206,11 +22248,6 @@ export namespace Prisma {
     not?: NestedEnumEstadoValidacionFilter<$PrismaModel> | $Enums.EstadoValidacion
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type NestedUuidNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -22278,14 +22315,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEstadoValidacionFilter<$PrismaModel>
     _max?: NestedEnumEstadoValidacionFilter<$PrismaModel>
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -23441,6 +23470,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -23466,6 +23496,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -23633,6 +23664,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23658,6 +23690,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23731,6 +23764,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -23756,6 +23790,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -23826,6 +23861,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23851,6 +23887,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23911,6 +23948,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -23936,6 +23974,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -23966,6 +24005,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -23991,6 +24031,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -24061,6 +24102,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24086,6 +24128,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24122,6 +24165,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24147,6 +24191,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24207,6 +24252,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -24232,6 +24278,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -24262,6 +24309,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -24287,6 +24335,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -24346,6 +24395,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -24371,6 +24421,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -24401,6 +24452,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -24426,6 +24478,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -24577,6 +24630,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24602,6 +24656,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24638,6 +24693,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24663,6 +24719,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24734,6 +24791,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24759,6 +24817,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24795,6 +24854,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24820,6 +24880,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25125,6 +25186,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -25150,6 +25212,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -25308,6 +25371,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25333,6 +25397,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25482,6 +25547,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -25507,6 +25573,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -25668,6 +25735,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25693,6 +25761,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25718,6 +25787,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -25743,6 +25813,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -25813,6 +25884,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25838,6 +25910,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25923,6 +25996,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -25948,6 +26022,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -26020,6 +26095,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26045,6 +26121,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26070,6 +26147,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -26095,6 +26173,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -26136,6 +26215,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26161,6 +26241,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26186,6 +26267,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -26211,6 +26293,7 @@ export namespace Prisma {
     passwordHash: string
     role: $Enums.Role
     fcmToken?: string | null
+    pushNotificationsEnabled?: boolean
     firstName?: string | null
     lastName?: string | null
     createdAt?: Date | string
@@ -26252,6 +26335,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26277,6 +26361,7 @@ export namespace Prisma {
     passwordHash?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
+    pushNotificationsEnabled?: BoolFieldUpdateOperationsInput | boolean
     firstName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

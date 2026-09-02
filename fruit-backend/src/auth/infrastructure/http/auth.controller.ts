@@ -14,7 +14,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { IsString, MaxLength, IsOptional } from 'class-validator';
+import { IsString, MaxLength, IsOptional, IsBoolean } from 'class-validator';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { AuthService } from '../../application/auth.service';
 import {
@@ -72,6 +72,14 @@ class RefreshTokenDto {
   @IsString()
   @IsOptional()
   refreshToken?: string;
+}
+
+class NotificationPreferencesDto {
+  @ApiProperty({
+    description: 'Si el usuario desea recibir notificaciones push.',
+  })
+  @IsBoolean()
+  pushNotificationsEnabled: boolean;
 }
 
 class LogoutDto {
@@ -298,6 +306,57 @@ export class AuthController {
   })
   async registerFcmToken(@Req() req: any, @Body() body: FcmTokenDto) {
     await this.userRepository.saveFcmToken(req.user.sub, body.token);
+  }
+
+  @Patch('notification-preferences')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
+  @ApiOperation({
+    summary: 'Actualizar preferencias de notificaciones',
+    description:
+      'Activa o desactiva el envío de notificaciones push al usuario autenticado.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Preferencia actualizada correctamente.',
+  })
+  async updateNotificationPreferences(
+    @Req() req: any,
+    @Body() body: NotificationPreferencesDto,
+  ) {
+    await this.authService.updateNotificationPreferences(
+      req.user.sub,
+      body.pushNotificationsEnabled,
+    );
+  }
+
+  @Post('sessions/revoke-all')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
+  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
+  @ApiOperation({
+    summary: 'Cerrar otras sesiones activas',
+    description:
+      'Revoca todas las sesiones del usuario autenticado excepto la actual ' +
+      '(identificada por su cookie de refresh token, cuando está presente).',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Sesiones revocadas correctamente.',
+  })
+  async revokeOtherSessions(
+    @Req()
+    req: FastifyRequest & {
+      user?: { sub: string };
+      cookies?: Record<string, string>;
+    },
+  ) {
+    const rawRefreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
+    await this.authService.revokeOtherSessions(req.user!.sub, rawRefreshToken);
   }
 
   @Post('logout')

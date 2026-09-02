@@ -44,7 +44,10 @@ describe('PrismaUserRepository — cifrado de fcmToken', () => {
     mockPrisma.user.update.mockResolvedValue({});
     await repo.saveFcmToken('user-1', 'raw-fcm-token');
     const encrypted = mockPrisma.user.update.mock.calls[0][0].data.fcmToken;
-    mockPrisma.user.findUnique.mockResolvedValue({ fcmToken: encrypted });
+    mockPrisma.user.findUnique.mockResolvedValue({
+      fcmToken: encrypted,
+      pushNotificationsEnabled: true,
+    });
 
     const result = await repo.findFcmTokenById('user-1');
 
@@ -54,6 +57,7 @@ describe('PrismaUserRepository — cifrado de fcmToken', () => {
   it('findFcmTokenById devuelve un token legado en texto plano tal cual', async () => {
     mockPrisma.user.findUnique.mockResolvedValue({
       fcmToken: 'token-legado-plano',
+      pushNotificationsEnabled: true,
     });
 
     const result = await repo.findFcmTokenById('user-1');
@@ -62,7 +66,19 @@ describe('PrismaUserRepository — cifrado de fcmToken', () => {
   });
 
   it('findFcmTokenById devuelve null si el usuario no tiene token', async () => {
-    mockPrisma.user.findUnique.mockResolvedValue({ fcmToken: null });
+    mockPrisma.user.findUnique.mockResolvedValue({
+      fcmToken: null,
+      pushNotificationsEnabled: true,
+    });
+
+    expect(await repo.findFcmTokenById('user-1')).toBeNull();
+  });
+
+  it('findFcmTokenById devuelve null si el usuario desactivó las notificaciones push', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue({
+      fcmToken: 'token-legado-plano',
+      pushNotificationsEnabled: false,
+    });
 
     expect(await repo.findFcmTokenById('user-1')).toBeNull();
   });
@@ -76,6 +92,19 @@ describe('PrismaUserRepository — cifrado de fcmToken', () => {
       expect(mockPrisma.user.update).toHaveBeenCalledWith({
         where: { id: 'user-1' },
         data: { passwordHash: 'new-hashed-value' },
+      });
+    });
+  });
+
+  describe('updateNotificationPreferences()', () => {
+    it('actualiza pushNotificationsEnabled del usuario indicado', async () => {
+      mockPrisma.user.update.mockResolvedValue({});
+
+      await repo.updateNotificationPreferences('user-1', false);
+
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+        data: { pushNotificationsEnabled: false },
       });
     });
   });
