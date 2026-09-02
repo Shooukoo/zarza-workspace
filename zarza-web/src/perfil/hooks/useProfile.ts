@@ -14,3 +14,16 @@ export function useChangePassword() {
       apiClient.patch('/auth/password', dto),
   });
 }
+
+export function useRevokeOtherSessions() {
+  return useMutation({
+    mutationFn: () => apiClient.post('/auth/sessions/revoke-all'),
+  });
+}
+
+export function useUpdateNotificationPreferences() {
+  return useMutation({
+    mutationFn: (dto: { pushNotificationsEnabled: boolean }) =>
+      apiClient.patch('/auth/notification-preferences', dto),
+  });
+}

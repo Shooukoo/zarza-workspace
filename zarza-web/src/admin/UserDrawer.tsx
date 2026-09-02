@@ -23,7 +23,8 @@ import { useAuth } from '../auth/useAuth';
 import { Role } from '../auth/types';
 import type { User } from './types';
 import { PasswordStrengthMeter } from '../shared/PasswordStrengthMeter';
-import { evaluatePassword } from '../shared/passwordPolicy';
+import { FormLabelRow } from '../shared/FormLabelRow';
+import { evaluatePassword, generatePassword } from '../shared/passwordPolicy';
 
 const { Text } = Typography;
 
@@ -52,12 +53,19 @@ export function UserDrawer({ user, open, onClose }: Props) {
   const [selectedCampos, setSelectedCampos] = useState<string[]>([]);
   const [passwordForm] = Form.useForm<{ password: string }>();
   const [nameForm] = Form.useForm<{ firstName?: string; lastName?: string }>();
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const watchedPassword = Form.useWatch('password', passwordForm);
   const passwordUserInputs = user?.email ? [user.email] : [];
   const passwordEvaluation = evaluatePassword(watchedPassword ?? '', passwordUserInputs);
 
+  function handleGeneratePassword() {
+    passwordForm.setFieldValue('password', generatePassword());
+    setPasswordVisible(true);
+  }
+
   useEffect(() => {
+    setPasswordVisible(false);
     if (user) {
       setSelectedRole(user.role);
       setSelectedCampos(user.campos_asignados ?? []);
@@ -107,6 +115,7 @@ export function UserDrawer({ user, open, onClose }: Props) {
       });
       notification.success({ message: 'Contraseña actualizada' });
       passwordForm.resetFields();
+      setPasswordVisible(false);
     } catch {
       notification.error({ message: 'Error al actualizar contraseña' });
     }
@@ -265,9 +274,14 @@ export function UserDrawer({ user, open, onClose }: Props) {
               onFinish={handleSavePassword}
               style={{ marginTop: 8 }}
             >
+              <FormLabelRow
+                htmlFor="user-drawer-password"
+                label="Nueva contraseña"
+                required
+                action={{ label: 'Generar', onClick: handleGeneratePassword }}
+              />
               <Form.Item
                 name="password"
-                label="Nueva contraseña"
                 rules={[
                   { required: true, message: 'Ingresa la contraseña' },
                   {
@@ -282,7 +296,11 @@ export function UserDrawer({ user, open, onClose }: Props) {
                   },
                 ]}
               >
-                <Input.Password placeholder="••••••" />
+                <Input.Password
+                  id="user-drawer-password"
+                  placeholder="••••••"
+                  visibilityToggle={{ visible: passwordVisible, onVisibleChange: setPasswordVisible }}
+                />
               </Form.Item>
               <PasswordStrengthMeter evaluation={passwordEvaluation} />
               <Button

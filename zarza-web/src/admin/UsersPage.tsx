@@ -7,6 +7,7 @@ import { CreateUserModal } from './CreateUserModal';
 import { UserDrawer } from './UserDrawer';
 import type { User } from './types';
 import { Role } from '../auth/types';
+import { ROLE_TAG } from '../shared/roleTag';
 
 const { Title } = Typography;
 
@@ -16,13 +17,6 @@ const ROLE_FILTER_OPTIONS = [
   { value: Role.AGRONOMO, label: 'Agrónomo' },
   { value: Role.MONITOR, label: 'Monitor' },
 ];
-
-const ROLE_TAG: Record<Role, { color: string; label: string }> = {
-  [Role.ADMIN]: { color: 'gold', label: 'Admin' },
-  [Role.PRODUCTOR]: { color: 'green', label: 'Productor' },
-  [Role.AGRONOMO]: { color: 'blue', label: 'Agrónomo' },
-  [Role.MONITOR]: { color: 'orange', label: 'Monitor' },
-};
 
 const columns: ColumnsType<User> = [
   { title: 'Email', dataIndex: 'email', key: 'email' },

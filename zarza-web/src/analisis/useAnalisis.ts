@@ -7,7 +7,12 @@ import type {
   ValidateAnalisisPayload,
 } from './types';
 
-export function useAnalisisList(estado: EstadoValidacion, page = 1, limit = 20) {
+export function useAnalisisList(
+  estado: EstadoValidacion,
+  page = 1,
+  limit = 20,
+  enabled = true,
+) {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
@@ -21,6 +26,7 @@ export function useAnalisisList(estado: EstadoValidacion, page = 1, limit = 20) 
         .get<AnalisisListResponse>(`/analyses?${params.toString()}`)
         .then((r) => r.data),
     refetchInterval: 30_000,
+    enabled,
   });
 }
 

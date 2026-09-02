@@ -29,6 +29,37 @@ export interface PasswordEvaluation {
   valid: boolean;
 }
 
+const GENERATOR_UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // sin I/O, ambiguos al leer
+const GENERATOR_LOWER = 'abcdefghijkmnopqrstuvwxyz'; // sin l
+const GENERATOR_DIGITS = '23456789'; // sin 0/1
+const GENERATOR_SYMBOLS = '!@#$%^&*()-_=+?';
+const GENERATOR_LENGTH = 16;
+
+function secureRandomIndex(max: number): number {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return arr[0] % max;
+}
+
+function pickChar(chars: string): string {
+  return chars[secureRandomIndex(chars.length)];
+}
+
+/** Genera una contraseña aleatoria que cumple la política (longitud, tipos y score). */
+export function generatePassword(length = GENERATOR_LENGTH): string {
+  const groups = [GENERATOR_UPPER, GENERATOR_LOWER, GENERATOR_DIGITS, GENERATOR_SYMBOLS];
+  const chars = groups.map(pickChar);
+  const allChars = groups.join('');
+  while (chars.length < length) {
+    chars.push(pickChar(allChars));
+  }
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = secureRandomIndex(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join('');
+}
+
 export function evaluatePassword(
   password: string,
   userInputs: string[] = [],

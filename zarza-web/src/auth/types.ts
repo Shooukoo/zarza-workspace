@@ -11,6 +11,8 @@ export interface AuthUser {
   role: Role;
   firstName: string | null;
   lastName: string | null;
+  createdAt: string;
+  pushNotificationsEnabled: boolean;
 }
 
 export function displayName(user: AuthUser): string {

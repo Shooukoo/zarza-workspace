@@ -48,6 +48,7 @@ interface SolicitudesFilters {
   limit?: number;
   estado?: EstadoSolicitud | '';
   campo_id?: string;
+  enabled?: boolean;
 }
 
 interface SolicitudesResponse {
@@ -73,6 +74,7 @@ export function useSolicitudes(filters: SolicitudesFilters = {}) {
         .get<SolicitudesResponse>(`/solicitudes?${params.toString()}`)
         .then((r) => r.data),
     refetchInterval: 30_000,
+    enabled: filters.enabled ?? true,
   });
 }
 
