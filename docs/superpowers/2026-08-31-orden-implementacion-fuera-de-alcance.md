@@ -17,8 +17,8 @@ Rotación automatizada de los 4 secretos (`INTERNAL_NOTIFY_TOKEN`, `INFERENCE_AU
 Cambio de contraseña por el propio usuario + página de perfil/configuración en `zarza-web` (ruta `/perfil`, ítem "Configuración" en el dropdown del avatar). Incluye política de contraseña fuerte compartida (mínimo 10 caracteres, 3 de 4 tipos, score zxcvbn ≥ 2) aplicada también en alta y reseteo de contraseña por admin. Spec: [[2026-08-31-autogestion-perfil-design]].
 *Por qué segundo:* proyecto chico, independiente de los demás.
 
-### 3. Tema claro completo — ⬜ No iniciado
-Migrar Usuarios/Campos/Solicitudes/Análisis/Revisión IA al tema claro y recolorear los 15 hex legacy en `UserDrawer`/`AnalisisDetailModal`/`SolicitudDetailDrawer`.
+### 3. Tema claro completo — 🟡 En spec
+Elevar Usuarios/Campos/Solicitudes/Análisis/Cola de Revisión al patrón visual del Dashboard (KPIs + tabla en card) y recolorear los 15 hex legacy en `UserDrawer`/`AnalisisDetailModal`/`SolicitudDetailDrawer`. Spec: [[2026-09-16-tema-claro-completo-design]]. Incluye `/revision-detecciones` (no estaba en el alcance original de los specs previos, se sumó por estar en el mismo estado). `ModelosIAPage`/`MapasCalorPage` quedan fuera.
 *Por qué tercero:* solo toca `zarza-web`, patrón visual ya establecido en specs previos (`dashboard-light-theme`, `brand-palette-rebrand`).
 
 ### 4. Mapas v2 — ⬜ No iniciado
