@@ -42,6 +42,7 @@ Todo es síncrono y sin estado. El navegador no puede hablar directo con `fruit-
 
 ### Carga
 - En el `lifespan`, después de cargar el modelo fenológico: si `DAMAGE_MODEL_PATH` existe, se carga en `state["damage_model"]`. Si no existe o falla la carga, se registra un **warning** y `state["damage_model"] = None`. **El servicio arranca igual**; la ausencia de este modelo nunca afecta a `/analyze`.
+- `/health` agrega `damage_model_loaded: bool`, para diagnosticar sin leer logs.
 - `/internal/prepare-restart` no necesita cambios: al reiniciar, el `lifespan` vuelve a cargar ambos modelos.
 
 ### Endpoint `POST /classify-damage`
@@ -86,7 +87,7 @@ Todo es síncrono y sin estado. El navegador no puede hablar directo con `fruit-
 
 ### Página `src/deteccion-danos/`
 - `DeteccionDanosPage.tsx`: la página.
-- `useClasificarDano.ts`: hook que hace el `POST` multipart con el `client` de axios existente y expone `{ clasificar, resultado, loading, error, reset }`.
+- `useClasificarDano.ts`: hook `useMutation` (react-query, igual que `modelos-ia/useTrainingStatus.ts`) que hace el `POST` multipart con el `apiClient` existente.
 - `clases.ts`: mapa de clave de clase a `{ etiqueta, color }`:
   | clave | etiqueta | color |
   |---|---|---|
@@ -103,7 +104,7 @@ Todo es síncrono y sin estado. El navegador no puede hablar directo con `fruit-
 - `types.ts`: `DamageClassificationResult`.
 
 ### Flujo de UI (antd)
-1. `Upload.Dragger` con `accept="image/jpeg,image/png,image/webp"`, un solo archivo y `beforeUpload` devolviendo `false`, para que no suba nada automáticamente. Si el tipo o el tamaño son inválidos (más de 5 MB), se muestra un mensaje en el cliente.
+1. `Upload.Dragger` con `accept="image/jpeg,image/png"` (JPG/PNG, lo mismo que acepta el `MagicNumberValidator` reutilizado), un solo archivo y `beforeUpload` devolviendo `false`, para que no suba nada automáticamente. Si el tipo o el tamaño son inválidos (más de 5 MB), se muestra un mensaje en el cliente.
 2. Vista previa de la foto con `URL.createObjectURL`, revocada al cambiar de foto o desmontar.
 3. Botón **Analizar**, deshabilitado si no hay foto y con `loading` mientras procesa.
 4. Resultado junto a la foto:
@@ -112,7 +113,7 @@ Todo es síncrono y sin estado. El navegador no puede hablar directo con `fruit-
 5. Botón **Analizar otra foto**, que limpia foto, resultado y error.
 6. Si hay error, `Alert type="error"` con el mensaje del backend, o uno genérico si no hay mensaje.
 
-El layout respeta el tema claro/oscuro existente y es responsive, apilado en pantallas angostas.
+El layout usa los componentes antd y el tema claro existentes, y es responsive, apilado en pantallas angostas.
 
 ### Ruteo y menú
 - `App.tsx`: `<Route path="/deteccion-danos" element={<DeteccionDanosPage />} />` dentro del bloque `PrivateRoute allowedRoles={[Role.ADMIN]}`.
