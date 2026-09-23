@@ -15,6 +15,7 @@ import { MapasCalorModule } from './mapas-calor/mapas-calor.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
 import { AnalysesModule } from './analyses/analyses.module';
 import { TrainingModule } from './training/training.module';
+import { DamageClassificationModule } from './damage-classification/damage-classification.module';
 import { FcmModule } from './fcm/fcm.module';
 import { HealthController } from './health/health.controller';
 import { CacheModule } from './cache/cache.module';
@@ -66,6 +67,7 @@ import { envs } from './config/envs';
     SolicitudesModule,
     AnalysesModule,
     TrainingModule,
+    DamageClassificationModule,
     LoggingModule,
   ],
   controllers: [HealthController],
