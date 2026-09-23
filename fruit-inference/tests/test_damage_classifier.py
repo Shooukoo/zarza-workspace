@@ -147,4 +147,4 @@ def test_classify_rounds_confidence_to_four_decimals():
     result = classify(model, _image_bytes())
 
     antracnosis = next(p for p in result["probabilidades"] if p["clase"] == "antracnosis")
-    assert antracnosis["confianza"] == pytest.approx(0.1235, abs=1e-4)
+    assert antracnosis["confianza"] == 0.1235
