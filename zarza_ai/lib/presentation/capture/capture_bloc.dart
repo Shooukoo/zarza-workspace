@@ -76,7 +76,7 @@ class CaptureMetadataReady extends CaptureState {
   final double? gpsLat;
   final double? gpsLon;
   @override
-  List<Object?> get props => [file.path, campoId];
+  List<Object?> get props => [file.path, campoId, gpsLat, gpsLon];
 }
 
 class CaptureUploading extends CaptureState {
