@@ -122,6 +122,17 @@ class _CaptureBodyState extends State<_CaptureBody> {
     _camposFuture = GetIt.I<GetCamposUseCase>()();
   }
 
+  @override
+  void didUpdateWidget(covariant _CaptureBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Una imagen nueva deja el bloc en CaptureImageReady sin metadata:
+    // reenviar el campo ya elegido para no perderlo.
+    if (widget.state is CaptureImageReady &&
+        oldWidget.state is! CaptureImageReady) {
+      _syncMetadata();
+    }
+  }
+
   Future<void> _fetchGps() async {
     setState(() => _fetchingGps = true);
     try {
@@ -136,27 +147,34 @@ class _CaptureBodyState extends State<_CaptureBody> {
           timeLimit: Duration(seconds: 8),
         ),
       );
+      if (!mounted) return;
       setState(() {
         _gpsLat = pos.latitude;
         _gpsLon = pos.longitude;
       });
+      // El GPS puede llegar después de elegir el campo: actualizar la
+      // metadata del bloc para que la subida incluya la ubicación.
+      _syncMetadata();
     } on Object {
       // GPS opcional — continuar sin ubicación
     } finally {
-      setState(() => _fetchingGps = false);
+      if (mounted) setState(() => _fetchingGps = false);
     }
   }
 
   void _onCampoSelected(CampoEntity? campo) {
     setState(() => _selectedCampo = campo);
-    final currentFile = _fileFromState(widget.state);
-    if (campo != null && currentFile != null) {
-      context.read<CaptureBloc>().add(CaptureMetadataUpdated(
-            campoId: campo.id,
-            gpsLat: _gpsLat,
-            gpsLon: _gpsLon,
-          ));
-    }
+    _syncMetadata();
+  }
+
+  void _syncMetadata() {
+    final campo = _selectedCampo;
+    if (campo == null || _fileFromState(widget.state) == null) return;
+    context.read<CaptureBloc>().add(CaptureMetadataUpdated(
+          campoId: campo.id,
+          gpsLat: _gpsLat,
+          gpsLon: _gpsLon,
+        ));
   }
 
   File? _fileFromState(CaptureState state) {
