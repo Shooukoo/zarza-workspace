@@ -7,6 +7,7 @@ Toda la lógica de negocio reside en:
   infrastructure/r2_client.py         → descarga de imágenes desde R2
   infrastructure/yolo_client.py       → ejecución del modelo YOLO
   infrastructure/image_preprocessor.py → normalización de imagen
+  infrastructure/damage_classifier.py  → modelo de fruta enferma/dañada
 
 Este archivo sólo orquesta; no contiene lógica de dominio ni de infraestructura.
 """
@@ -22,7 +23,7 @@ from dotenv import load_dotenv
 # INFERENCE_AUTH_TOKEN a nivel de módulo (fail-fast).
 load_dotenv()
 
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from ultralytics import YOLO
@@ -31,6 +32,7 @@ from infrastructure.auth import verify_inference_token
 from infrastructure.r2_client import create_r2_client, download_image_bytes, check_object_size
 from infrastructure.yolo_client import run_inference, bytes_to_bgr
 from infrastructure.image_preprocessor import preprocess
+from infrastructure.damage_classifier import InvalidImageError, classify, load_damage_model
 from domain.analysis import build_report
 
 from infrastructure.logger import AppLogger
@@ -41,8 +43,9 @@ CONF_THRESHOLD      = float(os.getenv("CONF_THRESHOLD", "0.25"))
 ENABLE_COLOR_PREPROCESSING = os.getenv("ENABLE_COLOR_PREPROCESSING", "false").lower() == "true"
 PREPROCESSING_DEBUG = os.getenv("PREPROCESSING_DEBUG", "false").lower() == "true"
 MAX_IMAGE_SIZE_BYTES = int(os.getenv("MAX_IMAGE_SIZE_MB", "5")) * 1_000_000
+DAMAGE_MODEL_PATH   = os.getenv("DAMAGE_MODEL_PATH", "damage.pt")
 
-state: dict = {"model": None, "s3": None}
+state: dict = {"model": None, "s3": None, "damage_model": None}
 startup_logger = AppLogger()
 
 @asynccontextmanager
@@ -56,6 +59,10 @@ async def lifespan(app: FastAPI):
 
     state["model"] = YOLO(MODEL_PATH)
     startup_logger.info("Modelo YOLO cargado")
+
+    # Opcional: si falta o falla, load_damage_model devuelve None y solo
+    # /classify-damage responde 503 — /analyze sigue funcionando.
+    state["damage_model"] = load_damage_model(DAMAGE_MODEL_PATH)
 
     state["s3"] = create_r2_client()
     startup_logger.info("Cliente R2 inicializado")
@@ -77,6 +84,7 @@ def health():
     return {
         "status":       "ok",
         "model_loaded": state["model"] is not None,
+        "damage_model_loaded": state["damage_model"] is not None,
         "timestamp":    datetime.now(timezone.utc).isoformat(),
     }
 
@@ -141,6 +149,35 @@ def analyze(request: Request, req: AnalyzeRequest):
     )
 
     return JSONResponse(content=report)
+
+
+@app.post("/classify-damage", dependencies=[Depends(verify_inference_token)])
+def classify_damage(request: Request, file: UploadFile = File(...)):
+    """Clasifica una foto (multipart `file`) como sana, dañada o enferma."""
+    logger = AppLogger(request.headers.get("x-trace-id"))
+
+    if state["damage_model"] is None:
+        raise HTTPException(
+            status_code=503, detail="Modelo de clasificación de daños no disponible"
+        )
+
+    # Se lee como máximo un byte más del límite: basta para saber si lo excede
+    # sin cargar en memoria un archivo arbitrariamente grande.
+    image_bytes = file.file.read(MAX_IMAGE_SIZE_BYTES + 1)
+    if len(image_bytes) > MAX_IMAGE_SIZE_BYTES:
+        raise HTTPException(status_code=413, detail="Imagen demasiado grande")
+
+    try:
+        result = classify(state["damage_model"], image_bytes)
+    except InvalidImageError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    logger.info(
+        "Clasificación de daños completada",
+        clase=result["clase"],
+        confianza=result["confianza"],
+    )
+    return result
 
 
 @app.post(
