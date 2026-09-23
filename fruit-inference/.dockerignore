@@ -2,3 +2,4 @@ best.pt
 __pycache__/
 *.pyc
 .env
+damage.pt

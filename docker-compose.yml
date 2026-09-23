@@ -90,6 +90,9 @@ services:
     volumes:
       # Monta el modelo .pt desde la carpeta fruit-inference sin incluirlo en la imagen
       - ./fruit-inference/best.pt:/app/model.pt:ro
+      # Modelo de clasificación de fruta enferma/dañada (opcional: si falta,
+      # solo /classify-damage responde 503). DAMAGE_MODEL_PATH default = damage.pt → /app/damage.pt
+      - ./fruit-inference/damage.pt:/app/damage.pt:ro
     networks: [fruit-net]
     healthcheck:
       test:

@@ -37,8 +37,9 @@ Python 3.11 · FastAPI · Ultralytics YOLOv8 · OpenCV (`opencv-python-headless`
 
 | Método | Ruta | Auth | Descripción |
 |---|---|---|---|
-| `GET` | `/health` | Ninguna | `{ status, model_loaded, timestamp }`. Usado por el healthcheck de Docker. |
+| `GET` | `/health` | Ninguna | `{ status, model_loaded, damage_model_loaded, timestamp }`. Usado por el healthcheck de Docker. |
 | `POST` | `/analyze` | Header `x-inference-token` | Body: `{ storage_key, image_id?, variedad? }`. Descarga, preprocesa opcionalmente (`ENABLE_COLOR_PREPROCESSING`), infiere y retorna el reporte JSON (incluye `debug_preprocessing` si `PREPROCESSING_DEBUG=true`). |
+| `POST` | `/classify-damage` | Header `x-inference-token` | Multipart `file`. Clasifica la imagen con `damage.pt` (503 si no existe); retorna clases y confianzas. |
 
 ## Etapas fenológicas (`model_config.py`)
 
@@ -48,6 +49,7 @@ Coincide exactamente con la tabla del [README raíz](../README.md#etapas-fenoló
 
 ```env
 MODEL_PATH=best.pt
+DAMAGE_MODEL_PATH=damage.pt
 CONF_THRESHOLD=0.25
 
 # Cloudflare R2 (lectura)
@@ -87,3 +89,7 @@ Cobertura de tests real en: `test_auth.py` (token faltante/incorrecto/correcto),
 ## Docker
 
 Imagen `python:3.11-slim` con `libglib2.0-0`/`libgl1` (dependencias de runtime de OpenCV). El archivo de pesos **no se copia dentro de la imagen**: `docker-compose.yml` lo monta como volumen de solo lectura (`./fruit-inference/best.pt:/app/model.pt:ro`), por lo que `fruit-inference/best.pt` debe existir antes de `docker compose up`. Puerto `8000`, expuesto solo en `127.0.0.1`.
+
+### Modelo de fruta enferma/dañada (`damage.pt`)
+
+Segundo modelo, **opcional**, de clasificación (YOLOv8n-cls, `imgsz=224`, clases `antracnosis`, `botrytis`, `dano`, `fusarium`, `mildeo`, `roya`, `sano`, `verticillium`). Lo consume `POST /classify-damage` (multipart `file`, header `x-inference-token`), que usa la página provisional "Detección de Daños (beta)" de `zarza-web` a través de `fruit-backend`. Como `best.pt`, está en `.gitignore` y se monta como volumen (`./fruit-inference/damage.pt:/app/damage.pt:ro`): hay que copiarlo a `fruit-inference/damage.pt` antes de `docker compose up`. Si falta, el servicio arranca igual, `/health` reporta `damage_model_loaded: false` y solo ese endpoint responde 503. Ojo: si el archivo no existe al levantar compose, Docker crea en su lugar un **directorio** vacío `damage.pt`; bórralo antes de copiar el modelo real.
