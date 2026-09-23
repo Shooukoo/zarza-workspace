@@ -129,3 +129,22 @@ def test_load_returns_model_when_classifier(tmp_path, monkeypatch):
     monkeypatch.setattr(damage_classifier, "YOLO", MagicMock(return_value=model))
 
     assert load_damage_model(str(path)) is model
+
+
+def test_classify_rejects_images_over_max_decode_pixels(monkeypatch):
+    model = _fake_model([1.0] + [0.0] * 7)
+    monkeypatch.setattr(damage_classifier, "MAX_DECODE_PIXELS", 100)
+
+    with pytest.raises(InvalidImageError, match="Imagen demasiado grande"):
+        classify(model, _image_bytes())
+
+    model.predict.assert_not_called()
+
+
+def test_classify_rounds_confidence_to_four_decimals():
+    model = _fake_model([0.123456, 0.5, 0.1, 0.1, 0.05, 0.05, 0.02, 0.056544])
+
+    result = classify(model, _image_bytes())
+
+    antracnosis = next(p for p in result["probabilidades"] if p["clase"] == "antracnosis")
+    assert antracnosis["confianza"] == pytest.approx(0.1235, abs=1e-4)
