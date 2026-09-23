@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Card, Progress, Space, Tag, Typography, Upload, message } from 'antd';
 import type { UploadProps } from 'antd';
 import { mensajeDeErrorClasificacion, useClasificarDano } from './useClasificarDano';
@@ -11,12 +11,13 @@ const { Title, Text, Paragraph } = Typography;
 const MAX_BYTES = 5_000_000;
 const TIPOS_PERMITIDOS = ['image/jpeg', 'image/png'];
 
-const CARD_STYLE = { flex: '1 1 320px', maxWidth: 520 } as const;
+const CARD_STYLE = { flex: '1 1 280px', maxWidth: 520, minWidth: 0 } as const;
 
 export function DeteccionDanosPage() {
   const [foto, setFoto] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const clasificar = useClasificarDano();
+  const resultadoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!foto) {
@@ -34,6 +35,14 @@ export function DeteccionDanosPage() {
   const resultado = esDeFotoActual ? clasificar.data : undefined;
   const error = esDeFotoActual && clasificar.isError ? clasificar.error : null;
   const principal = resultado ? infoClase(resultado.clase) : null;
+
+  // En pantallas angostas las tarjetas se apilan y el resultado puede quedar
+  // fuera de la vista: al aparecer, se hace scroll hasta él.
+  useEffect(() => {
+    if (resultado) {
+      resultadoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [resultado]);
 
   const beforeUpload: UploadProps['beforeUpload'] = (file) => {
     if (!TIPOS_PERMITIDOS.includes(file.type)) {
@@ -64,7 +73,10 @@ export function DeteccionDanosPage() {
         enfermedad. Los resultados no se guardan.
       </Paragraph>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'flex-start' }}>
+      <div
+        style={{ display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'flex-start' }}
+        aria-live="polite"
+      >
         <Card style={CARD_STYLE}>
           {previewUrl ? (
             <img
@@ -121,7 +133,7 @@ export function DeteccionDanosPage() {
         </Card>
 
         {resultado && principal && (
-          <Card title="Resultado" style={CARD_STYLE}>
+          <Card ref={resultadoRef} title="Resultado" style={CARD_STYLE}>
             <Space direction="vertical" size={4}>
               <Tag color={principal.tagColor} style={{ fontSize: 18, padding: '4px 12px' }}>
                 {principal.etiqueta}
