@@ -13,6 +13,16 @@ const TIPOS_PERMITIDOS = ['image/jpeg', 'image/png'];
 
 const CARD_STYLE = { flex: '1 1 280px', maxWidth: 520, minWidth: 0 } as const;
 
+// Oculto a la vista pero legible por lectores de pantalla.
+const VISUALMENTE_OCULTO = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  overflow: 'hidden',
+  clip: 'rect(0 0 0 0)',
+  whiteSpace: 'nowrap',
+} as const;
+
 export function DeteccionDanosPage() {
   const [foto, setFoto] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -73,10 +83,13 @@ export function DeteccionDanosPage() {
         enfermedad. Los resultados no se guardan.
       </Paragraph>
 
-      <div
-        style={{ display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'flex-start' }}
-        aria-live="polite"
-      >
+      <div role="status" aria-live="polite" style={VISUALMENTE_OCULTO}>
+        {resultado && principal
+          ? `Resultado: ${principal.etiqueta}, confianza ${formatearConfianza(resultado.confianza)}`
+          : ''}
+      </div>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'flex-start' }}>
         <Card style={CARD_STYLE}>
           {previewUrl ? (
             <img
