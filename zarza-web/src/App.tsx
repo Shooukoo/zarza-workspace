@@ -13,6 +13,7 @@ import { ColaRevisionPage } from './revision-detecciones/ColaRevisionPage';
 import { RevisionDeteccionesPage } from './revision-detecciones/RevisionDeteccionesPage';
 import { UsersPage } from './admin/UsersPage';
 import { ModelosIAPage } from './modelos-ia/ModelosIAPage';
+import { DeteccionDanosPage } from './deteccion-danos/DeteccionDanosPage';
 import { ProfilePage } from './perfil/ProfilePage';
 import { Role } from './auth/types';
 import { useAuth } from './auth/useAuth';
@@ -83,6 +84,7 @@ export function App() {
 
           <Route element={<PrivateRoute allowedRoles={[Role.ADMIN]} />}>
             <Route path="/modelos-ia" element={<ModelosIAPage />} />
+            <Route path="/deteccion-danos" element={<DeteccionDanosPage />} />
           </Route>
         </Route>
       </Route>
