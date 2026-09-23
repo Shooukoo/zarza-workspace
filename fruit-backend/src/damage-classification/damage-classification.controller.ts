@@ -50,7 +50,10 @@ export class DamageClassificationController {
   })
   @ApiResponse({ status: 200, description: 'Clase más probable y probabilidades de todas.' })
   @ApiResponse({ status: 400, description: 'Archivo ausente o imagen inválida.' })
+  @ApiResponse({ status: 401, description: 'Se requiere autenticación.' })
   @ApiResponse({ status: 403, description: 'Solo ADMIN puede acceder.' })
+  @ApiResponse({ status: 413, description: 'Archivo mayor a 5 MB.' })
+  @ApiResponse({ status: 502, description: 'Error inesperado del servicio de clasificación.' })
   @ApiResponse({ status: 503, description: 'Servicio o modelo de clasificación no disponible.' })
   async classify(@Req() req: FastifyRequest): Promise<DamageClassificationResult> {
     const { file, filename, mimetype } = await this.pipe.transform(req);

@@ -47,4 +47,12 @@ describe('DamageClassificationController', () => {
     await expect(controller.classify(req)).rejects.toBeInstanceOf(BadRequestException);
     expect(service.classify).not.toHaveBeenCalled();
   });
+
+  it('no llama a validator ni service si el multipart no trae archivo', async () => {
+    pipe.transform.mockRejectedValue(new BadRequestException('No file uploaded'));
+
+    await expect(controller.classify(req)).rejects.toBeInstanceOf(BadRequestException);
+    expect(validator.readAndValidate).not.toHaveBeenCalled();
+    expect(service.classify).not.toHaveBeenCalled();
+  });
 });
