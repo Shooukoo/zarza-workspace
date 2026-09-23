@@ -31,6 +31,7 @@ export function mensajeDeErrorClasificacion(err: unknown): string {
   const response = (err as { response?: { status?: number; data?: { message?: unknown } } })
     ?.response;
   if (response?.status === 413) return 'La imagen supera el límite de 5 MB.';
+  if (response?.status === 403) return 'No tienes permiso para usar esta función.';
   const message = response?.data?.message;
   if (typeof message === 'string' && message) return message;
   if (Array.isArray(message) && message.length) return message.join(', ');
