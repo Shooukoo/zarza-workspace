@@ -8,8 +8,10 @@ import {
 import { HttpService } from '@nestjs/axios';
 import { isAxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
+import { randomUUID } from 'crypto';
 import { envs } from '../config/envs';
 import { AppLogger } from '../common/logging/app.logger';
+import { traceContext } from '../common/logging/trace-context';
 import type { DamageClassificationResult } from './damage-classification.types';
 
 const INFERENCE_TIMEOUT_MS = 30_000;
@@ -36,7 +38,10 @@ export class DamageClassificationService {
           `${envs.inferenceUrl}/classify-damage`,
           form,
           {
-            headers: { 'x-inference-token': envs.inferenceAuthToken },
+            headers: {
+              'x-inference-token': envs.inferenceAuthToken,
+              'x-trace-id': traceContext.getStore()?.traceId ?? randomUUID(),
+            },
             timeout: INFERENCE_TIMEOUT_MS,
           },
         ),
@@ -64,6 +69,8 @@ export class DamageClassificationService {
       }
     }
     this.logger.error('Error inesperado al clasificar daños', {
+      status: isAxiosError(error) ? error.response?.status : undefined,
+      code: isAxiosError(error) ? error.code : undefined,
       error: error instanceof Error ? error.message : String(error),
     });
     return new BadGatewayException('Error al clasificar la imagen');

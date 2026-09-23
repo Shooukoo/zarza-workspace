@@ -7,6 +7,7 @@ import type { HttpService } from '@nestjs/axios';
 import { AxiosError, type AxiosResponse } from 'axios';
 import { of, throwError } from 'rxjs';
 import type { AppLogger } from '../common/logging/app.logger';
+import { traceContext } from '../common/logging/trace-context';
 import { envs } from '../config/envs';
 import { DamageClassificationService } from './damage-classification.service';
 
@@ -46,7 +47,10 @@ describe('DamageClassificationService', () => {
     expect(url).toBe(`${envs.inferenceUrl}/classify-damage`);
     expect(config).toEqual(
       expect.objectContaining({
-        headers: { 'x-inference-token': envs.inferenceAuthToken },
+        headers: {
+          'x-inference-token': envs.inferenceAuthToken,
+          'x-trace-id': expect.any(String),
+        },
         timeout: 30_000,
       }),
     );
@@ -55,6 +59,26 @@ describe('DamageClassificationService', () => {
     expect(file.name).toBe('foto.jpg');
     expect(file.type).toBe('image/jpeg');
     expect(Buffer.from(await file.arrayBuffer())).toEqual(image);
+  });
+
+  it('propaga el traceId del contexto activo como header x-trace-id', async () => {
+    const result = {
+      clase: 'sano',
+      confianza: 0.97,
+      probabilidades: [{ clase: 'sano', confianza: 0.97 }],
+    };
+    httpService.post.mockReturnValue(of({ data: result }));
+
+    await traceContext.run({ traceId: 'trace-123' }, () =>
+      service.classify(image, 'foto.jpg', 'image/jpeg'),
+    );
+
+    const [, , config] = httpService.post.mock.calls[0];
+    expect(config).toEqual(
+      expect.objectContaining({
+        headers: expect.objectContaining({ 'x-trace-id': 'trace-123' }),
+      }),
+    );
   });
 
   it('mapea un 400 de inferencia a BadRequest con su detail', async () => {
@@ -86,6 +110,7 @@ describe('DamageClassificationService', () => {
     await expect(service.classify(image, 'foto.jpg', 'image/jpeg')).rejects.toThrow(
       new ServiceUnavailableException('Servicio de clasificación no disponible'),
     );
+    expect(logger.warn).toHaveBeenCalled();
   });
 
   it('mapea conexión rechazada (sin response) a ServiceUnavailable', async () => {
@@ -96,6 +121,7 @@ describe('DamageClassificationService', () => {
     await expect(service.classify(image, 'foto.jpg', 'image/jpeg')).rejects.toBeInstanceOf(
       ServiceUnavailableException,
     );
+    expect(logger.warn).toHaveBeenCalled();
   });
 
   it('mapea timeout a ServiceUnavailable', async () => {
@@ -115,5 +141,19 @@ describe('DamageClassificationService', () => {
       BadGatewayException,
     );
     expect(logger.error).toHaveBeenCalled();
+  });
+
+  it('mapea un 401 (token inválido) a BadGateway y lo registra con el status', async () => {
+    httpService.post.mockReturnValue(
+      throwError(() => axiosErrorWithStatus(401, { detail: 'Unauthorized' })),
+    );
+
+    await expect(service.classify(image, 'foto.jpg', 'image/jpeg')).rejects.toBeInstanceOf(
+      BadGatewayException,
+    );
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ status: 401 }),
+    );
   });
 });
