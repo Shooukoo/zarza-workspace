@@ -58,6 +58,14 @@ class WebSocketDatasource {
     // intento en curso, este llamado (p. ej. un timer de reintento
     // rezagado) no debe crear un socket duplicado.
     if (_disposed || _connecting || _channel != null) return;
+    // Sin token no hay con qué autenticarse: el backend cerraría el socket
+    // a los 10 s y entraríamos en un bucle de reconexión. El login llama a
+    // setToken + reconnect.
+    final token = _token;
+    if (token == null || token.isEmpty) {
+      developer.log('[WebSocket] No token available, skipping connect');
+      return;
+    }
     _connecting = true;
 
     WebSocketChannel channel;
@@ -102,15 +110,11 @@ class WebSocketDatasource {
       _connecting = false;
 
       // Send auth message immediately after connection is ready
-      if (_token != null) {
-        developer.log('[WebSocket] Sending auth with token');
-        channel.sink.add(jsonEncode({
-          'event': 'auth',
-          'data': {'token': _token},
-        }));
-      } else {
-        developer.log('[WebSocket] No token available, skipping auth');
-      }
+      developer.log('[WebSocket] Sending auth with token');
+      channel.sink.add(jsonEncode({
+        'event': 'auth',
+        'data': {'token': token},
+      }));
     } on Object catch (_) {
       _teardownConnection();
       _scheduleReconnect();
