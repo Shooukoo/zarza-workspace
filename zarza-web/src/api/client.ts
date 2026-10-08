@@ -18,7 +18,7 @@ let refreshPromise: Promise<boolean> | null = null;
 // El refresh token vive en su propia cookie httpOnly (seteada por el backend
 // en /auth/login y /auth/refresh) — el navegador la manda solo, así que esto
 // sobrevive recargas de página (a diferencia de guardar el token en memoria/JS).
-function refreshAccessToken(): Promise<boolean> {
+export function refreshAccessToken(): Promise<boolean> {
   if (!refreshPromise) {
     refreshPromise = (async () => {
       try {

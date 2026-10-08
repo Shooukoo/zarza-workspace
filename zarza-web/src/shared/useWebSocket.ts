@@ -1,4 +1,7 @@
 import { useEffect, useRef } from 'react';
+import { refreshAccessToken } from '../api/client';
+
+const WS_CLOSE_UNAUTHORIZED = 4001;
 
 export function useWebSocket(onMessage: (event: string, data: unknown) => void) {
   const callbackRef = useRef(onMessage);
@@ -24,8 +27,19 @@ export function useWebSocket(onMessage: (event: string, data: unknown) => void) 
 
       ws.onerror = () => {};
 
-      ws.onclose = () => {
-        if (!destroyed) setTimeout(connect, 5000);
+      ws.onclose = (e) => {
+        if (destroyed) return;
+        // 4001 = el backend rechazó la sesión (access token vencido o ausente).
+        // El socket se autentica con la cookie httpOnly del handshake, así que
+        // hay que renovarla antes de reintentar; si no se puede, no hay sesión
+        // y reconectar solo repetiría el rechazo.
+        if (e.code === WS_CLOSE_UNAUTHORIZED) {
+          void refreshAccessToken().then((refreshed) => {
+            if (refreshed && !destroyed) setTimeout(connect, 1000);
+          });
+          return;
+        }
+        setTimeout(connect, 5000);
       };
     }
 

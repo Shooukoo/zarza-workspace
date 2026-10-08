@@ -1,7 +1,11 @@
 // fruit-backend/src/notifications/notifications.gateway.spec.ts
 import { Test } from '@nestjs/testing';
+import type { IncomingMessage } from 'http';
 import { WebSocket } from 'ws';
-import { NotificationsGateway } from './notifications.gateway';
+import {
+  NotificationsGateway,
+  WS_ALLOWED_ORIGINS,
+} from './notifications.gateway';
 import { I_TOKEN_PORT } from '../auth/ports/token.port';
 import { AppLogger } from '../common/logging/app.logger';
 
@@ -22,6 +26,10 @@ function makeSocket(readyState: number = WebSocket.OPEN): WebSocket {
   } as unknown as WebSocket;
 }
 
+function makeRequest(headers: Record<string, string>): IncomingMessage {
+  return { headers } as unknown as IncomingMessage;
+}
+
 describe('NotificationsGateway', () => {
   let gateway: NotificationsGateway;
 
@@ -30,6 +38,10 @@ describe('NotificationsGateway', () => {
       providers: [
         NotificationsGateway,
         { provide: I_TOKEN_PORT, useValue: mockTokenService },
+        {
+          provide: WS_ALLOWED_ORIGINS,
+          useValue: ['http://localhost:5173', 'https://app.zarza.test'],
+        },
         { provide: AppLogger, useValue: mockLogger },
       ],
     }).compile();
@@ -48,6 +60,118 @@ describe('NotificationsGateway', () => {
       jest.advanceTimersByTime(10_000);
       expect(client.close).toHaveBeenCalledWith(4001, 'Auth timeout');
       jest.useRealTimers();
+    });
+
+    it('autentica con la cookie access_token del handshake', async () => {
+      const client = makeSocket();
+      mockTokenService.verifyToken.mockResolvedValue({
+        sub: 'user-1',
+        email: 'a@b.com',
+        role: 'PRODUCTOR',
+      });
+
+      await gateway.handleConnection(
+        client,
+        makeRequest({
+          cookie: 'otra=1; access_token=cookie-jwt; refresh_token=x',
+          origin: 'https://app.zarza.test',
+        }),
+      );
+
+      expect(mockTokenService.verifyToken).toHaveBeenCalledWith('cookie-jwt');
+      expect(client.send).toHaveBeenCalledWith(
+        JSON.stringify({ event: 'auth_ok' }),
+      );
+      (client.send as jest.Mock).mockClear();
+      gateway.emitToUser('user-1', 'test', {});
+      expect(client.send).toHaveBeenCalled();
+    });
+
+    it('cancela el timeout de auth al autenticar por cookie', async () => {
+      jest.useFakeTimers();
+      const client = makeSocket();
+      mockTokenService.verifyToken.mockResolvedValue({
+        sub: 'user-1',
+        email: 'a@b.com',
+        role: 'PRODUCTOR',
+      });
+
+      await gateway.handleConnection(
+        client,
+        makeRequest({
+          cookie: 'access_token=cookie-jwt',
+          origin: 'http://localhost:5173',
+        }),
+      );
+      jest.advanceTimersByTime(10_000);
+
+      expect(client.close).not.toHaveBeenCalled();
+      jest.useRealTimers();
+    });
+
+    it('ignora la cookie si el Origin no está permitido', async () => {
+      const client = makeSocket();
+
+      await gateway.handleConnection(
+        client,
+        makeRequest({
+          cookie: 'access_token=cookie-jwt',
+          origin: 'https://evil.example',
+        }),
+      );
+
+      expect(mockTokenService.verifyToken).not.toHaveBeenCalled();
+      expect(client.send).not.toHaveBeenCalled();
+      gateway.handleDisconnect(client);
+    });
+
+    it('ignora la cookie si el handshake no trae Origin', async () => {
+      const client = makeSocket();
+
+      await gateway.handleConnection(
+        client,
+        makeRequest({ cookie: 'access_token=cookie-jwt' }),
+      );
+
+      expect(mockTokenService.verifyToken).not.toHaveBeenCalled();
+      gateway.handleDisconnect(client);
+    });
+
+    it('cierra socket con 4001 si la cookie es inválida', async () => {
+      const client = makeSocket();
+      mockTokenService.verifyToken.mockRejectedValue(new Error('expired'));
+
+      await gateway.handleConnection(
+        client,
+        makeRequest({
+          cookie: 'access_token=vencido',
+          origin: 'http://localhost:5173',
+        }),
+      );
+
+      expect(client.close).toHaveBeenCalledWith(4001, 'Invalid token');
+      expect(client.send).not.toHaveBeenCalled();
+      gateway.handleDisconnect(client);
+    });
+
+    it('no registra el socket si se cerró mientras se verificaba la cookie', async () => {
+      const client = makeSocket(WebSocket.CLOSED);
+      mockTokenService.verifyToken.mockResolvedValue({
+        sub: 'user-1',
+        email: 'a@b.com',
+        role: 'PRODUCTOR',
+      });
+
+      await gateway.handleConnection(
+        client,
+        makeRequest({
+          cookie: 'access_token=cookie-jwt',
+          origin: 'http://localhost:5173',
+        }),
+      );
+
+      expect(client.send).not.toHaveBeenCalled();
+      gateway.handleDisconnect(client);
     });
   });
 
