@@ -18,6 +18,10 @@ internal object RubusPalette {
     val BlueDepth = Color(0xFF1899D6)
     val BlueInk = Color(0xFF0E587B)
     val BlueContainer = Color(0xFFDDF4FF)
+    val BlueContainerStrong = Color(0xFFBBE7FC)
+
+    // Muestreado de una captura con suavizado; el valor exacto puede variar un par de puntos.
+    val BlueOutline = Color(0xFF84D8FF)
 
     val Purple = Color(0xFFCE82FF)
     val PurpleInk = Color(0xFF674180)
@@ -87,6 +91,8 @@ internal val LightColorScheme = lightColorScheme(
 data class RubusColors(
     val primaryDepth: Color,
     val secondaryDepth: Color,
+    val secondaryContainerStrong: Color,
+    val secondaryOutline: Color,
     val errorDepth: Color,
     val warning: Color,
     val onWarningContainer: Color,
@@ -100,6 +106,8 @@ data class RubusColors(
 internal val LightRubusColors = RubusColors(
     primaryDepth = RubusPalette.GreenDepth,
     secondaryDepth = RubusPalette.BlueDepth,
+    secondaryContainerStrong = RubusPalette.BlueContainerStrong,
+    secondaryOutline = RubusPalette.BlueOutline,
     errorDepth = RubusPalette.RedDepth,
     warning = RubusPalette.Yellow,
     onWarningContainer = RubusPalette.YellowInk,
