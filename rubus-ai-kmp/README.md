@@ -12,6 +12,31 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
     Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
     folder is the appropriate location.
 
+### Estructura de paquetes
+
+Dentro de `shared/src/commonMain/kotlin/<paquete base>/`. Las carpetas se crean cuando llega su primer archivo.
+
+```
+core/
+  model/          entidades puras, sin dependencias
+  data/           repositorios por dominio de datos: auth, analyses, ingestion,
+                  campos, solicitudes, notifications, admin
+  domain/         casos de uso que combinan repositorios o tienen lógica propia
+  network/        cliente HTTP, DTOs, WebSocket
+  database/       base de datos local
+  datastore/      preferencias clave-valor
+  sync/           cola offline y sincronización
+  designsystem/   theme/ y component/
+  ui/             composables compartidos que conocen el modelo
+  navigation/  platform/  config/  di/  common/
+feature/
+  splash, auth, home, capture, results, history, queue, solicitudes,
+  notifications, profile, admin, help
+                  solo UI: pantalla, ViewModel, estado y navegación
+```
+
+Reglas de dependencia: `feature` depende de `core` y nunca de otra `feature`; `core/model` no depende de nada.
+
 ### Running the apps
 
 Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
