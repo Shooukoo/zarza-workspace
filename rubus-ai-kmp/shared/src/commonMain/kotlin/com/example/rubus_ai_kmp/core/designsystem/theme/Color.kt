@@ -5,9 +5,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-// Colores base tomados del kit de referencia. Los "Depth" (canto inferior de los
-// botones) siguen la regla del kit: el color base con negro al 20 % encima. Los "Ink"
-// (texto sobre contenedores claros) no vienen del kit: son el color base al 50 % de brillo.
+// Colores base y cantos de botón ("Depth") tomados del kit de referencia; donde el kit
+// no da el canto, es el color base con negro al 20 % encima. Los "Ink" (texto sobre
+// contenedores claros) no vienen del kit: son el color base al 50 % de brillo.
 internal object RubusPalette {
     val Green = Color(0xFF58CC02)
     val GreenDepth = Color(0xFF46A302)
@@ -15,7 +15,7 @@ internal object RubusPalette {
     val GreenContainer = Color(0xFFD7FFB8)
 
     val Blue = Color(0xFF1CB0F6)
-    val BlueDepth = Color(0xFF168DC5)
+    val BlueDepth = Color(0xFF1899D6)
     val BlueInk = Color(0xFF0E587B)
     val BlueContainer = Color(0xFFDDF4FF)
 
@@ -28,8 +28,8 @@ internal object RubusPalette {
     val RedInk = Color(0xFF7E2121)
     val RedContainer = Color(0xFFFFB2B2)
 
-    val Yellow = Color(0xFFFFC300)
-    val YellowInk = Color(0xFF806200)
+    val Yellow = Color(0xFFFFC800)
+    val YellowInk = Color(0xFF806400)
     val YellowContainer = Color(0xFFFFEEAE)
 
     val Navy = Color(0xFF235390)
@@ -37,9 +37,10 @@ internal object RubusPalette {
     val White = Color(0xFFFFFFFF)
     val Gray50 = Color(0xFFF7F7F7)
     val Gray200 = Color(0xFFE5E5E5)
-    val Gray400 = Color(0xFFB2B2B2)
+    val Gray400 = Color(0xFFAFAFAF)
     val Gray600 = Color(0xFF777777)
-    val Gray800 = Color(0xFF595959)
+    val Gray800 = Color(0xFF4B4B4B)
+    val Gray900 = Color(0xFF3C3C3C)
 }
 
 internal val LightColorScheme = lightColorScheme(
@@ -60,7 +61,7 @@ internal val LightColorScheme = lightColorScheme(
     errorContainer = RubusPalette.RedContainer,
     onErrorContainer = RubusPalette.RedInk,
     background = RubusPalette.White,
-    onBackground = RubusPalette.Gray800,
+    onBackground = RubusPalette.Gray900,
     surface = RubusPalette.White,
     onSurface = RubusPalette.Gray800,
     surfaceVariant = RubusPalette.Gray50,

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.rubus_ai_kmp.core.designsystem.theme.RubusDimens
 import com.example.rubus_ai_kmp.core.designsystem.theme.RubusTheme
@@ -43,11 +44,11 @@ fun RubusButton(
     val pressed by interactionSource.collectIsPressedAsState()
     val sunk = pressed && enabled
     val colors = buttonColors(variant, enabled)
-    val depth = RubusDimens.ButtonDepth
+    val depth = colors.depth
 
     Box(
         modifier = modifier
-            .defaultMinSize(minWidth = 64.dp, minHeight = RubusDimens.ButtonHeight + depth)
+            .defaultMinSize(minWidth = 64.dp, minHeight = RubusDimens.ButtonHeight)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -98,6 +99,7 @@ private class ButtonColors(
     val edge: Color,
     val content: Color,
     val border: Color = Color.Unspecified,
+    val depth: Dp = RubusDimens.ButtonDepth,
 )
 
 @Composable
@@ -118,8 +120,9 @@ private fun buttonColors(variant: RubusButtonVariant, enabled: Boolean): ButtonC
         RubusButtonVariant.Outline -> ButtonColors(
             face = scheme.surface,
             edge = scheme.outline,
-            content = scheme.secondary,
+            content = scheme.onSurfaceVariant,
             border = scheme.outline,
+            depth = RubusDimens.OutlineDepth,
         )
     }
 }
