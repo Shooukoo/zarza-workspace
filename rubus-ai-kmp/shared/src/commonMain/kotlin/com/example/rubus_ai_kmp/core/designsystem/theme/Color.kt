@@ -5,9 +5,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-// Valores muestreados de las capturas de referencia. Los "Depth" (canto inferior de
-// los botones) y los "Ink" (texto sobre contenedores claros) no se distinguen en las
-// capturas: son el color base al 80 % y al 50 % de brillo.
+// Colores base tomados del kit de referencia. Los "Depth" (canto inferior de los
+// botones) siguen la regla del kit: el color base con negro al 20 % encima. Los "Ink"
+// (texto sobre contenedores claros) no vienen del kit: son el color base al 50 % de brillo.
 internal object RubusPalette {
     val Green = Color(0xFF58CC02)
     val GreenDepth = Color(0xFF46A302)
