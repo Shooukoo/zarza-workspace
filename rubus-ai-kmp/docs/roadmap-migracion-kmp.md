@@ -41,7 +41,7 @@ Android completo (fases 0–8): **42–53 días**. iOS: 8–12 días más.
 | ~~Paleta de colores nueva~~ — resuelto: el tema ya está en `core/designsystem/theme` | — |
 | ~~`applicationId` definitivo~~ — resuelto el 2026-10-09: `com.rubusai.app` (`.dev` y `.stg` en los otros flavors) | — |
 | URLs reales de staging y producción (en Flutter son marcadores `zarza.example`) | Fase 8 |
-| Confirmar si el registro de usuarios sigue vigente (ver "Dudas abiertas") | Fase 1 |
+| ~~Confirmar si el registro de usuarios sigue vigente~~ — resuelto el 2026-10-09: se descarta, `POST /auth/register` exige rol `ADMIN` | — |
 | Mac con Xcode y cuenta de Apple Developer | Fase 9 |
 
 ---
@@ -133,17 +133,18 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 **Qué se migra.**
 - Build: dependencias en `libs.versions.toml`, KSP, serialización; flavors `dev`/`staging`/`prod` en `androidApp` con sufijo de `applicationId`, y `EnvConfig` resolviendo URL base y URL de WebSocket por flavor (hoy `env_config.dart`).
 - `core/di`: módulos de Koin (creados en `AppModule.kt`; vacíos salvo `configModule`).
-- `core/network`: cliente Ktor con JSON, timeouts, cabecera `Bearer` y refresh de token.
-- `core/datastore` y `core/platform`: `SecureTokenStorage` para Android.
+- `core/network`: cliente Ktor con JSON, timeouts, cabecera `Bearer` y refresh de token. Hecho el 2026-10-10.
+- `core/platform`: `SecureTokenStorage` para Android (DataStore cifrado con una clave del Keystore). Hecho el 2026-10-10; en iOS es en memoria hasta la fase 9.
 - `core/navigation`: grafo vacío con las rutas declaradas.
 - `core/designsystem`: tema oscuro con la paleta nueva, tipografía Outfit/Lexend y los componentes base (botón, campo de texto, tarjeta, estado de carga y de error).
-- `core/model`: `User`, `UserRole`.
+- `core/model`: `User`, `UserRole`. Hecho el 2026-10-10.
 
 **Librerías.** Koin, Ktor Client (motor OkHttp en Android, Darwin en iOS), kotlinx.serialization, kotlinx.coroutines, Navigation Compose, DataStore.
 
 **Riesgos.**
 - Compatibilidad de versiones entre Kotlin, KSP, Compose Multiplatform y AGP 9: el proyecto usa versiones muy recientes y no todas las librerías las soportan el primer día.
 - ~~Las fábricas `createX()` de `core/platform` no reciben `Context`.~~ Resuelto el 2026-10-09: se eliminaron; cada implementación se registra en el módulo de Koin de su plataforma (`core/di/PlatformModule.*.kt`).
+- ~~El plugin `Auth` de Ktor decide el refresh a partir de `WWW-Authenticate`, que el backend no envía.~~ Resuelto el 2026-10-10: con un solo proveedor registrado refresca igualmente; lo fija `HttpClientRefreshTest`.
 
 **Terminado cuando.** El flavor `dev` instala y abre una pantalla con el tema nuevo; una petición de prueba al backend local responde; un test unitario demuestra que un 401 dispara el refresh y reintenta una sola vez.
 
@@ -151,13 +152,12 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 
 **Objetivo.** Entrar y salir de la app con sesión persistente.
 
-**Qué se migra.** `core/data/auth` (repositorio, DTOs, sesión local), `feature/splash`, `feature/auth` (login y, si se confirma, registro), el estado global de sesión que hoy es `AuthCubit`, y la redirección de navegación según sesión.
+**Qué se migra.** `core/data/auth` (repositorio, DTOs, sesión local), `feature/splash`, `feature/auth` (solo login; el registro se descarta), el estado global de sesión que hoy es `AuthCubit`, y la redirección de navegación según sesión.
 
 **Librerías.** Las de la fase 0.
 
 **Riesgos.**
 - Los mensajes de error de login se deducen hoy buscando texto en la excepción (`401`, `already exists`). Conviene mapear por código HTTP.
-- El registro actual no guarda refresh token; hay que confirmar qué devuelve el backend.
 
 **Terminado cuando.** Login correcto lleva a una pantalla de inicio provisional; credenciales malas muestran el mensaje adecuado; al cerrar y abrir la app la sesión sigue; logout borra el almacenamiento seguro; con el token vencido la app refresca sin sacar al usuario.
 
@@ -304,5 +304,5 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 
 ## Dudas abiertas sobre el código Flutter
 
-1. **Registro de usuarios.** `RegisterScreen` existe, pero ninguna ruta ni pantalla navega hacia ella; en la práctica los usuarios se crean desde el panel admin. Falta confirmar si el registro se migra o se descarta.
+1. ~~**Registro de usuarios.**~~ Resuelto el 2026-10-09: no se migra. `POST /auth/register` exige rol `ADMIN`, así que una pantalla de registro pública no puede funcionar; los usuarios se crean desde el panel de `zarza-web`. `RegisterScreen` y el caso de uso `Register` de Flutter no se portan.
 2. **Sync en segundo plano.** Hoy solo sincroniza con la app abierta. Falta confirmar si eso es suficiente en campo o si se quiere WorkManager como mejora posterior.
