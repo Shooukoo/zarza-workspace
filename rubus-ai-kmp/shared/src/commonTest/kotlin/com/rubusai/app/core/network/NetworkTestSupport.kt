@@ -22,8 +22,9 @@ internal val testEnvConfig = EnvConfig(Environment.DEV, devHost = "10.0.2.2")
 internal class FakeNetworkException : Exception("sin red")
 
 /**
- * Motor falso que responde en el dispatcher del test. Si respondiera en `Dispatchers.IO`,
- * el tiempo virtual de `runTest` podría disparar los timeouts de `HttpTimeout`.
+ * Motor falso que corre en el dispatcher del test: los handlers y `HttpTimeout` usan tiempo
+ * virtual y un solo hilo, así que los tests son deterministas y pueden simular esperas con
+ * `delay`.
  */
 internal fun TestScope.mockEngine(handler: MockRequestHandler): MockEngine =
     MockEngine(

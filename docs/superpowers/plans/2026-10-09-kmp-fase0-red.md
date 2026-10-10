@@ -33,8 +33,8 @@
 - La petición reintentada lleva el atributo `AuthCircuitBreaker`: si vuelve a dar 401 no hay segundo refresh.
 - `BearerAuthConfig.cacheTokens = false` hace que `loadTokens` se llame en cada petición.
 - `AuthConfig.reAuthorizeOnResponse { }` decide qué respuestas disparan el refresh.
-- `ContentNegotiation` quita la cabecera `Content-Type` cuando la petición no lleva cuerpo, así que ponerla en `defaultRequest` no rompe los `GET`.
-- `HttpTimeout` programa su `delay` en el contexto de quien llama. Con `runTest` eso es tiempo virtual: si el `MockEngine` respondiera desde `Dispatchers.IO`, el tiempo virtual podría adelantarse y dar timeouts falsos. Por eso el `MockEngine` de los tests usa el dispatcher del test (`NetworkTestSupport.kt`, Task 4).
+- ~~`ContentNegotiation` quita la cabecera `Content-Type` cuando la petición no lleva cuerpo.~~ Falso, comprobado el 2026-10-10 con OkHttp y `MockEngine`: la cabecera de `defaultRequest` sale también sin cuerpo y Fastify responde 400 a un `POST`/`DELETE` vacío declarado como JSON. `installBase` la quita cuando no hay cuerpo.
+- `HttpTimeout` sigue al dispatcher del motor, no al de quien llama (comprobado el 2026-10-10). El `MockEngine` de los tests usa el dispatcher del test (`NetworkTestSupport.kt`, Task 4) para que handlers y timeouts corran en tiempo virtual y los tests sean deterministas.
 
 **Decisiones que este plan toma sobre lo que la spec deja abierto.**
 

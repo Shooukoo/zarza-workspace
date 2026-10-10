@@ -6,7 +6,8 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
-import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.serialization.Serializable
 
 sealed interface RefreshResult {
@@ -15,7 +16,13 @@ sealed interface RefreshResult {
     /** El backend respondió 401: el token de refresh ya no vale y la sesión terminó. */
     data object Rejected : RefreshResult
 
-    /** Error de red, 429, 5xx o respuesta inesperada. La sesión puede seguir siendo válida. */
+    /**
+     * Error de red, 429, 5xx o respuesta inesperada. La sesión puede seguir siendo válida.
+     *
+     * Si la petición llegó al backend y la respuesta se perdió, el token de refresh guardado
+     * ya está gastado: el siguiente intento dará 401 ([Rejected]) y habrá que volver a
+     * iniciar sesión. No se reintenta aquí.
+     */
     data object TransientFailure : RefreshResult
 }
 
@@ -41,9 +48,10 @@ class TokenRefresher(private val client: HttpClient) {
             response.status == HttpStatusCode.Unauthorized -> RefreshResult.Rejected
             else -> RefreshResult.TransientFailure
         }
-    } catch (e: CancellationException) {
-        throw e
     } catch (e: Exception) {
+        // Solo se propaga la cancelación de quien llama; una CancellationException
+        // que venga del motor o de un cliente cerrado es un fallo más.
+        currentCoroutineContext().ensureActive()
         RefreshResult.TransientFailure
     }
 }
