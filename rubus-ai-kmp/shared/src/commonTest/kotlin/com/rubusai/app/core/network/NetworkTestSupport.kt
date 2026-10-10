@@ -64,6 +64,8 @@ internal class ClientFixture(
  */
 internal fun TestScope.clientFixture(
     tokens: AuthTokens? = AuthTokens("access-old", "refresh-old"),
+    logger: Logger = Logger.EMPTY,
+    envConfig: EnvConfig = testEnvConfig,
     handler: MockRequestHandler,
 ): ClientFixture {
     val engine = mockEngine(handler)
@@ -71,10 +73,10 @@ internal fun TestScope.clientFixture(
     val sessionEvents = SessionEvents()
     val client = createHttpClient(
         engine = engine,
-        logger = Logger.EMPTY,
-        envConfig = testEnvConfig,
+        logger = logger,
+        envConfig = envConfig,
         tokenStorage = storage,
-        tokenRefresher = TokenRefresher(createRefreshClient(engine, testEnvConfig)),
+        tokenRefresher = TokenRefresher(createRefreshClient(engine, envConfig)),
         sessionEvents = sessionEvents,
     )
     return ClientFixture(client, storage, sessionEvents)
