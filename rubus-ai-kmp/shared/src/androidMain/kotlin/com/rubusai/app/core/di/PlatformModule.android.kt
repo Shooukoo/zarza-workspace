@@ -16,15 +16,20 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-/** Implementaciones de `core/platform` y piezas de red propias de Android. */
-internal val androidPlatformModule: Module = module {
+/**
+ * Implementaciones de `core/platform` y piezas de red propias de Android.
+ * Es función y no `val` porque contiene instancias: cada aplicación de Koin recibe las suyas.
+ */
+internal fun androidPlatformModule(): Module = module {
     single<HttpClientEngine> { OkHttp.create() }
     single<Logger> { Logger.ANDROID }
     single<TokenCipher> { KeystoreTokenCipher() }
     single<SecureTokenStorage> {
         val context = androidContext()
         DataStoreTokenStorage(
-            // Un solo DataStore por archivo y proceso: por eso vive dentro de este `single`.
+            // DataStore solo admite una instancia por archivo y proceso: por eso vive dentro
+            // de este `single`. Si Koin se parase y se volviera a arrancar en el mismo
+            // proceso (tests), la segunda instancia fallaría al usarse.
             dataStore = PreferenceDataStoreFactory.create(
                 // Un archivo corrupto se sustituye por uno vacío: se pierde la sesión, no la app.
                 corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },

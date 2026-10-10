@@ -12,8 +12,9 @@ import org.koin.dsl.module
  * Implementaciones de `core/platform` y piezas de red propias de iOS.
  * La sesión se guarda en memoria y se pierde al cerrar la app hasta que exista
  * la implementación con Keychain (fase 9).
+ * Es función y no `val` porque contiene instancias: cada aplicación de Koin recibe las suyas.
  */
-internal val iosPlatformModule: Module = module {
+internal fun iosPlatformModule(): Module = module {
     single<HttpClientEngine> { Darwin.create() }
     single<Logger> {
         object : Logger {

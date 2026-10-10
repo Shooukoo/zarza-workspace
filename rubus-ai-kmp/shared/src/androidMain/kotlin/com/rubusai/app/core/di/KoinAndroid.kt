@@ -11,7 +11,7 @@ import org.koin.android.ext.koin.androidContext
  * De [context] solo se conserva su `applicationContext`.
  */
 fun startKoinAndroid(context: Context, environment: Environment, devHost: String) {
-    initKoin(environment, devHost, androidPlatformModule) {
+    initKoin(environment, devHost, androidPlatformModule()) {
         androidContext(context.applicationContext)
     }
 }
