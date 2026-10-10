@@ -1,3 +1,3 @@
 <resources>
-    <string name="app_name">Rubus AI</string>
+    <string name="app_name" translatable="false">Rubus AI</string>
 </resources>

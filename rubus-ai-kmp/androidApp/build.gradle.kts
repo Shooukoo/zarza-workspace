@@ -12,7 +12,13 @@ val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.exists()) file.inputStream().use(::load)
 }
-val devHost: String = localProperties.getProperty("rubus.devHost") ?: "10.0.2.2"
+val devHost: String = localProperties.getProperty("rubus.devHost")
+    ?.trim()
+    ?.takeIf { it.isNotEmpty() }
+    ?: "10.0.2.2"
+require(Regex("[A-Za-z0-9.-]+").matches(devHost)) {
+    "rubus.devHost en local.properties debe ser solo un host o IP (sin esquema, puerto ni comillas): '$devHost'"
+}
 
 kotlin {
     compilerOptions {
