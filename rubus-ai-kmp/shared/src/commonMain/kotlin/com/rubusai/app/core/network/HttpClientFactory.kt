@@ -1,22 +1,44 @@
 package com.rubusai.app.core.network
 
 import com.rubusai.app.core.config.EnvConfig
+import com.rubusai.app.core.config.Environment
+import com.rubusai.app.core.platform.SecureTokenStorage
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.api.createClientPlugin
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.utils.EmptyContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.Url
 import io.ktor.http.contentType
+import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 private const val CONNECT_TIMEOUT_MS = 10_000L
 private const val REQUEST_TIMEOUT_MS = 30_000L
+
+private val AUTH_ROUTES = listOf("auth/login", "auth/refresh")
+
+/**
+ * `true` si [encodedPath] es una ruta de login o de refresh bajo [basePath] (la ruta de la
+ * URL base, terminada en `/`). Esas peticiones no llevan `Bearer` ni disparan refresh.
+ */
+internal fun isAuthRoute(encodedPath: String, basePath: String): Boolean {
+    if (!encodedPath.startsWith(basePath)) return false
+    val relative = encodedPath.removePrefix(basePath)
+    return AUTH_ROUTES.any { relative.startsWith(it) }
+}
 
 /** Quita el `Content-Type` si no hay cuerpo: Fastify responde 400 a un cuerpo vacío declarado como JSON. */
 private val SinContentTypeSinCuerpo = createClientPlugin("SinContentTypeSinCuerpo") {
@@ -56,3 +78,40 @@ internal fun createRefreshClient(engine: HttpClientEngine, envConfig: EnvConfig)
         expectSuccess = false
         installBase(envConfig)
     }
+
+/**
+ * Cliente HTTP de la app. Añade el token de acceso a cada petición salvo a las rutas de
+ * login y refresh. Lanza `ResponseException` ante cualquier respuesta que no sea 2xx.
+ *
+ * Los tokens se leen de [tokenStorage] en cada petición y no se cachean: quien guarde o
+ * borre la sesión ahí no tiene que avisar al cliente.
+ */
+internal fun createHttpClient(
+    engine: HttpClientEngine,
+    logger: Logger,
+    envConfig: EnvConfig,
+    tokenStorage: SecureTokenStorage,
+    tokenRefresher: TokenRefresher,
+    sessionEvents: SessionEvents,
+): HttpClient {
+    val basePath = Url("${envConfig.apiBaseUrl}/").encodedPath
+    return HttpClient(engine) {
+        expectSuccess = true
+        installBase(envConfig)
+        install(Logging) {
+            this.logger = logger
+            // Nunca cuerpos: llevan tokens y datos del usuario.
+            level = if (envConfig.environment == Environment.DEV) LogLevel.HEADERS else LogLevel.NONE
+            sanitizeHeader { it == HttpHeaders.Authorization }
+        }
+        install(Auth) {
+            bearer {
+                cacheTokens = false
+                loadTokens {
+                    tokenStorage.read()?.let { BearerTokens(it.accessToken, it.refreshToken) }
+                }
+                sendWithoutRequest { request -> !isAuthRoute(request.url.encodedPath, basePath) }
+            }
+        }
+    }
+}

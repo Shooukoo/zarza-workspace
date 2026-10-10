@@ -2,11 +2,15 @@ package com.rubusai.app.core.network
 
 import com.rubusai.app.core.config.EnvConfig
 import com.rubusai.app.core.config.Environment
+import com.rubusai.app.core.platform.InMemoryTokenStorage
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.MockRequestHandler
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.logging.EMPTY
+import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.request.HttpResponseData
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -46,3 +50,32 @@ internal fun MockRequestHandleScope.respondJson(
 /** Respuesta de `auth/refresh` con un par nuevo. */
 internal fun MockRequestHandleScope.respondNewTokens(): HttpResponseData =
     respondJson("""{"token":"access-new","refreshToken":"refresh-new"}""")
+
+/** Cliente de la app montado sobre un motor falso, con sus colaboradores a la vista. */
+internal class ClientFixture(
+    val client: HttpClient,
+    val storage: InMemoryTokenStorage,
+    val sessionEvents: SessionEvents,
+)
+
+/**
+ * [handler] recibe todas las peticiones: las del cliente de la app y las de `auth/refresh`
+ * que hace [TokenRefresher], porque ambos clientes comparten el motor.
+ */
+internal fun TestScope.clientFixture(
+    tokens: AuthTokens? = AuthTokens("access-old", "refresh-old"),
+    handler: MockRequestHandler,
+): ClientFixture {
+    val engine = mockEngine(handler)
+    val storage = InMemoryTokenStorage(tokens)
+    val sessionEvents = SessionEvents()
+    val client = createHttpClient(
+        engine = engine,
+        logger = Logger.EMPTY,
+        envConfig = testEnvConfig,
+        tokenStorage = storage,
+        tokenRefresher = TokenRefresher(createRefreshClient(engine, testEnvConfig)),
+        sessionEvents = sessionEvents,
+    )
+    return ClientFixture(client, storage, sessionEvents)
+}
