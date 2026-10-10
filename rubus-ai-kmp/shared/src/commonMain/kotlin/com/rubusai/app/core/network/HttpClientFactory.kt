@@ -131,22 +131,35 @@ internal fun createHttpClient(
             }
             bearer {
                 cacheTokens = false
+                // El refresh y el guardado terminan aunque se cancele quien los inició: si se
+                // cortaran después de que el backend rote el token, quedaría guardado uno ya
+                // gastado y el siguiente refresh revocaría la sesión.
+                nonCancellableRefresh = true
                 loadTokens {
                     tokenStorage.read()?.let { BearerTokens(it.accessToken, it.refreshToken) }
                 }
                 sendWithoutRequest { request -> needsBearer(request.url.build(), baseUrl) }
-                // Auth serializa esta llamada: con varios 401 a la vez, solo el primero
-                // llega aquí y los demás se reintentan con el par que este guarde.
+                // Auth serializa esta llamada. Tras un refresh con éxito los demás 401 se
+                // reintentan con el par guardado; si devuelve null, los que esperaban pueden
+                // volver a entrar.
                 refreshTokens {
-                    val refreshToken = oldTokens?.refreshToken ?: return@refreshTokens null
+                    val stored = oldTokens ?: return@refreshTokens null
+                    // Otra petición ya renovó mientras esta esperaba: basta reintentar con
+                    // el par guardado.
+                    val sent = response.request.headers[HttpHeaders.Authorization]
+                    if (sent != "Bearer ${stored.accessToken}") return@refreshTokens stored
+                    val refreshToken = stored.refreshToken ?: return@refreshTokens null
                     when (val result = tokenRefresher.refresh(refreshToken)) {
                         is RefreshResult.Success -> {
                             tokenStorage.save(result.tokens)
                             BearerTokens(result.tokens.accessToken, result.tokens.refreshToken)
                         }
                         RefreshResult.Rejected -> {
-                            tokenStorage.clear()
-                            sessionEvents.notifyExpired()
+                            try {
+                                tokenStorage.clear()
+                            } finally {
+                                sessionEvents.notifyExpired()
+                            }
                             null
                         }
                         RefreshResult.TransientFailure -> null

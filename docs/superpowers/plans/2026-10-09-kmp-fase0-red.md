@@ -29,7 +29,7 @@
 **Hechos de Ktor 3.6.0 ya comprobados en su código fuente** (no hace falta volver a investigarlos):
 
 - Con un único proveedor registrado, `Auth` refresca ante un 401 aunque la respuesta no traiga `WWW-Authenticate`. Es el riesgo que la spec pedía validar; el test 3 lo fija.
-- `Auth` lleva un contador de versión del token por proveedor: una petición que recibe 401 con un token que otra petición ya renovó no vuelve a refrescar, solo se reintenta. `AuthTokenHolder.setToken` serializa los refrescos con un `Mutex`.
+- `Auth` lleva un contador de versión del token por proveedor: una petición que recibe 401 con un token que otra petición ya renovó no vuelve a refrescar, solo se reintenta. `AuthTokenHolder.setToken` serializa los refrescos con un `Mutex`. Matices comprobados el 2026-10-10 leyendo el código fuente y con pruebas: con `cacheTokens = false` la deduplicación depende de que el resultado del refresh sea un objeto distinto, la comprobación de versión no es atómica (en multihilo puede haber un segundo refresh, válido, con el par nuevo) y, si `refreshTokens` devuelve `null`, las peticiones que esperaban vuelven a entrar una tras otra. Por eso el bloque comprueba si el token enviado ya no es el guardado y usa `nonCancellableRefresh = true`.
 - La petición reintentada lleva el atributo `AuthCircuitBreaker`: si vuelve a dar 401 no hay segundo refresh.
 - `BearerAuthConfig.cacheTokens = false` hace que `loadTokens` se llame en cada petición.
 - `AuthConfig.reAuthorizeOnResponse { }` decide qué respuestas disparan el refresh.
