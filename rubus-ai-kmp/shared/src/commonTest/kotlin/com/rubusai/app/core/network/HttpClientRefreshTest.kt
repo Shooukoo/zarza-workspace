@@ -256,7 +256,8 @@ class HttpClientRefreshTest {
         )
         val expired = collectExpired(sessionEvents)
 
-        assertFailsWith<Exception> { client.get("analyses") }
+        // Quien llama ve el fallo del almacenamiento, no el 401.
+        assertFailsWith<IllegalStateException> { client.get("analyses") }
 
         assertEquals(1, expired.size)
     }
