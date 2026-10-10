@@ -2,7 +2,7 @@
 
 Fecha: 2026-10-09
 
-> **Desviaciones tras la revisión de código.** La implementación difiere de este documento en dos puntos: (1) el grafo de Koin es `internal` de `shared`; `androidApp` no depende de Koin y arranca con la función pública `startKoinAndroid`, simétrica a `startKoinIos`, en lugar de llamar a `initKoin` directamente; (2) el grafo no se comprueba con `verify()` de Koin, sino con tests que construyen el grafo real (`KoinGraphTest`, `KoinInitTest`). El resto del documento se mantiene como registro del diseño aprobado.
+> **Desviaciones tras la revisión de código.** La implementación difiere de este documento en estos puntos: (1) el grafo de Koin es `internal` de `shared`; `androidApp` no depende de Koin y arranca con la función pública `startKoinAndroid`, simétrica a `startKoinIos`, en lugar de llamar a `initKoin` directamente; (2) el grafo no se comprueba con `verify()` de Koin, sino con tests que construyen el grafo real (`KoinGraphTest`, `KoinInitTest`). Además, tres comportamientos son más estrictos que lo descrito aquí: `EnvConfig` exige un `devHost` no vacío en `DEV`, el build valida `rubus.devHost` y se detiene si no es un host o una IP, e `initKoin` devuelve el `KoinApplication`. El resto del documento se mantiene como registro del diseño aprobado.
 
 ## Contexto
 
