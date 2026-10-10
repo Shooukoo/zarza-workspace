@@ -1,9 +1,18 @@
+import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
 }
+
+// Host del backend para el flavor dev. `rubus.devHost` en local.properties lo
+// sobrescribe para probar en un teléfono físico contra un backend en la LAN.
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use(::load)
+}
+val devHost: String = localProperties.getProperty("rubus.devHost") ?: "10.0.2.2"
 
 kotlin {
     compilerOptions {
@@ -30,6 +39,26 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            buildConfigField("String", "ENVIRONMENT", "\"DEV\"")
+            buildConfigField("String", "DEV_HOST", "\"$devHost\"")
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".stg"
+            buildConfigField("String", "ENVIRONMENT", "\"STAGING\"")
+            buildConfigField("String", "DEV_HOST", "\"\"")
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("String", "ENVIRONMENT", "\"PROD\"")
+            buildConfigField("String", "DEV_HOST", "\"\"")
+        }
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -50,5 +79,6 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
