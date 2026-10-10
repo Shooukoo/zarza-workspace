@@ -57,7 +57,7 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
     comillas; cualquier otra cosa detiene el build con un mensaje. El backend tiene que escuchar en `0.0.0.0:3001`.
   - El arranque está en `RubusApplication`: lee el flavor de `BuildConfig` y llama a `startKoinAndroid`. Un entorno
     desconocido o un host vacío en `dev` hacen fallar el arranque a propósito.
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there. Todavía sin compilar en este proyecto; ver la sección «Sin verificar» de [docs/dependencias-pendientes.md](./docs/dependencias-pendientes.md).
 
 ### Running tests
 

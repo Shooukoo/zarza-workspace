@@ -2,6 +2,8 @@
 
 Fecha: 2026-10-09
 
+> **Desviaciones tras la revisión de código.** La implementación difiere de este documento en dos puntos: (1) el grafo de Koin es `internal` de `shared`; `androidApp` no depende de Koin y arranca con la función pública `startKoinAndroid`, simétrica a `startKoinIos`, en lugar de llamar a `initKoin` directamente; (2) el grafo no se comprueba con `verify()` de Koin, sino con tests que construyen el grafo real (`KoinGraphTest`, `KoinInitTest`). El resto del documento se mantiene como registro del diseño aprobado.
+
 ## Contexto
 
 La Fase 0 del roadmap (`rubus-ai-kmp/docs/roadmap-migracion-kmp.md`) tiene hecho el tema y `RubusButton`. Lo que falta se divide en tres sub-proyectos, cada uno con su spec y su plan:
