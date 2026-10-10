@@ -20,11 +20,11 @@ dependencies {
 }
 
 android {
-    namespace = "com.example.rubus_ai_kmp"
+    namespace = "com.rubusai.app"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.example.rubus_ai_kmp"
+        applicationId = "com.rubusai.app"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
