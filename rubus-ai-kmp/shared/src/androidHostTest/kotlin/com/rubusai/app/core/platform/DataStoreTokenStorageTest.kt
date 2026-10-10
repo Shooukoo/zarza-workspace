@@ -7,15 +7,28 @@ import androidx.datastore.preferences.core.edit
 import com.rubusai.app.core.network.AuthTokens
 import java.io.File
 import java.nio.file.Files
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.encoding.Base64
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 
 class DataStoreTokenStorageTest {
 
@@ -28,6 +41,28 @@ class DataStoreTokenStorageTest {
     private class FailingCipher : TokenCipher {
         override fun encrypt(plain: ByteArray): ByteArray = plain
         override fun decrypt(data: ByteArray): ByteArray = throw IllegalStateException("clave perdida")
+    }
+
+    private class CancellingCipher : TokenCipher {
+        override fun encrypt(plain: ByteArray): ByteArray = plain
+        override fun decrypt(data: ByteArray): ByteArray = throw CancellationException("cancelado")
+    }
+
+    /**
+     * Cifra igual que [ReversingCipher], pero al descifrar avisa de que ha entrado, espera
+     * a que lo suelten y entonces falla. Permite colar un `save` en mitad de un `read`.
+     */
+    private class BlockingFailingCipher : TokenCipher {
+        val entered = CountDownLatch(1)
+        val release = CountDownLatch(1)
+
+        override fun encrypt(plain: ByteArray): ByteArray = plain.reversedArray()
+
+        override fun decrypt(data: ByteArray): ByteArray {
+            entered.countDown()
+            release.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            throw IllegalStateException("clave perdida")
+        }
     }
 
     private val directory: File = Files.createTempDirectory("session-test").toFile()
@@ -59,6 +94,16 @@ class DataStoreTokenStorageTest {
         storage.save(AuthTokens("access-1", "refresh-1"))
 
         assertEquals(AuthTokens("access-1", "refresh-1"), storage.read())
+    }
+
+    @Test
+    fun guardarDosVecesSustituyeElParAnterior() = runTest {
+        val storage = DataStoreTokenStorage(newDataStore(), ReversingCipher())
+
+        storage.save(AuthTokens("access-1", "refresh-1"))
+        storage.save(AuthTokens("access-2", "refresh-2"))
+
+        assertEquals(AuthTokens("access-2", "refresh-2"), storage.read())
     }
 
     @Test
@@ -119,5 +164,52 @@ class DataStoreTokenStorageTest {
 
         assertNull(storage.read())
         assertNull(dataStore.storedValue())
+    }
+
+    @Test
+    fun unaCancelacionDuranteLaLecturaNoBorraLoGuardado() = runTest {
+        val dataStore = newDataStore()
+        DataStoreTokenStorage(dataStore, ReversingCipher()).save(AuthTokens("access-1", "refresh-1"))
+        val storage = DataStoreTokenStorage(dataStore, CancellingCipher())
+
+        assertFailsWith<CancellationException> { storage.read() }
+
+        assertNotNull(dataStore.storedValue())
+    }
+
+    // Necesita concurrencia real (un `save` mientras `read` está bloqueado descifrando),
+    // así que no usa `runTest` ni su tiempo virtual.
+    @Test
+    fun siSeGuardaOtroParMientrasFallaLaLecturaNoSeBorra() = runBlocking<Unit> {
+        val job = SupervisorJob()
+        val blockingCipher = BlockingFailingCipher()
+        try {
+            // Una sola instancia de DataStore por archivo: la comparten los dos almacenamientos.
+            val dataStore = PreferenceDataStoreFactory.create(scope = CoroutineScope(Dispatchers.IO + job)) {
+                File(directory, "session.preferences_pb")
+            }
+            val working = DataStoreTokenStorage(dataStore, ReversingCipher())
+            val blocked = DataStoreTokenStorage(dataStore, blockingCipher)
+            working.save(AuthTokens("access-1", "refresh-1"))
+
+            val reading = async(Dispatchers.IO) { blocked.read() }
+            assertTrue(
+                blockingCipher.entered.await(TIMEOUT_SECONDS, TimeUnit.SECONDS),
+                "la lectura no llegó a descifrar",
+            )
+            working.save(AuthTokens("access-new", "refresh-new"))
+            blockingCipher.release.countDown()
+
+            assertNull(withTimeout(TIMEOUT_SECONDS * 1000) { reading.await() })
+            assertEquals(AuthTokens("access-new", "refresh-new"), working.read())
+        } finally {
+            blockingCipher.release.countDown()
+            job.cancelAndJoin()
+        }
+    }
+
+    private companion object {
+        /** Tope de las esperas de la prueba concurrente, para que un fallo no cuelgue el build. */
+        const val TIMEOUT_SECONDS = 10L
     }
 }
