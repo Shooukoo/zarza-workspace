@@ -4,6 +4,7 @@ import com.rubusai.app.core.config.EnvConfig
 import com.rubusai.app.core.config.Environment
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
@@ -24,5 +25,10 @@ class KoinGraphTest {
         } finally {
             app.close()
         }
+    }
+
+    @Test
+    fun configModuleFallaAlCrearseSiFaltaElHostEnDev() {
+        assertFailsWith<IllegalArgumentException> { configModule(Environment.DEV, devHost = "") }
     }
 }
