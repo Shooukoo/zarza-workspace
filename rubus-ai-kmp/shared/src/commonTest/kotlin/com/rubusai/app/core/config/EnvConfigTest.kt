@@ -2,6 +2,7 @@ package com.rubusai.app.core.config
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class EnvConfigTest {
 
@@ -30,7 +31,16 @@ class EnvConfigTest {
     }
 
     @Test
-    fun exponeElEntorno() {
-        assertEquals(Environment.STAGING, EnvConfig(Environment.STAGING, devHost = "").environment)
+    fun prodFuncionaConHostDeDevVacio() {
+        val config = EnvConfig(Environment.PROD, devHost = "")
+
+        assertEquals(Environment.PROD, config.environment)
+        assertEquals("https://api.zarza.example/api/v1", config.apiBaseUrl)
+        assertEquals("wss://api.zarza.example/ws", config.wsUrl)
+    }
+
+    @Test
+    fun devSinHostFalla() {
+        assertFailsWith<IllegalArgumentException> { EnvConfig(Environment.DEV, devHost = "") }
     }
 }
