@@ -29,7 +29,7 @@ Las estimaciones son **días efectivos de trabajo** de una persona, no días de 
 | 5 | Solicitudes | Lista, detalle, cambio de estado, captura desde una solicitud | 3–4 |
 | 6 | Notificaciones y push | Bandeja, campanita, token FCM, push con la app cerrada | 5–6 |
 | 7 | Perfil y ayuda | Editar perfil, pantalla de ayuda | 2–3 |
-| 8 | Release Android | Identificador y firma definitivos, Firebase, pruebas en dispositivo, distribución | 3–4 |
+| 8 | Release Android | Firma definitiva, Firebase, pruebas en dispositivo, distribución | 3–4 |
 | 9 | iOS | Implementaciones de plataforma y TestFlight | 8–12 |
 
 Android completo (fases 0–8): **42–53 días**. iOS: 8–12 días más.
@@ -38,8 +38,8 @@ Android completo (fases 0–8): **42–53 días**. iOS: 8–12 días más.
 
 | Pendiente | Bloquea |
 |-----------|---------|
-| Paleta de colores nueva | Fase 0 (tema) |
-| `applicationId` definitivo (hoy `com.example.rubus_ai_kmp`) | Fase 6 (Firebase); conviene decidirlo en la fase 0 |
+| ~~Paleta de colores nueva~~ — resuelto: el tema ya está en `core/designsystem/theme` | — |
+| ~~`applicationId` definitivo~~ — resuelto el 2026-10-09: `com.rubusai.app` (`.dev` y `.stg` en los otros flavors) | — |
 | URLs reales de staging y producción (en Flutter son marcadores `zarza.example`) | Fase 8 |
 | Confirmar si el registro de usuarios sigue vigente (ver "Dudas abiertas") | Fase 1 |
 | Mac con Xcode y cuenta de Apple Developer | Fase 9 |
@@ -132,7 +132,7 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 
 **Qué se migra.**
 - Build: dependencias en `libs.versions.toml`, KSP, serialización; flavors `dev`/`staging`/`prod` en `androidApp` con sufijo de `applicationId`, y `EnvConfig` resolviendo URL base y URL de WebSocket por flavor (hoy `env_config.dart`).
-- `core/di`: módulos de Koin (ya esbozados en `AppModule.kt`).
+- `core/di`: módulos de Koin (creados en `AppModule.kt`; vacíos salvo `configModule`).
 - `core/network`: cliente Ktor con JSON, timeouts, cabecera `Bearer` y refresh de token.
 - `core/datastore` y `core/platform`: `SecureTokenStorage` para Android.
 - `core/navigation`: grafo vacío con las rutas declaradas.
@@ -143,7 +143,7 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 
 **Riesgos.**
 - Compatibilidad de versiones entre Kotlin, KSP, Compose Multiplatform y AGP 9: el proyecto usa versiones muy recientes y no todas las librerías las soportan el primer día.
-- Las fábricas `createX()` de `core/platform` no reciben `Context`; hay que pasarlas a un módulo de Koin por plataforma.
+- ~~Las fábricas `createX()` de `core/platform` no reciben `Context`.~~ Resuelto el 2026-10-09: se eliminaron; cada implementación se registra en el módulo de Koin de su plataforma (`core/di/PlatformModule.*.kt`).
 
 **Terminado cuando.** El flavor `dev` instala y abre una pantalla con el tema nuevo; una petición de prueba al backend local responde; un test unitario demuestra que un 401 dispara el refresh y reintenta una sola vez.
 
@@ -233,7 +233,7 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 **Librerías.** Firebase BoM y Firebase Messaging en `androidApp`, plugin de Google Services.
 
 **Riesgos.**
-- Firebase se registra por `applicationId`: si todavía es `com.example`, habrá que repetir la configuración.
+- Firebase se registra por `applicationId`: hay que registrar los tres (`com.rubusai.app`, `.dev` y `.stg`) y descargar un `google-services.json` por flavor.
 - Permiso `POST_NOTIFICATIONS` en Android 13+.
 - Los fabricantes con ahorro de batería agresivo retrasan o bloquean el push.
 - `google-services.json` no debe entrar al repositorio si el proyecto de Firebase es privado.
@@ -257,7 +257,7 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 **Objetivo.** Un build de producción instalable y distribuible.
 
 **Qué se hace.**
-- **Identificador.** `applicationId` y `namespace` definitivos, y renombrar el paquete Kotlin. La app Flutter usa `com.example.rubus_ai`; usar uno distinto permite tener ambas instaladas.
+- **Identificador.** Hecho en la fase 0: `applicationId`, `namespace` y paquete Kotlin son `com.rubusai.app`. La app Flutter usa `com.example.rubus_ai`, así que ambas pueden estar instaladas a la vez. Queda pendiente el identificador de iOS (`iosApp/Configuration/Config.xcconfig`), que se cambia en la fase 9.
 - **Firma.** Keystore propio fuera del repositorio, con credenciales en `local.properties` o variables de entorno. Hoy el release de Flutter se firma con la llave de debug.
 - **Firebase.** Registrar el paquete nuevo (y sus variantes `.dev` y `.stg`) y descargar el `google-services.json` de cada flavor.
 - **Configuración.** URLs reales de staging y producción; solo HTTPS en `prod`.
@@ -277,7 +277,7 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 
 **Objetivo.** Llevar a iPhone lo ya probado en Android.
 
-**Qué se hace.** Implementaciones `actual` de iOS para almacenamiento seguro (Keychain), cámara y galería, compresión, ubicación, conectividad, notificaciones locales y push (APNs + Firebase); configuración de Room y Ktor para iOS; permisos en `Info.plist`; firma y TestFlight.
+**Qué se hace.** Implementaciones de iOS, registradas en `iosPlatformModule`, para almacenamiento seguro (Keychain), cámara y galería, compresión, ubicación, conectividad, notificaciones locales y push (APNs + Firebase); configuración de Room y Ktor para iOS; permisos en `Info.plist`; firma y TestFlight.
 
 **Librerías.** Motor Darwin de Ktor, Firebase iOS SDK por Swift Package Manager.
 
@@ -298,7 +298,7 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 | Captura de imagen y GPS | Es la entrada de todo el sistema y depende del hardware y los permisos de cada teléfono. | Fase 2, en dispositivo físico desde el primer día de la fase; no cerrar con emulador. |
 | Offline-first | Una captura perdida en campo no se puede repetir. | Fase 3 inmediatamente después del flujo con red, con los tests de Flutter portados y pruebas en modo avión y con cierre forzado. |
 | Sincronización | Duplicados o capturas atoradas. | El backend ya deduplica por `offlineSyncId` (409). Probar reintentos, cierre a mitad del sync y dos disparos simultáneos en la fase 3. |
-| FCM | Depende del identificador de la app, de Firebase y del fabricante del teléfono. | Decidir el `applicationId` en la fase 0. Al inicio de la fase 6, antes de construir la bandeja, enviar un push de prueba con la app cerrada. |
+| FCM | Depende del identificador de la app, de Firebase y del fabricante del teléfono. | Identificador ya decidido en la fase 0 (`com.rubusai.app`). Al inicio de la fase 6, antes de construir la bandeja, enviar un push de prueba con la app cerrada. |
 | Soporte iOS | Se implementa al final y nunca ha existido. | Mantener todo el código compartido libre de APIs de Android, y compilar el framework de iOS en un Mac al cerrar las fases 0, 2 y 3 aunque no se implemente nada. |
 | Versiones del toolchain | AGP 9 y Kotlin recientes pueden no estar soportados por alguna librería. | Fase 0: agregar todas las librerías del roadmap de una vez y confirmar que el proyecto compila antes de escribir features. |
 
