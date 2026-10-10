@@ -170,6 +170,12 @@ class HttpClientTest {
         assertFalse(needsBearer(Url("http://bucket.example.com:3001/api/v1/analyses"), base))
         assertFalse(needsBearer(Url("http://10.0.2.2:9000/api/v1/analyses"), base))
         assertFalse(needsBearer(Url("http://10.0.2.2:3001/health"), base))
+        // Otro esquema con el mismo puerto escrito.
+        assertFalse(needsBearer(Url("https://10.0.2.2:3001/api/v1/analyses"), base))
+        // El host no distingue mayúsculas de minúsculas.
+        assertTrue(
+            needsBearer(Url("https://API.Example.com/api/v1/analyses"), Url("https://api.example.com/api/v1/")),
+        )
         // El puerto por defecto del esquema cuenta igual escrito o sin escribir.
         assertTrue(
             needsBearer(Url("https://api.example.com:443/api/v1/analyses"), Url("https://api.example.com/api/v1/")),

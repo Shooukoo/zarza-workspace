@@ -16,9 +16,11 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.statement.request
 import io.ktor.client.utils.EmptyContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -43,13 +45,14 @@ internal fun isAuthRoute(encodedPath: String, basePath: String): Boolean {
 }
 
 /**
- * `true` si [url] es de la API (mismo host y puerto que [base], bajo su ruta) y no es login
+ * `true` si [url] es de la API (mismo esquema, host y puerto que [base], bajo su ruta) y no es login
  * ni refresh. Solo esas peticiones llevan `Bearer` y pueden disparar un refresh: el token
  * no debe salir hacia otros hosts (por ejemplo, las URLs firmadas de las imágenes).
  */
 internal fun needsBearer(url: Url, base: Url): Boolean =
-    url.host == base.host && url.port == base.port &&
-        url.encodedPath.startsWith(base.encodedPath) && !isAuthRoute(url.encodedPath, base.encodedPath)
+    url.protocol == base.protocol && url.host.equals(base.host, ignoreCase = true) &&
+        url.port == base.port && url.encodedPath.startsWith(base.encodedPath) &&
+        !isAuthRoute(url.encodedPath, base.encodedPath)
 
 /** Quita el `Content-Type` si no hay cuerpo: Fastify responde 400 a un cuerpo vacío declarado como JSON. */
 private val SinContentTypeSinCuerpo = createClientPlugin("SinContentTypeSinCuerpo") {
@@ -91,8 +94,12 @@ internal fun createRefreshClient(engine: HttpClientEngine, envConfig: EnvConfig)
     }
 
 /**
- * Cliente HTTP de la app. Añade el token de acceso a las peticiones a la API salvo a las
- * rutas de login y refresh, y nunca a otros hosts. Lanza `ResponseException` ante cualquier respuesta que no sea 2xx.
+ * Cliente HTTP de la app. Añade el token de acceso a las peticiones a la API, salvo a las de
+ * login y refresh, y nunca a otros hosts. Ante un 401 de la API pide un par nuevo con
+ * [tokenRefresher], lo guarda y reintenta la petición una vez. Si el backend rechaza el
+ * refresh, borra la sesión y avisa por [sessionEvents]; si el refresh falla por otra causa,
+ * la sesión se conserva. En ambos casos la petición original falla con su 401.
+ * Lanza `ResponseException` ante cualquier respuesta que no sea 2xx.
  *
  * Los tokens se leen de [tokenStorage] en cada petición y no se cachean: quien guarde o
  * borre la sesión ahí no tiene que avisar al cliente.
@@ -116,12 +123,35 @@ internal fun createHttpClient(
             sanitizeHeader { name -> SENSITIVE_HEADERS.any { it.equals(name, ignoreCase = true) } }
         }
         install(Auth) {
+            // El backend no envía WWW-Authenticate en sus 401; con un solo proveedor,
+            // Auth refresca igualmente.
+            reAuthorizeOnResponse { response ->
+                response.status == HttpStatusCode.Unauthorized &&
+                    needsBearer(response.request.url, baseUrl)
+            }
             bearer {
                 cacheTokens = false
                 loadTokens {
                     tokenStorage.read()?.let { BearerTokens(it.accessToken, it.refreshToken) }
                 }
                 sendWithoutRequest { request -> needsBearer(request.url.build(), baseUrl) }
+                // Auth serializa esta llamada: con varios 401 a la vez, solo el primero
+                // llega aquí y los demás se reintentan con el par que este guarde.
+                refreshTokens {
+                    val refreshToken = oldTokens?.refreshToken ?: return@refreshTokens null
+                    when (val result = tokenRefresher.refresh(refreshToken)) {
+                        is RefreshResult.Success -> {
+                            tokenStorage.save(result.tokens)
+                            BearerTokens(result.tokens.accessToken, result.tokens.refreshToken)
+                        }
+                        RefreshResult.Rejected -> {
+                            tokenStorage.clear()
+                            sessionEvents.notifyExpired()
+                            null
+                        }
+                        RefreshResult.TransientFailure -> null
+                    }
+                }
             }
         }
     }
