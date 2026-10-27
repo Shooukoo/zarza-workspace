@@ -10,7 +10,7 @@ fun RubusTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalRubusColors provides LightRubusColors) {
         MaterialTheme(
             colorScheme = LightColorScheme,
-            typography = RubusTypography,
+            typography = rememberRubusTypography(),
             shapes = RubusShapes,
             content = content,
         )

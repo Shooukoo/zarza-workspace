@@ -102,6 +102,10 @@ dependencies {
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
 }
 
+compose.resources {
+    packageOfResClass = "com.rubusai.app.resources"
+}
+
 room {
     schemaDirectory("$projectDir/schemas")
 }
