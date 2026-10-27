@@ -268,6 +268,45 @@ class HttpClientRefreshTest {
     }
 
     @Test
+    fun refreshRechazadoConElStorageYaVacioEmiteElEvento() = runTest {
+        lateinit var fixture: ClientFixture
+        fixture = clientFixture(oldTokens) { request ->
+            if (request.isRefresh()) {
+                // Mientras espera, el storage queda vacío (p. ej. read() descartó una entrada ilegible).
+                fixture.storage.clear()
+            }
+            respondError(HttpStatusCode.Unauthorized)
+        }
+        val expired = collectExpired(fixture.sessionEvents)
+
+        assertFailsWith<ClientRequestException> { fixture.client.get("analyses") }
+
+        assertNull(fixture.storage.read())
+        assertEquals(1, expired.size)
+    }
+
+    @Test
+    fun siLeerLaSesionFallaTrasElRechazoSeBorraYSeEmiteElEvento() = runTest {
+        val engine = mockEngine { respondError(HttpStatusCode.Unauthorized) }
+        val sessionEvents = SessionEvents()
+        val storage = StorageQueNoLee(oldTokens)
+        val client = createHttpClient(
+            engine = engine,
+            logger = Logger.EMPTY,
+            envConfig = testEnvConfig,
+            tokenStorage = storage,
+            tokenRefresher = TokenRefresher(createRefreshClient(engine, testEnvConfig)),
+            sessionEvents = sessionEvents,
+        )
+        val expired = collectExpired(sessionEvents)
+
+        assertFailsWith<ClientRequestException> { client.get("analyses") }
+
+        assertTrue(storage.cleared)
+        assertEquals(1, expired.size)
+    }
+
+    @Test
     fun siBorrarLaSesionFallaTambienSeEmiteElEvento() = runTest {
         val engine = mockEngine { respondError(HttpStatusCode.Unauthorized) }
         val sessionEvents = SessionEvents()
@@ -383,4 +422,23 @@ private class StorageQueNoBorra(private val tokens: AuthTokens) : SecureTokenSto
     override suspend fun save(tokens: AuthTokens) = Unit
 
     override suspend fun clear(): Unit = throw IllegalStateException("disco")
+}
+
+/** Almacenamiento cuyas dos primeras lecturas (las de `loadTokens`) funcionan y las siguientes fallan. */
+private class StorageQueNoLee(private var tokens: AuthTokens?) : SecureTokenStorage {
+    private var reads = 0
+    var cleared = false
+        private set
+
+    override suspend fun read(): AuthTokens? {
+        if (reads++ >= 2) throw IllegalStateException("keystore")
+        return tokens
+    }
+
+    override suspend fun save(tokens: AuthTokens) = Unit
+
+    override suspend fun clear() {
+        cleared = true
+        tokens = null
+    }
 }
