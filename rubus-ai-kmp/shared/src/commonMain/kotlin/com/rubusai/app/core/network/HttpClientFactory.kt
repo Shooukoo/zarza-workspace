@@ -155,12 +155,27 @@ internal fun createHttpClient(
                             BearerTokens(result.tokens.accessToken, result.tokens.refreshToken)
                         }
                         RefreshResult.Rejected -> {
-                            try {
-                                tokenStorage.clear()
-                            } finally {
-                                sessionEvents.notifyExpired()
+                            // Si read() falla no se puede confirmar que haya otro par: se cierra la sesión.
+                            val current = try {
+                                tokenStorage.read()
+                            } catch (_: Exception) {
+                                AuthTokens(stored.accessToken, refreshToken)
                             }
-                            null
+                            when {
+                                // Otro flujo (un login) guardó un par mientras esperaba: es el válido.
+                                current != null && current.refreshToken != refreshToken ->
+                                    BearerTokens(current.accessToken, current.refreshToken)
+                                // Ya lo borró otro: no hay sesión que cerrar ni que notificar de nuevo.
+                                current == null -> null
+                                else -> {
+                                    try {
+                                        tokenStorage.clear()
+                                    } finally {
+                                        sessionEvents.notifyExpired()
+                                    }
+                                    null
+                                }
+                            }
                         }
                         RefreshResult.TransientFailure -> null
                     }

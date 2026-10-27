@@ -243,6 +243,31 @@ class HttpClientRefreshTest {
     }
 
     @Test
+    fun refreshRechazadoNoBorraUnParGuardadoMientrasEsperaba() = runTest {
+        val parB = AuthTokens("access-b", "refresh-b")
+        lateinit var fixture: ClientFixture
+        fixture = clientFixture(oldTokens) { request ->
+            if (request.isRefresh()) {
+                // Mientras el refresh del par viejo espera, otro flujo (un login) guarda un par nuevo.
+                fixture.storage.save(parB)
+                respondError(HttpStatusCode.Unauthorized)
+            } else if (request.authorization() == "Bearer access-b") {
+                respondOk()
+            } else {
+                respondError(HttpStatusCode.Unauthorized)
+            }
+        }
+        val expired = collectExpired(fixture.sessionEvents)
+
+        // La sesión nueva es válida: la petición se reintenta con ella.
+        val response = fixture.client.get("analyses")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(parB, fixture.storage.read())
+        assertEquals(0, expired.size)
+    }
+
+    @Test
     fun siBorrarLaSesionFallaTambienSeEmiteElEvento() = runTest {
         val engine = mockEngine { respondError(HttpStatusCode.Unauthorized) }
         val sessionEvents = SessionEvents()
