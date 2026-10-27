@@ -37,14 +37,7 @@ internal fun networkModule(): Module = module {
     }
 }
 
-internal val databaseModule: Module = module { }
-internal val repositoryModule: Module = module { }
-internal val viewModelModule: Module = module { }
-
 internal fun appModules(environment: Environment, devHost: String): List<Module> = listOf(
     configModule(environment, devHost),
     networkModule(),
-    databaseModule,
-    repositoryModule,
-    viewModelModule,
 )

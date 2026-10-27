@@ -6,8 +6,6 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -48,7 +46,6 @@ kotlin {
             implementation(libs.compose.uiTooling)
             implementation(libs.koin.android)
             implementation(libs.ktor.client.okhttp)
-            implementation(libs.play.services.location)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -73,10 +70,6 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.navigation.compose)
             implementation(libs.androidx.datastore.preferences)
-            implementation(libs.androidx.room.runtime)
-            implementation(libs.androidx.sqlite.bundled)
-            implementation(libs.coil.compose)
-            implementation(libs.coil.network.ktor)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -104,15 +97,8 @@ kotlin {
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
-    add("kspAndroid", libs.androidx.room.compiler)
-    add("kspIosArm64", libs.androidx.room.compiler)
-    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
 }
 
 compose.resources {
     packageOfResClass = "com.rubusai.app.resources"
-}
-
-room {
-    schemaDirectory("$projectDir/schemas")
 }
