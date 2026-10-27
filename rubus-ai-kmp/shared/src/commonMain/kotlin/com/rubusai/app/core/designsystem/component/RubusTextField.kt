@@ -41,8 +41,9 @@ import com.rubusai.app.core.designsystem.theme.RubusDimens
 import com.rubusai.app.core.designsystem.theme.RubusTheme
 
 /**
- * Campo de una línea que ocupa todo el ancho disponible, con etiqueta encima y borde del grosor del resto del sistema. El borde
- * pasa a azul con el foco y a rojo con [errorText], que sustituye a [supportingText].
+ * Campo de una línea que ocupa todo el ancho disponible, con etiqueta encima y borde del grosor
+ * del resto del sistema. El borde pasa a azul con el foco y a rojo con [errorText], que
+ * sustituye a [supportingText].
  *
  * Con [isPassword] el valor se oculta y aparece un botón de texto para mostrarlo; sin iconos
  * en el proyecto, sus textos ([showPasswordLabel] y [hidePasswordLabel]) los pone quien llama.

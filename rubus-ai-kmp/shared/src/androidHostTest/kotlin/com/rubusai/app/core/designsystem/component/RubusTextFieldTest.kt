@@ -3,12 +3,13 @@ package com.rubusai.app.core.designsystem.component
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -175,6 +176,37 @@ class RubusTextFieldTest {
                 RubusTheme { RubusTextField(value = "", onValueChange = {}, label = "C", isPassword = true) }
             }
         }
+    }
+
+    @Test
+    fun laEtiquetaNoSeLeeAparte() {
+        rule.setContent { RubusTheme { RubusTextField(value = "", onValueChange = {}, label = "Correo") } }
+
+        rule.onNodeWithText("Correo").assertDoesNotExist()
+    }
+
+    @Test
+    fun soloElErrorSeAnuncia() {
+        rule.setContent {
+            RubusTheme {
+                RubusTextField(value = "", onValueChange = {}, label = "Correo", errorText = "Obligatorio")
+            }
+        }
+
+        rule.onNodeWithText("Obligatorio")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+    }
+
+    @Test
+    fun laAyudaNoSeAnuncia() {
+        rule.setContent {
+            RubusTheme {
+                RubusTextField(value = "", onValueChange = {}, label = "Correo", supportingText = "Ayuda")
+            }
+        }
+
+        rule.onNodeWithText("Ayuda")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.LiveRegion))
     }
 
     private fun hasEditableText() = SemanticsMatcher.keyIsDefined(SemanticsProperties.EditableText)
