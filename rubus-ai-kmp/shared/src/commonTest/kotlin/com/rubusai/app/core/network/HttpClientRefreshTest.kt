@@ -287,9 +287,13 @@ class HttpClientRefreshTest {
 
     @Test
     fun siLeerLaSesionFallaTrasElRechazoSeBorraYSeEmiteElEvento() = runTest {
-        val engine = mockEngine { respondError(HttpStatusCode.Unauthorized) }
-        val sessionEvents = SessionEvents()
         val storage = StorageQueNoLee(oldTokens)
+        val engine = mockEngine { request ->
+            // Desde que se atiende el refresh, leer la sesión falla.
+            if (request.isRefresh()) storage.failReads = true
+            respondError(HttpStatusCode.Unauthorized)
+        }
+        val sessionEvents = SessionEvents()
         val client = createHttpClient(
             engine = engine,
             logger = Logger.EMPTY,
@@ -424,14 +428,14 @@ private class StorageQueNoBorra(private val tokens: AuthTokens) : SecureTokenSto
     override suspend fun clear(): Unit = throw IllegalStateException("disco")
 }
 
-/** Almacenamiento cuyas dos primeras lecturas (las de `loadTokens`) funcionan y las siguientes fallan. */
+/** Almacenamiento que lee bien hasta que se activa [failReads]; entonces `read()` lanza. */
 private class StorageQueNoLee(private var tokens: AuthTokens?) : SecureTokenStorage {
-    private var reads = 0
+    var failReads = false
     var cleared = false
         private set
 
     override suspend fun read(): AuthTokens? {
-        if (reads++ >= 2) throw IllegalStateException("keystore")
+        if (failReads) throw IllegalStateException("keystore")
         return tokens
     }
 
