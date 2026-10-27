@@ -41,15 +41,15 @@ De test, en `commonTest`: `ktor-client-mock` y `kotlinx-coroutines-test`. En `an
 - Desactivar la variante `devRelease`: hoy existe y permite HTTP sin cifrar.
 - Quitar `ui-tooling` de las variantes release: hoy entra en todas por `implementation(libs.compose.uiTooling)` en `androidMain` y por `androidRuntimeClasspath(libs.compose.uiTooling)`, ambos en `shared/build.gradle.kts`. Al quitarlo, volver a añadir `debugImplementation(libs.compose.uiTooling)` en `androidApp/build.gradle.kts` para no perder las previews en debug.
 - Repartir las librerías nativas por ABI (`libsqliteJni.so` pesa alrededor de 1,2 MB por ABI).
-- Al activar R8, comprobar las reglas de kotlinx.serialization, Ktor y Room, y que `Environment.valueOf` sigue funcionando.
+- Al activar R8, comprobar las reglas de kotlinx.serialization, Ktor y Room, y que `Environment.valueOf` sigue funcionando. Ejecutar `assembleRelease` al menos una vez con la minificación activa: hasta ahora ningún build de release se ha minificado.
 
 ## Sin verificar
 
 - **iOS.** Las fuentes Kotlin de `iosMain` e `iosTest` sí compilan en Linux con `./gradlew :shared:compileKotlinIosSimulatorArm64 :shared:compileKotlinIosArm64 :shared:compileTestKotlinIosSimulatorArm64` (comprobado el 2026-10-10). Enlazar el framework y ejecutar la app de iOS o sus tests siguen necesitando macOS, así que `iosApp/iosApp/iOSApp.swift` no se ha compilado. Hay que compilar el framework en un Mac al cerrar la Fase 0. Cuando el cliente HTTP haga su primera llamada en `DEV`, `Info.plist` necesitará `NSAppTransportSecurity` con `NSAllowsLocalNetworking`, y un iPhone físico necesitará la IP del Mac en la LAN en lugar de `127.0.0.1`.
-- **Ejecución en un dispositivo Android.** El arranque y la pantalla provisional se probaron en la JVM con una prueba puntual de Robolectric (API 35) sobre los tres flavors, que no quedó en el repositorio. Falta abrir `devDebug` en un emulador o teléfono real.
-- **Lexend y componentes.** Solo se han probado en la JVM. Hay que revisarlos a ojo en un dispositivo con la pantalla `Catalogo` del flavor `dev` (Splash → Catálogo). En iOS, comprobar en un simulador que `Diagnostico` y `Catalogo` tienen forma de volver (no tienen control de «volver»; en Android basta el botón atrás del sistema).
+- **Ejecución en un dispositivo Android.** Antes de la navegación, el arranque de `MainActivity` y la antigua pantalla provisional se probaron en la JVM con una prueba puntual de Robolectric (API 35) sobre los tres flavors, que no quedó en el repositorio. El arranque actual (`App` → `RubusNavHost` → `Splash`) solo lo cubre `RubusNavHostTest`, que dibuja el grafo de cada entorno sin pasar por `MainActivity`. Falta abrir `devDebug` en un emulador o teléfono real.
+- **Lexend y componentes.** Solo se han probado en la JVM. Hay que revisarlos a ojo en un dispositivo con la pantalla `Catalogo` del flavor `dev` (Splash → Catálogo). En iOS, comprobar en un simulador que `Diagnostico` y `Catalogo` tienen forma de volver (no tienen control de "volver"; en Android basta el botón atrás del sistema).
 - **Cifrado de la sesión.** `KeystoreTokenCipherTest` (`shared/src/androidDeviceTest`) compila y está dentro del APK de test, pero no se ha ejecutado: necesita un emulador o un teléfono. La primera vez conviene lanzarlo solo, porque `connectedAndroidDeviceTest` ejecuta también todos los tests de `commonTest` en el dispositivo: `./gradlew :shared:connectedAndroidDeviceTest -Pandroid.testInstrumentationRunnerArguments.class=com.rubusai.app.core.platform.KeystoreTokenCipherTest`.
-- **Petición de prueba.** El botón "Probar conexión" de la pantalla `Diagnostico` (flavor `dev`) no se ha pulsado contra el backend local en un dispositivo. Sí se ha comprobado en la JVM con Robolectric, sustituyendo solo el cifrado del Keystore: la pantalla se dibuja, la petición sale por OkHttp y muestra "Conectado".
+- **Petición de prueba.** El botón "Probar conexión" de la pantalla `Diagnostico` (flavor `dev`) no se ha pulsado contra el backend local en un dispositivo. Sí se comprobó en la JVM con Robolectric cuando era la pantalla provisional de `App.kt` (su código pasó a `DiagnosticoScreen`), sustituyendo solo el cifrado del Keystore: la pantalla se dibuja, la petición sale por OkHttp y muestra "Conectado".
 - **Coste de leer la sesión.** El cliente descifra los tokens con el Keystore en cada petición, en el hilo de quien llama. Medirlo en un teléfono de gama baja en la fase 2; si pesa, mover el cifrado a `Dispatchers.Default` dentro de `DataStoreTokenStorage` (envolviendo `read` y `save` enteros, no solo el `try`) o cachear el par en memoria.
 
 ## Limitaciones conocidas y decisiones abiertas de la red
@@ -69,11 +69,10 @@ Salieron de las revisiones del sub-proyecto de red (2026-10-10). Ninguna impide 
 
 ## Decisiones abiertas
 
-Pendientes menores de las revisiones de la fase 0 (sin decidir):
+Pendientes menores de las revisiones de la fase 0. Ninguno bloquea la fase 1; resolverlos al tocar el código afectado.
 
-- El botón mostrar/ocultar contraseña de `RubusTextField` tiene un área táctil de solo la altura del texto (menos de 48 dp).
+- El botón mostrar/ocultar contraseña de `RubusTextField` tiene un área táctil de solo la altura del texto (menos de 48 dp): darle `minimumInteractiveComponentSize()` o un `IconButton`.
 - `RubusTextField` usa `MaterialTheme.shapes.large`, mientras que el botón y la tarjeta usan `RubusDimens`.
-- `Route` es público y se exporta al framework de iOS.
+- `Route` es público y se exporta al framework de iOS: marcarlo `internal` si iOS no lo necesita.
 - El layout de superficie está repetido en `Marcador`, `DiagnosticoScreen` y `CatalogoScreen`: extraerlo cuando la primera pantalla real defina el scaffold (fase 1).
-- Los marcadores de `dev` tendrán que moverse cuando exista un Splash real con redirección.
-- Activar la minificación obliga a ejecutar `assembleRelease` una vez.
+- Los botones de `dev` del marcador de `Splash` (Diagnóstico y Catálogo) tendrán que moverse cuando exista un Splash real con redirección.

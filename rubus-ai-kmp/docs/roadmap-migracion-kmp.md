@@ -135,8 +135,8 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 - `core/di`: módulos de Koin (creados en `AppModule.kt`; vacíos salvo `configModule`).
 - `core/network`: cliente Ktor con JSON, timeouts, cabecera `Bearer` y refresh de token. Hecho el 2026-10-10.
 - `core/platform`: `SecureTokenStorage` para Android (DataStore cifrado con una clave del Keystore). Hecho el 2026-10-10; en iOS es en memoria hasta la fase 9.
-- `core/navigation`: rutas tipadas y `NavHost` con un marcador por ruta migrada. Hecho el 2026-10-26. `Diagnostico` y `Catalogo` solo existen en `dev`.
-- `core/designsystem`: tema claro con la paleta nueva (`LightColorScheme`), tipografía **Lexend** (Outfit no se migra: solo la usan el panel admin y el registro) y los componentes `RubusButton`, `RubusTextField`, `RubusCard`, `RubusLoadingState` y `RubusErrorState`. Hecho el 2026-10-26.
+- `core/navigation`: rutas tipadas y `NavHost` con un marcador por ruta migrada. Hecho el 2026-10-27. `Diagnostico` y `Catalogo` solo existen en `Environment.DEV` (flavor `dev`; iOS arranca en DEV hasta la fase 9).
+- `core/designsystem`: tema claro con la paleta nueva (`LightColorScheme`), tipografía **Lexend** (Outfit no se migra: solo la usan el panel admin y el registro) y los componentes `RubusButton`, `RubusTextField`, `RubusCard`, `RubusLoadingState` y `RubusErrorState`. Hecho el 2026-10-27.
 - `core/model`: `User`, `UserRole`. Hecho el 2026-10-10.
 
 **Librerías.** Koin, Ktor Client (motor OkHttp en Android, Darwin en iOS), kotlinx.serialization, kotlinx.coroutines, Navigation Compose, DataStore. Para los tests de UI en la JVM: Robolectric 4.16 y `ui-test-junit4` (en `androidHostTest`).
@@ -204,7 +204,7 @@ Estado: cerrada salvo las verificaciones de dispositivo y Mac (ver `dependencias
 
 ### Fase 4 — Historial, inicio y barra inferior (6–7 días)
 
-**Objetivo.** Reemplazar la pantalla provisional por la navegación real.
+**Objetivo.** Sustituir los marcadores de `Home` e `History` por las pantallas reales y montar la barra inferior.
 
 **Qué se migra.** `feature/history` (lista paginada con filtros de fecha), `feature/home`, la barra inferior con pestañas por rol y los avisos en vivo de `analisis_listo` y `analysis_validated`, y `core/ui` con los widgets compartidos (`StageBadge`, `RingProgress`, `HelpTooltip`).
 
