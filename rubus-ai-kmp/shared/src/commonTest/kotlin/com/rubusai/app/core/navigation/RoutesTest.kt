@@ -1,0 +1,59 @@
+package com.rubusai.app.core.navigation
+
+import com.rubusai.app.core.config.Environment
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+
+class RoutesTest {
+
+    private val migradas = listOf(
+        Route.Splash::class,
+        Route.Login::class,
+        Route.Home::class,
+        Route.History::class,
+        Route.Solicitudes::class,
+        Route.SolicitudDetalle::class,
+        Route.Notifications::class,
+        Route.Profile::class,
+        Route.Capture::class,
+        Route.Result::class,
+        Route.Queue::class,
+    )
+
+    @Test
+    fun elInicioEsElSplash() {
+        assertEquals(Route.Splash, StartRoute)
+    }
+
+    @Test
+    fun prodSoloTieneLasRutasMigradas() {
+        assertEquals(migradas, registeredRoutes(Environment.PROD))
+    }
+
+    @Test
+    fun stagingSoloTieneLasRutasMigradas() {
+        assertEquals(migradas, registeredRoutes(Environment.STAGING))
+    }
+
+    @Test
+    fun devAnadeDiagnosticoYCatalogo() {
+        val rutas = registeredRoutes(Environment.DEV)
+
+        assertEquals(migradas, rutas.take(migradas.size))
+        assertTrue(Route.Diagnostico::class in rutas)
+        assertTrue(Route.Catalogo::class in rutas)
+        assertEquals(migradas.size + 2, rutas.size)
+    }
+
+    @Test
+    fun diagnosticoYCatalogoNoEstanFueraDeDev() {
+        for (entorno in listOf(Environment.STAGING, Environment.PROD)) {
+            val rutas = registeredRoutes(entorno)
+
+            assertFalse(Route.Diagnostico::class in rutas)
+            assertFalse(Route.Catalogo::class in rutas)
+        }
+    }
+}
