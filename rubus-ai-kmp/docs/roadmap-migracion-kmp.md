@@ -131,7 +131,7 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 **Objetivo.** Dejar el proyecto listo para que cada fase siguiente solo agregue features.
 
 **Qué se migra.**
-- Build: dependencias en `libs.versions.toml`, KSP, serialización; flavors `dev`/`staging`/`prod` en `androidApp` con sufijo de `applicationId`, y `EnvConfig` resolviendo URL base y URL de WebSocket por flavor (hoy `env_config.dart`).
+- Build: dependencias en `libs.versions.toml`, serialización; flavors `dev`/`staging`/`prod` en `androidApp` con sufijo de `applicationId`, y `EnvConfig` resolviendo la URL base por flavor (hoy `env_config.dart`; la de WebSocket se añade en la Fase 2).
 - `core/di`: módulos de Koin (creados en `AppModule.kt`; vacíos salvo `configModule`).
 - `core/network`: cliente Ktor con JSON, timeouts, cabecera `Bearer` y refresh de token. Hecho el 2026-10-10.
 - `core/platform`: `SecureTokenStorage` para Android (DataStore cifrado con una clave del Keystore). Hecho el 2026-10-10; en iOS es en memoria hasta la fase 9.
@@ -173,10 +173,10 @@ Estado: cerrada salvo las verificaciones de dispositivo y Mac (ver `dependencias
 - `core/model`: `FruitAnalysis`, `FenologicalDetection`, `Campo`, `UploadMetadata`, `UploadResult`.
 - `core/data/campos`, `core/data/ingestion` (solo camino con red) y `core/data/analyses`.
 - `core/platform`: `ImageCompressor`, `LocationProvider`, cámara y galería, permisos en tiempo de ejecución.
-- `core/network`: cliente WebSocket con autenticación y reconexión.
+- `core/network`: cliente WebSocket con autenticación y reconexión, y `EnvConfig.wsUrl` por entorno (se quitó al cerrar la Fase 0 por no tener uso).
 - `feature/capture` y `feature/results`, incluida la validación del agrónomo.
 
-**Librerías.** Ktor WebSockets, Coil 3, Play Services Location, AndroidX Activity (contratos de resultado).
+**Librerías.** Ktor WebSockets, Coil 3 y Play Services Location (estas dos se quitaron del build al cerrar la Fase 0: se añaden aquí, ver `dependencias-pendientes.md`), AndroidX Activity (contratos de resultado).
 
 **Riesgos.**
 - Permisos de cámara y ubicación en Android 13+ y sus variantes por fabricante.
@@ -192,7 +192,7 @@ Estado: cerrada salvo las verificaciones de dispositivo y Mac (ver `dependencias
 
 **Qué se migra.** `core/database` (Room, tabla `pending_uploads`), el repositorio de cola, el repositorio de subida consciente de conexión, `core/sync` (`SyncService`, sync automático), el monitor de conectividad, las notificaciones locales de progreso y `feature/queue`.
 
-**Librerías.** Room KMP, KSP, SQLite empaquetado.
+**Librerías.** Room KMP, KSP, SQLite empaquetado (se quitaron del build al cerrar la Fase 0: se añaden aquí, ver `dependencias-pendientes.md`).
 
 **Riesgos.**
 - La imagen encolada debe copiarse a almacenamiento persistente; los temporales de la cámara se borran.
