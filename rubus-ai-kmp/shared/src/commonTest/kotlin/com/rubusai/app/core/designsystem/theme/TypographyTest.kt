@@ -28,6 +28,12 @@ class TypographyTest {
     fun todosLosEstilosUsanLaFamiliaRecibida() {
         val estilos = rubusTypography(family).todosLosEstilos()
 
+        // Common no permite reflexión: si la lista se desactualiza, este conteo avisa.
+        assertEquals(
+            30,
+            estilos.size,
+            "Revisar rubusTypography y esta lista al editarla o al subir material3: Typography tiene 15 estilos base y 15 Emphasized",
+        )
         assertTrue(estilos.all { it.fontFamily == family })
     }
 
