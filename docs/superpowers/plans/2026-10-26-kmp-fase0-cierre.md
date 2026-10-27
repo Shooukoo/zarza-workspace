@@ -1345,19 +1345,19 @@ fun CatalogoScreen() {
             }
 
             Text("Estados", style = MaterialTheme.typography.titleLarge)
-            RubusLoadingState(modifier = Modifier.height(160.dp), message = "Cargando…")
+            RubusLoadingState(modifier = Modifier.fillMaxWidth().height(160.dp), message = "Cargando…")
             RubusErrorState(
                 message = "No se pudo cargar",
                 retryLabel = "Reintentar",
                 onRetry = {},
-                modifier = Modifier.height(200.dp),
+                modifier = Modifier.fillMaxWidth().height(200.dp),
             )
         }
     }
 }
 ```
 
-`RubusLoadingState` y `RubusErrorState` usan `fillMaxSize()` internamente; dentro de una columna con scroll hay que acotarles la altura, que es lo que hacen los `height(...)` de arriba. Si al compilar la combinación de `fillMaxSize` con una altura fija da error de medidas en el catálogo, cambia solo el catálogo (no los componentes) envolviéndolos en un `Box(Modifier.height(...))`.
+Los componentes no imponen tamaño; el catálogo les da ancho completo y una altura fija para verlos dentro del scroll.
 
 - [ ] **Step 3: Crear `RubusNavHost`**
 
