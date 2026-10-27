@@ -243,6 +243,74 @@ class HttpClientRefreshTest {
     }
 
     @Test
+    fun refreshRechazadoNoBorraUnParGuardadoMientrasEsperaba() = runTest {
+        val parB = AuthTokens("access-b", "refresh-b")
+        lateinit var fixture: ClientFixture
+        fixture = clientFixture(oldTokens) { request ->
+            if (request.isRefresh()) {
+                // Mientras el refresh del par viejo espera, otro flujo (un login) guarda un par nuevo.
+                fixture.storage.save(parB)
+                respondError(HttpStatusCode.Unauthorized)
+            } else if (request.authorization() == "Bearer access-b") {
+                respondOk()
+            } else {
+                respondError(HttpStatusCode.Unauthorized)
+            }
+        }
+        val expired = collectExpired(fixture.sessionEvents)
+
+        // La sesión nueva es válida: la petición se reintenta con ella.
+        val response = fixture.client.get("analyses")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(parB, fixture.storage.read())
+        assertEquals(0, expired.size)
+    }
+
+    @Test
+    fun refreshRechazadoConElStorageYaVacioEmiteElEvento() = runTest {
+        lateinit var fixture: ClientFixture
+        fixture = clientFixture(oldTokens) { request ->
+            if (request.isRefresh()) {
+                // Mientras espera, el storage queda vacío (p. ej. read() descartó una entrada ilegible).
+                fixture.storage.clear()
+            }
+            respondError(HttpStatusCode.Unauthorized)
+        }
+        val expired = collectExpired(fixture.sessionEvents)
+
+        assertFailsWith<ClientRequestException> { fixture.client.get("analyses") }
+
+        assertNull(fixture.storage.read())
+        assertEquals(1, expired.size)
+    }
+
+    @Test
+    fun siLeerLaSesionFallaTrasElRechazoSeBorraYSeEmiteElEvento() = runTest {
+        val storage = StorageQueNoLee(oldTokens)
+        val engine = mockEngine { request ->
+            // Desde que se atiende el refresh, leer la sesión falla.
+            if (request.isRefresh()) storage.failReads = true
+            respondError(HttpStatusCode.Unauthorized)
+        }
+        val sessionEvents = SessionEvents()
+        val client = createHttpClient(
+            engine = engine,
+            logger = Logger.EMPTY,
+            envConfig = testEnvConfig,
+            tokenStorage = storage,
+            tokenRefresher = TokenRefresher(createRefreshClient(engine, testEnvConfig)),
+            sessionEvents = sessionEvents,
+        )
+        val expired = collectExpired(sessionEvents)
+
+        assertFailsWith<ClientRequestException> { client.get("analyses") }
+
+        assertTrue(storage.cleared)
+        assertEquals(1, expired.size)
+    }
+
+    @Test
     fun siBorrarLaSesionFallaTambienSeEmiteElEvento() = runTest {
         val engine = mockEngine { respondError(HttpStatusCode.Unauthorized) }
         val sessionEvents = SessionEvents()
@@ -358,4 +426,23 @@ private class StorageQueNoBorra(private val tokens: AuthTokens) : SecureTokenSto
     override suspend fun save(tokens: AuthTokens) = Unit
 
     override suspend fun clear(): Unit = throw IllegalStateException("disco")
+}
+
+/** Almacenamiento que lee bien hasta que se activa [failReads]; entonces `read()` lanza. */
+private class StorageQueNoLee(private var tokens: AuthTokens?) : SecureTokenStorage {
+    var failReads = false
+    var cleared = false
+        private set
+
+    override suspend fun read(): AuthTokens? {
+        if (failReads) throw IllegalStateException("keystore")
+        return tokens
+    }
+
+    override suspend fun save(tokens: AuthTokens) = Unit
+
+    override suspend fun clear() {
+        cleared = true
+        tokens = null
+    }
 }

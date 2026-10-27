@@ -24,6 +24,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 
 private const val CONNECT_TIMEOUT_MS = 10_000L
@@ -97,7 +98,7 @@ internal fun createRefreshClient(engine: HttpClientEngine, envConfig: EnvConfig)
  * Cliente HTTP de la app. Añade el token de acceso a las peticiones a la API, salvo a las de
  * login y refresh, y nunca a otros hosts. Ante un 401 de la API pide un par nuevo con
  * [tokenRefresher], lo guarda y reintenta la petición una vez. Si el backend rechaza el
- * refresh, borra la sesión y avisa por [sessionEvents]; si el refresh falla por otra causa,
+ * refresh, borra la sesión y avisa por [sessionEvents], salvo que ya haya otro par guardado; si el refresh falla por otra causa,
  * la sesión se conserva. En ambos casos la petición original falla con su 401.
  * Lanza `ResponseException` ante cualquier respuesta que no sea 2xx.
  *
@@ -155,6 +156,19 @@ internal fun createHttpClient(
                             BearerTokens(result.tokens.accessToken, result.tokens.refreshToken)
                         }
                         RefreshResult.Rejected -> {
+                            // Solo se respeta un par distinto del rechazado. Con null, el mismo par o un
+                            // fallo de read() se borra y se avisa: el null puede venir de una entrada ilegible.
+                            val current = try {
+                                tokenStorage.read()
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                null
+                            }
+                            if (current != null && current.refreshToken != refreshToken) {
+                                // Otro flujo (un login) guardó un par mientras esperaba: es el válido.
+                                return@refreshTokens BearerTokens(current.accessToken, current.refreshToken)
+                            }
                             try {
                                 tokenStorage.clear()
                             } finally {
