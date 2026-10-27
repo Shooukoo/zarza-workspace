@@ -1,0 +1,37 @@
+name: "KMP tests — rubus-ai-kmp"
+
+on:
+  push:
+    branches: [ "main" ]
+    paths: [ "rubus-ai-kmp/**", ".github/workflows/kmp-tests.yml" ]
+  pull_request:
+    branches: [ "main" ]
+    paths: [ "rubus-ai-kmp/**", ".github/workflows/kmp-tests.yml" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: rubus-ai-kmp
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # AGP descarga el SDK que le falte, pero solo si las licencias están aceptadas.
+      - name: Aceptar licencias del SDK de Android
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+
+      # Los tests de UI usan Robolectric, que descarga android-all la primera vez.
+      # iOS no compila en Linux: esto cubre commonTest y androidHostTest, no iosTest.
+      - name: Tests y ensamblado de los tres flavors
+        run: ./gradlew :shared:testAndroidHostTest :androidApp:assemble --no-daemon
