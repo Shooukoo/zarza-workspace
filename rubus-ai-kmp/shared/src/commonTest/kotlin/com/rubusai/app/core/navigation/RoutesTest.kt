@@ -1,6 +1,8 @@
 package com.rubusai.app.core.navigation
 
 import com.rubusai.app.core.config.Environment
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.descriptors.elementDescriptors
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -55,5 +57,16 @@ class RoutesTest {
             assertFalse(Route.Diagnostico::class in rutas)
             assertFalse(Route.Catalogo::class in rutas)
         }
+    }
+
+    // sealedSubclasses es solo JVM: se leen del descriptor, donde el elemento [1] es el "value" del sealed
+    // (el [0] es "type") y sus hijos son los subtipos declarados.
+    @OptIn(ExperimentalSerializationApi::class)
+    @Test
+    fun todoSubtipoDeRouteEstaRegistradoEnDev() {
+        val declaradas = Route.serializer().descriptor.elementDescriptors.toList()[1]
+            .elementDescriptors.map { it.serialName }.toSet()
+
+        assertEquals(declaradas, registeredRoutes(Environment.DEV).map { it.qualifiedName }.toSet())
     }
 }

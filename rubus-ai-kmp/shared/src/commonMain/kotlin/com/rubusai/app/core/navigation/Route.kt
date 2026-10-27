@@ -22,10 +22,16 @@ sealed interface Route {
     @Serializable data class Result(val id: String) : Route
     @Serializable data object Queue : Route
 
-    /** Solo en el flavor dev: flavor, URL y prueba de conexión. */
+    /**
+     * Solo en `Environment.DEV` (flavor dev en Android; iOS arranca siempre en DEV hasta la Fase 9):
+     * flavor, URL y prueba de conexión.
+     */
     @Serializable data object Diagnostico : Route
 
-    /** Solo en el flavor dev: los componentes del design system. */
+    /**
+     * Solo en `Environment.DEV` (flavor dev en Android; iOS arranca siempre en DEV hasta la Fase 9):
+     * los componentes del design system.
+     */
     @Serializable data object Catalogo : Route
 }
 
