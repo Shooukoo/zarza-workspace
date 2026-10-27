@@ -7,6 +7,6 @@ fun startKoinIos() {
     initKoin(
         environment = Environment.DEV,
         devHost = "127.0.0.1",
-        platformModule = iosPlatformModule,
+        platformModule = iosPlatformModule(),
     )
 }

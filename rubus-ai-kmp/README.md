@@ -57,13 +57,15 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
     comillas; cualquier otra cosa detiene el build con un mensaje. El backend tiene que escuchar en `0.0.0.0:3001`.
   - El arranque está en `RubusApplication`: lee el flavor de `BuildConfig` y llama a `startKoinAndroid`. Un entorno
     desconocido o un host vacío en `dev` hacen fallar el arranque a propósito.
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there. Todavía sin compilar en este proyecto; ver la sección «Sin verificar» de [docs/dependencias-pendientes.md](./docs/dependencias-pendientes.md).
+- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there. El código Kotlin de `iosMain` e `iosTest` compila en Linux (comprobado el 2026-10-10), pero el framework sigue sin enlazarse y la app sin ejecutarse, porque eso necesita macOS; ver la sección «Sin verificar» de [docs/dependencias-pendientes.md](./docs/dependencias-pendientes.md).
 
 ### Running tests
 
 Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 
 - Android tests: `./gradlew :shared:testAndroidHostTest`
+- Android instrumented tests (need an emulator or a device): `./gradlew :shared:connectedAndroidDeviceTest`
+- iOS sources compile check (works on Linux; linking and running need macOS): `./gradlew :shared:compileKotlinIosSimulatorArm64 :shared:compileKotlinIosArm64 :shared:compileTestKotlinIosSimulatorArm64`
 - iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
 
 ---

@@ -83,6 +83,14 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.coroutines.test)
+        }
+        // espresso-core arrastra androidx.test:runner, que trae el AndroidJUnitRunner
+        // configurado arriba como instrumentationRunner.
+        getByName("androidDeviceTest").dependencies {
+            implementation(libs.androidx.testExt.junit)
+            implementation(libs.androidx.espresso.core)
         }
     }
 }
