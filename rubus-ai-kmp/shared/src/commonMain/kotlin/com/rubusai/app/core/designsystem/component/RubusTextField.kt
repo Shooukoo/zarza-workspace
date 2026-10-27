@@ -26,7 +26,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -35,7 +41,7 @@ import com.rubusai.app.core.designsystem.theme.RubusDimens
 import com.rubusai.app.core.designsystem.theme.RubusTheme
 
 /**
- * Campo de una línea con etiqueta encima y borde del grosor del resto del sistema. El borde
+ * Campo de una línea que ocupa todo el ancho disponible, con etiqueta encima y borde del grosor del resto del sistema. El borde
  * pasa a azul con el foco y a rojo con [errorText], que sustituye a [supportingText].
  *
  * Con [isPassword] el valor se oculta y aparece un botón de texto para mostrarlo; sin iconos
@@ -64,6 +70,7 @@ fun RubusTextField(
     val shape = MaterialTheme.shapes.large
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
+    // Sin rememberSaveable a propósito: tras rotar vuelve a oculto, que es lo seguro.
     var passwordVisible by remember { mutableStateOf(false) }
     val hasError = errorText != null
 
@@ -80,6 +87,8 @@ fun RubusTextField(
     Column(modifier = modifier) {
         Text(
             text = label,
+            // El nombre accesible lo da el campo; así el lector no la dice dos veces.
+            modifier = Modifier.clearAndSetSemantics {},
             style = MaterialTheme.typography.labelMedium,
             color = if (hasError) scheme.error else scheme.onSurfaceVariant,
         )
@@ -87,7 +96,11 @@ fun RubusTextField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
+            // La etiqueta visible va fuera del campo, así que se le da como nombre y se le adjunta el error.
+            modifier = Modifier.fillMaxWidth().semantics {
+                contentDescription = label
+                if (errorText != null) error(errorText)
+            },
             enabled = enabled,
             singleLine = true,
             textStyle = textStyle,
@@ -97,7 +110,8 @@ fun RubusTextField(
             } else {
                 VisualTransformation.None
             },
-            keyboardOptions = if (isPassword) {
+            // Solo si quien llama no eligió tipo: así puede usar NumberPassword para un PIN.
+            keyboardOptions = if (isPassword && keyboardOptions.keyboardType == KeyboardType.Unspecified) {
                 keyboardOptions.copy(keyboardType = KeyboardType.Password)
             } else {
                 keyboardOptions
@@ -108,7 +122,9 @@ fun RubusTextField(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        // Misma altura que los botones cuando comparten formulario.
                         .defaultMinSize(minHeight = RubusDimens.ButtonHeight)
+                        // Sin canto propio ni sombra: en un campo el borde plano es intencional.
                         .background(if (enabled) scheme.surface else extra.disabledContainer, shape)
                         .border(RubusDimens.BorderWidth, borderColor, shape)
                         .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -135,7 +151,10 @@ fun RubusTextField(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
                 color = if (hasError) scheme.error else scheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp),
+                // Solo el error se anuncia al aparecer; la ayuda es fija y no debe interrumpir.
+                modifier = Modifier.padding(top = 4.dp).then(
+                    if (hasError) Modifier.semantics { liveRegion = LiveRegionMode.Polite } else Modifier,
+                ),
             )
         }
     }
