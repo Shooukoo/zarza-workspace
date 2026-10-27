@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.rubusai.app.core.network.AuthTokens
+import java.security.GeneralSecurityException
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.encoding.Base64
 import kotlinx.coroutines.flow.first
@@ -15,7 +16,8 @@ import kotlinx.serialization.json.Json
  * cifrado con [cipher] y codificado en Base64. Al ser una entrada, se escriben y se
  * borran de forma atómica.
  *
- * [read] tiene un efecto secundario: si lo guardado no se puede leer, lo borra.
+ * [read] tiene un efecto secundario: si lo guardado no se puede leer (clave perdida, dato
+ * corrupto), lo borra. Un fallo pasajero del cifrado no se borra: se propaga.
  */
 internal class DataStoreTokenStorage(
     private val dataStore: DataStore<Preferences>,
@@ -30,8 +32,11 @@ internal class DataStoreTokenStorage(
             throw e
         } catch (e: Exception) {
             // Clave del Keystore perdida, dato corrupto o formato antiguo: se descarta y el
-            // usuario vuelve a iniciar sesión. No registrar `e` ni su mensaje: el de un JSON
-            // mal formado incluye el texto descifrado, es decir, los tokens.
+            // usuario vuelve a iniciar sesión. Cualquier otro fallo (un Keystore ocupado, por
+            // ejemplo) puede pasar, y borrar la sesión por eso la perdería sin motivo: se propaga.
+            // No registrar `e` ni su mensaje: el de un JSON mal formado incluye el texto
+            // descifrado, es decir, los tokens.
+            if (e !is GeneralSecurityException && e !is IllegalArgumentException) throw e
             null
         }
         // Solo se borra si sigue guardado lo que no se pudo leer: otro `save` puede haber
