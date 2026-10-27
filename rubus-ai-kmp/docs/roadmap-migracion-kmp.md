@@ -135,11 +135,11 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 - `core/di`: módulos de Koin (creados en `AppModule.kt`; vacíos salvo `configModule`).
 - `core/network`: cliente Ktor con JSON, timeouts, cabecera `Bearer` y refresh de token. Hecho el 2026-10-10.
 - `core/platform`: `SecureTokenStorage` para Android (DataStore cifrado con una clave del Keystore). Hecho el 2026-10-10; en iOS es en memoria hasta la fase 9.
-- `core/navigation`: grafo vacío con las rutas declaradas.
-- `core/designsystem`: tema oscuro con la paleta nueva, tipografía Outfit/Lexend y los componentes base (botón, campo de texto, tarjeta, estado de carga y de error).
+- `core/navigation`: rutas tipadas y `NavHost` con un marcador por ruta migrada. Hecho el 2026-10-26. `Diagnostico` y `Catalogo` solo existen en `dev`.
+- `core/designsystem`: tema claro con la paleta nueva (`LightColorScheme`), tipografía **Lexend** (Outfit no se migra: solo la usan el panel admin y el registro) y los componentes `RubusButton`, `RubusTextField`, `RubusCard`, `RubusLoadingState` y `RubusErrorState`. Hecho el 2026-10-26.
 - `core/model`: `User`, `UserRole`. Hecho el 2026-10-10.
 
-**Librerías.** Koin, Ktor Client (motor OkHttp en Android, Darwin en iOS), kotlinx.serialization, kotlinx.coroutines, Navigation Compose, DataStore.
+**Librerías.** Koin, Ktor Client (motor OkHttp en Android, Darwin en iOS), kotlinx.serialization, kotlinx.coroutines, Navigation Compose, DataStore. Para los tests de UI en la JVM: Robolectric 4.16 y `ui-test-junit4` (en `androidHostTest`).
 
 **Riesgos.**
 - Compatibilidad de versiones entre Kotlin, KSP, Compose Multiplatform y AGP 9: el proyecto usa versiones muy recientes y no todas las librerías las soportan el primer día.
@@ -147,6 +147,10 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 - ~~El plugin `Auth` de Ktor decide el refresh a partir de `WWW-Authenticate`, que el backend no envía.~~ Resuelto el 2026-10-10: con un solo proveedor registrado refresca igualmente; lo fija `HttpClientRefreshTest`.
 
 **Terminado cuando.** El flavor `dev` instala y abre una pantalla con el tema nuevo; una petición de prueba al backend local responde; un test unitario demuestra que un 401 dispara el refresh y reintenta una sola vez.
+
+Queda por verificar en un dispositivo (que el flavor `dev` instala y abre, y que la petición de prueba responde); no se puede hacer en la máquina Linux de desarrollo.
+
+Estado: cerrada salvo las verificaciones de dispositivo y Mac (ver `dependencias-pendientes.md`).
 
 ### Fase 1 — Auth y splash (3–4 días)
 
