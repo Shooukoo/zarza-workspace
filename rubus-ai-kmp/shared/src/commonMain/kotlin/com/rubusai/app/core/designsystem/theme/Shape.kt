@@ -25,4 +25,7 @@ object RubusDimens {
     /** Alto total del botón, canto incluido. */
     val ButtonHeight = 50.dp
     val ButtonRadius = 16.dp
+
+    /** Radio de las esquinas de las tarjetas. */
+    val CardRadius = 16.dp
 }
