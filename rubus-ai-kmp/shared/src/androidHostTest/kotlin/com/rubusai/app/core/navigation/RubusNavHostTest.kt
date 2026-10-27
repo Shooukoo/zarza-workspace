@@ -3,6 +3,7 @@ package com.rubusai.app.core.navigation
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.rubusai.app.core.config.Environment
@@ -37,7 +38,8 @@ class RubusNavHostTest {
     private fun assertGrafoIgualARegistro(env: Environment) {
         val nav = render(env)
 
-        val enGrafo = nav.graph.map { it.route!!.substringBefore('/') }.toSet()
+        // El patrón puede llevar "/{arg}" o "?opt={arg}": nos quedamos con el nombre de la clase.
+        val enGrafo = nav.graph.map { it.route!!.substringBefore('/').substringBefore('?') }.toSet()
         val registradas = registeredRoutes(env).map { it.qualifiedName!! }.toSet()
 
         assertTrue(registradas.isNotEmpty())
@@ -63,6 +65,21 @@ class RubusNavHostTest {
     }
 
     @Test
+    fun undobleToqueEnCatalogoNoLoApilaDosVeces() {
+        val nav = render(Environment.DEV)
+
+        // Reloj parado: la transición no termina y el botón sigue en pantalla para el 2.º toque.
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithText("CATÁLOGO").performClick()
+        rule.onNodeWithText("CATÁLOGO").performClick()
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        val catalogos = nav.currentBackStack.value.count { it.destination.route == Route.Catalogo::class.qualifiedName }
+        assertEquals(1, catalogos)
+    }
+
+    @Test
     fun enProdElSplashNoOfreceRutasDeDesarrollo() {
         render(Environment.PROD)
 
@@ -75,6 +92,7 @@ class RubusNavHostTest {
     fun enStagingElSplashNoOfreceRutasDeDesarrollo() {
         render(Environment.STAGING)
 
+        rule.onNodeWithText("Splash").assertIsDisplayed()
         rule.onNodeWithText("DIAGNÓSTICO").assertDoesNotExist()
         rule.onNodeWithText("CATÁLOGO").assertDoesNotExist()
     }

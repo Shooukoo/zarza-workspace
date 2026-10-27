@@ -41,14 +41,15 @@ fun RubusNavHost(
         composable<Route.Splash> {
             Marcador("Splash") {
                 if (enDev) {
+                    // launchSingleTop: un doble toque no apila la pantalla dev dos veces.
                     RubusButton(
                         text = "Diagnóstico",
-                        onClick = { navController.navigate(Route.Diagnostico) },
+                        onClick = { navController.navigate(Route.Diagnostico) { launchSingleTop = true } },
                         variant = RubusButtonVariant.Secondary,
                     )
                     RubusButton(
                         text = "Catálogo",
-                        onClick = { navController.navigate(Route.Catalogo) },
+                        onClick = { navController.navigate(Route.Catalogo) { launchSingleTop = true } },
                         variant = RubusButtonVariant.Outline,
                     )
                 }
