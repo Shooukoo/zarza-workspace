@@ -6,9 +6,9 @@ Estado de las dependencias que la estructura de paquetes necesita.
 
 Declaradas en `gradle/libs.versions.toml` y conectadas a `shared` desde la Fase 0: Koin, Ktor Client (con WebSockets y Auth), kotlinx.serialization, kotlinx.coroutines, kotlinx-datetime, Navigation Compose, DataStore Preferences, Room con KSP y SQLite empaquetado, Coil 3 y Play Services Location. Todas se resuelven con Kotlin 2.4.20 y AGP 9.4.1, y todas son la última versión estable publicada el 2026-10-09 salvo la indicada abajo. (Las entradas del catálogo anteriores a la Fase 0, por ejemplo `material3 = 1.12.0-alpha03`, no entran en esta afirmación.)
 
-Tienen código que las usa: Koin (`koin-core`, `koin-compose`, `koin-android`), Ktor Client (`core`, `content-negotiation`, `serialization-kotlinx-json`, `auth`, `logging` y los motores OkHttp y Darwin), kotlinx.serialization, kotlinx.coroutines y DataStore Preferences. Las demás (WebSockets de Ktor, kotlinx-datetime, Navigation Compose, Room, Coil, Play Services Location) están resueltas y empaquetadas en el APK, pero su uso real desde el proyecto está sin probar hasta que llegue su primera capa.
+Tienen código que las usa: Koin (`koin-core`, `koin-compose`, `koin-android`), Ktor Client (`core`, `content-negotiation`, `serialization-kotlinx-json`, `auth`, `logging` y los motores OkHttp y Darwin), kotlinx.serialization, kotlinx.coroutines, DataStore Preferences, Navigation Compose (`RubusNavHost`) y `compose-components-resources` (la fuente Lexend). Las demás (WebSockets de Ktor, kotlinx-datetime, Room, Coil, Play Services Location) están resueltas y empaquetadas en el APK, pero su uso real desde el proyecto está sin probar hasta que llegue su primera capa.
 
-De test, en `commonTest`: `ktor-client-mock` y `kotlinx-coroutines-test`. En `androidDeviceTest`: `androidx.test.ext:junit` y `espresso-core` (este último solo porque arrastra `androidx.test:runner`).
+De test, en `commonTest`: `ktor-client-mock` y `kotlinx-coroutines-test`. En `androidDeviceTest`: `androidx.test.ext:junit` y `espresso-core` (este último solo porque arrastra `androidx.test:runner`). En `androidHostTest`: Robolectric 4.16, `ui-test-junit4` y `ui-test-manifest`, para los tests de UI en la JVM (ver más abajo).
 
 ## Versiones que no son la última estable
 
@@ -33,21 +33,23 @@ De test, en `commonTest`: `ktor-client-mock` y `kotlinx-coroutines-test`. En `an
 - **Tests de red.** Usar `mockEngine { }` y `clientFixture(...)` de `core/network/NetworkTestSupport.kt` y no `MockEngine { }` directamente: así los handlers y `HttpTimeout` corren en el tiempo virtual de `runTest` y los tests son deterministas. Los tests que usan `UnconfinedTestDispatcher` o `runCurrent` llevan `@OptIn(ExperimentalCoroutinesApi::class)` en la clase.
 - **Room (Fase 3).** Commitear `shared/schemas/` cuando aparezca con la primera `@Database`; hace falta para las migraciones. Añadir `-Xexpect-actual-classes` en `kotlin { compilerOptions { freeCompilerArgs.add("-Xexpect-actual-classes") } }` de `shared/build.gradle.kts`, porque el `expect object ... : RoomDatabaseConstructor` que pide Room emite un aviso de clases `expect`/`actual` en beta.
 - **Koin.** `networkModule()` y los módulos de plataforma (`androidPlatformModule()`, `iosPlatformModule()`) ya son funciones, porque contienen instancias. `databaseModule`, `repositoryModule` y `viewModelModule` siguen siendo `val` vacíos en `core/di/AppModule.kt`: convertirlos en funciones cuando tengan `single` reales. Cada módulo de plataforma debe aportar `HttpClientEngine`, el `Logger` de Ktor y `SecureTokenStorage`. En cualquier test que arranque Koin con `initKoin`, parar el contexto con `stopKoin()` en un `@AfterTest`: el contexto global se registra antes de ejecutar la declaración. En Android no se puede parar y volver a arrancar Koin en el mismo proceso sin más: el DataStore de la sesión solo admite una instancia por archivo.
-- **Pantallas nuevas.** No copiar de la pantalla provisional de `App.kt` el `koinInject` en la raíz ni el texto fijo en el código: usar ViewModels con `koinViewModel()` y los recursos de Compose.
+- **Pantallas nuevas.** No copiar de las pantallas de `dev` (`DiagnosticoScreen`) el `koinInject` en la raíz ni el texto fijo en el código: usar ViewModels con `koinViewModel()` y los recursos de Compose. `App` lo usa solo para leer el entorno.
+- **Tests de UI.** Decisión de la fase 0: Robolectric 4.16 y `ui-test-junit4`, en `androidHostTest` con `@Config(sdk = [35])` y `androidx.compose.ui.test.junit4.v2.createComposeRule` (el de `junit4.createComposeRule` está en desuso). Robolectric descarga `android-all` en la primera ejecución: una CI sin red lo necesita en caché. Un `BasicTextField` deshabilitado no expone `SetText`, y en un campo de contraseña `onNodeWithText` coincide con el texto sin transformar: comprobar `EditableText`.
 
 ## Antes del primer release (Fase 8)
 
 - Desactivar la variante `devRelease`: hoy existe y permite HTTP sin cifrar.
 - Quitar `ui-tooling` de las variantes release: hoy entra en todas por `implementation(libs.compose.uiTooling)` en `androidMain` y por `androidRuntimeClasspath(libs.compose.uiTooling)`, ambos en `shared/build.gradle.kts`. Al quitarlo, volver a añadir `debugImplementation(libs.compose.uiTooling)` en `androidApp/build.gradle.kts` para no perder las previews en debug.
 - Repartir las librerías nativas por ABI (`libsqliteJni.so` pesa alrededor de 1,2 MB por ABI).
-- Al activar R8, comprobar las reglas de kotlinx.serialization, Ktor y Room, y que `Environment.valueOf` sigue funcionando.
+- Al activar R8, comprobar las reglas de kotlinx.serialization, Ktor y Room, y que `Environment.valueOf` sigue funcionando. Ejecutar `assembleRelease` al menos una vez con la minificación activa: hasta ahora ningún build de release se ha minificado.
 
 ## Sin verificar
 
 - **iOS.** Las fuentes Kotlin de `iosMain` e `iosTest` sí compilan en Linux con `./gradlew :shared:compileKotlinIosSimulatorArm64 :shared:compileKotlinIosArm64 :shared:compileTestKotlinIosSimulatorArm64` (comprobado el 2026-10-10). Enlazar el framework y ejecutar la app de iOS o sus tests siguen necesitando macOS, así que `iosApp/iosApp/iOSApp.swift` no se ha compilado. Hay que compilar el framework en un Mac al cerrar la Fase 0. Cuando el cliente HTTP haga su primera llamada en `DEV`, `Info.plist` necesitará `NSAppTransportSecurity` con `NSAllowsLocalNetworking`, y un iPhone físico necesitará la IP del Mac en la LAN en lugar de `127.0.0.1`.
-- **Ejecución en un dispositivo Android.** El arranque y la pantalla provisional se probaron en la JVM con una prueba puntual de Robolectric (API 35) sobre los tres flavors, que no quedó en el repositorio. Falta abrir `devDebug` en un emulador o teléfono real.
+- **Ejecución en un dispositivo Android.** Antes de la navegación, el arranque de `MainActivity` y la antigua pantalla provisional se probaron en la JVM con una prueba puntual de Robolectric (API 35) sobre los tres flavors, que no quedó en el repositorio. El arranque actual (`App` → `RubusNavHost` → `Splash`) solo lo cubre `RubusNavHostTest`, que dibuja el grafo de cada entorno sin pasar por `MainActivity`. Falta abrir `devDebug` en un emulador o teléfono real.
+- **Lexend y componentes.** Solo se han probado en la JVM. Hay que revisarlos a ojo en un dispositivo con la pantalla `Catalogo` del flavor `dev` (Splash → Catálogo). En iOS, comprobar en un simulador que `Diagnostico` y `Catalogo` tienen forma de volver (no tienen control de "volver"; en Android basta el botón atrás del sistema).
 - **Cifrado de la sesión.** `KeystoreTokenCipherTest` (`shared/src/androidDeviceTest`) compila y está dentro del APK de test, pero no se ha ejecutado: necesita un emulador o un teléfono. La primera vez conviene lanzarlo solo, porque `connectedAndroidDeviceTest` ejecuta también todos los tests de `commonTest` en el dispositivo: `./gradlew :shared:connectedAndroidDeviceTest -Pandroid.testInstrumentationRunnerArguments.class=com.rubusai.app.core.platform.KeystoreTokenCipherTest`.
-- **Petición de prueba.** El botón "Probar conexión" de la pantalla provisional no se ha pulsado contra el backend local en un dispositivo. Sí se ha comprobado en la JVM con Robolectric, sustituyendo solo el cifrado del Keystore: la pantalla se dibuja, la petición sale por OkHttp y muestra "Conectado".
+- **Petición de prueba.** El botón "Probar conexión" de la pantalla `Diagnostico` (flavor `dev`) no se ha pulsado contra el backend local en un dispositivo. Sí se comprobó en la JVM con Robolectric cuando era la pantalla provisional de `App.kt` (su código pasó a `DiagnosticoScreen`), sustituyendo solo el cifrado del Keystore: la pantalla se dibuja, la petición sale por OkHttp y muestra "Conectado".
 - **Coste de leer la sesión.** El cliente descifra los tokens con el Keystore en cada petición, en el hilo de quien llama. Medirlo en un teléfono de gama baja en la fase 2; si pesa, mover el cifrado a `Dispatchers.Default` dentro de `DataStoreTokenStorage` (envolviendo `read` y `save` enteros, no solo el `try`) o cachear el par en memoria.
 
 ## Limitaciones conocidas y decisiones abiertas de la red
@@ -67,4 +69,10 @@ Salieron de las revisiones del sub-proyecto de red (2026-10-10). Ninguna impide 
 
 ## Decisiones abiertas
 
-- Si se añade al repositorio una prueba de humo con Robolectric que arranque `MainActivity` en cada flavor. Hoy esa comprobación solo se ejecutó una vez, fuera del repositorio; añadirla trae Robolectric y `ui-test-junit4` como dependencias de test de `androidApp`.
+Pendientes menores de las revisiones de la fase 0. Ninguno bloquea la fase 1; resolverlos al tocar el código afectado.
+
+- El botón mostrar/ocultar contraseña de `RubusTextField` tiene un área táctil de solo la altura del texto (menos de 48 dp): darle `minimumInteractiveComponentSize()` o un `IconButton`.
+- `RubusTextField` usa `MaterialTheme.shapes.large`, mientras que el botón y la tarjeta usan `RubusDimens`.
+- `Route` es público y se exporta al framework de iOS: marcarlo `internal` si iOS no lo necesita.
+- El layout de superficie está repetido en `Marcador`, `DiagnosticoScreen` y `CatalogoScreen`: extraerlo cuando la primera pantalla real defina el scaffold (fase 1).
+- Los botones de `dev` del marcador de `Splash` (Diagnóstico y Catálogo) tendrán que moverse cuando exista un Splash real con redirección.

@@ -92,6 +92,13 @@ kotlin {
             implementation(libs.androidx.testExt.junit)
             implementation(libs.androidx.espresso.core)
         }
+        // Tests de UI en la JVM: Robolectric aporta el Android que Compose necesita, y el
+        // manifiesto de ui-test declara la actividad que usa createComposeRule().
+        getByName("androidHostTest").dependencies {
+            implementation(libs.robolectric)
+            implementation(libs.compose.uiTest.junit4)
+            implementation(libs.androidx.compose.uiTestManifest)
+        }
     }
 }
 
@@ -100,6 +107,10 @@ dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+}
+
+compose.resources {
+    packageOfResClass = "com.rubusai.app.resources"
 }
 
 room {
