@@ -1,6 +1,13 @@
 package com.rubusai.app.core.designsystem.component
 
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
@@ -37,11 +44,28 @@ class RubusCardTest {
     }
 
     @Test
+    fun elContenidoTomaElColorSobreSuperficie() {
+        var esperado: Color? = null
+        var obtenido: Color? = null
+        rule.setContent {
+            RubusTheme {
+                esperado = MaterialTheme.colorScheme.onSurface
+                RubusCard { obtenido = LocalContentColor.current }
+            }
+        }
+
+        rule.waitForIdle()
+        assertEquals(esperado, obtenido)
+    }
+
+    @Test
     fun conOnClickLoLlama() {
         var clics = 0
         rule.setContent { RubusTheme { RubusCard(onClick = { clics++ }) { Text("Contenido") } } }
 
-        rule.onNodeWithText("Contenido").assertHasClickAction().performClick()
+        rule.onNodeWithText("Contenido").assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .performClick()
 
         assertEquals(1, clics)
     }

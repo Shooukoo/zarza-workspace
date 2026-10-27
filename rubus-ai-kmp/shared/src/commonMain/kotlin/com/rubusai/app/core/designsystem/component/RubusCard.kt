@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -19,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.rubusai.app.core.designsystem.theme.RubusDimens
 
 /**
- * Tarjeta con borde y un canto inferior, como las variantes con contorno del botón. Con
+ * Tarjeta con el mismo borde y canto que el botón con contorno. Con
  * [onClick] es clicable; sin él, solo agrupa contenido.
  */
 @Composable
@@ -30,6 +32,7 @@ fun RubusCard(
 ) {
     val scheme = MaterialTheme.colorScheme
     val depth = RubusDimens.OutlineDepth
+    // Ripple en vez de hundirse como el botón: la tarjeta es grande y moverla entera distrae.
     val clicks = if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier
 
     Column(
@@ -42,6 +45,7 @@ fun RubusCard(
                 val face = Size(size.width, size.height - depth.toPx())
                 drawRoundRect(scheme.outline, cornerRadius = radius)
                 drawRoundRect(scheme.surface, size = face, cornerRadius = radius)
+                // Trazo centrado en el borde: se mete medio grosor para que no lo corte el clip.
                 drawRoundRect(
                     color = scheme.outline,
                     topLeft = Offset(stroke / 2, stroke / 2),
@@ -51,6 +55,7 @@ fun RubusCard(
                 )
             }
             .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 16.dp + depth),
-        content = content,
+        // La cara la pintamos nosotros; el color del contenido debe ir con ella.
+        content = { CompositionLocalProvider(LocalContentColor provides scheme.onSurface) { content() } },
     )
 }
