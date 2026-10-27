@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import com.rubusai.app.core.network.AuthTokens
 import java.io.File
 import java.nio.file.Files
+import java.security.UnrecoverableKeyException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
@@ -40,7 +41,13 @@ class DataStoreTokenStorageTest {
 
     private class FailingCipher : TokenCipher {
         override fun encrypt(plain: ByteArray): ByteArray = plain
-        override fun decrypt(data: ByteArray): ByteArray = throw IllegalStateException("clave perdida")
+        override fun decrypt(data: ByteArray): ByteArray = throw UnrecoverableKeyException("clave perdida")
+    }
+
+    /** Un fallo que no dice que la clave se perdiera (p. ej. un Keystore ocupado). */
+    private class TransientFailureCipher : TokenCipher {
+        override fun encrypt(plain: ByteArray): ByteArray = plain
+        override fun decrypt(data: ByteArray): ByteArray = throw java.security.ProviderException("keystore ocupado")
     }
 
     private class CancellingCipher : TokenCipher {
@@ -61,7 +68,7 @@ class DataStoreTokenStorageTest {
         override fun decrypt(data: ByteArray): ByteArray {
             entered.countDown()
             release.await(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            throw IllegalStateException("clave perdida")
+            throw UnrecoverableKeyException("clave perdida")
         }
     }
 
@@ -164,6 +171,18 @@ class DataStoreTokenStorageTest {
 
         assertNull(storage.read())
         assertNull(dataStore.storedValue())
+    }
+
+    @Test
+    fun unFalloPasajeroDelCifradoNoBorraLaSesion() = runTest {
+        val dataStore = newDataStore()
+        DataStoreTokenStorage(dataStore, ReversingCipher()).save(AuthTokens("access-1", "refresh-1"))
+        val storage = DataStoreTokenStorage(dataStore, TransientFailureCipher())
+
+        assertFailsWith<java.security.ProviderException> { storage.read() }
+
+        assertNotNull(dataStore.storedValue())
+        assertEquals(AuthTokens("access-1", "refresh-1"), DataStoreTokenStorage(dataStore, ReversingCipher()).read())
     }
 
     @Test
