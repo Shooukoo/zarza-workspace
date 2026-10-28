@@ -249,4 +249,47 @@ class AuthRepositoryTest {
 
         assertTrue(testScheduler.currentTime < 10_000, "tardó ${testScheduler.currentTime} ms")
     }
+
+    @Test
+    fun meConUnCuerpoIlegibleDevuelveNull() = runTest {
+        val fixture = clientFixture { respondJson("esto no es json") }
+
+        assertNull(AuthRepositoryImpl(fixture.client).fetchMe())
+    }
+
+    @Test
+    fun laCancelacionDeMeSePropagaYNoDevuelveNull() = runTest {
+        val fixture = clientFixture {
+            delay(60_000)
+            respondJson("""{"id":"u1","email":"ana@zarza.example","role":"MONITOR"}""")
+        }
+        var terminoNormalmente = false
+
+        val job = launch {
+            AuthRepositoryImpl(fixture.client).fetchMe()
+            terminoNormalmente = true
+        }
+        runCurrent()
+        job.cancelAndJoin()
+
+        assertFalse(terminoNormalmente)
+    }
+
+    @Test
+    fun laCancelacionDeLogoutSePropaga() = runTest {
+        val fixture = clientFixture {
+            delay(60_000)
+            respondJson("""{"message":"Logged out"}""")
+        }
+        var terminoNormalmente = false
+
+        val job = launch {
+            AuthRepositoryImpl(fixture.client).logout("refresh-old")
+            terminoNormalmente = true
+        }
+        runCurrent()
+        job.cancelAndJoin()
+
+        assertFalse(terminoNormalmente)
+    }
 }

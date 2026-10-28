@@ -13,8 +13,9 @@ interface AuthRepository {
     suspend fun fetchMe(): User?
 
     /**
-     * `POST auth/logout` con el refresh token, como mucho 5 s. Nunca lanza, salvo por
-     * cancelación: si falla, el cierre de sesión local sigue adelante igual.
+     * `POST auth/logout` con el refresh token. La petición tiene un timeout de 5 s; si el access
+     * token está vencido, el refresh que dispara el 401 puede añadir hasta 30 s. Nunca lanza,
+     * salvo por cancelación: si falla, el cierre de sesión local sigue adelante igual.
      */
     suspend fun logout(refreshToken: String?)
 }

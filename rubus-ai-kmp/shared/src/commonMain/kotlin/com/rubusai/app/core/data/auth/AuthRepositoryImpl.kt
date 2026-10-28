@@ -67,5 +67,6 @@ private fun HttpStatusCode.toLoginFailure(): LoginFailure = when (value) {
     else -> LoginFailure.Unexpected
 }
 
-// Corto a propósito: sin red, el usuario no debe esperar los 30 s del cliente para cerrar sesión.
+// Acota la petición para que, sin red, el usuario no espere los 30 s del cliente al cerrar sesión.
+// Un refresh disparado por un 401 queda fuera de este límite: usa su propio cliente y no es cancelable.
 private const val LOGOUT_TIMEOUT_MS = 5_000L
