@@ -17,6 +17,7 @@ internal class FakeAuthRepository : AuthRepository {
     var me: User? = null
     var meGate: CompletableDeferred<Unit>? = null
     var logoutGate: CompletableDeferred<Unit>? = null
+    var logoutFailure: Exception? = null
 
     val loginCalls = mutableListOf<Pair<String, String>>()
     val logoutCalls = mutableListOf<String?>()
@@ -45,5 +46,6 @@ internal class FakeAuthRepository : AuthRepository {
     override suspend fun logout(refreshToken: String?) {
         logoutGate?.await()
         logoutCalls += refreshToken
+        logoutFailure?.let { throw it }
     }
 }

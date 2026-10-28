@@ -83,7 +83,8 @@ class SessionManager(
     /**
      * Inicia sesión. Si el backend acepta, guarda los tokens y luego el usuario y pasa a
      * `Authenticated`. Si no puede guardarlos, borra lo guardado y propaga el error: no queda
-     * media sesión. Un `Mutex` impide dos logins a la vez.
+     * media sesión. Las transiciones de sesión (login, logout, expiración y refresco del usuario)
+     * se serializan con un `Mutex`.
      */
     suspend fun login(email: String, password: String): LoginResult = transitions.withLock {
         val result = repository.login(email, password)
@@ -114,7 +115,7 @@ class SessionManager(
             } catch (e: Exception) {
                 null
             }
-            repository.logout(refreshToken)
+            bestEffort { repository.logout(refreshToken) }
             clearStorage()
             _state.value = SessionState.Unauthenticated()
         }

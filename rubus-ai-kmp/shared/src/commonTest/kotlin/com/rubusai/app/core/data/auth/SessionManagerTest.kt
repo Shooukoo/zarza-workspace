@@ -460,4 +460,41 @@ class SessionManagerTest {
         assertNull(tokens.read())
         assertNull(users.read())
     }
+
+    @Test
+    fun mientrasElBackendCierraLaSesionSigueGuardada() = runTest {
+        val repository = FakeAuthRepository().apply { logoutGate = CompletableDeferred() }
+        val tokens = InMemoryTokenStorage(TOKENS)
+        val manager = manager(repository, tokens, InMemoryUserStorage(ana))
+        manager.start()
+
+        val job = launch { manager.logout() }
+        runCurrent()
+
+        try {
+            assertEquals(TOKENS, tokens.read())
+            assertEquals(SessionState.Authenticated(ana), manager.state.value)
+        } finally {
+            // El logout no es cancelable: si una aserción falla hay que soltarlo o el test no termina.
+            repository.logoutGate!!.complete(Unit)
+        }
+        job.join()
+
+        assertNull(tokens.read())
+    }
+
+    @Test
+    fun logoutLimpiaAunqueElBackendLance() = runTest {
+        val repository = FakeAuthRepository().apply { logoutFailure = IllegalStateException("backend roto") }
+        val tokens = InMemoryTokenStorage(TOKENS)
+        val users = InMemoryUserStorage(ana)
+        val manager = manager(repository, tokens, users)
+        manager.start()
+
+        manager.logout()
+
+        assertNull(tokens.read())
+        assertNull(users.read())
+        assertEquals(SessionState.Unauthenticated(), manager.state.value)
+    }
 }
