@@ -28,6 +28,7 @@ Room, KSP, SQLite empaquetado, Coil 3 y Play Services Location no tenían códig
 |-------------|--------|--------|
 | Firebase BoM, Firebase Messaging y plugin de Google Services | Fase 6 | Exigen un `google-services.json` por `applicationId` (son tres: `com.rubusai.app`, `.dev` y `.stg`) |
 | `koin-test` | Con el primer test que las necesite | Son las únicas resoluciones del roadmap sin validar contra este toolchain |
+| Proteger `POST auth/logout` del backend con `JwtAuthGuard` (o un guard opcional que rellene `request.user` sin rechazar) | Fase 6 | Hoy la ruta no tiene guard (el único `APP_GUARD` es `ThrottlerGuard`), así que `req.user?.sub` es siempre `undefined` y `clearFcmToken` nunca se ejecuta: el usuario cierra sesión y su teléfono sigue recibiendo push. El cliente KMP llama al logout con `bestEffort`. El orden del cliente (llamar al backend antes de borrar la sesión local) sigue siendo correcto, porque el logout revoca el refresh token |
 | Trabajo en segundo plano para la sincronización (WorkManager) | Sin fecha | Mejora posible, fuera del roadmap |
 
 ## Qué hacer al usar cada librería por primera vez
@@ -84,7 +85,7 @@ Pendientes menores de las revisiones de la fase 0. Ninguno bloquea la fase 1; re
 
 Salieron de las revisiones de la Fase 1. Ninguna impide usar el login; esperan decisión o su fase.
 
-- **Logout con el access token vencido.** La petición de `auth/logout` tiene un tiempo de 5 s, pero el refresh que dispara el 401 puede añadir hasta 30 s antes de que termine.
+- **Logout con el access token vencido (latente).** Hoy no ocurre: la ruta de logout del backend no tiene guard, así que nunca responde 401 ni dispara un refresh. Aparecerá cuando el backend la proteja (ver el pendiente de la Fase 6 en la tabla de pendientes): la petición de `auth/logout` tiene un tiempo de 5 s, pero el refresh del 401 puede añadir hasta 30 s.
 - **Aviso "Tu sesión expiró" que puede no salir.** Si la expiración ocurre durante el `fetchMe` del caso "tokens sin usuario", el aviso puede no mostrarse.
 - **`expired` rezagado durante un login.** Un `SessionEvents.expired` emitido justo antes puede llegar mientras se hace un login (ventana estrecha).
 - **`fetchMe` nulo en "tokens sin usuario".** Borra la sesión incluso ante un fallo pasajero; lo sanciona el spec.
