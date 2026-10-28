@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 
 /** Almacén de tokens que falla las próximas [failures] lecturas, como un Keystore ocupado. */
 private class FlakyTokenStorage(
@@ -84,6 +85,24 @@ private class LoggingUserStorage(private val log: MutableList<String>) : UserSto
 private class FailingSaveUserStorage : UserStorage {
     override suspend fun read(): User? = null
     override suspend fun save(user: User) = throw IllegalStateException("disco lleno")
+    override suspend fun clear() = Unit
+}
+
+/** Almacén de tokens cuyo `clear` suspende de verdad: así nota una cancelación pendiente. */
+private class SuspendingClearTokenStorage : SecureTokenStorage {
+    private val delegate = InMemoryTokenStorage()
+    override suspend fun read() = delegate.read()
+    override suspend fun save(tokens: AuthTokens) = delegate.save(tokens)
+    override suspend fun clear() {
+        yield()
+        delegate.clear()
+    }
+}
+
+/** Almacén de usuario cuyo guardado espera [gate]. */
+private class GatedSaveUserStorage(val gate: CompletableDeferred<Unit> = CompletableDeferred()) : UserStorage {
+    override suspend fun read(): User? = null
+    override suspend fun save(user: User) = gate.await()
     override suspend fun clear() = Unit
 }
 
@@ -406,5 +425,39 @@ class SessionManagerTest {
         runCurrent()
 
         assertEquals(SessionState.Unauthenticated(expired = false), manager.state.value)
+    }
+
+    @Test
+    fun unLoginCanceladoALaMitadDelGuardadoSigueBorrandoLosTokens() = runTest {
+        val tokens = SuspendingClearTokenStorage()
+        val manager = manager(tokens = tokens, users = GatedSaveUserStorage())
+        manager.start()
+
+        val job = launch { manager.login("ana@zarza.example", "secreto") }
+        runCurrent()
+        job.cancel()
+        runCurrent()
+
+        assertNull(tokens.read())
+        assertEquals(SessionState.Unauthenticated(), manager.state.value)
+    }
+
+    @Test
+    fun unLogoutCanceladoNoDejaLaSesionAbiertaAMedias() = runTest {
+        val repository = FakeAuthRepository().apply { logoutGate = CompletableDeferred() }
+        val tokens = InMemoryTokenStorage(TOKENS)
+        val users = InMemoryUserStorage(ana)
+        val manager = manager(repository, tokens, users)
+        manager.start()
+
+        val job = launch { manager.logout() }
+        runCurrent()
+        job.cancel()
+        repository.logoutGate!!.complete(Unit)
+        runCurrent()
+
+        assertEquals(SessionState.Unauthenticated(), manager.state.value)
+        assertNull(tokens.read())
+        assertNull(users.read())
     }
 }
