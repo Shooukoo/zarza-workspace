@@ -10,6 +10,7 @@ import com.rubusai.app.core.network.TokenRefresher
 import com.rubusai.app.core.network.createHttpClient
 import com.rubusai.app.core.network.createRefreshClient
 import com.rubusai.app.feature.auth.LoginViewModel
+import com.rubusai.app.feature.home.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -62,6 +63,7 @@ internal fun authModule(): Module = module {
         )
     }
     viewModelOf(::LoginViewModel)
+    viewModelOf(::HomeViewModel)
 }
 
 internal fun appModules(environment: Environment, devHost: String): List<Module> = listOf(
