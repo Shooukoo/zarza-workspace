@@ -1,12 +1,6 @@
 package com.rubusai.app.dev
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,12 +8,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.rubusai.app.core.config.EnvConfig
 import com.rubusai.app.core.designsystem.component.RubusButton
+import com.rubusai.app.core.designsystem.component.RubusScreen
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import kotlin.coroutines.cancellation.CancellationException
@@ -36,45 +28,33 @@ fun DiagnosticoScreen() {
     var checking by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<String?>(null) }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .safeDrawingPadding()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+    RubusScreen {
+        Text(
+            text = envConfig.environment.name,
+            style = MaterialTheme.typography.headlineLarge,
+        )
+        Text(
+            text = envConfig.apiBaseUrl,
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        RubusButton(
+            text = "Probar conexión",
+            enabled = !checking,
+            onClick = {
+                checking = true
+                result = null
+                scope.launch {
+                    result = checkConnection(httpClient)
+                    checking = false
+                }
+            },
+        )
+        result?.let {
             Text(
-                text = envConfig.environment.name,
-                style = MaterialTheme.typography.headlineLarge,
-            )
-            Text(
-                text = envConfig.apiBaseUrl,
+                text = it,
                 style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
             )
-            RubusButton(
-                text = "Probar conexión",
-                enabled = !checking,
-                onClick = {
-                    checking = true
-                    result = null
-                    scope.launch {
-                        result = checkConnection(httpClient)
-                        checking = false
-                    }
-                },
-            )
-            result?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                )
-            }
         }
     }
 }
