@@ -9,10 +9,12 @@ import com.rubusai.app.core.network.SessionEvents
 import com.rubusai.app.core.network.TokenRefresher
 import com.rubusai.app.core.network.createHttpClient
 import com.rubusai.app.core.network.createRefreshClient
+import com.rubusai.app.feature.auth.LoginViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 internal fun configModule(environment: Environment, devHost: String): Module {
@@ -59,6 +61,7 @@ internal fun authModule(): Module = module {
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
         )
     }
+    viewModelOf(::LoginViewModel)
 }
 
 internal fun appModules(environment: Environment, devHost: String): List<Module> = listOf(
