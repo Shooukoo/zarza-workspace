@@ -7,19 +7,27 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import com.rubusai.app.core.designsystem.theme.RubusDimens
 import com.rubusai.app.core.designsystem.theme.RubusTheme
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -31,6 +39,49 @@ class RubusTextFieldTest {
 
     @get:Rule
     val rule = createComposeRule()
+
+    @Test
+    fun elBotonDeContrasenaTieneAreaTactilDe48dp() {
+        rule.setContent {
+            RubusTheme {
+                RubusTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = "Clave",
+                    isPassword = true,
+                    showPasswordLabel = "Mostrar",
+                    hidePasswordLabel = "Ocultar",
+                )
+            }
+        }
+
+        rule.onNodeWithText("Mostrar").assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun elCampoDeContrasenaNoEsMasAltoQueElNormal() {
+        rule.setContent {
+            RubusTheme {
+                RubusTextField(value = "", onValueChange = {}, label = "Normal")
+                RubusTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = "Clave",
+                    isPassword = true,
+                    showPasswordLabel = "Mostrar",
+                    hidePasswordLabel = "Ocultar",
+                )
+            }
+        }
+
+        // El botón de 48 dp cabe dentro del alto del campo; no debe agrandarlo. El alto de
+        // referencia es el del campo normal (el texto de 26,6 sp más el relleno supera los 50 dp).
+        val normal = rule.onNode(hasSetTextAction() and hasContentDescription("Normal"))
+            .getUnclippedBoundsInRoot().height
+        // Holgura de 2 dp por el redondeo del interlineado; detecta relleno duplicado.
+        assertTrue(normal >= RubusDimens.ButtonHeight && normal <= RubusDimens.ButtonHeight + 2.dp)
+        rule.onNode(hasSetTextAction() and hasContentDescription("Clave")).assertHeightIsEqualTo(normal)
+    }
 
     @Test
     fun muestraElTextoDeError() {

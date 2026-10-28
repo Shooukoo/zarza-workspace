@@ -28,13 +28,14 @@ Room, KSP, SQLite empaquetado, Coil 3 y Play Services Location no tenían códig
 |-------------|--------|--------|
 | Firebase BoM, Firebase Messaging y plugin de Google Services | Fase 6 | Exigen un `google-services.json` por `applicationId` (son tres: `com.rubusai.app`, `.dev` y `.stg`) |
 | `koin-test` | Con el primer test que las necesite | Son las únicas resoluciones del roadmap sin validar contra este toolchain |
+| Proteger `POST auth/logout` del backend con `JwtAuthGuard` (o un guard opcional que rellene `request.user` sin rechazar) | Fase 6 | Hoy la ruta no tiene guard (el único `APP_GUARD` es `ThrottlerGuard`), así que `req.user?.sub` es siempre `undefined` y `clearFcmToken` nunca se ejecuta: el usuario cierra sesión y su teléfono sigue recibiendo push. El cliente KMP llama al logout con `bestEffort`. El orden del cliente (llamar al backend antes de borrar la sesión local) sigue siendo correcto, porque el logout revoca el refresh token |
 | Trabajo en segundo plano para la sincronización (WorkManager) | Sin fecha | Mejora posible, fuera del roadmap |
 
 ## Qué hacer al usar cada librería por primera vez
 
 - **Peticiones HTTP.** Inyectar el `HttpClient` de Koin y pedir rutas relativas sin barra inicial (`client.get("analyses")`); con barra, Ktor descarta el `/api/v1` de la URL base. El cliente lanza `ResponseException` ante cualquier respuesta que no sea 2xx; no mostrar su `message` en pantallas reales, porque incluye el cuerpo de la respuesta. No crear otros `HttpClient`: el refresh de token solo está en este. El `Bearer` solo viaja a la API (mismo esquema, host y puerto que la URL base, bajo `/api/v1/`): una URL absoluta a otro host, como las firmadas de las imágenes, sale sin token y un 401 suyo no dispara refresh. Las peticiones sin cuerpo salen sin `Content-Type`, porque Fastify responde 400 a un cuerpo vacío declarado como JSON.
 - **Sesión (fase 1).** `SecureTokenStorage` es la única fuente de verdad de los tokens y el cliente los lee en cada petición: tras el login basta con `save(...)` y en el logout con `clear()`. Escuchar `SessionEvents.expired` para llevar al usuario al login cuando el backend rechaza el refresh. El aviso no se repite a quien se suscribe después: hay que escucharlo desde un ámbito que viva lo mismo que la app y, al arrancar o volver a primer plano, comprobar además si `read()` devuelve `null`. Las peticiones a `auth/login` y `auth/refresh` no llevan `Bearer` ni disparan refresh; `auth/logout` y `auth/me` sí. `UserRole.fromApi` lanza `IllegalArgumentException` ante un rol desconocido: el mapper del DTO debe convertirlo en un error de dominio.
-- **Red local en Android 17.** Con `targetSdk` 37, Android 17 bloquea en silencio (timeout, no "connection refused") las conexiones a IPs privadas (`10.0.2.2`, la LAN) si la app no tiene `ACCESS_LOCAL_NETWORK`. Está declarado solo en `androidApp/src/dev/AndroidManifest.xml`; `staging` y `prod` usan hosts públicos y no lo necesitan. Es un permiso de ejecución: tras instalar, concederlo con `adb shell pm grant com.rubusai.app.dev android.permission.ACCESS_LOCAL_NETWORK`. **Fase 1:** el flavor `dev` tendrá que pedirlo al arrancar para que el login funcione contra el backend local sin `adb`.
+- **Red local en Android 17.** Con `targetSdk` 37, Android 17 bloquea en silencio (timeout, no "connection refused") las conexiones a IPs privadas (`10.0.2.2`, la LAN) si la app no tiene `ACCESS_LOCAL_NETWORK`. Está declarado solo en `androidApp/src/dev/AndroidManifest.xml`; `staging` y `prod` usan hosts públicos y no lo necesitan. Es un permiso de ejecución: tras instalar, concederlo con `adb shell pm grant com.rubusai.app.dev android.permission.ACCESS_LOCAL_NETWORK`. `MainActivity` lo pide al arrancar el flavor `dev` (Fase 1); que el diálogo aparezca en el primer arranque está sin verificar en emulador.
 - **Tests de red.** Usar `mockEngine { }` y `clientFixture(...)` de `core/network/NetworkTestSupport.kt` y no `MockEngine { }` directamente: así los handlers y `HttpTimeout` corren en el tiempo virtual de `runTest` y los tests son deterministas. Los tests que usan `UnconfinedTestDispatcher` o `runCurrent` llevan `@OptIn(ExperimentalCoroutinesApi::class)` en la clase.
 - **Room (Fase 3), al volver a añadirlo.** Commitear `shared/schemas/` cuando aparezca con la primera `@Database`; hace falta para las migraciones. Añadir `-Xexpect-actual-classes` en `kotlin { compilerOptions { freeCompilerArgs.add("-Xexpect-actual-classes") } }` de `shared/build.gradle.kts`, porque el `expect object ... : RoomDatabaseConstructor` que pide Room emite un aviso de clases `expect`/`actual` en beta.
 - **Koin.** `networkModule()` y los módulos de plataforma (`androidPlatformModule()`, `iosPlatformModule()`) ya son funciones, porque contienen instancias. Los módulos de base de datos, repositorios y ViewModels se quitaron de `core/di/AppModule.kt` por estar vacíos: añadirlos a `appModules` con su fase, como funciones y no como `val`, porque contendrán `single`. Cada módulo de plataforma debe aportar `HttpClientEngine`, el `Logger` de Ktor y `SecureTokenStorage`. En cualquier test que arranque Koin con `initKoin`, parar el contexto con `stopKoin()` en un `@AfterTest`: el contexto global se registra antes de ejecutar la declaración. En Android no se puede parar y volver a arrancar Koin en el mismo proceso sin más: el DataStore de la sesión solo admite una instancia por archivo.
@@ -71,15 +72,30 @@ Salieron de las revisiones del sub-proyecto de red (2026-10-10). Ninguna impide 
 - **`isAuthRoute` compara por prefijo.** `auth/login` y `auth/refresh` se reconocen con `startsWith`, como dice la spec. Si el backend añadiera una ruta como `auth/login-history`, saldría sin `Bearer`. Hoy ninguna ruta choca.
 - **Transferencia entre dispositivos.** `allowBackup="false"` no desactiva la transferencia de dispositivo a dispositivo en Android 12 o superior. Es inofensivo: la sesión transferida no se puede descifrar y `read()` la descarta. Si se quiere excluir del todo, añadir `android:dataExtractionRules` excluyendo `datastore/session.preferences_pb`.
 - **Sin timeout de socket.** `HttpTimeout` fija conexión (10 s) y petición (30 s), pero no el de socket: un servidor que acepta y no responde corta a los 10 s por el valor por defecto de OkHttp, y en Darwin puede ser otro. Fijar `socketTimeoutMillis` cuando lleguen las subidas (fase 2).
-- **`User.displayName` no recorta espacios.** Un `firstName` como `" Ana "` se muestra con los espacios. Decidir al usarlo en la UI (fase 1).
 - **R8 desactivado.** Los builds de release no se minifican. Al activarlo, revisar las reglas para kotlinx.serialization, Ktor (`Logger.ANDROID` busca `android.util.Log` por reflexión) y SLF4J.
 
 ## Decisiones abiertas
 
 Pendientes menores de las revisiones de la fase 0. Ninguno bloquea la fase 1; resolverlos al tocar el código afectado.
 
-- El botón mostrar/ocultar contraseña de `RubusTextField` tiene un área táctil de solo la altura del texto (menos de 48 dp): darle `minimumInteractiveComponentSize()` o un `IconButton`.
 - `RubusTextField` usa `MaterialTheme.shapes.large`, mientras que el botón y la tarjeta usan `RubusDimens`.
 - `Route` es público y se exporta al framework de iOS: marcarlo `internal` si iOS no lo necesita.
-- El layout de superficie está repetido en `Marcador`, `DiagnosticoScreen` y `CatalogoScreen`: extraerlo cuando la primera pantalla real defina el scaffold (fase 1).
-- Los botones de `dev` del marcador de `Splash` (Diagnóstico y Catálogo) tendrán que moverse cuando exista un Splash real con redirección.
+
+## Limitaciones conocidas de la sesión (Fase 1)
+
+Salieron de las revisiones de la Fase 1. Ninguna impide usar el login; esperan decisión o su fase.
+
+- **Logout con el access token vencido (latente).** Hoy no ocurre: la ruta de logout del backend no tiene guard, así que nunca responde 401 ni dispara un refresh. Aparecerá cuando el backend la proteja (ver el pendiente de la Fase 6 en la tabla de pendientes): la petición de `auth/logout` tiene un tiempo de 5 s, pero el refresh del 401 puede añadir hasta 30 s.
+- **Aviso "Tu sesión expiró" que puede no salir.** Si la expiración ocurre durante el `fetchMe` del caso "tokens sin usuario", el aviso puede no mostrarse.
+- **`expired` rezagado durante un login.** Un `SessionEvents.expired` emitido justo antes puede llegar mientras se hace un login (ventana estrecha).
+- **`fetchMe` nulo en "tokens sin usuario".** Borra la sesión incluso ante un fallo pasajero; lo sanciona el spec.
+- **`read()` nulo durante un refresh.** Si `read()` devuelve `null` por un descifrado fallido mientras se refresca, no se distingue de un logout y se descarta el par renovado.
+
+## Pendientes menores de la Fase 1
+
+- `HomeScreen` no hace scroll: a escala de fuente 2.0 el botón de cerrar sesión puede quedar fuera de pantalla. Provisional hasta la Fase 4.
+- `RubusButton` usa `maxLines = 1` y recorta textos largos a escala 2.0 (design system, Fase 4).
+- `RubusNavHost` usa `destination::class.qualifiedName` como clave de `rememberSaveable`. Si se activa R8/minify, usar `destination.toString()` (hoy `isMinifyEnabled = false`).
+- `MainActivity` decide el permiso con `BuildConfig.FLAVOR != "dev"` y un `37` literal: preferible `BuildConfig.ENVIRONMENT`/`Environment.DEV` y `Build.VERSION_CODES.CINNAMON_BUN`.
+- Sin verificar en emulador: que el diálogo de `ACCESS_LOCAL_NETWORK` aparezca en el primer arranque dev, la rotación y la muerte de proceso (`adb shell am kill`), y el flujo completo de login, logout y expiración. iOS solo compila a klib en Linux (sin enlazar ni framework) hasta tener un Mac.
+- Deuda menor de tests: `mientrasCargaLaSesionSeVeElSplashYNoHayGrafo` no comprueba la ausencia de grafo (el nombre engaña); los tests de `RubusNavHostTest` y `HomeViewModelTest` crean scopes sin cancelar.

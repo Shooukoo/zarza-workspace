@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -128,10 +129,12 @@ fun RubusTextField(
                         // Sin canto propio ni sombra: en un campo el borde plano es intencional.
                         .background(if (enabled) scheme.surface else extra.disabledContainer, shape)
                         .border(RubusDimens.BorderWidth, borderColor, shape)
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Box(modifier = Modifier.weight(1f)) { innerTextField() }
+                    // El relleno vertical va aquí y no en el Row: así el botón de contraseña
+                    // (48 dp) cabe sin agrandar el campo por encima de ButtonHeight.
+                    Box(modifier = Modifier.weight(1f).padding(vertical = 12.dp)) { innerTextField() }
                     if (isPassword) {
                         Text(
                             text = if (passwordVisible) hidePasswordLabel else showPasswordLabel,
@@ -141,6 +144,9 @@ fun RubusTextField(
                                 .clickable(enabled = enabled, role = Role.Button) {
                                     passwordVisible = !passwordVisible
                                 }
+                                // Área táctil mínima de 48 dp; el texto queda centrado en ella.
+                                .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+                                .wrapContentSize(Alignment.Center)
                                 .padding(start = 12.dp),
                         )
                     }

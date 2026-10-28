@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rubus AI</string>
+
+    <string name="login_title">Iniciar sesión</string>
+    <string name="login_email_label">Correo electrónico</string>
+    <string name="login_password_label">Contraseña</string>
+    <string name="password_show">Mostrar</string>
+    <string name="password_hide">Ocultar</string>
+    <string name="login_submit">Iniciar sesión</string>
+    <string name="login_submitting">Entrando…</string>
+    <string name="login_session_expired">Tu sesión expiró. Inicia sesión de nuevo.</string>
+
+    <string name="login_error_email_required">Escribe tu correo.</string>
+    <string name="login_error_email_invalid">Escribe un correo válido.</string>
+    <string name="login_error_password_required">Escribe tu contraseña.</string>
+
+    <string name="login_failure_invalid_credentials">Correo o contraseña incorrectos.</string>
+    <string name="login_failure_rate_limited">Demasiados intentos. Espera un minuto.</string>
+    <string name="login_failure_network">Sin conexión con el servidor. Verifica tu red.</string>
+    <string name="login_failure_invalid_input">Revisa el correo y la contraseña.</string>
+    <string name="login_failure_unsupported_role">Tu cuenta tiene un rol que esta versión de la app no reconoce.</string>
+    <string name="login_failure_unexpected">Ocurrió un error. Intenta de nuevo.</string>
+
+    <string name="home_title">Inicio</string>
+    <string name="home_logout">Cerrar sesión</string>
+    <string name="home_logging_out">Cerrando sesión…</string>
+</resources>

@@ -165,6 +165,8 @@ Estado: cerrada. Solo queda aplazada la compilación del framework de iOS en un 
 
 **Terminado cuando.** Login correcto lleva a una pantalla de inicio provisional; credenciales malas muestran el mensaje adecuado; al cerrar y abrir la app la sesión sigue; logout borra el almacenamiento seguro; con el token vencido la app refresca sin sacar al usuario.
 
+Estado: implementada el 2026-10-28 (suite de `shared` y ensamblado en verde; el código común compila para iOS). Pendiente de verificación manual en un emulador Android 17: login, sesión que sobrevive al reinicio, logout y refresh con el token vencido. Limitaciones y pendientes en `docs/dependencias-pendientes.md`. Spec y plan en `docs/superpowers/`.
+
 ### Fase 2 — Flujo crítico (9–11 días)
 
 **Objetivo.** Validar de punta a punta, en un teléfono real, lo que define el producto.
