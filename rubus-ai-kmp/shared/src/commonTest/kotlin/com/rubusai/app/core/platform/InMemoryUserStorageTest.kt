@@ -33,4 +33,20 @@ class InMemoryUserStorageTest {
 
         assertNull(storage.read())
     }
+
+    @Test
+    fun devuelveElUsuarioInicial() = runTest {
+        assertEquals(ana, InMemoryUserStorage(ana).read())
+    }
+
+    @Test
+    fun guardarSustituyeElUsuarioAnterior() = runTest {
+        val storage = InMemoryUserStorage()
+        val admin = ana.copy(role = UserRole.ADMIN)
+
+        storage.save(ana)
+        storage.save(admin)
+
+        assertEquals(admin, storage.read())
+    }
 }
