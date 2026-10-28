@@ -1,5 +1,8 @@
 package com.rubusai.app.core.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class UserRole(val displayName: String) {
     ADMIN("Administrador"),
     PRODUCTOR("Productor"),

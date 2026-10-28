@@ -3,6 +3,8 @@ package com.rubusai.app.core.model
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class UserTest {
 
@@ -22,6 +24,20 @@ class UserTest {
     @Test
     fun displayNameUsaElCorreoCuandoElNombreEstaEnBlanco() {
         assertEquals("ana.lopez", user(firstName = "   ").displayName)
+    }
+
+    @Test
+    fun displayNameRecortaLosEspaciosDelNombre() {
+        assertEquals("Ana", user(firstName = " Ana ").displayName)
+    }
+
+    @Test
+    fun elUsuarioSobreviveAUnViajeDeIdaYVueltaPorJson() {
+        val original = User("u1", "ana@zarza.example", UserRole.AGRONOMO, "Ana", null)
+
+        val restored = Json.decodeFromString<User>(Json.encodeToString(original))
+
+        assertEquals(original, restored)
     }
 
     @Test

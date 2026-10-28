@@ -1,5 +1,9 @@
 package com.rubusai.app.core.model
 
+import kotlinx.serialization.Serializable
+
+// Serializable para guardarlo cifrado en el dispositivo (UserStorage).
+@Serializable
 data class User(
     val id: String,
     val email: String,
@@ -7,7 +11,7 @@ data class User(
     val firstName: String? = null,
     val lastName: String? = null,
 ) {
-    /** El nombre si existe y no está en blanco; si no, la parte del correo anterior a `@`. */
+    /** El nombre sin espacios si queda algo; si no, la parte del correo anterior a `@`. */
     val displayName: String
-        get() = firstName?.takeIf { it.isNotBlank() } ?: email.substringBefore('@')
+        get() = firstName?.trim()?.takeIf { it.isNotEmpty() } ?: email.substringBefore('@')
 }
