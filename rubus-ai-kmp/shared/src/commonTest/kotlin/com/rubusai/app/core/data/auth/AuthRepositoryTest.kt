@@ -6,6 +6,7 @@ import com.rubusai.app.core.network.AuthTokens
 import com.rubusai.app.core.network.FakeNetworkException
 import com.rubusai.app.core.network.clientFixture
 import com.rubusai.app.core.network.respondJson
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
@@ -120,5 +121,34 @@ class AuthRepositoryTest {
         job.cancelAndJoin()
 
         assertFalse(terminoNormalmente)
+    }
+
+    @Test
+    fun losDtosConSecretosNoLosImprimenEnToString() {
+        val request = LoginRequest("ana@zarza.example", "secreto-123").toString()
+        val response = LoginResponse("access-1", "refresh-1", UserDto("u1", "ana@zarza.example", "MONITOR")).toString()
+
+        assertFalse("secreto-123" in request)
+        assertFalse("ana@zarza.example" in request)
+        assertFalse("access-1" in response)
+        assertFalse("refresh-1" in response)
+    }
+
+    @Test
+    fun unUnauthorizedSinCuerpoSeClasificaComoCredencialesInvalidas() = runTest {
+        val fixture = clientFixture { respond(content = "", status = HttpStatusCode.Unauthorized) }
+
+        val result = AuthRepositoryImpl(fixture.client).login("ana@zarza.example", "secreto")
+
+        assertEquals(LoginResult.Failure(LoginFailure.InvalidCredentials), result)
+    }
+
+    @Test
+    fun unJsonValidoSinElUsuarioSeClasificaComoInesperado() = runTest {
+        val fixture = clientFixture { respondJson("""{"token":"a","refreshToken":"b"}""") }
+
+        val result = AuthRepositoryImpl(fixture.client).login("ana@zarza.example", "secreto")
+
+        assertEquals(LoginResult.Failure(LoginFailure.Unexpected), result)
     }
 }

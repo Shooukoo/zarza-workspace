@@ -5,7 +5,10 @@ import com.rubusai.app.core.model.UserRole
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class LoginRequest(val email: String, val password: String)
+internal data class LoginRequest(val email: String, val password: String) {
+    // Evita que la contraseña o los tokens acaben en un log o en el mensaje de una excepción.
+    override fun toString(): String = "LoginRequest(***)"
+}
 
 @Serializable
 internal data class UserDto(
@@ -17,7 +20,10 @@ internal data class UserDto(
 )
 
 @Serializable
-internal data class LoginResponse(val token: String, val refreshToken: String, val user: UserDto)
+internal data class LoginResponse(val token: String, val refreshToken: String, val user: UserDto) {
+    // Evita que la contraseña o los tokens acaben en un log o en el mensaje de una excepción.
+    override fun toString(): String = "LoginResponse(***)"
+}
 
 /** `null` si el rol que envía el backend no se conoce: no se degrada a otro rol. */
 internal fun UserDto.toUserOrNull(): User? {
