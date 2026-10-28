@@ -9,7 +9,11 @@ import com.rubusai.app.core.platform.UserStorage
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import com.rubusai.app.core.model.User
+import com.rubusai.app.core.model.UserRole
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -37,6 +41,23 @@ private class FlakyTokenStorage(
     }
 }
 
+/** Almacén de usuario cuya lectura devuelve lo guardado al llamar, pero solo cuando se abre [gate]. */
+private class GatedUserStorage(
+    private val delegate: UserStorage,
+    val gate: CompletableDeferred<Unit> = CompletableDeferred(),
+) : UserStorage {
+    override suspend fun read(): User? {
+        val value = delegate.read()
+        gate.await()
+        return value
+    }
+
+    override suspend fun save(user: User) = delegate.save(user)
+
+    override suspend fun clear() = delegate.clear()
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
 class SessionManagerTest {
 
     private fun TestScope.manager(
@@ -188,5 +209,56 @@ class SessionManagerTest {
         runCurrent()
 
         assertEquals(SessionState.Unauthenticated(), manager.state.value)
+    }
+
+    @Test
+    fun unStartCanceladoNoDejaLaSesionEnLoading() = runTest {
+        val repository = FakeAuthRepository().apply {
+            meGate = CompletableDeferred()
+            me = ana
+        }
+        val manager = manager(repository, InMemoryTokenStorage(TOKENS), InMemoryUserStorage())
+        val first = launch { manager.start() }
+        runCurrent()
+        first.cancel()
+        runCurrent()
+
+        launch { manager.start() }
+        repository.meGate!!.complete(Unit)
+        runCurrent()
+
+        assertEquals(SessionState.Authenticated(ana), manager.state.value)
+    }
+
+    @Test
+    fun unExpiredDuranteLaRestauracionNoResucitaLaSesion() = runTest {
+        val events = SessionEvents()
+        val tokens = InMemoryTokenStorage(TOKENS)
+        val users = GatedUserStorage(InMemoryUserStorage(ana))
+        val manager = manager(tokens = tokens, users = users, events = events)
+        launch { manager.start() }
+        runCurrent()
+
+        events.notifyExpired()
+        runCurrent()
+        users.gate.complete(Unit)
+        runCurrent()
+
+        assertEquals(SessionState.Unauthenticated(expired = true), manager.state.value)
+        assertNull(tokens.read())
+        assertNull(users.read())
+    }
+
+    @Test
+    fun unRefrescoDeOtroUsuarioNoPisaALaSesionActual() = runTest {
+        val repository = FakeAuthRepository().apply { me = ana.copy(id = "u2", role = UserRole.ADMIN) }
+        val users = InMemoryUserStorage(ana)
+        val manager = manager(repository, InMemoryTokenStorage(TOKENS), users)
+
+        manager.start()
+        runCurrent()
+
+        assertEquals(SessionState.Authenticated(ana), manager.state.value)
+        assertEquals(ana, users.read())
     }
 }

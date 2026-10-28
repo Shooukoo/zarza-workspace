@@ -7,6 +7,8 @@ import com.rubusai.app.core.platform.UserStorage
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,27 +48,34 @@ class SessionManager(
     // un evento tardío no resucite una sesión ya cerrada.
     private val transitions = Mutex()
     private val startLock = Mutex()
-    private var started = false
+    private var startup: Deferred<Unit>? = null
 
-    /** Lee la sesión guardada y empieza a escuchar su expiración. Idempotente. */
+    /**
+     * Lee la sesión guardada y empieza a escuchar su expiración. Idempotente y a prueba de
+     * cancelación: la lectura corre en [scope], así que si se cancela quien llama (una rotación)
+     * otra llamada la espera.
+     */
     suspend fun start() {
-        startLock.withLock {
-            if (started) return
-            started = true
+        val job = startLock.withLock {
+            startup ?: run {
+                // UNDISPATCHED: la suscripción existe antes de leer nada, porque `expired` no repite avisos.
+                scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                    sessionEvents.expired.collect { expire() }
+                }
+                scope.async {
+                    try {
+                        restore()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        // Un Keystore que falla dos veces seguidas: se pide iniciar sesión sin borrar nada,
+                        // para que la sesión guardada sobreviva al siguiente arranque.
+                        leaveLoading(SessionState.Unauthenticated())
+                    }
+                }.also { startup = it }
+            }
         }
-        // UNDISPATCHED: la suscripción existe antes de leer nada, porque `expired` no repite avisos.
-        scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            sessionEvents.expired.collect { expire() }
-        }
-        try {
-            restore()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            // Un Keystore que falla dos veces seguidas: se pide iniciar sesión sin borrar nada,
-            // para que la sesión guardada sobreviva al siguiente arranque.
-            leaveLoading(SessionState.Unauthenticated())
-        }
+        job.await()
     }
 
     private suspend fun restore() {
@@ -79,7 +88,7 @@ class SessionManager(
         }
         val user = readWithRetry { userStorage.read() }
         if (user != null) {
-            _state.value = SessionState.Authenticated(user)
+            leaveLoading(SessionState.Authenticated(user))
             scope.launch { refreshUser() }
             return
         }
@@ -87,8 +96,10 @@ class SessionManager(
         val fetched = repository.fetchMe()
         if (fetched != null) {
             userStorage.save(fetched)
-            _state.value = SessionState.Authenticated(fetched)
+            leaveLoading(SessionState.Authenticated(fetched))
         } else {
+            // Se limpia todo aunque el fallo de `me` sea de red: sin usuario no hay rol con el que entrar (lo sanciona el spec).
+            // Si la causa fue un rechazo de refresh, el aviso de sesión expirada puede no mostrarse.
             clearStorage()
             leaveLoading(SessionState.Unauthenticated())
         }
@@ -99,7 +110,7 @@ class SessionManager(
         val fresh = repository.fetchMe() ?: return
         transitions.withLock {
             val current = _state.value
-            if (current !is SessionState.Authenticated || current.user == fresh) return
+            if (current !is SessionState.Authenticated || current.user.id != fresh.id || current.user == fresh) return
             try {
                 userStorage.save(fresh)
             } catch (e: CancellationException) {
