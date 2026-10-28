@@ -6,7 +6,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -58,10 +62,22 @@ fun RubusNavHost(
         is SessionState.Authenticated -> Route.Home
         is SessionState.Unauthenticated -> Route.Login
     }
+    // Guardado entre recreaciones: al rotar, `rememberNavController` ya restaura la pila y
+    // volver a navegar destruiría el Login (y lo escrito) o sacaría de una pantalla dev.
+    var aplicado by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(destination) {
-        if (destination == null) return@LaunchedEffect
+        val key = destination?.let { it::class.qualifiedName } ?: return@LaunchedEffect
+        if (key == aplicado) return@LaunchedEffect
+        aplicado = key
         // Vacía toda la pila: "atrás" no debe volver al Splash, al login ni a la sesión anterior.
         navController.navigate(destination) { popUpTo(navController.graph.id) { inclusive = true } }
+    }
+
+    // Con el proceso restaurado la pila puede ser [Home] y la sesión aún estar cargando: no se
+    // compone el grafo hasta saber la sesión (el navController vive fuera, la pila se conserva).
+    if (sessionState == SessionState.Loading) {
+        SplashScreen(modifier)
+        return
     }
 
     NavHost(navController = navController, startDestination = StartRoute, modifier = modifier) {

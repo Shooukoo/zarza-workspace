@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.StateRestorationTester
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -12,6 +14,7 @@ import androidx.compose.ui.test.waitUntilAtLeastOneExists
 import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.rubusai.app.core.config.EnvConfig
 import com.rubusai.app.core.config.Environment
 import com.rubusai.app.core.data.auth.FakeAuthRepository
 import com.rubusai.app.core.data.auth.SessionManager
@@ -24,6 +27,9 @@ import com.rubusai.app.core.platform.InMemoryTokenStorage
 import com.rubusai.app.core.platform.InMemoryUserStorage
 import com.rubusai.app.feature.auth.LoginViewModel
 import com.rubusai.app.feature.home.HomeViewModel
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respondOk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -56,6 +62,9 @@ class RubusNavHostTest {
         )
         return module {
             single { manager }
+            // DiagnosticoScreen los pide; el test del doble toque la compone de verdad.
+            single { EnvConfig(Environment.DEV, "10.0.2.2") }
+            single { HttpClient(MockEngine { respondOk() }) }
             viewModelOf(::LoginViewModel)
             viewModelOf(::HomeViewModel)
         }
@@ -89,7 +98,8 @@ class RubusNavHostTest {
     // Une el registro (registeredRoutes) con el grafo real: una ruta sin composable<>, o un
     // composable<> sin registrar, rompe el test.
     private fun assertGrafoIgualARegistro(env: Environment) {
-        val nav = render(env)
+        // Con Loading el grafo no se compone (se ve el Splash): hace falta una sesión resuelta.
+        val nav = render(env, mutableStateOf(SessionState.Authenticated(ana)))
 
         // El patrón puede llevar "/{arg}" o "?opt={arg}": nos quedamos con el nombre de la clase.
         val enGrafo = nav.graph.map { it.route!!.substringBefore('/').substringBefore('?') }.toSet()
@@ -109,10 +119,11 @@ class RubusNavHostTest {
     fun grafoProdCoincideConRutasRegistradas() = assertGrafoIgualARegistro(Environment.PROD)
 
     @Test
-    fun mientrasCargaLaSesionSeQuedaEnElSplash() {
-        val nav = render(Environment.PROD)
+    fun mientrasCargaLaSesionSeVeElSplashYNoHayGrafo() {
+        render(Environment.PROD)
 
-        assertEquals(listOf(route(Route.Splash)), nav.visibleRoutes())
+        rule.onNodeWithContentDescription("Rubus AI").assertIsDisplayed()
+        rule.onNodeWithText("INICIAR SESIÓN").assertDoesNotExist()
     }
 
     @Test
@@ -177,19 +188,92 @@ class RubusNavHostTest {
         rule.onNodeWithText("CATÁLOGO").assertIsDisplayed()
     }
 
-    @Test
-    fun undobleToqueEnCatalogoNoLoApilaDosVeces() {
+    private fun assertDobleToqueNoApila(boton: String, ruta: Route) {
         val nav = render(Environment.DEV, mutableStateOf(SessionState.Unauthenticated()))
 
         // Reloj parado: la transición no termina y el botón sigue en pantalla para el 2.º toque.
         rule.mainClock.autoAdvance = false
-        rule.onNodeWithText("CATÁLOGO").performClick()
-        rule.onNodeWithText("CATÁLOGO").performClick()
+        rule.onNodeWithText(boton).performClick()
+        rule.onNodeWithText(boton).performClick()
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
 
-        val catalogos = nav.currentBackStack.value.count { it.destination.route == Route.Catalogo::class.qualifiedName }
-        assertEquals(1, catalogos)
+        assertEquals(1, nav.currentBackStack.value.count { it.destination.route == route(ruta) })
+    }
+
+    @Test
+    fun undobleToqueEnCatalogoNoLoApilaDosVeces() = assertDobleToqueNoApila("CATÁLOGO", Route.Catalogo)
+
+    @Test
+    fun undobleToqueEnDiagnosticoNoLoApilaDosVeces() = assertDobleToqueNoApila("DIAGNÓSTICO", Route.Diagnostico)
+
+    @Test
+    fun atrasTrasElLogoutNoSaleDelLogin() {
+        val state = mutableStateOf<SessionState>(SessionState.Authenticated(ana))
+        val nav = render(Environment.PROD, state)
+
+        setSession(state, SessionState.Unauthenticated())
+
+        assertEquals(listOf(route(Route.Login)), nav.visibleRoutes())
+        assertEquals(false, rule.runOnUiThread { nav.popBackStack() })
+    }
+
+    // --- Recreación de la Activity (rotación) y proceso restaurado ---
+
+    private fun renderRestorable(env: Environment, state: MutableState<SessionState>): Pair<StateRestorationTester, () -> NavHostController> {
+        lateinit var nav: NavHostController
+        val tester = StateRestorationTester(rule)
+        tester.setContent {
+            KoinApplication(application = { modules(testModule()) }) {
+                nav = rememberNavController()
+                RubusTheme { RubusNavHost(environment = env, sessionState = state.value, navController = nav) }
+            }
+        }
+        rule.waitForIdle()
+        return tester to { nav }
+    }
+
+    @Test
+    fun recrearLaActivityConservaLaEntradaDelLogin() {
+        val (tester, nav) = renderRestorable(Environment.PROD, mutableStateOf(SessionState.Unauthenticated()))
+        val antes = nav().currentBackStackEntry!!.id
+
+        tester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+
+        assertEquals(antes, nav().currentBackStackEntry!!.id)
+    }
+
+    @Test
+    fun recrearLaActivityConservaLaPantallaDev() {
+        val (tester, nav) = renderRestorable(Environment.DEV, mutableStateOf(SessionState.Unauthenticated()))
+        rule.onNodeWithText("CATÁLOGO").performClick()
+        rule.waitForIdle()
+
+        tester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+
+        assertEquals(listOf(route(Route.Login), route(Route.Catalogo)), nav().visibleRoutes())
+    }
+
+    @Test
+    fun conLaPilaRestauradaYLaSesionCargandoSeVeElSplashYNoHome() {
+        val state = mutableStateOf<SessionState>(SessionState.Authenticated(ana))
+        val (tester, nav) = renderRestorable(Environment.PROD, state)
+        val home = nav().currentBackStackEntry!!.id
+        rule.runOnIdle { state.value = SessionState.Loading } // el proceso nuevo arranca en Loading
+
+        tester.emulateSavedInstanceStateRestore()
+        rule.waitForIdle()
+
+        rule.onNodeWithContentDescription("Rubus AI").assertIsDisplayed()
+        rule.onNodeWithText("Inicio").assertDoesNotExist()
+
+        rule.runOnIdle { state.value = SessionState.Authenticated(ana) }
+        rule.waitForIdle()
+
+        assertEquals(listOf(route(Route.Home)), nav().visibleRoutes())
+        assertEquals(home, nav().currentBackStackEntry!!.id)
     }
 
     @Test
