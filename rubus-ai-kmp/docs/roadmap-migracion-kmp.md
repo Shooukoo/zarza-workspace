@@ -148,9 +148,9 @@ Los de cola y sincronización son el criterio de cierre de la fase 3: `sync_serv
 
 **Terminado cuando.** El flavor `dev` instala y abre una pantalla con el tema nuevo; una petición de prueba al backend local responde; un test unitario demuestra que un 401 dispara el refresh y reintenta una sola vez.
 
-Queda por verificar en un dispositivo (que el flavor `dev` instala y abre, y que la petición de prueba responde); no se puede hacer en la máquina Linux de desarrollo.
+Verificado el 2026-10-27 en un emulador Android 17: el flavor `dev` instala y abre, la petición de prueba responde y `KeystoreTokenCipherTest` pasa. Ver `dependencias-pendientes.md`.
 
-Estado: cerrada salvo las verificaciones de dispositivo y Mac (ver `dependencias-pendientes.md`).
+Estado: cerrada. Solo queda aplazada la compilación del framework de iOS en un Mac, hasta tener uno (ver `dependencias-pendientes.md`).
 
 ### Fase 1 — Auth y splash (3–4 días)
 
