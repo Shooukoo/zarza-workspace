@@ -2,10 +2,16 @@ package com.rubusai.app.core.di
 
 import com.rubusai.app.core.config.EnvConfig
 import com.rubusai.app.core.config.Environment
+import com.rubusai.app.core.data.auth.AuthRepository
+import com.rubusai.app.core.data.auth.AuthRepositoryImpl
+import com.rubusai.app.core.data.auth.SessionManager
 import com.rubusai.app.core.network.SessionEvents
 import com.rubusai.app.core.network.TokenRefresher
 import com.rubusai.app.core.network.createHttpClient
 import com.rubusai.app.core.network.createRefreshClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -37,7 +43,26 @@ internal fun networkModule(): Module = module {
     }
 }
 
+/**
+ * Sesión: repositorio y `SessionManager`. Cada módulo de plataforma aporta `UserStorage`.
+ * El ámbito del `SessionManager` vive lo mismo que la app, para escuchar `SessionEvents.expired`
+ * todo el tiempo.
+ */
+internal fun authModule(): Module = module {
+    single<AuthRepository> { AuthRepositoryImpl(client = get()) }
+    single {
+        SessionManager(
+            repository = get(),
+            tokenStorage = get(),
+            userStorage = get(),
+            sessionEvents = get(),
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+        )
+    }
+}
+
 internal fun appModules(environment: Environment, devHost: String): List<Module> = listOf(
     configModule(environment, devHost),
     networkModule(),
+    authModule(),
 )

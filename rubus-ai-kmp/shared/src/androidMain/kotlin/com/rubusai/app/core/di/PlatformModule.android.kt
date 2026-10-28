@@ -1,13 +1,17 @@
 package com.rubusai.app.core.di
 
+import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.rubusai.app.core.platform.DataStoreTokenStorage
+import com.rubusai.app.core.platform.DataStoreUserStorage
 import com.rubusai.app.core.platform.KeystoreTokenCipher
 import com.rubusai.app.core.platform.SecureTokenStorage
 import com.rubusai.app.core.platform.TokenCipher
+import com.rubusai.app.core.platform.UserStorage
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.logging.ANDROID
@@ -24,19 +28,18 @@ internal fun androidPlatformModule(): Module = module {
     single<HttpClientEngine> { OkHttp.create() }
     single<Logger> { Logger.ANDROID }
     single<TokenCipher> { KeystoreTokenCipher() }
-    single<SecureTokenStorage> {
+    // DataStore solo admite una instancia por archivo y proceso: la comparten los tokens y el
+    // usuario, y por eso vive en su propio `single`. Si Koin se parase y se volviera a arrancar
+    // en el mismo proceso (tests), la segunda instancia fallaría al usarse.
+    single<DataStore<Preferences>> {
         val context = androidContext()
-        DataStoreTokenStorage(
-            // DataStore solo admite una instancia por archivo y proceso: por eso vive dentro
-            // de este `single`. Si Koin se parase y se volviera a arrancar en el mismo
-            // proceso (tests), la segunda instancia fallaría al usarse.
-            dataStore = PreferenceDataStoreFactory.create(
-                // Un archivo corrupto se sustituye por uno vacío: se pierde la sesión, no la app.
-                corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
-            ) {
-                context.preferencesDataStoreFile(DataStoreTokenStorage.DATASTORE_NAME)
-            },
-            cipher = get(),
-        )
+        PreferenceDataStoreFactory.create(
+            // Un archivo corrupto se sustituye por uno vacío: se pierde la sesión, no la app.
+            corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+        ) {
+            context.preferencesDataStoreFile(DataStoreTokenStorage.DATASTORE_NAME)
+        }
     }
+    single<SecureTokenStorage> { DataStoreTokenStorage(dataStore = get(), cipher = get()) }
+    single<UserStorage> { DataStoreUserStorage(dataStore = get(), cipher = get()) }
 }
