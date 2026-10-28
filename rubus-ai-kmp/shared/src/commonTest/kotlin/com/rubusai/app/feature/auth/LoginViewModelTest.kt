@@ -9,6 +9,7 @@ import com.rubusai.app.core.network.SessionEvents
 import com.rubusai.app.core.platform.InMemoryTokenStorage
 import com.rubusai.app.core.platform.InMemoryUserStorage
 import com.rubusai.app.core.platform.SecureTokenStorage
+import androidx.lifecycle.viewModelScope
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -21,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -157,6 +159,7 @@ class LoginViewModelTest {
         repository.loginGate!!.complete(Unit)
         advanceUntilIdle()
         assertFalse(vm.state.value.submitting)
+        assertEquals(1, repository.loginCalls.size)
     }
 
     @Test
@@ -175,5 +178,64 @@ class LoginViewModelTest {
 
         assertEquals(LoginFailure.Unexpected, vm.state.value.formError)
         assertFalse(vm.state.value.submitting)
+    }
+
+    @Test
+    fun elToStringDelEstadoNoIncluyeLaContrasena() {
+        assertFalse("secreto" in LoginUiState(password = "secreto").toString())
+    }
+
+    @Test
+    fun cancelarElEnvioNoLoConvierteEnUnErrorDelFormulario() = runTest(dispatcher) {
+        val repository = FakeAuthRepository().apply { loginGate = CompletableDeferred() }
+        val vm = viewModel(repository)
+        vm.onEmailChange("ana@zarza.example")
+        vm.onPasswordChange("secreto")
+        vm.onSubmit()
+        advanceUntilIdle()
+
+        vm.viewModelScope.cancel()
+        advanceUntilIdle()
+
+        assertNull(vm.state.value.formError)
+    }
+
+    @Test
+    fun laContrasenaSeEnviaSinRecortar() = runTest(dispatcher) {
+        val repository = FakeAuthRepository()
+        val vm = viewModel(repository)
+        vm.onEmailChange("ana@zarza.example")
+        vm.onPasswordChange(" abc ")
+
+        vm.onSubmit()
+        advanceUntilIdle()
+
+        assertEquals(listOf("ana@zarza.example" to " abc "), repository.loginCalls)
+    }
+
+    @Test
+    fun unaContrasenaDeSoloEspaciosNoCuentaComoVacia() = runTest(dispatcher) {
+        val vm = viewModel()
+        vm.onEmailChange("ana@zarza.example")
+        vm.onPasswordChange("   ")
+
+        vm.onSubmit()
+
+        assertNull(vm.state.value.passwordError)
+    }
+
+    @Test
+    fun editarUnCampoNoLimpiaElErrorDelOtro() = runTest(dispatcher) {
+        val vm = viewModel()
+        vm.onSubmit()
+        assertEquals(LoginFieldError.EmailRequired, vm.state.value.emailError)
+        assertEquals(LoginFieldError.PasswordRequired, vm.state.value.passwordError)
+
+        vm.onEmailChange("a")
+        assertEquals(LoginFieldError.PasswordRequired, vm.state.value.passwordError)
+
+        vm.onSubmit()
+        vm.onPasswordChange("x")
+        assertEquals(LoginFieldError.EmailInvalid, vm.state.value.emailError)
     }
 }

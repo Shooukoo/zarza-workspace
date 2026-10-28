@@ -22,7 +22,12 @@ internal data class LoginUiState(
     val passwordError: LoginFieldError? = null,
     val submitting: Boolean = false,
     val formError: LoginFailure? = null,
-)
+) {
+    // Sin `password`: el toString generado lo filtraría a logs y trazas.
+    override fun toString() =
+        "LoginUiState(email=$email, emailError=$emailError, passwordError=$passwordError, " +
+            "submitting=$submitting, formError=$formError)"
+}
 
 // Forma `x@y`: lo que el backend valida de verdad es el correo; esto solo evita enviar un error evidente.
 private val EmailShape = Regex("""[^@\s]+@[^@\s]+""")

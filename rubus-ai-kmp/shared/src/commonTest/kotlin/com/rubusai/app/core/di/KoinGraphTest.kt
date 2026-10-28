@@ -12,6 +12,7 @@ import com.rubusai.app.core.platform.InMemoryTokenStorage
 import com.rubusai.app.core.platform.InMemoryUserStorage
 import com.rubusai.app.core.platform.SecureTokenStorage
 import com.rubusai.app.core.platform.UserStorage
+import com.rubusai.app.feature.auth.LoginViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.mock.respondOk
@@ -64,6 +65,25 @@ class KoinGraphTest {
 
             assertSame(manager, app.koin.get<SessionManager>())
             app.koin.get<AuthRepository>()
+        } finally {
+            app.close()
+        }
+    }
+
+    @Test
+    fun elGrafoResuelveElLoginViewModel() = runTest {
+        val platformModule = module {
+            single<HttpClientEngine> { mockEngine { respondOk() } }
+            single<Logger> { Logger.EMPTY }
+            single<SecureTokenStorage> { InMemoryTokenStorage() }
+            single<UserStorage> { InMemoryUserStorage() }
+        }
+        val app = koinApplication {
+            modules(appModules(Environment.DEV, devHost = "10.0.2.2") + platformModule)
+        }
+
+        try {
+            app.koin.get<LoginViewModel>()
         } finally {
             app.close()
         }
