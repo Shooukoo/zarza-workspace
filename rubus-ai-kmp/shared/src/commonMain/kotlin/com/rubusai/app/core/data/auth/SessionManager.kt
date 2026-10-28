@@ -85,6 +85,8 @@ class SessionManager(
      * `Authenticated`. Si no puede guardarlos, borra lo guardado y propaga el error: no queda
      * media sesión. Las transiciones de sesión (login, logout, expiración y refresco del usuario)
      * se serializan con un `Mutex`.
+     * Solo debe llamarse después de `start()`; la pantalla de login solo se muestra con la sesión
+     * ya resuelta.
      */
     suspend fun login(email: String, password: String): LoginResult = transitions.withLock {
         val result = repository.login(email, password)

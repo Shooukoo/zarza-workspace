@@ -249,6 +249,33 @@ class HttpClientRefreshTest {
     }
 
     @Test
+    fun unaLecturaPasajeraFallidaDuranteElRefreshNoDescartaElParRenovado() = runTest {
+        val storage = StorageConLecturaPasajera(oldTokens)
+        val engine = mockEngine { request ->
+            if (request.isRefresh()) {
+                // La siguiente lectura (la de la guarda) falla una vez.
+                storage.failNextRead = true
+                respondNewTokens()
+            } else {
+                okOnlyWithNewToken(request)
+            }
+        }
+        val client = createHttpClient(
+            engine = engine,
+            logger = Logger.EMPTY,
+            envConfig = testEnvConfig,
+            tokenStorage = storage,
+            tokenRefresher = TokenRefresher(createRefreshClient(engine, testEnvConfig)),
+            sessionEvents = SessionEvents(),
+        )
+
+        val response = client.get("analyses")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(newTokens, storage.read())
+    }
+
+    @Test
     fun un401ConUnTokenQueYaSeRenovoNoVuelveARefrescar() = runTest {
         var refreshCalls = 0
         val authorizations = mutableListOf<String?>()
@@ -487,6 +514,27 @@ private class StorageQueNoLee(private var tokens: AuthTokens?) : SecureTokenStor
 
     override suspend fun clear() {
         cleared = true
+        tokens = null
+    }
+}
+
+/** Almacenamiento cuyo `read()` lanza una sola vez tras activar [failNextRead], como un Keystore ocupado. */
+private class StorageConLecturaPasajera(private var tokens: AuthTokens?) : SecureTokenStorage {
+    var failNextRead = false
+
+    override suspend fun read(): AuthTokens? {
+        if (failNextRead) {
+            failNextRead = false
+            throw IllegalStateException("keystore ocupado")
+        }
+        return tokens
+    }
+
+    override suspend fun save(tokens: AuthTokens) {
+        this.tokens = tokens
+    }
+
+    override suspend fun clear() {
         tokens = null
     }
 }
