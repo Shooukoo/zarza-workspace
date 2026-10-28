@@ -25,6 +25,12 @@ internal data class LoginResponse(val token: String, val refreshToken: String, v
     override fun toString(): String = "LoginResponse(***)"
 }
 
+@Serializable
+internal data class LogoutRequest(val refreshToken: String) {
+    // Evita que el refresh token acabe en un log o en el mensaje de una excepción.
+    override fun toString(): String = "LogoutRequest(***)"
+}
+
 /** `null` si el rol que envía el backend no se conoce: no se degrada a otro rol. */
 internal fun UserDto.toUserOrNull(): User? {
     val userRole = try {

@@ -1,9 +1,12 @@
 package com.rubusai.app.core.data.auth
 
+import com.rubusai.app.core.model.User
 import com.rubusai.app.core.network.AuthTokens
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
@@ -36,6 +39,25 @@ internal class AuthRepositoryImpl(private val client: HttpClient) : AuthReposito
         val user = body.user.toUserOrNull() ?: return LoginResult.Failure(LoginFailure.UnsupportedRole)
         return LoginResult.Success(AuthSession(AuthTokens(body.token, body.refreshToken), user))
     }
+
+    override suspend fun fetchMe(): User? = try {
+        client.get("auth/me").body<UserDto>().toUserOrNull()
+    } catch (e: Exception) {
+        currentCoroutineContext().ensureActive()
+        null
+    }
+
+    override suspend fun logout(refreshToken: String?) {
+        try {
+            client.post("auth/logout") {
+                timeout { requestTimeoutMillis = LOGOUT_TIMEOUT_MS }
+                // Sin token no hay cuerpo (ni Content-Type): Fastify responde 400 a un JSON vacío.
+                if (refreshToken != null) setBody(LogoutRequest(refreshToken))
+            }
+        } catch (e: Exception) {
+            currentCoroutineContext().ensureActive()
+        }
+    }
 }
 
 private fun HttpStatusCode.toLoginFailure(): LoginFailure = when (value) {
@@ -44,3 +66,6 @@ private fun HttpStatusCode.toLoginFailure(): LoginFailure = when (value) {
     400 -> LoginFailure.InvalidInput
     else -> LoginFailure.Unexpected
 }
+
+// Corto a propósito: sin red, el usuario no debe esperar los 30 s del cliente para cerrar sesión.
+private const val LOGOUT_TIMEOUT_MS = 5_000L

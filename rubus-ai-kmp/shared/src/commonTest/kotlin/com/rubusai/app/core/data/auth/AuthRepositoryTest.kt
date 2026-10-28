@@ -8,6 +8,7 @@ import com.rubusai.app.core.network.clientFixture
 import com.rubusai.app.core.network.respondJson
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData
+import io.ktor.client.utils.EmptyContent
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -18,6 +19,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -132,6 +134,7 @@ class AuthRepositoryTest {
         assertFalse("ana@zarza.example" in request)
         assertFalse("access-1" in response)
         assertFalse("refresh-1" in response)
+        assertFalse("refresh-2" in LogoutRequest("refresh-2").toString())
     }
 
     @Test
@@ -150,5 +153,100 @@ class AuthRepositoryTest {
         val result = AuthRepositoryImpl(fixture.client).login("ana@zarza.example", "secreto")
 
         assertEquals(LoginResult.Failure(LoginFailure.Unexpected), result)
+    }
+
+    @Test
+    fun meDevuelveElUsuarioYLlevaElBearer() = runTest {
+        var captured: HttpRequestData? = null
+        val fixture = clientFixture { request ->
+            captured = request
+            respondJson("""{"id":"u1","email":"ana@zarza.example","role":"MONITOR","firstName":"Ana","lastName":"Pérez","createdAt":"2026-01-01T00:00:00.000Z"}""")
+        }
+
+        val user = AuthRepositoryImpl(fixture.client).fetchMe()
+
+        assertEquals(expectedUser, user)
+        val request = assertNotNull(captured)
+        assertEquals("/api/v1/auth/me", request.url.encodedPath)
+        assertEquals("Bearer access-old", request.headers[HttpHeaders.Authorization])
+    }
+
+    @Test
+    fun meDevuelveNullSiElServidorFalla() = runTest {
+        val fixture = clientFixture { respondJson("""{"message":"x"}""", HttpStatusCode.InternalServerError) }
+
+        assertNull(AuthRepositoryImpl(fixture.client).fetchMe())
+    }
+
+    @Test
+    fun meDevuelveNullSiNoHayRed() = runTest {
+        val fixture = clientFixture { throw FakeNetworkException() }
+
+        assertNull(AuthRepositoryImpl(fixture.client).fetchMe())
+    }
+
+    @Test
+    fun meDevuelveNullConUnRolDesconocido() = runTest {
+        val fixture = clientFixture { respondJson("""{"id":"u1","email":"ana@zarza.example","role":"SUPERHEROE"}""") }
+
+        assertNull(AuthRepositoryImpl(fixture.client).fetchMe())
+    }
+
+    @Test
+    fun logoutEnviaElRefreshTokenConBearer() = runTest {
+        var captured: HttpRequestData? = null
+        val fixture = clientFixture { request ->
+            captured = request
+            respondJson("""{"message":"Logged out"}""")
+        }
+
+        AuthRepositoryImpl(fixture.client).logout("refresh-old")
+
+        val request = assertNotNull(captured)
+        assertEquals(HttpMethod.Post, request.method)
+        assertEquals("/api/v1/auth/logout", request.url.encodedPath)
+        assertEquals("Bearer access-old", request.headers[HttpHeaders.Authorization])
+        assertEquals("""{"refreshToken":"refresh-old"}""", bodyText(request))
+    }
+
+    @Test
+    fun logoutSinRefreshTokenSaleSinCuerpoNiContentType() = runTest {
+        var captured: HttpRequestData? = null
+        val fixture = clientFixture { request ->
+            captured = request
+            respondJson("""{"message":"Logged out"}""")
+        }
+
+        AuthRepositoryImpl(fixture.client).logout(null)
+
+        val request = assertNotNull(captured)
+        assertTrue(request.body is EmptyContent)
+        assertNull(request.headers[HttpHeaders.ContentType])
+    }
+
+    @Test
+    fun logoutNoLanzaSiElServidorFalla() = runTest {
+        val fixture = clientFixture { respondJson("""{"message":"x"}""", HttpStatusCode.InternalServerError) }
+
+        AuthRepositoryImpl(fixture.client).logout("refresh-old")
+    }
+
+    @Test
+    fun logoutNoLanzaSiNoHayRed() = runTest {
+        val fixture = clientFixture { throw FakeNetworkException() }
+
+        AuthRepositoryImpl(fixture.client).logout("refresh-old")
+    }
+
+    @Test
+    fun logoutNoEsperaMasDeCincoSegundos() = runTest {
+        val fixture = clientFixture {
+            delay(60_000)
+            respondJson("""{"message":"Logged out"}""")
+        }
+
+        AuthRepositoryImpl(fixture.client).logout("refresh-old")
+
+        assertTrue(testScheduler.currentTime < 10_000, "tardó ${testScheduler.currentTime} ms")
     }
 }
