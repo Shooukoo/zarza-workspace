@@ -18,7 +18,8 @@ import androidx.compose.ui.unit.dp
 /**
  * Superficie de una pantalla completa: fondo del tema, respeto de las barras del sistema y del
  * teclado, y un margen de 24 dp. Por defecto centra el contenido; con [scrollable] el contenido
- * crece hacia abajo (y no se centra: un contenedor desplazable no conoce su altura).
+ * crece hacia abajo y no se centra: `verticalScroll` mide el contenido con altura infinita, así que
+ * no queda espacio que repartir y el `verticalArrangement` no centra.
  */
 @Composable
 fun RubusScreen(
