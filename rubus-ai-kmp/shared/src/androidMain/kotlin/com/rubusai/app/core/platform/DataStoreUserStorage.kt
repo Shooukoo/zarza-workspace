@@ -34,6 +34,8 @@ internal class DataStoreUserStorage(
             // Igual que con los tokens: solo lo permanente se descarta; cualquier otro fallo
             // se propaga para no perder la sesión por un Keystore ocupado. SerializationException
             // es una IllegalArgumentException, así que un JSON ilegible también se descarta.
+            // No registrar `e` ni su mensaje: el de un JSON mal formado incluye el texto
+            // descifrado, es decir, el correo y el nombre en claro.
             if (e !is GeneralSecurityException && e !is IllegalArgumentException) throw e
             null
         }
