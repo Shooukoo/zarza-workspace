@@ -152,6 +152,8 @@ internal fun createHttpClient(
                     val refreshToken = stored.refreshToken ?: return@refreshTokens null
                     when (val result = tokenRefresher.refresh(refreshToken)) {
                         is RefreshResult.Success -> {
+                            // Un logout o un login pudo cambiar la sesión mientras el refresh viajaba: no se resucita la cerrada ni se pisa la nueva.
+                            if (tokenStorage.read()?.refreshToken != refreshToken) return@refreshTokens null
                             tokenStorage.save(result.tokens)
                             BearerTokens(result.tokens.accessToken, result.tokens.refreshToken)
                         }

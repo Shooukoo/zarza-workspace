@@ -205,6 +205,50 @@ class HttpClientRefreshTest {
     }
 
     @Test
+    fun unRefreshQueTerminaTrasUnCierreDeSesionNoResucitaLaSesion() = runTest {
+        val fixture = clientFixture(oldTokens) { request ->
+            if (request.isRefresh()) {
+                delay(10_000)
+                respondNewTokens()
+            } else {
+                okOnlyWithNewToken(request)
+            }
+        }
+
+        val job = launch { runCatching { fixture.client.get("analyses") } }
+        runCurrent()
+        advanceTimeBy(5_000)
+        // El refresh sigue en vuelo cuando el usuario cierra sesión.
+        fixture.storage.clear()
+        advanceUntilIdle()
+
+        assertTrue(job.isCompleted)
+        assertNull(fixture.storage.read())
+    }
+
+    @Test
+    fun unRefreshQueTerminaTrasUnLoginNuevoNoPisaElParNuevo() = runTest {
+        val login = AuthTokens("access-login", "refresh-login")
+        val fixture = clientFixture(oldTokens) { request ->
+            if (request.isRefresh()) {
+                delay(10_000)
+                respondNewTokens()
+            } else {
+                okOnlyWithNewToken(request)
+            }
+        }
+
+        val job = launch { runCatching { fixture.client.get("analyses") } }
+        runCurrent()
+        advanceTimeBy(5_000)
+        fixture.storage.save(login)
+        advanceUntilIdle()
+
+        assertTrue(job.isCompleted)
+        assertEquals(login, fixture.storage.read())
+    }
+
+    @Test
     fun un401ConUnTokenQueYaSeRenovoNoVuelveARefrescar() = runTest {
         var refreshCalls = 0
         val authorizations = mutableListOf<String?>()
