@@ -8,6 +8,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 sealed interface SessionState {
     /** Valor inicial: todavía se está leyendo el almacenamiento. */
@@ -76,6 +78,46 @@ class SessionManager(
             }
         }
         job.await()
+    }
+
+    /**
+     * Inicia sesión. Si el backend acepta, guarda los tokens y luego el usuario y pasa a
+     * `Authenticated`. Si no puede guardarlos, borra lo guardado y propaga el error: no queda
+     * media sesión. Un `Mutex` impide dos logins a la vez.
+     */
+    suspend fun login(email: String, password: String): LoginResult = transitions.withLock {
+        val result = repository.login(email, password)
+        if (result !is LoginResult.Success) return@withLock result
+        val session = result.session
+        try {
+            tokenStorage.save(session.tokens)
+            userStorage.save(session.user)
+        } catch (e: Exception) {
+            // NonCancellable: si lo que falló fue una cancelación, aun así hay que limpiar.
+            withContext(NonCancellable) { clearStorage() }
+            throw e
+        }
+        _state.value = SessionState.Authenticated(session.user)
+        result
+    }
+
+    /**
+     * Cierra la sesión. Llama al backend **antes** de borrar: necesita el `Bearer` para que
+     * limpie el token FCM de este usuario. Pase lo que pase con la llamada, la sesión local
+     * se borra. No se cancela a medias: dejaría la sesión abierta con el usuario ya fuera.
+     */
+    suspend fun logout() = withContext(NonCancellable) {
+        transitions.withLock {
+            if (_state.value !is SessionState.Authenticated) return@withLock
+            val refreshToken = try {
+                tokenStorage.read()?.refreshToken
+            } catch (e: Exception) {
+                null
+            }
+            repository.logout(refreshToken)
+            clearStorage()
+            _state.value = SessionState.Unauthenticated()
+        }
     }
 
     private suspend fun restore() {

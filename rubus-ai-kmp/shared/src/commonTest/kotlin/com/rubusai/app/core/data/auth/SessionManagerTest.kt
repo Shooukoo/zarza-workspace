@@ -8,7 +8,9 @@ import com.rubusai.app.core.platform.SecureTokenStorage
 import com.rubusai.app.core.platform.UserStorage
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import com.rubusai.app.core.model.User
 import com.rubusai.app.core.model.UserRole
 import kotlinx.coroutines.CompletableDeferred
@@ -55,6 +57,34 @@ private class GatedUserStorage(
     override suspend fun save(user: User) = delegate.save(user)
 
     override suspend fun clear() = delegate.clear()
+}
+
+/** Registra el orden de los `save` de tokens y usuario. */
+private class LoggingTokenStorage(private val log: MutableList<String>) : SecureTokenStorage {
+    private val delegate = InMemoryTokenStorage()
+    override suspend fun read() = delegate.read()
+    override suspend fun save(tokens: AuthTokens) {
+        log += "tokens"
+        delegate.save(tokens)
+    }
+    override suspend fun clear() = delegate.clear()
+}
+
+private class LoggingUserStorage(private val log: MutableList<String>) : UserStorage {
+    private val delegate = InMemoryUserStorage()
+    override suspend fun read() = delegate.read()
+    override suspend fun save(user: User) {
+        log += "usuario"
+        delegate.save(user)
+    }
+    override suspend fun clear() = delegate.clear()
+}
+
+/** Almacén de usuario cuyo guardado falla, como un disco lleno. */
+private class FailingSaveUserStorage : UserStorage {
+    override suspend fun read(): User? = null
+    override suspend fun save(user: User) = throw IllegalStateException("disco lleno")
+    override suspend fun clear() = Unit
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -260,5 +290,121 @@ class SessionManagerTest {
 
         assertEquals(SessionState.Authenticated(ana), manager.state.value)
         assertEquals(ana, users.read())
+    }
+
+    @Test
+    fun unLoginCorrectoGuardaTokensYUsuarioEnOrdenYEmiteAuthenticated() = runTest {
+        val log = mutableListOf<String>()
+        val manager = manager(tokens = LoggingTokenStorage(log), users = LoggingUserStorage(log))
+        manager.start()
+
+        val result = manager.login("ana@zarza.example", "secreto")
+
+        assertTrue(result is LoginResult.Success)
+        assertEquals(listOf("tokens", "usuario"), log)
+        assertEquals(SessionState.Authenticated(ana), manager.state.value)
+    }
+
+    @Test
+    fun unLoginFallidoNoGuardaNadaNiCambiaElEstado() = runTest {
+        val repository = FakeAuthRepository().apply {
+            loginResult = LoginResult.Failure(LoginFailure.InvalidCredentials)
+        }
+        val tokens = InMemoryTokenStorage()
+        val manager = manager(repository, tokens)
+        manager.start()
+
+        val result = manager.login("ana@zarza.example", "mala")
+
+        assertEquals(LoginResult.Failure(LoginFailure.InvalidCredentials), result)
+        assertNull(tokens.read())
+        assertEquals(SessionState.Unauthenticated(), manager.state.value)
+    }
+
+    @Test
+    fun siFallaElGuardadoDelUsuarioSeBorranLosTokensYSePropagaElError() = runTest {
+        val tokens = InMemoryTokenStorage()
+        val manager = manager(tokens = tokens, users = FailingSaveUserStorage())
+        manager.start()
+
+        assertFailsWith<IllegalStateException> { manager.login("ana@zarza.example", "secreto") }
+
+        assertNull(tokens.read())
+        assertEquals(SessionState.Unauthenticated(), manager.state.value)
+    }
+
+    @Test
+    fun dosLoginsSimultaneosSeSerializan() = runTest {
+        val repository = FakeAuthRepository().apply { loginGate = CompletableDeferred() }
+        val manager = manager(repository)
+        manager.start()
+
+        val first = launch { manager.login("ana@zarza.example", "secreto") }
+        val second = launch { manager.login("ana@zarza.example", "secreto") }
+        runCurrent()
+        assertEquals(1, repository.loginCalls.size)
+
+        repository.loginGate!!.complete(Unit)
+        runCurrent()
+
+        first.join()
+        second.join()
+        assertEquals(2, repository.loginCalls.size)
+        assertEquals(1, repository.maxActiveLogins)
+    }
+
+    @Test
+    fun logoutLlamaAlBackendConElRefreshTokenYLimpiaTodo() = runTest {
+        val repository = FakeAuthRepository()
+        val tokens = InMemoryTokenStorage(TOKENS)
+        val users = InMemoryUserStorage(ana)
+        val manager = manager(repository, tokens, users)
+        manager.start()
+
+        manager.logout()
+
+        assertEquals(listOf<String?>("refresh-old"), repository.logoutCalls)
+        assertNull(tokens.read())
+        assertNull(users.read())
+        assertEquals(SessionState.Unauthenticated(), manager.state.value)
+    }
+
+    @Test
+    fun logoutLimpiaAunqueLaLecturaDeTokensFalle() = runTest {
+        val repository = FakeAuthRepository()
+        val tokens = FlakyTokenStorage(InMemoryTokenStorage(TOKENS))
+        val manager = manager(repository, tokens, InMemoryUserStorage(ana))
+        manager.start()
+        tokens.failures = Int.MAX_VALUE
+
+        manager.logout()
+
+        assertEquals(listOf<String?>(null), repository.logoutCalls)
+        assertEquals(1, tokens.clears)
+        assertEquals(SessionState.Unauthenticated(), manager.state.value)
+    }
+
+    @Test
+    fun logoutSinSesionNoLlamaAlBackend() = runTest {
+        val repository = FakeAuthRepository()
+        val manager = manager(repository)
+        manager.start()
+
+        manager.logout()
+
+        assertTrue(repository.logoutCalls.isEmpty())
+    }
+
+    @Test
+    fun unExpiredTardioTrasElLogoutNoMuestraElAviso() = runTest {
+        val events = SessionEvents()
+        val manager = manager(tokens = InMemoryTokenStorage(TOKENS), users = InMemoryUserStorage(ana), events = events)
+        manager.start()
+
+        manager.logout()
+        events.notifyExpired()
+        runCurrent()
+
+        assertEquals(SessionState.Unauthenticated(expired = false), manager.state.value)
     }
 }
