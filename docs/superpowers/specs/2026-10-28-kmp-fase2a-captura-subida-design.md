@@ -55,7 +55,7 @@ Home → botón de captura (`Route.Capture`) → cámara o galería → vista pr
 - **Modelos** (`core/model`): `Campo`, `UploadMetadata`, `UploadResult`.
 - **`CamposRepository`**: `GET campos`. El backend filtra por rol: AGRONOMO recibe sus campos asignados, PRODUCTOR los suyos, ADMIN y MONITOR todos.
 - **`IngestionRepository.upload(...)`**: multipart con los campos de arriba, timeout de 90 s por petición. Trata como éxito un 201 y, por defensa, un 409. Las peticiones multipart no declaran `Content-Type` a mano (lo pone Ktor con su boundary).
-- **`CaptureViewModel`**: estados `Idle`, `FotoElegida`, `Subiendo`, `Error(reintentable)`. Genera el `offlineSyncId` al elegir la foto y lo conserva en los reintentos. Guarda en `SavedStateHandle` la ruta de la foto y el `offlineSyncId`.
+- **`CaptureViewModel`**: estados `Idle`, `FotoElegida`, `Subiendo`, `Error(reintentable)`. Genera el `offlineSyncId` al elegir la foto y lo conserva en los reintentos. `capturedAt` se fija al elegir la foto. La pantalla guarda con `rememberSaveable` la ruta, el `offlineSyncId` y `capturedAt`, y se los devuelve con `restore(...)` si el proceso murió (el `ViewModel` no sobrevive a eso).
 - **`CaptureScreen`**: con los componentes del design system.
 - **`ImageCompressor`** y **`LocationProvider`**: firmas en `core/platform`.
   - `ImageCompressor.compress(path): CompressedImage` (JPEG, lado máximo 2048 px, calidad 85, sin EXIF).
@@ -67,7 +67,9 @@ Home → botón de captura (`Route.Capture`) → cámara o galería → vista pr
 - **GPS**: Play Services Location, precisión alta, límite de 8 s. La dependencia se añade en esta fase (se quitó en la Fase 0, ver `dependencias-pendientes.md`).
 - **Cámara**: `FileProvider` con un archivo temporal en la caché; la ruta se guarda con `rememberSaveable`. El manifiesto **no declara `CAMERA`**: con `TakePicture` abre la app de cámara del sistema y declararlo obligaría a pedir un permiso innecesario.
 - **Galería**: `PickVisualMedia`, sin permiso.
+- **Vista previa**: `PhotoPreview` (`expect/actual`), decodificada con `inSampleSize` y con la orientación del EXIF aplicada. En iOS no muestra nada hasta la Fase 9.
 - **Coil 3** no se necesita en la 2a (no hay imágenes remotas); llega en la 2c.
+- **Limpieza**: las fotos originales conservan el EXIF con el GPS; se purgan de `cacheDir/captures/` al cabo de 24 h.
 
 ### 4. Errores
 
@@ -97,9 +99,11 @@ Si `GET campos` falla, se muestra el error con reintento. Si la lista viene vac�
   6. El análisis aparece después en `zarza-web` con el campo y las coordenadas elegidos.
   Marca, modelo y versión de Android se anotan en el documento de pendientes al ejecutarlo.
 
-## Decisión abierta antes de implementar
+## Prerrequisito: ráfaga de refrescos tras un fallo transitorio
 
-**Ráfaga de refrescos tras un fallo transitorio** (`dependencias-pendientes.md`, marcada como "decidir antes de la fase 2"). Con red mala, `GET campos` y la subida pueden pedir refresh a la vez, y cada petición en espera repite `auth/refresh` (5 por minuto), con hasta N × 30 s de espera. La 2a lo expone más que la Fase 1. Opciones: recordar unos segundos que ese refresh token acaba de fallar y no reintentarlo (arreglo probado en las revisiones; a cambio, un reintento manual dentro de esa ventana falla sin intentarlo), o aceptar el comportamiento actual. Se decide al escribir el plan.
+Marcada en `dependencias-pendientes.md` como "decidir antes de la fase 2". Con red mala, `GET campos` y la subida pueden pedir refresh a la vez, y cada petición en espera repite `auth/refresh` (5 por minuto), con hasta N × 30 s de espera. La 2a lo expone más que la Fase 1.
+
+**Decisión (2026-10-28):** se aplica el arreglo probado en las revisiones. `TokenRefresher` recuerda durante unos segundos que ese refresh token acaba de fallar por red, timeout o 429, y las peticiones que esperan fallan sin repetir la llamada. A cambio, un reintento manual del usuario dentro de esa ventana falla sin intentarlo; la ventana es corta y el mensaje de error ya invita a reintentar. Es la primera tarea del plan, antes de tocar la captura.
 
 ## Pendientes que salen de esta fase
 
