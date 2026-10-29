@@ -7,6 +7,9 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TestTimeSource
+import kotlin.time.TimeSource
 import kotlin.test.assertEquals
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.assertNull
@@ -22,8 +25,10 @@ import kotlinx.coroutines.test.runTest
 @OptIn(ExperimentalCoroutinesApi::class)
 class TokenRefresherTest {
 
-    private fun TestScope.refresher(handler: MockRequestHandler) =
-        TokenRefresher(createRefreshClient(mockEngine(handler), testEnvConfig))
+    private fun TestScope.refresher(
+        timeSource: TimeSource = TimeSource.Monotonic,
+        handler: MockRequestHandler,
+    ) = TokenRefresher(createRefreshClient(mockEngine(handler), testEnvConfig), timeSource)
 
     @Test
     fun devuelveElParNuevo() = runTest {
@@ -136,5 +141,66 @@ class TokenRefresherTest {
 
         assertTrue(job.isCancelled)
         assertNull(result)
+    }
+
+    @Test
+    fun unFalloTransitorioNoSeRepiteDentroDeLaVentana() = runTest {
+        var calls = 0
+        val time = TestTimeSource()
+        val refresher = refresher(time) {
+            calls++
+            respondError(HttpStatusCode.ServiceUnavailable)
+        }
+
+        val first = refresher.refresh("refresh-old")
+        time += 4.seconds
+        val second = refresher.refresh("refresh-old")
+
+        assertEquals(RefreshResult.TransientFailure, first)
+        assertEquals(RefreshResult.TransientFailure, second)
+        assertEquals(1, calls)
+    }
+
+    @Test
+    fun pasadaLaVentanaSeVuelveAIntentar() = runTest {
+        var calls = 0
+        val time = TestTimeSource()
+        val refresher = refresher(time) {
+            calls++
+            respondError(HttpStatusCode.ServiceUnavailable)
+        }
+
+        refresher.refresh("refresh-old")
+        time += 6.seconds
+        refresher.refresh("refresh-old")
+
+        assertEquals(2, calls)
+    }
+
+    @Test
+    fun otroRefreshTokenNoQuedaBloqueado() = runTest {
+        var calls = 0
+        val refresher = refresher(TestTimeSource()) {
+            calls++
+            respondError(HttpStatusCode.ServiceUnavailable)
+        }
+
+        refresher.refresh("refresh-a")
+        refresher.refresh("refresh-b")
+
+        assertEquals(2, calls)
+    }
+
+    @Test
+    fun unRechazoNoSeRecuerda() = runTest {
+        var calls = 0
+        val refresher = refresher(TestTimeSource()) {
+            calls++
+            respondError(HttpStatusCode.Unauthorized)
+        }
+
+        assertEquals(RefreshResult.Rejected, refresher.refresh("refresh-old"))
+        assertEquals(RefreshResult.Rejected, refresher.refresh("refresh-old"))
+        assertEquals(2, calls)
     }
 }
