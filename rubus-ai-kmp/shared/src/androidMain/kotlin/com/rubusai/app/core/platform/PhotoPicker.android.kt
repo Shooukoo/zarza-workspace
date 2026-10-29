@@ -26,7 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
 import java.io.File
-import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -129,12 +129,23 @@ private fun newCaptureFile(context: Context): File = File.createTempFile("captur
 
 /** La galería devuelve un `content://`: se copia a un archivo propio para que el compresor lea una ruta. */
 private suspend fun copyToCache(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
+    val input = try {
+        context.contentResolver.openInputStream(uri)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
+    } ?: return@withContext null
+    var file: File? = null
     try {
-        val file = newCaptureFile(context)
-        val input = context.contentResolver.openInputStream(uri) ?: return@withContext null
+        file = newCaptureFile(context)
         input.use { source -> file.outputStream().use { source.copyTo(it) } }
         file.path
-    } catch (e: IOException) {
+    } catch (e: CancellationException) {
+        file?.delete()
+        throw e
+    } catch (e: Exception) {
+        file?.delete()
         null
     }
 }
