@@ -47,7 +47,7 @@ internal fun HomeScreen(
     uploadNotice: Boolean = false,
     onCapture: () -> Unit = {},
 ) {
-    RubusScreen(modifier = modifier) {
+    RubusScreen(modifier = modifier, scrollable = true) {
         Text(text = stringResource(Res.string.home_title), style = MaterialTheme.typography.headlineLarge)
         user?.let {
             Text(text = it.displayName, style = MaterialTheme.typography.titleLarge)

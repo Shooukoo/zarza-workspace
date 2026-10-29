@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -111,12 +112,16 @@ fun RubusNavHost(
         }
         composable<Route.Notifications> { Marcador("Notifications") }
         composable<Route.Profile> { Marcador("Profile") }
-        composable<Route.Capture> {
+        composable<Route.Capture> { entry ->
+            // Durante la animación de salida la pantalla sigue compuesta: un 2.º pop sacaría Home.
+            val resumed = { entry.lifecycle.currentState == Lifecycle.State.RESUMED }
             CaptureRoute(
-                onClose = { navController.popBackStack() },
+                onClose = { if (resumed()) navController.popBackStack() },
                 onUploaded = {
-                    navController.previousBackStackEntry?.savedStateHandle?.set(UPLOADED_KEY, true)
-                    navController.popBackStack()
+                    if (resumed()) {
+                        navController.previousBackStackEntry?.savedStateHandle?.set(UPLOADED_KEY, true)
+                        navController.popBackStack()
+                    }
                 },
             )
         }

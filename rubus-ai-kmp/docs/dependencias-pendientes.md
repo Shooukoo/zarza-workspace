@@ -93,7 +93,6 @@ Salieron de las revisiones de la Fase 1. Ninguna impide usar el login; esperan d
 
 ## Pendientes menores de la Fase 1
 
-- `HomeScreen` no hace scroll: a escala de fuente 2.0 el botón de cerrar sesión puede quedar fuera de pantalla. Provisional hasta la Fase 4.
 - `RubusButton` usa `maxLines = 1` y recorta textos largos a escala 2.0 (design system, Fase 4).
 - `RubusNavHost` usa `destination::class.qualifiedName` como clave de `rememberSaveable`. Si se activa R8/minify, usar `destination.toString()` (hoy `isMinifyEnabled = false`).
 - `MainActivity` decide el permiso con `BuildConfig.FLAVOR != "dev"` y un `37` literal: preferible `BuildConfig.ENVIRONMENT`/`Environment.DEV` y `Build.VERSION_CODES.CINNAMON_BUN`.
