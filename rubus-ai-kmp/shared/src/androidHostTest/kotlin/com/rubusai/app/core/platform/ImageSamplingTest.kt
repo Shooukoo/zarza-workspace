@@ -2,6 +2,7 @@ package com.rubusai.app.core.platform
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ImageSamplingTest {
 
@@ -18,7 +19,14 @@ class ImageSamplingTest {
     fun elSubmuestreoNuncaDejaElLadoLargoPorDebajoDelMaximo() {
         for (side in listOf(2049, 3000, 4095, 4096, 4100, 8191, 8192, 20000)) {
             val sample = sampleSizeFor(side, side / 2)
-            assertEquals(true, side / sample >= IMAGE_MAX_SIDE_PX || sample == 1, "side=$side sample=$sample")
+            val msg = "side=$side sample=$sample"
+            assertTrue(sample >= 1 && (sample and (sample - 1)) == 0, msg)
+            if (sample == 1) {
+                assertTrue(side / 2 < IMAGE_MAX_SIDE_PX, msg)
+            } else {
+                assertTrue(side / sample >= IMAGE_MAX_SIDE_PX, msg)
+                assertTrue(side / (sample * 2) < IMAGE_MAX_SIDE_PX, msg)
+            }
         }
     }
 

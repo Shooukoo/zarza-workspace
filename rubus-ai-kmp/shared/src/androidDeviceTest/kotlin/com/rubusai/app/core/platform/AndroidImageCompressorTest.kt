@@ -12,6 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -21,8 +22,18 @@ class AndroidImageCompressorTest {
     private val compressor = AndroidImageCompressor()
     private val cacheDir = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir
 
+    private val tempFiles = mutableListOf<File>()
+
+    private fun tempFile(prefix: String) = File.createTempFile(prefix, ".jpg", cacheDir).also { tempFiles += it }
+
+    @After
+    fun limpiarTemporales() {
+        tempFiles.forEach { it.delete() }
+        tempFiles.clear()
+    }
+
     private fun writeJpeg(width: Int, height: Int, orientation: Int? = null, withGps: Boolean = false): String {
-        val file = File.createTempFile("test", ".jpg", cacheDir)
+        val file = tempFile("test")
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { it.eraseColor(Color.RED) }
         FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.JPEG, 90, it) }
         bitmap.recycle()
@@ -72,7 +83,7 @@ class AndroidImageCompressorTest {
         val bytes = compressor.compress(
             writeJpeg(400, 200, orientation = ExifInterface.ORIENTATION_ROTATE_90, withGps = true),
         )
-        val file = File.createTempFile("out", ".jpg", cacheDir).apply { writeBytes(bytes) }
+        val file = tempFile("out").apply { writeBytes(bytes) }
 
         val exif = ExifInterface(file)
 
@@ -83,7 +94,7 @@ class AndroidImageCompressorTest {
 
     @Test
     fun unArchivoQueNoEsUnaImagenFalla() {
-        val file = File.createTempFile("texto", ".jpg", cacheDir).apply { writeText("no soy una imagen") }
+        val file = tempFile("texto").apply { writeText("no soy una imagen") }
 
         assertFailsWith<ImageCompressionException> { runBlocking { compressor.compress(file.path) } }
     }

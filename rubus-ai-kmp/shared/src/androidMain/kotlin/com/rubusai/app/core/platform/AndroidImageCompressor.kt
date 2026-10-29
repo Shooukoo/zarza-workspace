@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -69,7 +68,7 @@ internal fun sampleSizeFor(width: Int, height: Int, maxSide: Int = IMAGE_MAX_SID
 
 internal fun readOrientation(path: String): Int = try {
     ExifInterface(path).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-} catch (e: IOException) {
+} catch (e: Exception) { // un EXIF ilegible no debe impedir subir la foto
     ExifInterface.ORIENTATION_NORMAL
 }
 
