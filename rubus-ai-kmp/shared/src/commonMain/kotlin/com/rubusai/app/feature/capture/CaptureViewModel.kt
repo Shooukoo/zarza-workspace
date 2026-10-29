@@ -46,7 +46,7 @@ internal data class CaptureUiState(
     val uploaded: Boolean = false,
 ) {
     val canUpload: Boolean
-        get() = photo != null && selectedCampoId != null && !uploading && failure?.retryable != false
+        get() = photo != null && selectedCampoId != null && !uploading && failure?.retryable != false && !uploaded
 }
 
 internal class CaptureViewModel(
@@ -95,6 +95,7 @@ internal class CaptureViewModel(
     }
 
     private fun setPhoto(photo: CapturedPhoto) {
+        if (_state.value.uploading) return // la subida en vuelo sigue con la foto anterior
         compressed = null
         coordinates = null
         coordinatesResolved = false
@@ -105,7 +106,7 @@ internal class CaptureViewModel(
         val current = _state.value
         val photo = current.photo ?: return
         val campoId = current.selectedCampoId ?: return
-        if (current.uploading) return
+        if (!current.canUpload) return
         _state.update { it.copy(uploading = true, failure = null) }
 
         viewModelScope.launch {

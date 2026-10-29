@@ -314,4 +314,61 @@ class CaptureViewModelTest {
         assertNull(ingestion.uploads.single().second.gpsLat)
         assertTrue(vm.state.value.uploaded)
     }
+
+    @Test
+    fun noSeCambiaDeFotoMientrasSeSube() = runTest(dispatcher) {
+        val gate = CompletableDeferred<Unit>()
+        val ingestion = FakeIngestionRepository().apply { this.gate = gate }
+        val vm = viewModel(ingestion = ingestion, compressor = FakeImageCompressor("bytes-a".encodeToByteArray()))
+        advanceUntilIdle()
+        vm.onCampoSelected("c1")
+        vm.onPhotoChosen("/cache/a.jpg")
+        val idA = vm.state.value.photo?.offlineSyncId
+        vm.onUpload()
+        advanceUntilIdle()
+
+        vm.onPhotoChosen("/cache/b.jpg")
+
+        assertEquals("/cache/a.jpg", vm.state.value.photo?.path)
+        assertEquals(idA, vm.state.value.photo?.offlineSyncId)
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertTrue(vm.state.value.uploaded)
+        val (bytes, metadata) = ingestion.uploads.single()
+        assertContentEquals("bytes-a".encodeToByteArray(), bytes)
+        assertEquals(idA, metadata.offlineSyncId)
+    }
+
+    @Test
+    fun unaImagenInvalidaNoSeReenviaAunqueSeLlameAOnUpload() = runTest(dispatcher) {
+        val ingestion = FakeIngestionRepository().apply { outcome = UploadOutcome.Failure(UploadFailure.InvalidImage) }
+        val vm = viewModel(ingestion = ingestion)
+        advanceUntilIdle()
+        vm.onCampoSelected("c1")
+        vm.onPhotoChosen("/cache/a.jpg")
+        vm.onUpload()
+        advanceUntilIdle()
+
+        vm.onUpload()
+        advanceUntilIdle()
+
+        assertEquals(1, ingestion.uploads.size)
+    }
+
+    @Test
+    fun trasUnExitoNoSeVuelveASubir() = runTest(dispatcher) {
+        val ingestion = FakeIngestionRepository()
+        val vm = viewModel(ingestion = ingestion)
+        advanceUntilIdle()
+        vm.onCampoSelected("c1")
+        vm.onPhotoChosen("/cache/a.jpg")
+        vm.onUpload()
+        advanceUntilIdle()
+
+        vm.onUpload()
+        vm.onUpload()
+        advanceUntilIdle()
+
+        assertEquals(1, ingestion.uploads.size)
+    }
 }
