@@ -15,7 +15,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.OutgoingContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -54,7 +53,7 @@ class IngestionRepositoryTest {
         val repository = repository { request ->
             method = request.method
             url = request.url.toString()
-            contentType = (request.body as OutgoingContent).contentType?.withoutParameters()
+            contentType = request.body.contentType?.withoutParameters()
             text = request.bodyText()
             respondJson(created)
         }
@@ -67,6 +66,7 @@ class IngestionRepositoryTest {
         val body = text!!
         listOf("JPEGBYTES", "image/jpeg", "sync-1.jpg", "campo-1", "2026-10-28T18:00:00Z", "sync-1", "19.4326", "-99.1332")
             .forEach { assertTrue(body.contains(it), "falta $it en el cuerpo") }
+        assertTrue(body.contains("name=\"file\"; filename=\"sync-1.jpg\""), "parte file mal formada")
     }
 
     @Test
@@ -80,7 +80,7 @@ class IngestionRepositoryTest {
         repository.upload(jpeg, metadata.copy(gpsLat = null, gpsLon = null))
 
         assertFalse(text!!.contains("gpsLat"))
-        assertFalse(text!!.contains("gpsLon"))
+        assertFalse(text.contains("gpsLon"))
     }
 
     @Test
@@ -105,6 +105,12 @@ class IngestionRepositoryTest {
         assertEquals(UploadOutcome.Failure(UploadFailure.RateLimited), failureFor(HttpStatusCode.TooManyRequests))
         assertEquals(UploadOutcome.Failure(UploadFailure.Server), failureFor(HttpStatusCode.ServiceUnavailable))
         assertEquals(UploadOutcome.Failure(UploadFailure.Unexpected), failureFor(HttpStatusCode.NotFound))
+    }
+
+    @Test
+    fun losCodigosPermanentesDeLaImagenSonImagenInvalida() = runTest {
+        listOf(HttpStatusCode.PayloadTooLarge, HttpStatusCode.UnsupportedMediaType, HttpStatusCode.UnprocessableEntity)
+            .forEach { assertEquals(UploadOutcome.Failure(UploadFailure.InvalidImage), failureFor(it), "código $it") }
     }
 
     @Test

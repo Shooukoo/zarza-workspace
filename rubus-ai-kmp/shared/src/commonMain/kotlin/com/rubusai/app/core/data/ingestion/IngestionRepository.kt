@@ -94,10 +94,18 @@ internal class IngestionRepositoryImpl(private val client: HttpClient) : Ingesti
     }
 }
 
+private val invalidImageCodes = setOf(
+    HttpStatusCode.BadRequest,
+    HttpStatusCode.PayloadTooLarge,
+    HttpStatusCode.UnsupportedMediaType,
+    HttpStatusCode.UnprocessableEntity,
+)
+
 private fun HttpStatusCode.toUploadFailure(): UploadFailure = when {
     this == HttpStatusCode.Unauthorized -> UploadFailure.Unauthorized
     this == HttpStatusCode.TooManyRequests -> UploadFailure.RateLimited
-    this == HttpStatusCode.BadRequest -> UploadFailure.InvalidImage
+    // 400/413/415/422: la causa es la imagen y reintentar no sirve.
+    this in invalidImageCodes -> UploadFailure.InvalidImage
     value >= 500 -> UploadFailure.Server
     else -> UploadFailure.Unexpected
 }
