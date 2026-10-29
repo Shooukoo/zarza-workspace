@@ -14,14 +14,16 @@ import com.rubusai.app.core.model.User
 import com.rubusai.app.dev.DevActions
 import com.rubusai.app.dev.DevButtons
 import com.rubusai.app.resources.Res
+import com.rubusai.app.resources.home_capture
 import com.rubusai.app.resources.home_logging_out
 import com.rubusai.app.resources.home_logout
 import com.rubusai.app.resources.home_title
+import com.rubusai.app.resources.home_upload_notice
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-internal fun HomeRoute(devActions: DevActions?) {
+internal fun HomeRoute(devActions: DevActions?, uploadNotice: Boolean, onCapture: () -> Unit) {
     val viewModel = koinViewModel<HomeViewModel>()
     val sessionState by viewModel.sessionState.collectAsStateWithLifecycle()
     val loggingOut by viewModel.loggingOut.collectAsStateWithLifecycle()
@@ -30,6 +32,8 @@ internal fun HomeRoute(devActions: DevActions?) {
         loggingOut = loggingOut,
         onLogout = viewModel::onLogout,
         devActions = devActions,
+        uploadNotice = uploadNotice,
+        onCapture = onCapture,
     )
 }
 
@@ -40,6 +44,8 @@ internal fun HomeScreen(
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
     devActions: DevActions? = null,
+    uploadNotice: Boolean = false,
+    onCapture: () -> Unit = {},
 ) {
     RubusScreen(modifier = modifier) {
         Text(text = stringResource(Res.string.home_title), style = MaterialTheme.typography.headlineLarge)
@@ -48,6 +54,18 @@ internal fun HomeScreen(
             Text(text = it.email, style = MaterialTheme.typography.bodyLarge)
             Text(text = it.role.displayName, style = MaterialTheme.typography.bodyLarge)
         }
+        if (uploadNotice) {
+            Text(
+                text = stringResource(Res.string.home_upload_notice),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        RubusButton(
+            text = stringResource(Res.string.home_capture),
+            onClick = onCapture,
+            enabled = !loggingOut,
+        )
         RubusButton(
             text = stringResource(if (loggingOut) Res.string.home_logging_out else Res.string.home_logout),
             onClick = onLogout,

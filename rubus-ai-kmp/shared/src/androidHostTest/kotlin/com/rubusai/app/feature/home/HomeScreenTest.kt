@@ -57,4 +57,22 @@ class HomeScreenTest {
         awaitText("CERRANDO SESIÓN…")
         rule.onNodeWithText("CERRANDO SESIÓN…").assertIsNotEnabled()
     }
+
+    @Test
+    fun elBotonCapturarLlamaASuCallback() {
+        var capturas = 0
+        rule.setContent { RubusTheme { HomeScreen(user = ana, loggingOut = false, onLogout = {}, onCapture = { capturas++ }) } }
+        awaitText("CAPTURAR")
+
+        rule.onNodeWithText("CAPTURAR").performClick()
+
+        assertEquals(1, capturas)
+    }
+
+    @Test
+    fun muestraElAvisoDeImagenEnviadaSoloSiSeIndica() {
+        rule.setContent { RubusTheme { HomeScreen(user = ana, loggingOut = false, onLogout = {}, uploadNotice = true) } }
+
+        awaitText("Imagen enviada.")
+    }
 }

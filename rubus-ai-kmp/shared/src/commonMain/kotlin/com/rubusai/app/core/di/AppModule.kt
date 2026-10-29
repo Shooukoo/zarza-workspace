@@ -5,16 +5,22 @@ import com.rubusai.app.core.config.Environment
 import com.rubusai.app.core.data.auth.AuthRepository
 import com.rubusai.app.core.data.auth.AuthRepositoryImpl
 import com.rubusai.app.core.data.auth.SessionManager
+import com.rubusai.app.core.data.campos.CamposRepository
+import com.rubusai.app.core.data.campos.CamposRepositoryImpl
+import com.rubusai.app.core.data.ingestion.IngestionRepository
+import com.rubusai.app.core.data.ingestion.IngestionRepositoryImpl
 import com.rubusai.app.core.network.SessionEvents
 import com.rubusai.app.core.network.TokenRefresher
 import com.rubusai.app.core.network.createHttpClient
 import com.rubusai.app.core.network.createRefreshClient
 import com.rubusai.app.feature.auth.LoginViewModel
+import com.rubusai.app.feature.capture.CaptureViewModel
 import com.rubusai.app.feature.home.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -66,8 +72,16 @@ internal fun authModule(): Module = module {
     viewModelOf(::HomeViewModel)
 }
 
+/** Captura: repositorios de campos e ingestión y el `ViewModel`. El compresor y el GPS los aporta cada plataforma. */
+internal fun captureModule(): Module = module {
+    single<CamposRepository> { CamposRepositoryImpl(client = get()) }
+    single<IngestionRepository> { IngestionRepositoryImpl(client = get()) }
+    viewModel { CaptureViewModel(campos = get(), ingestion = get(), compressor = get(), location = get()) }
+}
+
 internal fun appModules(environment: Environment, devHost: String): List<Module> = listOf(
     configModule(environment, devHost),
     networkModule(),
     authModule(),
+    captureModule(),
 )
