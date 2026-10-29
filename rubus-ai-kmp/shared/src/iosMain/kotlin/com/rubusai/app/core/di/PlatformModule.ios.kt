@@ -1,7 +1,11 @@
 package com.rubusai.app.core.di
 
+import com.rubusai.app.core.platform.Coordinates
+import com.rubusai.app.core.platform.ImageCompressionException
+import com.rubusai.app.core.platform.ImageCompressor
 import com.rubusai.app.core.platform.InMemoryTokenStorage
 import com.rubusai.app.core.platform.InMemoryUserStorage
+import com.rubusai.app.core.platform.LocationProvider
 import com.rubusai.app.core.platform.SecureTokenStorage
 import com.rubusai.app.core.platform.UserStorage
 import io.ktor.client.engine.HttpClientEngine
@@ -25,4 +29,16 @@ internal fun iosPlatformModule(): Module = module {
     }
     single<SecureTokenStorage> { InMemoryTokenStorage() }
     single<UserStorage> { InMemoryUserStorage() }
+    // Sin implementación hasta la Fase 9: la captura falla con un error controlado en vez de no compilar.
+    single<ImageCompressor> {
+        object : ImageCompressor {
+            override suspend fun compress(path: String): ByteArray =
+                throw ImageCompressionException("La compresión de imágenes no está disponible en iOS todavía")
+        }
+    }
+    single<LocationProvider> {
+        object : LocationProvider {
+            override suspend fun current(): Coordinates? = null
+        }
+    }
 }
