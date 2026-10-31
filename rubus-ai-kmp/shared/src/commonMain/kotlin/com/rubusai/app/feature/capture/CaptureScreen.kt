@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rubusai.app.core.designsystem.component.RubusButton
 import com.rubusai.app.core.designsystem.component.RubusButtonVariant
@@ -51,6 +53,7 @@ import com.rubusai.app.resources.capture_upload
 import com.rubusai.app.resources.capture_uploading
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import kotlinx.coroutines.flow.first
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -66,7 +69,15 @@ internal fun CaptureRoute(onClose: () -> Unit, onUploaded: () -> Unit) {
     LaunchedEffect(Unit) {
         saved?.let { (path, id, at) -> viewModel.restore(CapturedPhoto(path, id, at)) }
     }
-    LaunchedEffect(state.uploaded) { if (state.uploaded) onUploaded() }
+    // La subida corre en el ViewModel y puede acabar en segundo plano: se espera a RESUMED para
+    // que el guard del NavHost no descarte el aviso y el pop.
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(state.uploaded) {
+        if (state.uploaded) {
+            lifecycle.currentStateFlow.first { it == Lifecycle.State.RESUMED }
+            onUploaded()
+        }
+    }
 
     val picker = rememberPhotoPicker { path -> path?.let(viewModel::onPhotoChosen) }
 

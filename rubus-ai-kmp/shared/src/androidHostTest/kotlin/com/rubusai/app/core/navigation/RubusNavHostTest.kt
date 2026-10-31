@@ -1,5 +1,6 @@
 package com.rubusai.app.core.navigation
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -11,6 +12,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.waitUntilAtLeastOneExists
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -95,6 +100,7 @@ class RubusNavHostTest {
     private fun render(
         env: Environment,
         state: MutableState<SessionState> = mutableStateOf(SessionState.Loading),
+        owner: LifecycleOwner? = null,
     ): NavHostController {
         lateinit var nav: NavHostController
         capturas.clear()
@@ -102,7 +108,11 @@ class RubusNavHostTest {
         rule.setContent {
             KoinApplication(application = { modules(testModule()) }) {
                 nav = rememberNavController()
-                RubusTheme { RubusNavHost(environment = env, sessionState = state.value, navController = nav) }
+                // Con owner propio el test gobierna el estado máximo del ciclo de vida de las entradas.
+                val provided = if (owner != null) arrayOf(LocalLifecycleOwner provides owner) else emptyArray()
+                CompositionLocalProvider(*provided) {
+                    RubusTheme { RubusNavHost(environment = env, sessionState = state.value, navController = nav) }
+                }
             }
         }
         rule.waitForIdle()
@@ -356,5 +366,31 @@ class RubusNavHostTest {
         assertTrue(segunda !== primera)
         assertEquals(null, segunda.state.value.photo)
         assertEquals(false, segunda.state.value.uploaded)
+    }
+
+    @Test
+    fun siLaSubidaTerminaFueraDeResumedVuelveAHomeAlReanudar() {
+        val registry = LifecycleRegistry.createUnsafe(object : LifecycleOwner {
+            override val lifecycle: Lifecycle get() = error("sin uso")
+        })
+        val owner = object : LifecycleOwner { override val lifecycle: Lifecycle = registry }
+        rule.runOnUiThread { registry.currentState = Lifecycle.State.RESUMED }
+        val nav = render(Environment.PROD, mutableStateOf(SessionState.Authenticated(ana)), owner)
+        rule.onNodeWithText("CAPTURAR").performClick()
+        rule.waitUntilAtLeastOneExists(hasText("CANCELAR"), timeoutMillis = 5_000)
+        val captura = capturas.last()
+        rule.runOnUiThread { captura.onPhotoChosen("/tmp/foto.jpg") }
+
+        // App en segundo plano: la entrada baja a STARTED y la subida termina entonces.
+        rule.runOnUiThread { registry.currentState = Lifecycle.State.STARTED }
+        rule.waitForIdle()
+        rule.runOnUiThread { captura.onUpload() }
+        rule.waitUntil(timeoutMillis = 5_000) { captura.state.value.uploaded }
+        rule.waitForIdle()
+        assertEquals(listOf(route(Route.Home), route(Route.Capture)), nav.visibleRoutes())
+
+        rule.runOnUiThread { registry.currentState = Lifecycle.State.RESUMED }
+        rule.waitUntilAtLeastOneExists(hasText("Imagen enviada."), timeoutMillis = 5_000)
+        assertEquals(listOf(route(Route.Home)), nav.visibleRoutes())
     }
 }
