@@ -354,6 +354,7 @@ describe('NotificationsGateway', () => {
       expect(closedClient.send).not.toHaveBeenCalled();
     });
   });
+
   describe('heartbeat', () => {
     const TICK = 30_000;
     let clients: Set<WebSocket>;
@@ -405,6 +406,7 @@ describe('NotificationsGateway', () => {
 
       jest.advanceTimersByTime(TICK * 2);
       expect(c.terminate).toHaveBeenCalled();
+      c.pong(); // un pong tardío lo deja en `alive`; handleDisconnect debe quitarlo
       gateway.handleDisconnect(c);
 
       gateway.emitToUser('u1', 'x', {});
@@ -416,6 +418,9 @@ describe('NotificationsGateway', () => {
         (gateway as unknown as { authenticated: Map<unknown, unknown> })
           .authenticated.size,
       ).toBe(0);
+      expect((gateway as unknown as { alive: Set<unknown> }).alive.size).toBe(
+        0,
+      );
     });
 
     it('onModuleDestroy limpia el intervalo', () => {
