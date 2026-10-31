@@ -8,6 +8,8 @@ import com.rubusai.app.core.data.auth.SessionState
 import com.rubusai.app.core.data.auth.TOKENS
 import com.rubusai.app.core.data.auth.ana
 import com.rubusai.app.core.network.AuthTokens
+import com.rubusai.app.core.network.ConnectionState
+import com.rubusai.app.core.network.RealtimeClient
 import com.rubusai.app.core.network.SessionEvents
 import com.rubusai.app.core.network.TokenRefresher
 import com.rubusai.app.core.network.mockEngine
@@ -17,6 +19,7 @@ import com.rubusai.app.core.platform.SecureTokenStorage
 import com.rubusai.app.core.platform.ImageCompressor
 import com.rubusai.app.core.platform.LocationProvider
 import com.rubusai.app.core.platform.UserStorage
+import com.rubusai.app.feature.aviso.AvisoViewModel
 import com.rubusai.app.feature.auth.LoginViewModel
 import com.rubusai.app.feature.capture.CaptureViewModel
 import com.rubusai.app.feature.capture.FakeImageCompressor
@@ -193,6 +196,51 @@ class KoinGraphTest {
 
         try {
             app.koin.get<CaptureViewModel>()
+        } finally {
+            app.close()
+            Dispatchers.resetMain()
+        }
+    }
+
+    @Test
+    fun elGrafoResuelveElClienteDeTiempoRealComoUnicaInstanciaYDesconectado() = runTest {
+        val platformModule = module {
+            single<HttpClientEngine> { mockEngine { respondOk() } }
+            single<Logger> { Logger.EMPTY }
+            single<SecureTokenStorage> { InMemoryTokenStorage() }
+            single<UserStorage> { InMemoryUserStorage() }
+        }
+        val app = koinApplication {
+            modules(appModules(Environment.DEV, devHost = "10.0.2.2") + platformModule)
+        }
+
+        try {
+            val client = app.koin.get<RealtimeClient>()
+
+            assertSame(client, app.koin.get<RealtimeClient>())
+            assertEquals(ConnectionState.Desconectado, client.state.value)
+        } finally {
+            app.close()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun elGrafoResuelveElViewModelDeAvisos() = runTest {
+        // `AvisoViewModel` lanza en `viewModelScope` al crearse: necesita un `Main`.
+        Dispatchers.setMain(StandardTestDispatcher())
+        val platformModule = module {
+            single<HttpClientEngine> { mockEngine { respondOk() } }
+            single<Logger> { Logger.EMPTY }
+            single<SecureTokenStorage> { InMemoryTokenStorage() }
+            single<UserStorage> { InMemoryUserStorage() }
+        }
+        val app = koinApplication {
+            modules(appModules(Environment.DEV, devHost = "10.0.2.2") + platformModule)
+        }
+
+        try {
+            app.koin.get<AvisoViewModel>()
         } finally {
             app.close()
             Dispatchers.resetMain()
