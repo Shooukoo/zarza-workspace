@@ -13,7 +13,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { IsString, MaxLength, IsOptional, IsBoolean } from 'class-validator';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { AuthService } from '../../application/auth.service';
@@ -195,6 +195,8 @@ export class AuthController {
   }
 
   @Get('me')
+  // Lectura autenticada que el cliente móvil usa en cada conexión del WebSocket; no es objetivo de fuerza bruta, solo aplica el límite `global`.
+  @SkipThrottle({ auth: true })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiCookieAuth('access_token')
