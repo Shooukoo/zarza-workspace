@@ -6,7 +6,7 @@ Estado de las dependencias que la estructura de paquetes necesita.
 
 Declaradas en `gradle/libs.versions.toml` y conectadas a `shared` desde la Fase 0: Koin, Ktor Client (con WebSockets y Auth), kotlinx.serialization, kotlinx.coroutines, kotlinx-datetime, Navigation Compose y DataStore Preferences. Todas se resuelven con Kotlin 2.4.20 y AGP 9.4.1, y todas son la última versión estable publicada el 2026-10-09 salvo la indicada abajo. (Las entradas del catálogo anteriores a la Fase 0, por ejemplo `material3 = 1.12.0-alpha03`, no entran en esta afirmación.)
 
-Tienen código que las usa: Koin (`koin-core`, `koin-compose`, `koin-android`), Ktor Client (`core`, `content-negotiation`, `serialization-kotlinx-json`, `auth`, `websockets`, `logging` y los motores OkHttp y Darwin), kotlinx.serialization, kotlinx.coroutines, DataStore Preferences, Navigation Compose (`RubusNavHost`) y `compose-components-resources` (la fuente Lexend). La otra (kotlinx-datetime) está resuelta y empaquetada en el APK, pero su uso real desde el proyecto está sin probar hasta que llegue su primera capa. Los WebSockets de Ktor se usan desde la Fase 2b (`KtorWsTransport`), probados en Android; en iOS solo se comprueba que compilan.
+Tienen código que las usa: Koin (`koin-core`, `koin-compose`, `koin-android`), Ktor Client (`core`, `content-negotiation`, `serialization-kotlinx-json`, `auth`, `websockets`, `logging` y los motores OkHttp y Darwin), kotlinx.serialization, kotlinx.coroutines, DataStore Preferences, Navigation Compose (`RubusNavHost`) y `compose-components-resources` (la fuente Lexend). La otra (kotlinx-datetime) está resuelta y empaquetada en el APK, pero su uso real desde el proyecto está sin probar hasta que llegue su primera capa. Los WebSockets de Ktor se usan desde la Fase 2b (`KtorWsTransport`); su prueba en un teléfono Android está pendiente (Tarea 10 de la fase 2b) y en iOS solo se comprueba que compilan.
 
 De test, en `commonTest`: `ktor-client-mock` y `kotlinx-coroutines-test`. En `androidDeviceTest`: `androidx.test.ext:junit` y `espresso-core` (este último solo porque arrastra `androidx.test:runner`). En `androidHostTest`: Robolectric 4.16, `ui-test-junit4` y `ui-test-manifest`, para los tests de UI en la JVM (ver más abajo).
 
@@ -125,7 +125,8 @@ Salieron de las revisiones de la Fase 1. Ninguna impide usar el login; esperan d
 
 ## Pendientes de la Fase 2b
 
-- **Sin prueba automática del transporte.** `KtorWsTransport` solo se probó en un teléfono; probarlo exige un servidor WebSocket embebido.
+- **Sin prueba automática del transporte.** `KtorWsTransport` solo se prueba en un teléfono (verificación manual de la fase 2b); probarlo de forma automática exige un servidor WebSocket embebido.
+- **Límite de `auth/me`.** El cliente WebSocket llama a `auth/me` en cada intento de conexión; el backend lo exime del throttler `auth` (10/min) y solo le aplica el `global`. Si se cambia esa política, el cliente deja de poder reconectar en ráfagas. Detrás de un proxy sin `trustProxy`, el backend ve una sola IP para todos (fuera del alcance de la fase 2b).
 - **Avisos perdidos.** Un `analisis_listo` que llega con la app en segundo plano, o durante una rotación, no se recupera al volver; lo cubre la 2c (historial) y el push FCM (Fase 6).
 - **Bandeja de notificaciones.** No existe; el backend ya persiste las notificaciones y expone `/notifications`.
 - **Eventos sin uso.** `analysis_validated` y `nueva_solicitud` llegan y se ignoran.
