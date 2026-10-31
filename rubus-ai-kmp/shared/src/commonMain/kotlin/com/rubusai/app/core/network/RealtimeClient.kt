@@ -83,9 +83,9 @@ internal class RealtimeClientImpl(
         job = scope.launch { correr() }
     }
 
-    // shortcut: si el bucle escribe el estado justo mientras se cancela, puede quedar un Conectado
-    // obsoleto hasta el siguiente connect(); la ventana es de microsegundos y RealtimeHost reconecta
-    // o desconecta en cuanto cambia la sesión o el ciclo de vida. Subir a un solo hilo si molesta.
+    // shortcut: si el bucle escribe el estado justo mientras se cancela, puede quedar un Conectado o
+    // Conectando obsoleto hasta el siguiente connect(); la ventana es de microsegundos y RealtimeHost
+    // reconecta o desconecta en cuanto cambia la sesión o el ciclo de vida. Subir a un solo hilo si molesta.
     override fun disconnect() {
         job?.cancel()
         job = null

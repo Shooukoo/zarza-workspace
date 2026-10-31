@@ -310,13 +310,15 @@ class RealtimeClientTest {
         val client = cliente(transport)
         client.connect()
         runCurrent()
-        transport.connections[0].server(AUTH_OK)
-        runCurrent()
-
-        // Cada auth_ok rearma el reintento inmediato.
+        // Gasta el reintento inmediato.
         transport.connections[0].serverClose(4001)
         runCurrent()
+        // El auth_ok lo rearma.
+        transport.connections[1].server(AUTH_OK)
+        runCurrent()
+        transport.connections[1].serverClose(4001)
+        runCurrent()
 
-        assertEquals(listOf(0L, 0L), transport.attemptTimes)
+        assertEquals(listOf(0L, 0L, 0L), transport.attemptTimes)
     }
 }
