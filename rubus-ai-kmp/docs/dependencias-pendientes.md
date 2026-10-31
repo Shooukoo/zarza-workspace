@@ -64,7 +64,7 @@ Room, KSP, SQLite empaquetado, Coil 3 y Play Services Location no tenían códig
 
 Salieron de las revisiones del sub-proyecto de red (2026-10-10). Ninguna impide usar el cliente; todas esperan una decisión.
 
-- **Ráfaga de refrescos tras un fallo transitorio.** Si el refresh falla por red, timeout o 429 en un cliente que aún no ha hecho ningún refresh con éxito en ese proceso, cada petición que esperaba repite el refresh, una tras otra: N peticiones hacen N llamadas a `auth/refresh` (limitado a 5 por minuto) y, con timeouts, la última tarda N × 30 s. Salir de la pantalla no las corta, porque el refresh no es cancelable (ver el punto siguiente). La sesión no se pierde y el cliente se recupera solo. Arreglo probado en las revisiones: recordar durante unos segundos que ese token de refresh acaba de fallar y no reintentarlo; a cambio, un reintento manual del usuario dentro de esa ventana fallaría sin intentarlo. Decidir antes de la fase 2.
+- **Ráfaga de refrescos tras un fallo transitorio.** Resuelto el 2026-10-28 (Fase 2a): `TokenRefresher` recuerda 5 s que un refresh token falló por red, timeout o 429 y no repite la llamada. A cambio, un reintento manual del usuario dentro de esos 5 s falla sin intentarlo.
 - **El refresh no es cancelable** (`nonCancellableRefresh = true`). Es deliberado: si se cortara después de que el backend rote el token, quedaría guardado uno ya gastado y el siguiente refresh revocaría la sesión. Consecuencia: una petición cancelada durante un refresh no termina hasta que termina el refresh (30 s como mucho).
 - **Respuesta perdida de un refresh.** Si la petición llega al backend y la respuesta se pierde, el token guardado ya está gastado: el siguiente refresh da 401 y el usuario vuelve a iniciar sesión. Desde el cliente no hay nada mejor que hacer; lo evitaría una ventana de gracia en el backend.
 - **Fallos del Keystore.** `DataStoreTokenStorage.read()` borra lo guardado ante cualquier fallo de descifrado, como pide la spec. El Keystore de Android da errores pasajeros en algunos dispositivos y `read()` se llama en cada petición, así que uno solo cerraría la sesión. Además, si la entrada de la clave existe pero quedó inutilizable, `save()` fallaría siempre hasta borrar los datos de la app. Propuesta de las revisiones, sin aplicar porque cambia la spec y no se puede probar sin dispositivo: reintentar una vez el descifrado, borrar solo ante fallos permanentes (etiqueta GCM inválida, dato corto, Base64 o JSON ilegibles) y regenerar la clave al cifrar si la guardada no sirve. Si `save()` lanza después de que el backend ya rotó el refresh token (p. ej. `ProviderException`), la excepción sale de `refreshTokens`, el storage conserva el par viejo y el siguiente refresh recibe 401 (`Rejected`), lo que cierra la sesión; si el backend revoca la familia de tokens por reutilización, se pierde igual.
@@ -98,3 +98,22 @@ Salieron de las revisiones de la Fase 1. Ninguna impide usar el login; esperan d
 - `MainActivity` decide el permiso con `BuildConfig.FLAVOR != "dev"` y un `37` literal: preferible `BuildConfig.ENVIRONMENT`/`Environment.DEV` y `Build.VERSION_CODES.CINNAMON_BUN`.
 - Sin verificar en emulador: que el diálogo de `ACCESS_LOCAL_NETWORK` aparezca en el primer arranque dev, la rotación y la muerte de proceso (`adb shell am kill`), y el flujo completo de login, logout y expiración. iOS solo compila a klib en Linux (sin enlazar ni framework) hasta tener un Mac.
 - Deuda menor de tests: `mientrasCargaLaSesionSeVeElSplashYNoHayGrafo` no comprueba la ausencia de grafo (el nombre engaña); los tests de `RubusNavHostTest` y `HomeViewModelTest` crean scopes sin cancelar.
+
+## Pendientes de la Fase 2a
+
+- **Backend: duplicado por `offlineSyncId`.** `POST ingestion/upload` responde 201 siempre y no devuelve 409; `fruit-ms` hace un `create` sobre `Analysis.offlineSyncId` (`@unique`). Un reintento con el mismo id no crea un análisis duplicado, pero corre otra inferencia y termina en la DLQ. Arreglo propuesto: que `fruit-ms` trate la violación de unicidad como éxito idempotente (ack sin reintentar). Corregir en la Fase 3 la línea del roadmap «un 409 del servidor cuenta como éxito».
+- **Archivos temporales.** Las fotos originales de la cámara y las copias de la galería quedan en `cacheDir/captures/` hasta que pasan 24 h (se purgan al crear la siguiente) o Android limpia la caché. Conservan el EXIF con el GPS.
+- **iOS.** `rememberPhotoPicker`, `rememberLocationPermission`, `PhotoPreview`, `ImageCompressor` y `LocationProvider` no tienen implementación real hasta la Fase 9.
+- **Elección de campo tras la muerte del proceso.** Se restaura la foto pero no el campo elegido (con varios campos hay que volver a elegirlo).
+- **Login en horizontal (Fase 1).** Al rotar, el login queda cortado: se ven correo y etiqueta «Contraseña», y el campo y el botón quedan fuera; no se probó si hace scroll.
+- **Menores aceptados sin cambiar.**
+  - Límite exacto de 5 s del `TokenRefresher` sin test, y test de ráfaga con reloj real.
+  - `Unexpected` para 403/404 y `Success(null)` para un 409 especulativo.
+  - Constantes públicas en commonMain y `ByteArray` entero en memoria.
+  - `loadCampos` concurrente sin cancelar en `onUpload`.
+  - Bitmap `decoded` sin reciclar si `createBitmap` lanza OOM, `Dispatchers.Default` para I/O, PNG con transparencia sale con fondo negro.
+  - Test de GPS asume que el runner no preconcede permisos.
+  - Fallo de la galería indistinguible de «cancelar».
+  - Purga y `createTempFile` en el hilo principal.
+  - `Saver` explícito en vez de `listOf`, live regions de accesibilidad, `LazyColumn` si crece la lista de campos.
+  - El aviso «Imagen enviada.» persiste hasta el siguiente CAPTURAR.

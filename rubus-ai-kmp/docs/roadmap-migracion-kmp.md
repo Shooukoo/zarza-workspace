@@ -79,7 +79,7 @@ Todas las rutas llevan el prefijo `/api/v1`.
 | Subida | Multipart con `file`, `campoId`, `capturedAt`, `offlineSyncId`, `gpsLat`, `gpsLon`. Timeout de 90 s. |
 | Compresión | JPEG, lado máximo 2048 px, calidad 85, sin EXIF. |
 | GPS | Precisión alta con límite de 8 s; la captura sigue aunque no haya ubicación. |
-| Cola offline | Tabla `pending_uploads` con clave `offlineSyncId`. Estados: pendiente, sincronizando, fallido. Tres reintentos y luego fallido. Un 409 del servidor cuenta como éxito porque la captura ya existía. |
+| Cola offline | Tabla `pending_uploads` con clave `offlineSyncId`. Estados: pendiente, sincronizando, fallido. Tres reintentos y luego fallido. El backend no devuelve 409 al subir: deduplica `fruit-ms` y un reintento acaba en la DLQ; el diseño del sync debe contemplarlo (ver `dependencias-pendientes.md`). |
 | Sync automático | Se dispara al arrancar la app y cada vez que vuelve la conexión, solo con la app abierta. |
 | Notificaciones locales | Tres canales: alertas de análisis, sincronización offline (progreso) y push. |
 | Roles | La pestaña de solicitudes solo aparece para MONITOR y AGRÓNOMO. |
@@ -169,6 +169,8 @@ Estado: implementada el 2026-10-28 (suite de `shared` y ensamblado en verde; el 
 
 ### Fase 2 — Flujo crítico (9–11 días)
 
+Estado: partida en tres sub-fases. 2a (captura y subida) implementada el 2026-10-28; pendiente de verificación en un teléfono Android (ver `dependencias-pendientes.md`). 2b (WebSocket y aviso `analisis_listo`) y 2c (resultados y validación) sin empezar. Spec y plan en `docs/superpowers/`.
+
 **Objetivo.** Validar de punta a punta, en un teléfono real, lo que define el producto.
 
 **Qué se migra.**
@@ -202,7 +204,7 @@ Estado: implementada el 2026-10-28 (suite de `shared` y ensamblado en verde; el 
 - Evitar dos sincronizaciones simultáneas (arranque y cambio de conectividad a la vez).
 - El sync solo corre con la app abierta, igual que hoy. Sincronizar en segundo plano con WorkManager es una mejora posible, fuera de este roadmap.
 
-**Terminado cuando.** Pasan los tests portados de cola y sync; en modo avión se capturan tres fotos y aparecen en la cola; al volver la red se suben solas y la cola queda vacía; forzar el cierre a mitad del sync no pierde ni duplica capturas; un 409 se trata como éxito.
+**Terminado cuando.** Pasan los tests portados de cola y sync; en modo avión se capturan tres fotos y aparecen en la cola; al volver la red se suben solas y la cola queda vacía; forzar el cierre a mitad del sync no pierde ni duplica capturas; un reintento de una captura ya subida no la duplica (el backend no devuelve 409; ver `dependencias-pendientes.md`).
 
 ### Fase 4 — Historial, inicio y barra inferior (6–7 días)
 
@@ -303,7 +305,7 @@ Estado: implementada el 2026-10-28 (suite de `shared` y ensamblado en verde; el 
 |--------|-----------------|---------------------|
 | Captura de imagen y GPS | Es la entrada de todo el sistema y depende del hardware y los permisos de cada teléfono. | Fase 2, en dispositivo físico desde el primer día de la fase; no cerrar con emulador. |
 | Offline-first | Una captura perdida en campo no se puede repetir. | Fase 3 inmediatamente después del flujo con red, con los tests de Flutter portados y pruebas en modo avión y con cierre forzado. |
-| Sincronización | Duplicados o capturas atoradas. | El backend ya deduplica por `offlineSyncId` (409). Probar reintentos, cierre a mitad del sync y dos disparos simultáneos en la fase 3. |
+| Sincronización | Duplicados o capturas atoradas. | El backend no devuelve 409: `fruit-ms` deduplica por `offlineSyncId` y un reintento acaba en la DLQ (ver `dependencias-pendientes.md`). Probar reintentos, cierre a mitad del sync y dos disparos simultáneos en la fase 3. |
 | FCM | Depende del identificador de la app, de Firebase y del fabricante del teléfono. | Identificador ya decidido en la fase 0 (`com.rubusai.app`). Al inicio de la fase 6, antes de construir la bandeja, enviar un push de prueba con la app cerrada. |
 | Soporte iOS | Se implementa al final y nunca ha existido. | Mantener todo el código compartido libre de APIs de Android, y compilar el framework de iOS en un Mac al cerrar las fases 0, 2 y 3 aunque no se implemente nada. |
 | Versiones del toolchain | AGP 9 y Kotlin recientes pueden no estar soportados por alguna librería. | Fase 0: agregar todas las librerías del roadmap de una vez y confirmar que el proyecto compila antes de escribir features. |
