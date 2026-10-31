@@ -79,7 +79,7 @@ Todas las rutas llevan el prefijo `/api/v1`.
 | Subida | Multipart con `file`, `campoId`, `capturedAt`, `offlineSyncId`, `gpsLat`, `gpsLon`. Timeout de 90 s. |
 | Compresión | JPEG, lado máximo 2048 px, calidad 85, sin EXIF. |
 | GPS | Precisión alta con límite de 8 s; la captura sigue aunque no haya ubicación. |
-| Cola offline | Tabla `pending_uploads` con clave `offlineSyncId`. Estados: pendiente, sincronizando, fallido. Tres reintentos y luego fallido. El backend no devuelve 409 al subir: deduplica `fruit-ms` y un reintento acaba en la DLQ; el diseño del sync debe contemplarlo (ver `dependencias-pendientes.md`). |
+| Cola offline | Tabla `pending_uploads` con clave `offlineSyncId`. Estados: pendiente, sincronizando, fallido. Tres reintentos y luego fallido. El backend no devuelve 409 al subir: la deduplicación la hace `fruit-ms` y un reintento acaba en la DLQ; el diseño del sync debe contemplarlo (ver `dependencias-pendientes.md`). |
 | Sync automático | Se dispara al arrancar la app y cada vez que vuelve la conexión, solo con la app abierta. |
 | Notificaciones locales | Tres canales: alertas de análisis, sincronización offline (progreso) y push. |
 | Roles | La pestaña de solicitudes solo aparece para MONITOR y AGRÓNOMO. |

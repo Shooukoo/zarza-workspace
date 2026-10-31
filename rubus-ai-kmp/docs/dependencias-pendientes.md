@@ -101,7 +101,7 @@ Salieron de las revisiones de la Fase 1. Ninguna impide usar el login; esperan d
 
 ## Pendientes de la Fase 2a
 
-- **Backend: duplicado por `offlineSyncId`.** `POST ingestion/upload` responde 201 siempre y no devuelve 409; `fruit-ms` hace un `create` sobre `Analysis.offlineSyncId` (`@unique`). Un reintento con el mismo id no crea un análisis duplicado, pero corre otra inferencia y termina en la DLQ. Arreglo propuesto: que `fruit-ms` trate la violación de unicidad como éxito idempotente (ack sin reintentar). Corregir en la Fase 3 la línea del roadmap «un 409 del servidor cuenta como éxito».
+- **Backend: duplicado por `offlineSyncId`.** `POST ingestion/upload` responde 201 siempre y no devuelve 409; `fruit-ms` hace un `create` sobre `Analysis.offlineSyncId` (`@unique`). Un reintento con el mismo id no crea un análisis duplicado, pero corre otra inferencia y termina en la DLQ. Arreglo propuesto: que `fruit-ms` trate la violación de unicidad como éxito idempotente (ack sin reintentar). Las líneas del roadmap que suponían un 409 ya se corrigieron; el diseño de sincronización de la Fase 3 debe contar con que el backend no deduplica en la subida.
 - **Archivos temporales.** Las fotos originales de la cámara y las copias de la galería quedan en `cacheDir/captures/` hasta que pasan 24 h (se purgan al crear la siguiente) o Android limpia la caché. Conservan el EXIF con el GPS.
 - **iOS.** `rememberPhotoPicker`, `rememberLocationPermission`, `PhotoPreview`, `ImageCompressor` y `LocationProvider` no tienen implementación real hasta la Fase 9.
 - **Elección de campo tras la muerte del proceso.** Se restaura la foto pero no el campo elegido (con varios campos hay que volver a elegirlo).
