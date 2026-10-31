@@ -169,7 +169,7 @@ Estado: implementada el 2026-10-28 (suite de `shared` y ensamblado en verde; el 
 
 ### Fase 2 — Flujo crítico (9–11 días)
 
-Estado: partida en tres sub-fases. 2a (captura y subida) implementada el 2026-10-28; pendiente de verificación en un teléfono Android (ver `dependencias-pendientes.md`). 2b (WebSocket y aviso `analisis_listo`) y 2c (resultados y validación) sin empezar. Spec y plan en `docs/superpowers/`.
+Estado: partida en tres sub-fases. 2a (captura y subida) implementada el 2026-10-28; verificada en un teléfono Android el 2026-10-30 (cámara, ubicación denegada, modo avión con reintento y muerte de proceso), con pendientes menores en `dependencias-pendientes.md`. 2b (WebSocket y aviso `analisis_listo`) y 2c (resultados y validación) sin empezar. Spec y plan en `docs/superpowers/`.
 
 **Objetivo.** Validar de punta a punta, en un teléfono real, lo que define el producto.
 
