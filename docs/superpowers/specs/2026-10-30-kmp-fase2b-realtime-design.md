@@ -60,12 +60,12 @@ Que un usuario con la sesión iniciada y la app visible reciba, en cuanto `fruit
 - **`RealtimeEvent`** (`core/model`): clase sellada `AnalisisListo(analisisId: String, imageId: String)` y `Desconocido(nombre: String)`.
 - **`RealtimeEventParser`** (`core/network`): función pura `parse(texto: String): RealtimeEvent?`. Devuelve `null` si no es JSON, no tiene `event` o `analisis_listo` llega sin `data.id`. `auth_ok` no es un evento de negocio: lo consume `RealtimeClient`.
 - **`WsTransport`** (`core/network`): interfaz mínima. Una función `suspend fun connect(url): WsConnection`, y `WsConnection` con `send(texto)`, `incoming: Flow<String>` (termina cuando el socket se cierra) y `close()`. Expone el código de cierre al terminar. Su implementación `KtorWsTransport` usa el `HttpClient` dedicado con el plugin `WebSockets` (`pingIntervalMillis = 20_000`), sin `Auth`, sin `HttpTimeout` de petición y sin `Logging` de cuerpos.
-- **`createRealtimeClient(engine)`** (`core/network`): construye ese `HttpClient`, igual que `createRefreshClient`.
+- **`createRealtimeHttpClient(engine)`** (`core/network`): construye ese `HttpClient`, igual que `createRefreshClient`.
 - **`RealtimeClient`** (`core/network`): interfaz con `events: SharedFlow<RealtimeEvent>`, `state: StateFlow<ConnectionState>` (`Desconectado`, `Conectando`, `Conectado`), `fun connect()` y `fun disconnect()`. `RealtimeClientImpl` contiene el protocolo y la reconexión. Recibe `WsTransport`, `EnvConfig`, un `suspend () -> String?` que entrega un token vigente, un `CoroutineScope` y el reloj/retardo inyectables para probar con tiempo virtual.
 - **`RealtimeSession`** (`core/data`): da a `RealtimeClient` su proveedor de token (`auth/me` con el cliente principal y luego `SecureTokenStorage.read()`). No observa la sesión: quien desconecta al cerrarse es `RealtimeHost`.
 - **`RealtimeHost`** (`@Composable`, raíz de la app): llama a `connect()` mientras haya sesión y el `LifecycleOwner` esté `RESUMED`, y a `disconnect()` en caso contrario.
 - **`AvisoViewModel`**: expone un `StateFlow<Aviso?>`; `AnalisisListo` produce «¡Análisis listo!». Un snackbar global en la raíz lo muestra.
-- **`realtimeModule()`** (Koin): registra todo lo anterior. El motor para `createRealtimeClient` lo aporta cada plataforma, como el del cliente principal.
+- **`realtimeModule()`** (Koin): registra todo lo anterior. El motor para `createRealtimeHttpClient` lo aporta cada plataforma, como el del cliente principal.
 
 ### 2. Flujo normal
 
