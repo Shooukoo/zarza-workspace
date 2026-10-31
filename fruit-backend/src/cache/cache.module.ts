@@ -20,9 +20,9 @@ export function createRedisClient(url: string): Redis {
 }
 
 /**
- * Módulo global de cache. lazyConnect + enableOfflineQueue: false
- * hacen que los comandos fallen rápido cuando Redis no existe
- * (p. ej. dev local sin Docker) en vez de encolar y bloquear.
+ * Módulo global de cache. enableOfflineQueue: false hace que los comandos
+ * fallen rápido mientras Redis no esté listo (p. ej. dev local sin Docker)
+ * en vez de encolar y bloquear; la conexión la inicia createRedisClient.
  */
 @Global()
 @Module({

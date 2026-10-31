@@ -23,13 +23,18 @@ describe('createRedisClient', () => {
         lazyConnect: true,
         enableOfflineQueue: false,
         maxRetriesPerRequest: 1,
+        retryStrategy: expect.any(Function),
       }),
     );
+    const { retryStrategy } = RedisMock.mock.calls[0][1] as {
+      retryStrategy: (times: number) => number;
+    };
+    expect([1, 4, 20].map(retryStrategy)).toEqual([500, 2000, 5000]);
     expect(connect).toHaveBeenCalledTimes(1);
   });
 
   it('no lanza ni deja un rechazo sin manejar si connect() falla', async () => {
-    connect.mockReturnValue(Promise.reject(new Error('x')));
+    connect.mockRejectedValue(new Error('x'));
     const onUnhandled = jest.fn();
     process.on('unhandledRejection', onUnhandled);
 
