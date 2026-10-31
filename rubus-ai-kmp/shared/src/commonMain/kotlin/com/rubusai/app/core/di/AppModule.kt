@@ -9,13 +9,20 @@ import com.rubusai.app.core.data.campos.CamposRepository
 import com.rubusai.app.core.data.campos.CamposRepositoryImpl
 import com.rubusai.app.core.data.ingestion.IngestionRepository
 import com.rubusai.app.core.data.ingestion.IngestionRepositoryImpl
+import com.rubusai.app.core.data.realtime.RealtimeSession
+import com.rubusai.app.core.network.KtorWsTransport
+import com.rubusai.app.core.network.RealtimeClient
+import com.rubusai.app.core.network.RealtimeClientImpl
 import com.rubusai.app.core.network.SessionEvents
 import com.rubusai.app.core.network.TokenRefresher
 import com.rubusai.app.core.network.createHttpClient
+import com.rubusai.app.core.network.createRealtimeHttpClient
 import com.rubusai.app.core.network.createRefreshClient
 import com.rubusai.app.feature.auth.LoginViewModel
+import com.rubusai.app.feature.aviso.AvisoViewModel
 import com.rubusai.app.feature.capture.CaptureViewModel
 import com.rubusai.app.feature.home.HomeViewModel
+import io.ktor.client.plugins.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -79,9 +86,30 @@ internal fun captureModule(): Module = module {
     viewModel { CaptureViewModel(campos = get(), ingestion = get(), compressor = get(), location = get()) }
 }
 
+/**
+ * Canal en tiempo real. Su `HttpClient` es propio (sin `Auth` ni timeout de petición) y comparte el
+ * motor con los demás; el token lo da `RealtimeSession`, que pasa por el cliente principal.
+ * El ámbito vive lo mismo que la app; `RealtimeHost` es quien conecta y desconecta.
+ */
+internal fun realtimeModule(): Module = module {
+    single { RealtimeSession(auth = get(), tokenStorage = get()) }
+    single<RealtimeClient> {
+        val logger = get<Logger>()
+        RealtimeClientImpl(
+            transport = KtorWsTransport(createRealtimeHttpClient(engine = get())),
+            wsUrl = get<EnvConfig>().wsUrl,
+            token = get<RealtimeSession>()::freshToken,
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+            log = logger::log,
+        )
+    }
+    viewModelOf(::AvisoViewModel)
+}
+
 internal fun appModules(environment: Environment, devHost: String): List<Module> = listOf(
     configModule(environment, devHost),
     networkModule(),
     authModule(),
     captureModule(),
+    realtimeModule(),
 )

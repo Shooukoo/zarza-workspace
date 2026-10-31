@@ -49,4 +49,6 @@
     <string name="capture_failure_session">Tu sesión expiró. Inicia sesión de nuevo.</string>
     <string name="capture_failure_unexpected">Ocurrió un error. Intenta de nuevo.</string>
     <string name="capture_failure_compression">No se pudo procesar la imagen. Elige otra.</string>
+
+    <string name="aviso_analisis_listo">¡Análisis listo!</string>
 </resources>

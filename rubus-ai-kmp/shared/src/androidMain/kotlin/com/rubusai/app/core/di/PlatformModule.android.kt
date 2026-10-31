@@ -23,13 +23,15 @@ import io.ktor.client.plugins.logging.Logger
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import java.util.concurrent.TimeUnit
 
 /**
  * Implementaciones de `core/platform` y piezas de red propias de Android.
  * Es función y no `val` porque contiene instancias: cada aplicación de Koin recibe las suyas.
  */
 internal fun androidPlatformModule(): Module = module {
-    single<HttpClientEngine> { OkHttp.create() }
+    // El ping del plugin WebSockets no aplica al motor OkHttp: el keepalive se configura aquí (inocuo para REST).
+    single<HttpClientEngine> { OkHttp.create { config { pingInterval(20, TimeUnit.SECONDS) } } }
     single<Logger> { Logger.ANDROID }
     single<TokenCipher> { KeystoreTokenCipher() }
     // DataStore solo admite una instancia por archivo y proceso: la comparten los tokens y el

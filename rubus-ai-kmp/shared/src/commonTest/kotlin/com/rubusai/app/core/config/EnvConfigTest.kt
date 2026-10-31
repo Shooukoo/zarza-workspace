@@ -39,4 +39,25 @@ class EnvConfigTest {
     fun devSinHostFalla() {
         assertFailsWith<IllegalArgumentException> { EnvConfig(Environment.DEV, devHost = "") }
     }
+
+    @Test
+    fun devUsaWsConElHostRecibido() {
+        val config = EnvConfig(Environment.DEV, devHost = "192.168.1.50")
+
+        assertEquals("ws://192.168.1.50:3001/ws", config.wsUrl)
+    }
+
+    @Test
+    fun stagingUsaWssSinElPrefijoDeLaApi() {
+        val config = EnvConfig(Environment.STAGING, devHost = "192.168.1.50")
+
+        assertEquals("wss://staging.api.zarza.example/ws", config.wsUrl)
+    }
+
+    @Test
+    fun prodUsaWssSinElPrefijoDeLaApi() {
+        val config = EnvConfig(Environment.PROD, devHost = "")
+
+        assertEquals("wss://api.zarza.example/ws", config.wsUrl)
+    }
 }
