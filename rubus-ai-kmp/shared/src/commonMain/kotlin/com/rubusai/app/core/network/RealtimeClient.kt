@@ -1,7 +1,6 @@
 package com.rubusai.app.core.network
 
 import com.rubusai.app.core.model.RealtimeEvent
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -10,6 +9,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -35,7 +35,11 @@ enum class ConnectionState { Desconectado, Conectando, Conectado }
  * [disconnect] se llaman siempre desde el mismo hilo (el principal, desde `RealtimeHost`).
  */
 interface RealtimeClient {
-    /** Eventos de negocio. No se guardan: quien no esté suscrito en ese momento los pierde. */
+    /**
+     * Eventos de negocio. No se guardan: quien no esté suscrito en ese momento los pierde, y con un
+     * suscriptor más lento que el búfer de 16 se descartan los más antiguos; trátalos como avisos
+     * de "refrescar", no como un registro completo.
+     */
     val events: SharedFlow<RealtimeEvent>
 
     val state: StateFlow<ConnectionState>
@@ -79,9 +83,9 @@ internal class RealtimeClientImpl(
         job = scope.launch { correr() }
     }
 
-    // shortcut: si el bucle está justo escribiendo el estado mientras se cancela, puede quedar un
-    // Conectado/Conectando obsoleto; la ventana es de microsegundos y RealtimeHost reconecta o
-    // desconecta en cuanto cambia la sesión o el ciclo de vida. Subir a un solo hilo si molesta.
+    // shortcut: si el bucle escribe el estado justo mientras se cancela, puede quedar un Conectado
+    // obsoleto hasta el siguiente connect(); la ventana es de microsegundos y RealtimeHost reconecta
+    // o desconecta en cuanto cambia la sesión o el ciclo de vida. Subir a un solo hilo si molesta.
     override fun disconnect() {
         job?.cancel()
         job = null
@@ -113,9 +117,8 @@ internal class RealtimeClientImpl(
     private suspend fun sesion(alAutenticar: () -> Unit): Fin {
         val accessToken = try {
             token()
-        } catch (e: CancellationException) {
-            throw e
         } catch (e: Exception) {
+            currentCoroutineContext().ensureActive() // solo se propaga la cancelación propia
             null
         }
         if (accessToken == null) {
@@ -124,9 +127,8 @@ internal class RealtimeClientImpl(
         }
         val conexion = try {
             transport.connect(wsUrl)
-        } catch (e: CancellationException) {
-            throw e
         } catch (e: Exception) {
+            currentCoroutineContext().ensureActive() // solo se propaga la cancelación propia
             log("No se pudo abrir el WebSocket")
             return Fin.Fallo
         }
@@ -136,7 +138,8 @@ internal class RealtimeClientImpl(
                 val vigilante = launch {
                     delay(AUTH_TIMEOUT_MS)
                     log("El servidor no confirmó la autenticación a tiempo")
-                    conexion.close()
+                    // Corta la lectura ya: en Android close() solo manda el Close y incoming puede tardar 60 s.
+                    throw SinAuthOk()
                 }
                 try {
                     conexion.send(mensajeAuth(accessToken))
@@ -158,9 +161,8 @@ internal class RealtimeClientImpl(
                     vigilante.cancel()
                 }
             }
-        } catch (e: CancellationException) {
-            throw e
         } catch (e: Exception) {
+            currentCoroutineContext().ensureActive() // solo se propaga la cancelación propia
             log("El WebSocket se cerró con error")
         } finally {
             withContext(NonCancellable) {
@@ -188,6 +190,9 @@ internal class RealtimeClientImpl(
         return minOf(BACKOFF_MAX_MS, (base * jitter()).toLong())
     }
 }
+
+/** Vence el plazo del auth_ok; no es una cancelación, así `coroutineScope` aborta la lectura. */
+private class SinAuthOk : Exception()
 
 private fun mensajeAuth(token: String): String = buildJsonObject {
     put("event", "auth")

@@ -1,6 +1,7 @@
 package com.rubusai.app.core.network
 
 import com.rubusai.app.core.model.RealtimeEvent
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -254,5 +255,68 @@ class RealtimeClientTest {
 
         assertTrue(transport.attemptTimes.isEmpty())
         assertEquals(2, llamadas)
+    }
+
+    @Test
+    fun sinAuthOkYConUnParCerradoQueNoRespondeReintentaALosDoce() = runTest {
+        val transport = FakeWsTransport(testScheduler).apply { closeEndsIncoming = false }
+        val client = cliente(transport)
+        client.connect()
+        runCurrent()
+
+        avanzar(10_001)
+        assertTrue(transport.connections[0].closed)
+
+        avanzar(2_000)
+        assertEquals(listOf(0L, 12_000L), transport.attemptTimes)
+    }
+
+    @Test
+    fun unaCancelacionAjenaAlConectarSeTrataComoFalloYSeReintenta() = runTest {
+        val transport = FakeWsTransport(testScheduler).apply { connectThrows = CancellationException("okhttp") }
+        val client = cliente(transport)
+        client.connect()
+        runCurrent()
+
+        avanzar(2_001)
+
+        assertEquals(listOf(0L, 2_000L), transport.attemptTimes)
+        assertEquals(ConnectionState.Conectando, client.state.value)
+    }
+
+    @Test
+    fun unDisconnectSeguidoDeConnectReabreElSocketYVuelveAConectar() = runTest {
+        val transport = FakeWsTransport(testScheduler)
+        val client = cliente(transport)
+        client.connect()
+        runCurrent()
+        transport.connections[0].server(AUTH_OK)
+        runCurrent()
+
+        client.disconnect()
+        client.connect()
+        runCurrent()
+
+        assertTrue(transport.connections[0].closed)
+        assertEquals(2, transport.connections.size)
+        transport.connections[1].server(AUTH_OK)
+        runCurrent()
+        assertEquals(ConnectionState.Conectado, client.state.value)
+    }
+
+    @Test
+    fun elCierre4001TrasUnAuthOkVuelveAPermitirUnReintentoInmediato() = runTest {
+        val transport = FakeWsTransport(testScheduler)
+        val client = cliente(transport)
+        client.connect()
+        runCurrent()
+        transport.connections[0].server(AUTH_OK)
+        runCurrent()
+
+        // Cada auth_ok rearma el reintento inmediato.
+        transport.connections[0].serverClose(4001)
+        runCurrent()
+
+        assertEquals(listOf(0L, 0L), transport.attemptTimes)
     }
 }

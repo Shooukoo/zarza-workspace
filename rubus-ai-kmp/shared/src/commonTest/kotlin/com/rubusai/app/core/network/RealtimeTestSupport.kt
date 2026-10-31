@@ -10,8 +10,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.test.TestCoroutineScheduler
 
-/** Conexión falsa: el test hace de servidor con [server] y [serverClose]. */
-internal class FakeWsConnection : WsConnection {
+/**
+ * Conexión falsa: el test hace de servidor con [server] y [serverClose]. Con [closeEndsIncoming] en
+ * false, [close] no termina la lectura: simula un par que no responde al Close (como OkHttp).
+ */
+internal class FakeWsConnection(private val closeEndsIncoming: Boolean = true) : WsConnection {
     private val channel = Channel<String>(Channel.UNLIMITED)
 
     override val incoming: Flow<String> = channel.receiveAsFlow()
@@ -27,7 +30,7 @@ internal class FakeWsConnection : WsConnection {
 
     override suspend fun close() {
         closed = true
-        channel.close()
+        if (closeEndsIncoming) channel.close()
     }
 
     /** El servidor manda [texto]. */
@@ -42,21 +45,27 @@ internal class FakeWsConnection : WsConnection {
     }
 }
 
-/** Transporte falso: registra cada intento (con el tiempo virtual) y puede fallar los primeros [failures]. */
+/**
+ * Transporte falso: registra cada intento (con el tiempo virtual) y puede fallar los primeros
+ * [failures]; [connectThrows] hace fallar con esa excepción solo el siguiente intento.
+ */
 internal class FakeWsTransport(private val scheduler: TestCoroutineScheduler) : WsTransport {
     val connections = mutableListOf<FakeWsConnection>()
     val attemptTimes = mutableListOf<Long>()
     val urls = mutableListOf<String>()
     var failures = 0
+    var connectThrows: Throwable? = null
+    var closeEndsIncoming = true
 
     override suspend fun connect(url: String): WsConnection {
         attemptTimes += scheduler.currentTime
         urls += url
+        connectThrows?.let { connectThrows = null; throw it }
         if (failures > 0) {
             failures--
             throw FakeNetworkException()
         }
-        return FakeWsConnection().also { connections += it }
+        return FakeWsConnection(closeEndsIncoming).also { connections += it }
     }
 }
 
