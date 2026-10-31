@@ -64,17 +64,17 @@ private class KtorWsConnection(private val session: DefaultClientWebSocketSessio
     override val closeCode: Int? get() = code
 
     override val incoming: Flow<String> = flow {
-        convertirCancelacionAjena {
-            for (frame in session.incoming) {
-                if (frame is Frame.Text) emit(frame.readText())
-            }
+        // Solo la recepción: lo que lance el colector (p. ej. AbortFlowException de first()) pasa intacto.
+        val frames = session.incoming.iterator()
+        while (convertirCancelacionAjena { frames.hasNext() }) {
+            val frame = frames.next()
+            if (frame is Frame.Text) emit(frame.readText())
         }
         // En iOS closeReason puede no completarse nunca: se acota para no colgar el flujo.
         code = try {
             withTimeoutOrNull(1_000) { session.closeReason.await() }?.code?.toInt()
-        } catch (e: CancellationException) {
-            throw e
         } catch (e: Exception) {
+            currentCoroutineContext().ensureActive() // una cancelación real se propaga; una ajena solo deja el código en null
             null
         }
     }
