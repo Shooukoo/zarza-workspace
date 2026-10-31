@@ -8,7 +8,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Inject } from '@nestjs/common';
+import { Inject, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import type { IncomingMessage } from 'http';
 import { Server, WebSocket } from 'ws';
 import { I_TOKEN_PORT, type ITokenPort } from '../auth/ports/token.port';
@@ -16,12 +16,19 @@ import { AppLogger } from '../common/logging/app.logger';
 
 const ACCESS_COOKIE_NAME = 'access_token';
 
+/** Cada cuánto se hace ping a los sockets; uno que no contesta pong en un ciclo se termina. */
+const HEARTBEAT_INTERVAL_MS = 30_000;
+
 /** Orígenes desde los que se acepta la cookie de sesión en el handshake. */
 export const WS_ALLOWED_ORIGINS = Symbol('WS_ALLOWED_ORIGINS');
 
 @WebSocketGateway({ path: '/ws' })
 export class NotificationsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    OnModuleInit,
+    OnModuleDestroy
 {
   @WebSocketServer()
   server: Server;
@@ -33,17 +40,53 @@ export class NotificationsGateway
   // socket → handle del timeout de auth pendiente
   private readonly authTimeouts = new Map<WebSocket, NodeJS.Timeout>();
 
+  // sockets que respondieron pong desde el último ping
+  private readonly alive = new Set<WebSocket>();
+  private heartbeatTimer?: NodeJS.Timeout;
+
   constructor(
     @Inject(I_TOKEN_PORT) private readonly tokenService: ITokenPort,
     @Inject(WS_ALLOWED_ORIGINS) private readonly allowedOrigins: string[],
     private readonly logger: AppLogger,
   ) {}
 
+  onModuleInit(): void {
+    this.heartbeatTimer = setInterval(
+      () => this.heartbeat(),
+      HEARTBEAT_INTERVAL_MS,
+    );
+    this.heartbeatTimer.unref();
+  }
+
+  onModuleDestroy(): void {
+    clearInterval(this.heartbeatTimer);
+  }
+
+  /** Un socket sin pong desde el ping anterior se termina; terminate dispara `close` → handleDisconnect. */
+  heartbeat(): void {
+    for (const client of this.server?.clients ?? []) {
+      if (!this.alive.has(client)) {
+        client.terminate();
+        continue;
+      }
+      this.alive.delete(client);
+      try {
+        client.ping();
+      } catch (err) {
+        this.logger.warn('Error al enviar ping WebSocket', {
+          error: (err as Error).message,
+        });
+      }
+    }
+  }
+
   async handleConnection(
     client: WebSocket,
     request?: IncomingMessage,
   ): Promise<void> {
     this.logger.info('Cliente WebSocket conectado, esperando auth...');
+    this.alive.add(client);
+    client.on('pong', () => this.alive.add(client));
     const timeout = setTimeout(() => {
       this.logger.warn('Timeout de auth — cerrando socket');
       client.close(4001, 'Auth timeout');
@@ -72,6 +115,7 @@ export class NotificationsGateway
 
   handleDisconnect(client: WebSocket) {
     this.clearAuthTimeout(client);
+    this.alive.delete(client);
     const userId = this.authenticated.get(client);
     this.authenticated.delete(client);
     if (userId) {
