@@ -62,7 +62,7 @@ Que un usuario con la sesión iniciada y la app visible reciba, en cuanto `fruit
 - **`WsTransport`** (`core/network`): interfaz mínima. Una función `suspend fun connect(url): WsConnection`, y `WsConnection` con `send(texto)`, `incoming: Flow<String>` (termina cuando el socket se cierra) y `close()`. Expone el código de cierre al terminar. Su implementación `KtorWsTransport` usa el `HttpClient` dedicado con el plugin `WebSockets` (`pingIntervalMillis = 20_000`), sin `Auth`, sin `HttpTimeout` de petición y sin `Logging` de cuerpos.
 - **`createRealtimeClient(engine)`** (`core/network`): construye ese `HttpClient`, igual que `createRefreshClient`.
 - **`RealtimeClient`** (`core/network`): interfaz con `events: SharedFlow<RealtimeEvent>`, `state: StateFlow<ConnectionState>` (`Desconectado`, `Conectando`, `Conectado`), `fun connect()` y `fun disconnect()`. `RealtimeClientImpl` contiene el protocolo y la reconexión. Recibe `WsTransport`, `EnvConfig`, un `suspend () -> String?` que entrega un token vigente, un `CoroutineScope` y el reloj/retardo inyectables para probar con tiempo virtual.
-- **`RealtimeSession`** (`core/data`): da a `RealtimeClient` su proveedor de token (`auth/me` con el cliente principal y luego `SecureTokenStorage.read()`), y desconecta cuando `SessionManager` pasa a sin sesión.
+- **`RealtimeSession`** (`core/data`): da a `RealtimeClient` su proveedor de token (`auth/me` con el cliente principal y luego `SecureTokenStorage.read()`). No observa la sesión: quien desconecta al cerrarse es `RealtimeHost`.
 - **`RealtimeHost`** (`@Composable`, raíz de la app): llama a `connect()` mientras haya sesión y el `LifecycleOwner` esté `RESUMED`, y a `disconnect()` en caso contrario.
 - **`AvisoViewModel`**: expone un `StateFlow<Aviso?>`; `AnalisisListo` produce «¡Análisis listo!». Un snackbar global en la raíz lo muestra.
 - **`realtimeModule()`** (Koin): registra todo lo anterior. El motor para `createRealtimeClient` lo aporta cada plataforma, como el del cliente principal.
@@ -82,7 +82,7 @@ Que un usuario con la sesión iniciada y la app visible reciba, en cuanto `fruit
 |------|----------|
 | Sin red o el handshake falla | Reintenta con espera exponencial: 2 s, 4 s, 8 s… tope de 60 s, con jitter de ±20 %. La espera vuelve a 2 s al recibir `auth_ok`. Solo mientras haya primer plano y sesión. |
 | Cierre 4001 | Pide un token nuevo (con `auth/me`, que refresca si hace falta) y reintenta una vez de inmediato. Si vuelve a fallar, entra en la espera normal. |
-| `auth/me` falla con 401 sin refresh posible | Es una sesión muerta: `SessionManager` ya la cierra y `RealtimeSession` desconecta. El socket no interviene. |
+| `auth/me` falla con 401 sin refresh posible | Es una sesión muerta: `SessionManager` ya la cierra y `RealtimeHost` desconecta. El socket no interviene. |
 | `auth/me` falla por red | No se conecta con un token viejo; se trata como fallo de handshake (espera normal). |
 | Mensaje que no es JSON o incompleto | Se descarta con un log sin su contenido; la conexión sigue. |
 | Evento desconocido | Sale como `Desconocido`; nadie lo consume. |
@@ -98,9 +98,9 @@ Automáticas (`commonTest`, con `runTest` y tiempo virtual, salvo donde se indic
 
 - `RealtimeEventParser`: `analisis_listo` completo, sin `data.id`, evento desconocido, JSON roto, mensaje vacío.
 - `RealtimeClientImpl` con un `WsTransport` falso: conecta y pasa a `Conectado` solo tras `auth_ok`; sin `auth_ok` en 10 s cierra y reintenta; el cierre 4001 pide token nuevo y reintenta una vez sin esperar; la espera sigue 2, 4, 8… con tope de 60 s y se reinicia tras `auth_ok`; `disconnect()` cancela los reintentos; dos `connect()` seguidos no abren dos sockets; un mensaje corrupto no cierra la conexión; un `disconnect()` mientras se espera el token impide abrir el socket.
-- `RealtimeSession`: un fallo de red en `auth/me` no conecta con el token viejo; el cierre de sesión desconecta.
+- `RealtimeSession`: un fallo de red en `auth/me` no conecta con el token viejo; lee el token después de `auth/me`.
 - `AvisoViewModel`: `AnalisisListo` produce un aviso, un desconocido no, dos seguidos dejan el último.
-- `RealtimeHost` (`androidHostTest`, como `RubusNavHostTest`): conecta con sesión y `RESUMED`, desconecta en `STOPPED` o sin sesión, reconecta al volver.
+- `RealtimeHost` (`androidHostTest`, como `RubusNavHostTest`): conecta con sesión y `RESUMED`, desconecta en `STOPPED` o sin sesión, reconecta al volver, no reconecta si solo cambia el usuario de la sesión.
 - `EnvConfig.wsUrl`: los tres entornos, con esquema `ws`/`wss` y ruta `/ws`.
 - `compileKotlinIosSimulatorArm64` y `compileTestKotlinIosSimulatorArm64` deben seguir compilando.
 
