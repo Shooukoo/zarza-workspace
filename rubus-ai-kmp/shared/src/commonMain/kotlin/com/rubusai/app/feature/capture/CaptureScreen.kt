@@ -51,9 +51,9 @@ import com.rubusai.app.resources.capture_take_photo
 import com.rubusai.app.resources.capture_title
 import com.rubusai.app.resources.capture_upload
 import com.rubusai.app.resources.capture_uploading
+import kotlinx.coroutines.flow.first
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import kotlinx.coroutines.flow.first
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

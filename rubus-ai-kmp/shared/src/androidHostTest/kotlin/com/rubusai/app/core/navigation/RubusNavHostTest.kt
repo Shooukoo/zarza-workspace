@@ -370,11 +370,11 @@ class RubusNavHostTest {
 
     @Test
     fun siLaSubidaTerminaFueraDeResumedVuelveAHomeAlReanudar() {
-        val registry = LifecycleRegistry.createUnsafe(object : LifecycleOwner {
-            override val lifecycle: Lifecycle get() = error("sin uso")
-        })
-        val owner = object : LifecycleOwner { override val lifecycle: Lifecycle = registry }
-        rule.runOnUiThread { registry.currentState = Lifecycle.State.RESUMED }
+        val owner = object : LifecycleOwner {
+            val registry = LifecycleRegistry.createUnsafe(this)
+            override val lifecycle: Lifecycle get() = registry
+        }
+        rule.runOnUiThread { owner.registry.currentState = Lifecycle.State.RESUMED }
         val nav = render(Environment.PROD, mutableStateOf(SessionState.Authenticated(ana)), owner)
         rule.onNodeWithText("CAPTURAR").performClick()
         rule.waitUntilAtLeastOneExists(hasText("CANCELAR"), timeoutMillis = 5_000)
@@ -382,14 +382,14 @@ class RubusNavHostTest {
         rule.runOnUiThread { captura.onPhotoChosen("/tmp/foto.jpg") }
 
         // App en segundo plano: la entrada baja a STARTED y la subida termina entonces.
-        rule.runOnUiThread { registry.currentState = Lifecycle.State.STARTED }
+        rule.runOnUiThread { owner.registry.currentState = Lifecycle.State.STARTED }
         rule.waitForIdle()
         rule.runOnUiThread { captura.onUpload() }
         rule.waitUntil(timeoutMillis = 5_000) { captura.state.value.uploaded }
         rule.waitForIdle()
         assertEquals(listOf(route(Route.Home), route(Route.Capture)), nav.visibleRoutes())
 
-        rule.runOnUiThread { registry.currentState = Lifecycle.State.RESUMED }
+        rule.runOnUiThread { owner.registry.currentState = Lifecycle.State.RESUMED }
         rule.waitUntilAtLeastOneExists(hasText("Imagen enviada."), timeoutMillis = 5_000)
         assertEquals(listOf(route(Route.Home)), nav.visibleRoutes())
     }
