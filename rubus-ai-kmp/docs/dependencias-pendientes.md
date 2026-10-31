@@ -59,10 +59,11 @@ Room, KSP, SQLite empaquetado, Coil 3 y Play Services Location no tenían códig
 - **Cifrado de la sesión.** `KeystoreTokenCipherTest` (`shared/src/androidDeviceTest`) pasa en el emulador (5 de 5, 2026-10-27). La CI (`.github/workflows/kmp-tests.yml`) corre `commonTest` y `androidHostTest`, no `androidDeviceTest`. Para repetirlo conviene lanzarlo solo, porque `connectedAndroidDeviceTest` ejecuta también todos los tests de `commonTest` en el dispositivo: `./gradlew :shared:connectedAndroidDeviceTest -Pandroid.testInstrumentationRunnerArguments.class=com.rubusai.app.core.platform.KeystoreTokenCipherTest`.
 - **Petición de prueba.** El botón "Probar conexión" de `Diagnostico` (flavor `dev`) muestra "Conectado" contra el backend local desde el emulador (2026-10-27). En Android 17 hizo falta `ACCESS_LOCAL_NETWORK` (ver abajo).
 - **Coste de leer la sesión.** El cliente descifra los tokens con el Keystore en cada petición, en el hilo de quien llama. Medirlo en un teléfono de gama baja en la fase 2; si pesa, mover el cifrado a `Dispatchers.Default` dentro de `DataStoreTokenStorage` (envolviendo `read` y `save` enteros, no solo el `try`) o cachear el par en memoria.
+- **Fase 2a en dispositivo.** Captura, ubicación, subida, rotación y muerte de proceso sin probar en un teléfono; los tests `AndroidImageCompressorTest` y `FusedLocationProviderTest` nunca se han ejecutado (ver «Pendientes de la Fase 2a»).
 
 ## Limitaciones conocidas y decisiones abiertas de la red
 
-Salieron de las revisiones del sub-proyecto de red (2026-10-10). Ninguna impide usar el cliente; todas esperan una decisión.
+Salieron de las revisiones del sub-proyecto de red (2026-10-10). Ninguna impide usar el cliente; todas esperan una decisión, salvo la marcada como resuelta.
 
 - **Ráfaga de refrescos tras un fallo transitorio.** Resuelto el 2026-10-28 (Fase 2a): `TokenRefresher` recuerda 5 s que un refresh token falló por red, timeout o 429 y no repite la llamada. A cambio, un reintento manual del usuario dentro de esos 5 s falla sin intentarlo.
 - **El refresh no es cancelable** (`nonCancellableRefresh = true`). Es deliberado: si se cortara después de que el backend rote el token, quedaría guardado uno ya gastado y el siguiente refresh revocaría la sesión. Consecuencia: una petición cancelada durante un refresh no termina hasta que termina el refresh (30 s como mucho).
@@ -101,6 +102,7 @@ Salieron de las revisiones de la Fase 1. Ninguna impide usar el login; esperan d
 
 ## Pendientes de la Fase 2a
 
+- **Sin verificar en dispositivo.** La captura (cámara y galería), el permiso de ubicación, la subida real, la rotación y la muerte de proceso no se han probado en un teléfono Android (Tarea 11 del plan de la 2a). Los tests de dispositivo `AndroidImageCompressorTest` (6) y `FusedLocationProviderTest` (1) solo compilan; nunca se han ejecutado. La 2a no se da por cerrada hasta que pasen: foto con cámara, negar la ubicación, modo avión con reintento y muerte de proceso.
 - **Backend: duplicado por `offlineSyncId`.** `POST ingestion/upload` responde 201 siempre y no devuelve 409; `fruit-ms` hace un `create` sobre `Analysis.offlineSyncId` (`@unique`). Un reintento con el mismo id no crea un análisis duplicado, pero corre otra inferencia y termina en la DLQ. Arreglo propuesto: que `fruit-ms` trate la violación de unicidad como éxito idempotente (ack sin reintentar). Las líneas del roadmap que suponían un 409 ya se corrigieron; el diseño de sincronización de la Fase 3 debe contar con que el backend no deduplica en la subida.
 - **Archivos temporales.** Las fotos originales de la cámara y las copias de la galería quedan en `cacheDir/captures/` hasta que pasan 24 h (se purgan al crear la siguiente) o Android limpia la caché. Conservan el EXIF con el GPS.
 - **iOS.** `rememberPhotoPicker`, `rememberLocationPermission`, `PhotoPreview`, `ImageCompressor` y `LocationProvider` no tienen implementación real hasta la Fase 9.
