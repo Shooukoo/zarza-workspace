@@ -14,8 +14,13 @@ import com.rubusai.app.core.network.mockEngine
 import com.rubusai.app.core.platform.InMemoryTokenStorage
 import com.rubusai.app.core.platform.InMemoryUserStorage
 import com.rubusai.app.core.platform.SecureTokenStorage
+import com.rubusai.app.core.platform.ImageCompressor
+import com.rubusai.app.core.platform.LocationProvider
 import com.rubusai.app.core.platform.UserStorage
 import com.rubusai.app.feature.auth.LoginViewModel
+import com.rubusai.app.feature.capture.CaptureViewModel
+import com.rubusai.app.feature.capture.FakeImageCompressor
+import com.rubusai.app.feature.capture.FakeLocationProvider
 import com.rubusai.app.feature.home.HomeViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -30,8 +35,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.koin.dsl.koinApplication
@@ -162,6 +171,31 @@ class KoinGraphTest {
             assertEquals(listOf<String?>("Bearer access-old"), authorizations)
         } finally {
             app.close()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun elGrafoResuelveElViewModelDeCaptura() = runTest {
+        // `CaptureViewModel` lanza en `viewModelScope` al crearse: necesita un `Main`.
+        Dispatchers.setMain(StandardTestDispatcher())
+        val platformModule = module {
+            single<HttpClientEngine> { mockEngine { respondOk() } }
+            single<Logger> { Logger.EMPTY }
+            single<SecureTokenStorage> { InMemoryTokenStorage() }
+            single<UserStorage> { InMemoryUserStorage() }
+            single<ImageCompressor> { FakeImageCompressor() }
+            single<LocationProvider> { FakeLocationProvider() }
+        }
+        val app = koinApplication {
+            modules(appModules(Environment.DEV, devHost = "10.0.2.2") + platformModule)
+        }
+
+        try {
+            app.koin.get<CaptureViewModel>()
+        } finally {
+            app.close()
+            Dispatchers.resetMain()
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.rubusai.app.core.navigation
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -11,6 +12,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.waitUntilAtLeastOneExists
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -25,7 +30,14 @@ import com.rubusai.app.core.designsystem.theme.RubusTheme
 import com.rubusai.app.core.network.SessionEvents
 import com.rubusai.app.core.platform.InMemoryTokenStorage
 import com.rubusai.app.core.platform.InMemoryUserStorage
+import com.rubusai.app.core.data.campos.CamposResult
+import com.rubusai.app.core.model.Campo
 import com.rubusai.app.feature.auth.LoginViewModel
+import com.rubusai.app.feature.capture.CaptureViewModel
+import com.rubusai.app.feature.capture.FakeCamposRepository
+import com.rubusai.app.feature.capture.FakeImageCompressor
+import com.rubusai.app.feature.capture.FakeIngestionRepository
+import com.rubusai.app.feature.capture.FakeLocationProvider
 import com.rubusai.app.feature.home.HomeViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -40,6 +52,7 @@ import org.junit.runner.RunWith
 import org.koin.compose.KoinApplication
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -54,6 +67,14 @@ class RubusNavHostTest {
     @get:Rule
     val rule = createComposeRule()
 
+    // Koin se reutiliza entre tests de la clase y conserva el módulo del primero: el estado que ve
+    // el módulo tiene que ser global y limpiarse en render().
+    private companion object {
+        // Los CaptureViewModel que crea Koin, en orden: el test de la 2.ª captura mira el último.
+        val capturas = mutableListOf<CaptureViewModel>()
+        val ingestion = FakeIngestionRepository()
+    }
+
     // Koin acotado a la composición (no el global): Login y Home piden sus ViewModels.
     private fun testModule(): Module {
         val manager = SessionManager(
@@ -67,18 +88,31 @@ class RubusNavHostTest {
             single { HttpClient(MockEngine { respondOk() }) }
             viewModelOf(::LoginViewModel)
             viewModelOf(::HomeViewModel)
+            viewModel {
+                CaptureViewModel(
+                    FakeCamposRepository(CamposResult.Success(listOf(Campo("c1", "Norte", "N-1")))),
+                    ingestion, FakeImageCompressor(), FakeLocationProvider(),
+                ).also { capturas += it }
+            }
         }
     }
 
     private fun render(
         env: Environment,
         state: MutableState<SessionState> = mutableStateOf(SessionState.Loading),
+        owner: LifecycleOwner? = null,
     ): NavHostController {
         lateinit var nav: NavHostController
+        capturas.clear()
+        ingestion.uploads.clear()
         rule.setContent {
             KoinApplication(application = { modules(testModule()) }) {
                 nav = rememberNavController()
-                RubusTheme { RubusNavHost(environment = env, sessionState = state.value, navController = nav) }
+                // Con owner propio el test gobierna el estado máximo del ciclo de vida de las entradas.
+                val provided = if (owner != null) arrayOf(LocalLifecycleOwner provides owner) else emptyArray()
+                CompositionLocalProvider(*provided) {
+                    RubusTheme { RubusNavHost(environment = env, sessionState = state.value, navController = nav) }
+                }
             }
         }
         rule.waitForIdle()
@@ -292,5 +326,71 @@ class RubusNavHostTest {
 
         rule.onNodeWithText("DIAGNÓSTICO").assertDoesNotExist()
         rule.onNodeWithText("CATÁLOGO").assertDoesNotExist()
+    }
+
+    @Test
+    fun unDobleToqueEnCancelarNoSacaHome() {
+        val nav = render(Environment.PROD, mutableStateOf(SessionState.Authenticated(ana)))
+        rule.onNodeWithText("CAPTURAR").performClick()
+        rule.waitForIdle()
+        assertEquals(listOf(route(Route.Home), route(Route.Capture)), nav.visibleRoutes())
+
+        // Reloj parado: Capture sigue compuesta y CANCELAR pulsable durante la animación de salida.
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithText("CANCELAR").performClick()
+        rule.onNodeWithText("CANCELAR").performClick()
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        assertEquals(listOf(route(Route.Home)), nav.visibleRoutes())
+        rule.onNodeWithText("Inicio").assertIsDisplayed()
+    }
+
+    @Test
+    fun trasSubirLaSegundaCapturaEmpiezaLimpiaYHomeMuestraElAviso() {
+        render(Environment.PROD, mutableStateOf(SessionState.Authenticated(ana)))
+        rule.onNodeWithText("CAPTURAR").performClick()
+        rule.waitUntilAtLeastOneExists(hasText("CANCELAR"), timeoutMillis = 5_000)
+        val primera = capturas.last()
+        // El selector de fotos abre la cámara real: se elige desde el ViewModel.
+        rule.runOnUiThread { primera.onPhotoChosen("/tmp/foto.jpg") }
+
+        rule.runOnUiThread { primera.onUpload() }
+        rule.waitUntilAtLeastOneExists(hasText("Imagen enviada."), timeoutMillis = 5_000)
+        assertEquals(1, ingestion.uploads.size)
+
+        rule.onNodeWithText("CAPTURAR").performClick()
+        rule.waitForIdle()
+
+        val segunda = capturas.last()
+        assertTrue(segunda !== primera)
+        assertEquals(null, segunda.state.value.photo)
+        assertEquals(false, segunda.state.value.uploaded)
+    }
+
+    @Test
+    fun siLaSubidaTerminaFueraDeResumedVuelveAHomeAlReanudar() {
+        val owner = object : LifecycleOwner {
+            val registry = LifecycleRegistry.createUnsafe(this)
+            override val lifecycle: Lifecycle get() = registry
+        }
+        rule.runOnUiThread { owner.registry.currentState = Lifecycle.State.RESUMED }
+        val nav = render(Environment.PROD, mutableStateOf(SessionState.Authenticated(ana)), owner)
+        rule.onNodeWithText("CAPTURAR").performClick()
+        rule.waitUntilAtLeastOneExists(hasText("CANCELAR"), timeoutMillis = 5_000)
+        val captura = capturas.last()
+        rule.runOnUiThread { captura.onPhotoChosen("/tmp/foto.jpg") }
+
+        // App en segundo plano: la entrada baja a STARTED y la subida termina entonces.
+        rule.runOnUiThread { owner.registry.currentState = Lifecycle.State.STARTED }
+        rule.waitForIdle()
+        rule.runOnUiThread { captura.onUpload() }
+        rule.waitUntil(timeoutMillis = 5_000) { captura.state.value.uploaded }
+        rule.waitForIdle()
+        assertEquals(listOf(route(Route.Home), route(Route.Capture)), nav.visibleRoutes())
+
+        rule.runOnUiThread { owner.registry.currentState = Lifecycle.State.RESUMED }
+        rule.waitUntilAtLeastOneExists(hasText("Imagen enviada."), timeoutMillis = 5_000)
+        assertEquals(listOf(route(Route.Home)), nav.visibleRoutes())
     }
 }

@@ -14,6 +14,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,8 +28,12 @@ import com.rubusai.app.dev.CatalogoScreen
 import com.rubusai.app.dev.DevActions
 import com.rubusai.app.dev.DiagnosticoScreen
 import com.rubusai.app.feature.auth.LoginRoute
+import com.rubusai.app.feature.capture.CaptureRoute
 import com.rubusai.app.feature.home.HomeRoute
 import com.rubusai.app.feature.splash.SplashScreen
+
+// Home lo lee al volver de la captura para mostrar "Imagen enviada".
+private const val UPLOADED_KEY = "imagen_enviada"
 
 /**
  * Grafo de la app. Redirige según [sessionState]: `Loading` se queda en el Splash,
@@ -88,7 +94,17 @@ fun RubusNavHost(
                 devActions = devActions,
             )
         }
-        composable<Route.Home> { HomeRoute(devActions = devActions) }
+        composable<Route.Home> { entry ->
+            val uploaded by entry.savedStateHandle.getStateFlow(UPLOADED_KEY, false).collectAsStateWithLifecycle()
+            HomeRoute(
+                devActions = devActions,
+                uploadNotice = uploaded,
+                onCapture = {
+                    entry.savedStateHandle[UPLOADED_KEY] = false
+                    navController.navigate(Route.Capture) { launchSingleTop = true }
+                },
+            )
+        }
         composable<Route.History> { Marcador("History") }
         composable<Route.Solicitudes> { Marcador("Solicitudes") }
         composable<Route.SolicitudDetalle> { entry ->
@@ -96,7 +112,19 @@ fun RubusNavHost(
         }
         composable<Route.Notifications> { Marcador("Notifications") }
         composable<Route.Profile> { Marcador("Profile") }
-        composable<Route.Capture> { Marcador("Capture") }
+        composable<Route.Capture> { entry ->
+            // Durante la animación de salida la pantalla sigue compuesta: un 2.º pop sacaría Home.
+            val resumed = { entry.lifecycle.currentState == Lifecycle.State.RESUMED }
+            CaptureRoute(
+                onClose = { if (resumed()) navController.popBackStack() },
+                onUploaded = {
+                    if (resumed()) {
+                        navController.previousBackStackEntry?.savedStateHandle?.set(UPLOADED_KEY, true)
+                        navController.popBackStack()
+                    }
+                },
+            )
+        }
         composable<Route.Result> { entry ->
             Marcador("Result ${entry.toRoute<Route.Result>().id}")
         }

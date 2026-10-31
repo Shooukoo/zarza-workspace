@@ -6,9 +6,13 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.rubusai.app.core.platform.AndroidImageCompressor
 import com.rubusai.app.core.platform.DataStoreTokenStorage
 import com.rubusai.app.core.platform.DataStoreUserStorage
+import com.rubusai.app.core.platform.FusedLocationProvider
+import com.rubusai.app.core.platform.ImageCompressor
 import com.rubusai.app.core.platform.KeystoreTokenCipher
+import com.rubusai.app.core.platform.LocationProvider
 import com.rubusai.app.core.platform.SecureTokenStorage
 import com.rubusai.app.core.platform.TokenCipher
 import com.rubusai.app.core.platform.UserStorage
@@ -42,4 +46,6 @@ internal fun androidPlatformModule(): Module = module {
     }
     single<SecureTokenStorage> { DataStoreTokenStorage(dataStore = get(), cipher = get()) }
     single<UserStorage> { DataStoreUserStorage(dataStore = get(), cipher = get()) }
+    single<ImageCompressor> { AndroidImageCompressor() }
+    single<LocationProvider> { FusedLocationProvider(androidContext()) }
 }
