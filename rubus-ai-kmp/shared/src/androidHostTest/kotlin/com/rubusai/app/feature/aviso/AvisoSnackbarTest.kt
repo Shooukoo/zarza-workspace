@@ -42,10 +42,11 @@ class AvisoSnackbarTest {
         val mostrados = mutableListOf<Long>()
         rule.setContent { RubusTheme { AvisoSnackbar(aviso = Aviso(7), onMostrado = { mostrados += it }) } }
         rule.waitUntilAtLeastOneExists(hasText("¡Análisis listo!"), timeoutMillis = 5_000)
+        rule.runOnIdle { assertEquals(emptyList<Long>(), mostrados) }
 
-        // SnackbarDuration.Short dura ~4 s; el reloj del test avanza solo.
-        rule.waitUntil(timeoutMillis = 10_000) { mostrados.isNotEmpty() }
+        // SnackbarDuration.Short dura ~4 s: se avanza el reloj a mano para no esperar en tiempo real.
+        rule.mainClock.advanceTimeBy(5_000)
 
-        assertEquals(listOf(7L), mostrados)
+        rule.runOnIdle { assertEquals(listOf(7L), mostrados) }
     }
 }
