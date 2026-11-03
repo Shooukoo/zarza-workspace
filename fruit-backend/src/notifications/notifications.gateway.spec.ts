@@ -1,7 +1,9 @@
 // fruit-backend/src/notifications/notifications.gateway.spec.ts
 import { Test } from '@nestjs/testing';
 import type { IncomingMessage } from 'http';
-import { WebSocket } from 'ws';
+import { EventEmitter } from 'events';
+import type { AddressInfo } from 'net';
+import { WebSocket, WebSocketServer } from 'ws';
 import {
   NotificationsGateway,
   WS_ALLOWED_ORIGINS,
@@ -22,8 +24,27 @@ function makeSocket(readyState: number = WebSocket.OPEN): WebSocket {
   return {
     send: jest.fn(),
     close: jest.fn(),
+    on: jest.fn(),
     readyState,
   } as unknown as WebSocket;
+}
+
+type FakeSocket = WebSocket & {
+  pong(): void;
+  ping: jest.Mock;
+  terminate: jest.Mock;
+};
+
+function makeHeartbeatSocket(): FakeSocket {
+  const ee = new EventEmitter();
+  return Object.assign(ee, {
+    send: jest.fn(),
+    close: jest.fn(),
+    ping: jest.fn(),
+    terminate: jest.fn(),
+    readyState: WebSocket.OPEN,
+    pong: () => ee.emit('pong'),
+  }) as unknown as FakeSocket;
 }
 
 function makeRequest(headers: Record<string, string>): IncomingMessage {
@@ -331,6 +352,138 @@ describe('NotificationsGateway', () => {
       gateway.emitToUser('user-1', 'test', {});
 
       expect(closedClient.send).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('heartbeat', () => {
+    const TICK = 30_000;
+    let clients: Set<WebSocket>;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      clients = new Set();
+      gateway.server = { clients } as unknown as WebSocketServer;
+      gateway.onModuleInit();
+    });
+
+    afterEach(() => {
+      gateway.onModuleDestroy();
+      jest.useRealTimers();
+    });
+
+    it('un socket que responde pong sobrevive y recibe ping en cada tick', async () => {
+      const c = makeHeartbeatSocket();
+      await gateway.handleConnection(c);
+      clients.add(c);
+
+      for (let i = 1; i <= 3; i++) {
+        jest.advanceTimersByTime(TICK);
+        expect(c.ping).toHaveBeenCalledTimes(i);
+        c.pong();
+      }
+      expect(c.terminate).not.toHaveBeenCalled();
+    });
+
+    it('un socket que nunca responde se termina en el segundo tick', async () => {
+      const c = makeHeartbeatSocket();
+      await gateway.handleConnection(c);
+      clients.add(c);
+
+      jest.advanceTimersByTime(TICK);
+      expect(c.ping).toHaveBeenCalledTimes(1);
+      expect(c.terminate).not.toHaveBeenCalled();
+      jest.advanceTimersByTime(TICK);
+      expect(c.terminate).toHaveBeenCalledTimes(1);
+    });
+
+    it('al terminar un socket autenticado, handleDisconnect limpia y emitToUser no le envía', async () => {
+      const c = makeHeartbeatSocket();
+      mockTokenService.verifyToken.mockResolvedValue({ sub: 'u1' });
+      await gateway.handleConnection(c);
+      await gateway.handleAuth(c, { token: 't' });
+      clients.add(c);
+      (c.send as jest.Mock).mockClear();
+
+      jest.advanceTimersByTime(TICK * 2);
+      expect(c.terminate).toHaveBeenCalled();
+      c.pong(); // un pong tardío lo deja en `alive`; handleDisconnect debe quitarlo
+      gateway.handleDisconnect(c);
+
+      gateway.emitToUser('u1', 'x', {});
+      expect(c.send).not.toHaveBeenCalled();
+      expect(
+        (gateway as unknown as { rooms: Map<string, unknown> }).rooms.size,
+      ).toBe(0);
+      expect(
+        (gateway as unknown as { authenticated: Map<unknown, unknown> })
+          .authenticated.size,
+      ).toBe(0);
+      expect((gateway as unknown as { alive: Set<unknown> }).alive.size).toBe(
+        0,
+      );
+    });
+
+    it('onModuleDestroy limpia el intervalo', () => {
+      expect(jest.getTimerCount()).toBeGreaterThan(0);
+      gateway.onModuleDestroy();
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('un ping que lanza no detiene al resto de sockets', async () => {
+      const bad = makeHeartbeatSocket();
+      const good = makeHeartbeatSocket();
+      bad.ping.mockImplementation(() => {
+        throw new Error('boom');
+      });
+      await gateway.handleConnection(bad);
+      await gateway.handleConnection(good);
+      clients.add(bad);
+      clients.add(good);
+
+      jest.advanceTimersByTime(TICK);
+      expect(good.ping).toHaveBeenCalledTimes(1);
+    });
+
+    it('no falla si el gateway no tiene server', () => {
+      gateway.server = undefined as unknown as WebSocketServer;
+      expect(() => jest.advanceTimersByTime(TICK)).not.toThrow();
+    });
+  });
+
+  describe('heartbeat con sockets ws reales', () => {
+    it('termina a un peer que no responde pong y conserva al que sí', async () => {
+      const wss = new WebSocketServer({ port: 0, host: '127.0.0.1' });
+      const serverSockets: WebSocket[] = [];
+      wss.on('connection', (s, req) => {
+        serverSockets.push(s);
+        void gateway.handleConnection(s, req);
+        s.on('close', () => gateway.handleDisconnect(s));
+      });
+      await new Promise<void>((r) => wss.once('listening', () => r()));
+      gateway.server = wss;
+      const url = `ws://127.0.0.1:${(wss.address() as AddressInfo).port}`;
+      const open = (c: WebSocket) =>
+        new Promise<void>((r) => c.once('open', () => r()));
+      const dead = new WebSocket(url, { autoPong: false });
+      const live = new WebSocket(url);
+      try {
+        await Promise.all([open(dead), open(live)]);
+        await new Promise((r) => setTimeout(r, 50));
+        expect(serverSockets).toHaveLength(2);
+
+        gateway.heartbeat();
+        await new Promise((r) => setTimeout(r, 100));
+        gateway.heartbeat();
+        await new Promise((r) => setTimeout(r, 100));
+
+        const states = serverSockets.map((s) => s.readyState);
+        expect(states.filter((s) => s === WebSocket.OPEN)).toHaveLength(1);
+        expect(live.readyState).toBe(WebSocket.OPEN);
+      } finally {
+        dead.terminate();
+        live.terminate();
+        await new Promise<void>((r) => wss.close(() => r()));
+      }
     });
   });
 });
