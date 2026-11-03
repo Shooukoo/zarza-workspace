@@ -46,7 +46,7 @@ Que un agrónomo, en un teléfono físico, abra un análisis desde el aviso o de
 - Cola y trabajo sin conexión (Fase 3). Todo aquí exige red.
 - Bandeja de notificaciones y los eventos `analysis_validated` y `nueva_solicitud` (siguen ignorándose).
 - Cambios en el backend. Si algo no encaja, se anota como pendiente, no se modifica.
-- iOS: el código común debe compilar para iOS, pero la imagen con zoom usa una implementación mínima hasta la Fase 9 (ver «Plataforma»).
+- Verificación en iOS: el código común (incluidos zoom y gestos) debe compilar para iOS, pero no se prueba en un dispositivo iOS hasta la Fase 9.
 
 ## Decisiones tomadas
 
@@ -65,11 +65,11 @@ Que un agrónomo, en un teléfono físico, abra un análisis desde el aviso o de
 |-------|------|----------|
 | `Analysis`, `FenologiaEtapa`, `Detection`, `AnalysisImage`, `EstadoValidacion`, `Etapa` | `core/model` | Modelos de dominio (sin `@Serializable`). |
 | `AnalysesRepository` + `AnalysesRepositoryImpl` | `core/data/analyses` | `list`, `get`, `imageUrl`, `validate`, `detections`, `feedback`, `addDetection`, `markReviewed`. Patrón de `CamposRepository`: resultado sellado `Success`/`Failure`, sin registrar cuerpos de error. Los DTO `@Serializable` son internos. |
-| `BoxTransform` | `feature/review` | Función pura: pantalla a imagen e imagen a pantalla combinando escala de ajuste, zoom y desplazamiento; `clamp` al tamaño de la imagen; validación de tamaño mínimo. |
+| `Viewport` y `BoxGeometry` | `feature/review` | Funciones puras. `Viewport`: pantalla↔imagen combinando escala de ajuste, zoom y desplazamiento. `BoxGeometry`: agarre de esquinas, arrastre, normalización, `clamp` al tamaño de la imagen, tamaño mínimo y selección del box bajo el dedo. |
 | `HistoryViewModel` / `HistoryScreen` | `feature/history` | Lista con filtros y carga incremental. |
 | `ResultViewModel` / `ResultScreen` | `feature/results` | Detalle, imagen con detecciones en solo lectura, validar o rechazar, acceso a la revisión. |
 | `ReviewViewModel` / `ReviewScreen` | `feature/review` | Revisión de boxes. |
-| `ZoomableImage` | `core/platform` (`expect/actual`) | Imagen con zoom y desplazamiento que expone la transformación vigente. |
+| `AnnotatedImage` y `Modifier.viewportGestures` | `feature/review` | Imagen (Coil) con los boxes dibujados con el `Viewport`; dos dedos hacen zoom y desplazan, un dedo se delega en el modo de la pantalla. Código común, sin `expect/actual`. |
 | `Route.Review(id)` | `core/navigation` | Ruta nueva. `History` y `Result(id)` ya existen en `Route.kt`. |
 | Acción «Ver» del snackbar | `feature/aviso` | `AvisoSnackbar` recibe un callback que navega a `Result(analisisId)`. |
 
@@ -147,7 +147,7 @@ El servidor acumula el feedback y manda el más reciente, así que repetir «Con
 
 Selector de etapa (siete etapas), interruptor sano/enfermo y botones **Confirmar**, **Eliminar** (con confirmación) y **Cancelar**. Para un box recién dibujado no hay Eliminar.
 
-#### Coordenadas (`BoxTransform`)
+#### Coordenadas (`Viewport` y `BoxGeometry`)
 
 - El servidor guarda los boxes en píxeles de la imagen original. `AnalysisImage` trae ese ancho y alto.
 - Una sola transformación (escala de ajuste × zoom, más desplazamiento) lleva pantalla a imagen y viceversa; es pura y probada.
@@ -168,8 +168,7 @@ Se conservan el id del análisis, el modo, el id del box en edición y el borrad
 ### 7. Plataforma
 
 - **Coil 3** (con su motor Ktor) vuelve al build; se quitó al cerrar la Fase 0. Carga la URL firmada.
-- **Android:** `ZoomableImage` usa gestos de transformación de Compose (`detectTransformGestures`) y expone la transformación vigente a `BoxTransform`.
-- **iOS:** el código común compila; `ZoomableImage` tiene en iOS una implementación mínima sin zoom, y la revisión de boxes real en iOS queda para la Fase 9.
+- **Gestos y zoom:** son código común de Compose (`awaitEachGesture`, `calculateZoom`/`calculatePan`), así que no hay implementación por plataforma. En iOS compilan, pero se verifican en un dispositivo hasta la Fase 9.
 - Sin permisos nuevos.
 
 ### 8. Seguridad
@@ -180,7 +179,7 @@ Se conservan el id del análisis, el modo, el id del box en edición y el borrad
 
 ### 9. Pruebas
 
-- **Puras:** `BoxTransform` (ida y vuelta, zoom, desplazamiento, `clamp`, tamaño mínimo, `x1 < x2`).
+- **Puras:** `Viewport` y `BoxGeometry` (ida y vuelta, zoom, desplazamiento, `clamp`, tamaño mínimo, `x1 < x2`).
 - **Repositorio:** contra `MockEngine` de Ktor, con la forma real de las respuestas del backend (paginación, detección resuelta, errores 400, 403, 404).
 - **ViewModels:** `HistoryViewModel` (filtros, paginación, errores), `ResultViewModel` (roles, validar y rechazar, URL caducada) y `ReviewViewModel` (cada acción de guardado, modos, borrador conservado al fallar, reintento) con repositorio falso.
 - **Compose (Robolectric, como `CaptureScreenTest`):** lista, detalle por rol, hoja inferior, diálogo de rechazo, acción «Ver» del aviso.
@@ -190,9 +189,9 @@ Se conservan el id del análisis, el modo, el id del box en edición y el borrad
 
 ## Riesgos
 
-- **Gestos táctiles.** Es la parte más difícil de acertar y solo se valida en un dispositivo real. Se aísla la matemática en `BoxTransform` para probarla sin dispositivo.
+- **Gestos táctiles.** Es la parte más difícil de acertar y solo se valida en un dispositivo real. Se aísla la matemática en `Viewport` y `BoxGeometry` para probarla sin dispositivo.
 - **Conflicto de gestos** entre editar un box y mover la vista. Se resuelve con la regla un dedo / dos dedos; si no basta, se evalúa un modo explícito de «mover vista».
-- **Tamaño de la pantalla.** La referencia web tiene 940 líneas en Flutter; la nueva debe repartirse en archivos pequeños (`ReviewScreen`, hoja, overlay, `BoxTransform`).
+- **Tamaño de la pantalla.** La referencia web tiene 940 líneas en Flutter; la nueva debe repartirse en archivos pequeños (`ReviewScreen`, hoja, overlay, `Viewport` y `BoxGeometry`).
 - **Memoria.** La variante de despliegue llega a 2048 px; Coil la reduce al tamaño de pantalla, pero el zoom necesita la resolución completa. Se verifica en un teléfono de gama media.
 - **URL caducada** durante una sesión larga de edición: se renueva una vez; si falla, se conserva el borrador.
 - **Sin dedupe en el servidor.** Un `POST detections` repetido tras una respuesta perdida crea un box duplicado (a diferencia del feedback, que es idempotente en efecto). Se aísla el reintento a un solo intento manual y se anota como pendiente.
@@ -200,4 +199,4 @@ Se conservan el id del análisis, el modo, el id del box en edición y el borrad
 ## Documentación que se actualiza
 
 - `rubus-ai-kmp/docs/roadmap-migracion-kmp.md`: estado de la 2c.
-- `rubus-ai-kmp/docs/dependencias-pendientes.md`: sección «Pendientes de la Fase 2c» (iOS sin zoom, duplicado en `POST detections`, el gesto de movimiento de vista si se cambia, los menores que queden) y la vuelta de Coil 3 al build.
+- `rubus-ai-kmp/docs/dependencias-pendientes.md`: sección «Pendientes de la Fase 2c» (gestos sin verificar en iOS, duplicado en `POST detections`, el gesto de movimiento de vista si se cambia, los menores que queden) y la vuelta de Coil 3 al build.
