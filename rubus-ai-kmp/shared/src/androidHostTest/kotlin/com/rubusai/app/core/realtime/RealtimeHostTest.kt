@@ -53,6 +53,14 @@ class RealtimeHostTest {
     }
 
     @Test
+    fun mientrasCargaLaSesionNoConecta() {
+        sesion.value = SessionState.Loading
+        render()
+
+        assertEquals(0, client.connects)
+    }
+
+    @Test
     fun sinSesionNoConecta() {
         render()
 
