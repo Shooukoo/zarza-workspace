@@ -17,6 +17,7 @@ HTTP = [
     ("fruit-backend (rubus-app)", f"http://{APP}:3000/api/v1/health"),
     ("fruit-ms (rubus-app)", f"http://{APP}:3002/health"),
     ("fruit-inference (rubus-ia)", f"http://{IA}:8000/health"),
+    ("fruit-training (rubus-ia)", f"http://{IA}:8001/health"),
 ]
 # Solo puerto TCP: así Kuma no guarda contraseñas de la capa de datos.
 TCP = [

@@ -1,4 +1,5 @@
-# rubus-ia: fruit-inference (FastAPI + YOLO). Publica SOLO en la IP de Tailscale.
+# rubus-ia: fruit-inference (FastAPI + YOLO) y fruit-training (fine-tuning).
+# Publican SOLO en la IP de Tailscale.
 # Ejecutar desde la raíz del repo:
 #   docker compose -f infra/ia/docker-compose.yml up -d --build
 # Variables: infra/ia/.env (ver .env.example; el real vive solo en el servidor).
@@ -19,11 +20,35 @@ services:
       - "${TS_IP}:8000:8000"
     volumes:
       # Los pesos no van en la imagen. Se monta el directorio (no el archivo)
-      # para poder reemplazar un .pt sin recrear el contenedor.
-      - /home/deploy/rubus/models:/models:ro
+      # para poder reemplazar un .pt sin recrear el contenedor. Con escritura:
+      # al promover un modelo, fruit-inference lo descarga de R2 sobre best.pt.
+      - /home/deploy/rubus/models:/models
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 15s
       timeout: 10s
       retries: 5
       start_period: 60s
+
+  fruit-training:
+    build: ../../fruit-training
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      FALLBACK_MODEL_PATH: /models/base-model.pt
+    # Un entrenamiento usa todos los núcleos que vea: se le dejan 2 de 4 para
+    # que la inferencia siga respondiendo mientras tanto.
+    cpus: 2
+    mem_limit: 6g
+    shm_size: 2g # los workers del dataloader de PyTorch usan /dev/shm
+    ports:
+      - "${TS_IP}:8001:8001"
+    volumes:
+      # Copia del modelo original; best.pt cambia con cada promoción.
+      - /home/deploy/rubus/models/base-model.pt:/models/base-model.pt:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
