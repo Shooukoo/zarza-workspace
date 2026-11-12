@@ -1,0 +1,28 @@
+# rubus-edge: nginx con el build estático de zarza-web + proxy a fruit-backend
+# por Tailscale. Única VPS con 80/443 públicos. Ejecutar desde la raíz del repo:
+#   docker compose -f infra/edge/docker-compose.yml up -d --build
+# Primer arranque, antes de tener certificado:  NGINX_CONF=http docker compose ... up -d --build
+# Certificados: certbot en el host (webroot en /var/www/certbot), ver RUNBOOK.md.
+name: rubus-edge
+
+services:
+  web:
+    build:
+      context: ../../zarza-web
+      target: prod
+      args:
+        VITE_MAPBOX_TOKEN: ${VITE_MAPBOX_TOKEN:-}
+    restart: unless-stopped
+    mem_limit: 512m
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/${NGINX_CONF:-https}.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://127.0.0.1/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5

@@ -13,6 +13,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+# Opcional; Vite lo incrusta en el bundle al compilar (vacío = sin capa satelital).
+ARG VITE_MAPBOX_TOKEN=""
+ENV VITE_MAPBOX_TOKEN=$VITE_MAPBOX_TOKEN
 RUN npm run build
 
 # ── prod stage ────────────────────────────────────────────────────────────────
