@@ -1,0 +1,36 @@
+# Inventario de producción — Rubus AI
+
+Sin contraseñas ni tokens: los secretos viven solo en los `.env` de cada servidor
+y en `infra/.env.local` (ignorado por git).
+
+## Servidores
+
+| Rol | Hostname | Plan Hostinger | IP pública | IP Tailscale | Llave SSH local |
+|---|---|---|---|---|---|
+| Edge (nginx + web) | `rubus-edge` | KVM 1 (srv2151733) | 179.66.141.161 | 100.123.82.0 | `~/.ssh/hostinger_kv1_edge` |
+| App (backend + ms) | `rubus-app` | KVM 2 (srv2151717) | 2.25.120.29 | 100.112.223.6 | `~/.ssh/hostinger_kv2_backend` |
+| IA (inferencia) | `rubus-ia` | KVM 4 (srv2151714) | 2.25.79.103 | 100.115.227.49 | `~/.ssh/hostinger_kv4_inference` |
+| Datos (PG + RMQ + Redis) | `rubus-datos` | KVM 4 (srv2151687) | 2.25.177.55 | 100.109.194.99 | `~/.ssh/hostinger_kv4_database` |
+
+- SO: Ubuntu 26.04. Usuario de operación: `deploy` (sudo sin contraseña, grupo `docker`).
+- Dominio: `rubusai.tech` (DNS en Hostinger).
+- Acceso: `ssh -i <llave> deploy@<IP pública>`.
+
+## Firewall (UFW) — igual en las 4
+
+Entrante denegado salvo `22/tcp` y todo lo que llegue por `tailscale0`.
+Docker salta UFW para puertos publicados: los compose publican solo en la IP de Tailscale.
+
+## rubus-datos
+
+- Archivos: `/home/deploy/rubus/datos/` (`docker-compose.yml`, `backup.sh`, `.env` con permisos 600). Fuente en el repo: `infra/datos/`.
+- Proyecto compose: `rubus-datos`. Volúmenes: `rubus-datos_postgres_data`, `rubus-datos_rabbitmq_data`, `rubus-datos_redis_data`.
+
+| Servicio | Escucha en | Usuario / base | Límite de memoria |
+|---|---|---|---|
+| PostgreSQL 16 (postgis) | 100.109.194.99:5432 | `rubus` / `rubusai` | 8 GB |
+| RabbitMQ 3 (AMQP) | 100.109.194.99:5672 | `rubus` (sin `guest`) | 2 GB |
+| RabbitMQ (panel) | http://100.109.194.99:15672 | `rubus` | — |
+| Redis 7 | 100.109.194.99:6379 | `requirepass` | 1 GB |
+
+- Backups: `pg_dump` diario a las 09:00 UTC (cron de `deploy`) en `/home/deploy/backups/`, rotación de 7 días, log en `backups/backup.log`.

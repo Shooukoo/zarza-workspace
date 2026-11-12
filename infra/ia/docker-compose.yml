@@ -1,0 +1,29 @@
+# rubus-ia: fruit-inference (FastAPI + YOLO). Publica SOLO en la IP de Tailscale.
+# Ejecutar desde la raíz del repo:
+#   docker compose -f infra/ia/docker-compose.yml up -d --build
+# Variables: infra/ia/.env (ver .env.example; el real vive solo en el servidor).
+name: rubus-ia
+
+services:
+  fruit-inference:
+    build: ../../fruit-inference
+    # Imprescindible: /internal/prepare-restart termina el proceso y cuenta con
+    # que Docker lo relance para recargar el modelo.
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MODEL_PATH: /models/best.pt
+      DAMAGE_MODEL_PATH: /models/damage.pt
+    mem_limit: 8g
+    ports:
+      - "${TS_IP}:8000:8000"
+    volumes:
+      # Los pesos no van en la imagen. Se monta el directorio (no el archivo)
+      # para poder reemplazar un .pt sin recrear el contenedor.
+      - /home/deploy/rubus/models:/models:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s

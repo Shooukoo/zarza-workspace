@@ -1,0 +1,70 @@
+# rubus-datos: PostgreSQL + RabbitMQ + Redis.
+# Los puertos se publican SOLO en la IP de Tailscale (TS_IP): Docker salta UFW
+# para puertos publicados, así que nunca usar 0.0.0.0 aquí.
+# Variables: ver .env.example (el .env real vive solo en el servidor).
+name: rubus-datos
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4-alpine # misma imagen que desarrollo
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    command: ["postgres", "-c", "shared_buffers=2GB", "-c", "effective_cache_size=6GB"]
+    shm_size: 1g
+    mem_limit: 8g
+    ports:
+      - "${TS_IP}:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    hostname: rubus-rabbit # fijo: el nombre del nodo forma parte de la ruta de datos
+    environment:
+      # Al definir un usuario propio, RabbitMQ no crea "guest".
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    mem_limit: 2g
+    ports:
+      - "${TS_IP}:5672:5672"
+      - "${TS_IP}:15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Es solo cache del dashboard: al llenarse descarta las claves menos usadas.
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--maxmemory", "768mb", "--maxmemory-policy", "allkeys-lru"]
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD} # para el healthcheck
+    mem_limit: 1g
+    ports:
+      - "${TS_IP}:6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  redis_data:
