@@ -1,0 +1,17 @@
+# Uptime Kuma en rubus-datos, accesible SOLO por Tailscale: http://<TS_IP>:3001
+# Lee TS_IP de infra/monitor/.env. Monitores: ver setup-monitors.py.
+name: rubus-monitor
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    restart: unless-stopped
+    mem_limit: 512m
+    ports:
+      - "${TS_IP}:3001:3001"
+    volumes:
+      - kuma_data:/app/data
+    # La imagen trae su propio healthcheck.
+
+volumes:
+  kuma_data:
