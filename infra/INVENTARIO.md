@@ -23,7 +23,7 @@ Docker salta UFW para puertos publicados: los compose publican solo en la IP de 
 
 ## rubus-datos
 
-- Archivos: `/home/deploy/rubus/datos/` (`docker-compose.yml`, `backup.sh`, `.env` con permisos 600). Fuente en el repo: `infra/datos/`.
+- Repo: `/home/deploy/zarza-workspace` (rama `chore/infra-produccion`). Compose: `infra/datos/docker-compose.yml`, `.env` en `infra/datos/.env` (600).
 - Proyecto compose: `rubus-datos`. Volúmenes: `rubus-datos_postgres_data`, `rubus-datos_rabbitmq_data`, `rubus-datos_redis_data`.
 
 | Servicio | Escucha en | Usuario / base | Límite de memoria |
@@ -33,7 +33,14 @@ Docker salta UFW para puertos publicados: los compose publican solo en la IP de 
 | RabbitMQ (panel) | http://100.109.194.99:15672 | `rubus` | — |
 | Redis 7 | 100.109.194.99:6379 | `requirepass` | 1 GB |
 
-- Backups: `pg_dump` diario a las 09:00 UTC (cron de `deploy`) en `/home/deploy/backups/`, rotación de 7 días, log en `backups/backup.log`.
+- Backups: `infra/datos/backup.sh` por cron de `deploy`, diario a las 09:00 UTC, en `/home/deploy/backups/` (rotación de 7 días, log en `backups/backup.log`). Están en la misma VPS que la base.
+
+### Monitoreo (también en rubus-datos)
+
+- Uptime Kuma: http://100.109.194.99:3001 — solo por Tailscale. Usuario `admin`, contraseña en `infra/.env.local` (`KUMA_PASSWORD`).
+- Compose: `infra/monitor/docker-compose.yml` (proyecto `rubus-monitor`, volumen `rubus-monitor_kuma_data`), `.env` en `infra/monitor/.env`.
+- 9 monitores (cada 60 s), creados por `infra/monitor/setup-monitors.py`: web y API públicas (con aviso de caducidad del certificado), nginx, fruit-backend, fruit-ms, fruit-inference y los puertos de PostgreSQL, RabbitMQ y Redis.
+- Sin canal de notificación configurado: hay que añadirlo en la interfaz (Settings → Notifications).
 
 ## rubus-ia
 
@@ -68,3 +75,15 @@ Docker salta UFW para puertos publicados: los compose publican solo en la IP de 
 
 - TLS: Let's Encrypt para `rubusai.tech` y `www.rubusai.tech`, certbot en el host (webroot `/var/www/certbot`, certificados en `/etc/letsencrypt`). Renovación automática por `certbot.timer`; al renovar recarga nginx (`docker exec rubus-edge-web-1 nginx -s reload`). Cuenta de Let's Encrypt sin correo: no llegan avisos de caducidad.
 - `/api/v1/internal/*` devuelve 404 desde internet (endpoints entre servicios).
+
+## Secretos: dónde vive cada cosa
+
+| Lugar | Contenido |
+|---|---|
+| `infra/.env.local` (máquina local, ignorado por git) | Copia de todo lo generado: contraseñas de datos, tokens entre servicios, `JWT_SECRET`, admin de la app y de Uptime Kuma |
+| rubus-datos `infra/datos/.env` | Contraseñas de PostgreSQL, RabbitMQ y Redis |
+| rubus-ia `infra/ia/.env` | `INFERENCE_AUTH_TOKEN`, credenciales R2 |
+| rubus-app `infra/app/.env` | URLs con contraseña de datos, JWT, tokens internos, R2, Firebase |
+| rubus-edge `infra/edge/.env` | Solo `VITE_MAPBOX_TOKEN` (opcional, público) |
+
+Todos los `.env` de servidor tienen permisos 600 y están ignorados por git. Operación diaria: ver `RUNBOOK.md`.
