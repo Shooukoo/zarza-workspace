@@ -180,14 +180,31 @@ def classify_damage(request: Request, file: UploadFile = File(...)):
     return result
 
 
+class PrepareRestartRequest(BaseModel):
+    r2_key: Optional[str] = None
+
+
 @app.post(
     "/internal/prepare-restart", dependencies=[Depends(verify_inference_token)]
 )
-def prepare_restart(background_tasks: BackgroundTasks):
+def prepare_restart(
+    background_tasks: BackgroundTasks, req: Optional[PrepareRestartRequest] = None
+):
     """
     Responde 200 de inmediato y, tras enviar la respuesta, termina el proceso.
     Docker (restart: unless-stopped) relanza el contenedor y el lifespan
     recoge el best.pt reemplazado sin cambios adicionales.
+
+    Con `r2_key` (fruit-backend en otra máquina, sin disco compartido), antes
+    de reiniciar descarga ese modelo de R2 y reemplaza MODEL_PATH. Si la
+    descarga falla responde 404 y NO reinicia: sigue sirviendo el modelo actual.
     """
+    if req and req.r2_key:
+        model_bytes = download_image_bytes(state["s3"], R2_BUCKET, req.r2_key)
+        # A .tmp y luego replace: un corte a media escritura no deja un .pt truncado.
+        tmp_path = f"{MODEL_PATH}.tmp"
+        with open(tmp_path, "wb") as f:
+            f.write(model_bytes)
+        os.replace(tmp_path, MODEL_PATH)
     background_tasks.add_task(os._exit, 0)
     return {"status": "restarting"}

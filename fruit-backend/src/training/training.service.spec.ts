@@ -4,6 +4,8 @@ import { HttpService } from '@nestjs/axios';
 import type { IStoragePort } from '../storage/ports';
 import type { AppLogger } from '../common/logging/app.logger';
 import { of, throwError } from 'rxjs';
+import { writeFile } from 'fs/promises';
+import { envs } from '../config/envs';
 
 jest.mock('fs/promises', () => ({ writeFile: jest.fn().mockResolvedValue(undefined) }));
 
@@ -470,6 +472,32 @@ describe('TrainingService', () => {
       });
 
       await expect(service.promote('job-1', 'user-1')).rejects.toThrow('no se puede promover');
+    });
+
+    it('sin disco compartido (ACTIVE_MODEL_PATH vacío) no descarga ni escribe y pasa la clave de R2 a fruit-inference', async () => {
+      const original = envs.activeModelPath;
+      envs.activeModelPath = '';
+      try {
+        prisma.modelVersion.findUnique.mockResolvedValue({
+          id: 'mv-2', version: 3, status: 'LISTO_PARA_PROMOVER', r2Key: 'models/best_job-1.pt',
+        });
+        prisma.modelVersion.findFirst.mockResolvedValue(null);
+        prisma.modelVersion.update.mockResolvedValue({ id: 'mv-2', status: 'PROMOVIDO' });
+        httpService.post.mockReturnValue(of({ data: { status: 'restarting' } }));
+        (writeFile as jest.Mock).mockClear();
+
+        await service.promote('job-1', 'user-1');
+
+        expect(storage.downloadBuffer).not.toHaveBeenCalled();
+        expect(writeFile).not.toHaveBeenCalled();
+        expect(httpService.post).toHaveBeenCalledWith(
+          expect.stringContaining('/internal/prepare-restart'),
+          { r2_key: 'models/best_job-1.pt' },
+          expect.anything(),
+        );
+      } finally {
+        envs.activeModelPath = original;
+      }
     });
 
     it('descarga el .pt, reinicia fruit-inference y marca PROMOVIDO/REEMPLAZADO', async () => {
