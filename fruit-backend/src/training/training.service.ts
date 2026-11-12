@@ -272,20 +272,14 @@ export class TrainingService {
     // paso — este mensaje se muestra directamente al ADMIN en el frontend.
     let step: 'download' | 'write' | 'restart' = 'download';
     try {
-      // ACTIVE_MODEL_PATH vacío = fruit-inference corre en otra máquina y no
-      // comparte disco: en vez de escribir el .pt aquí, se le pasa la clave
-      // de R2 para que lo descargue ella misma antes de reiniciar.
-      const sharedDisk = envs.activeModelPath !== '';
-      if (sharedDisk) {
-        const buffer = await this.storage.downloadBuffer(modelVersion.r2Key);
-        step = 'write';
-        await writeFile(envs.activeModelPath, buffer);
-      }
+      const buffer = await this.storage.downloadBuffer(modelVersion.r2Key);
+      step = 'write';
+      await writeFile(envs.activeModelPath, buffer);
       step = 'restart';
       await firstValueFrom(
         this.httpService.post(
           `${envs.inferenceUrl}/internal/prepare-restart`,
-          sharedDisk ? {} : { r2_key: modelVersion.r2Key },
+          {},
           {
             headers: { 'x-inference-token': envs.inferenceAuthToken },
             timeout: 10_000,

@@ -55,50 +55,6 @@ def test_prepare_restart_returns_200_and_schedules_exit(client, monkeypatch):
     assert exit_calls == [0]
 
 
-def test_prepare_restart_with_r2_key_replaces_model_before_exit(client, monkeypatch, tmp_path):
-    test_client, main_module = client
-    model_path = tmp_path / "model.pt"
-    model_path.write_bytes(b"viejo")
-    monkeypatch.setattr(main_module, "MODEL_PATH", str(model_path))
-    monkeypatch.setattr(main_module, "download_image_bytes", lambda s3, bucket, key: b"nuevo:" + key.encode())
-    exit_calls = []
-    monkeypatch.setattr(main_module.os, "_exit", lambda code: exit_calls.append(code))
-
-    response = test_client.post(
-        "/internal/prepare-restart",
-        headers={"x-inference-token": "test-token"},
-        json={"r2_key": "models/best_job-1.pt"},
-    )
-
-    assert response.status_code == 200
-    assert model_path.read_bytes() == b"nuevo:models/best_job-1.pt"
-    assert exit_calls == [0]
-
-
-def test_prepare_restart_keeps_model_and_does_not_exit_when_download_fails(client, monkeypatch, tmp_path):
-    test_client, main_module = client
-    model_path = tmp_path / "model.pt"
-    model_path.write_bytes(b"viejo")
-    monkeypatch.setattr(main_module, "MODEL_PATH", str(model_path))
-
-    def fail(s3, bucket, key):
-        raise main_module.HTTPException(status_code=404, detail="no existe")
-
-    monkeypatch.setattr(main_module, "download_image_bytes", fail)
-    exit_calls = []
-    monkeypatch.setattr(main_module.os, "_exit", lambda code: exit_calls.append(code))
-
-    response = test_client.post(
-        "/internal/prepare-restart",
-        headers={"x-inference-token": "test-token"},
-        json={"r2_key": "models/no-existe.pt"},
-    )
-
-    assert response.status_code == 404
-    assert model_path.read_bytes() == b"viejo"
-    assert exit_calls == []
-
-
 def _reload_main_module(monkeypatch, **env):
     # INFERENCE_AUTH_TOKEN debe estar presente para que infrastructure.auth no
     # lance RuntimeError al re-evaluarse; el valor exacto no importa porque

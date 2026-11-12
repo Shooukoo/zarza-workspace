@@ -64,7 +64,7 @@ const envSchema = joi
     TRAINING_URL: joi.string().uri().required(),
     INFERENCE_URL: joi.string().uri().required(),
     INFERENCE_AUTH_TOKEN: joi.string().required(),
-    ACTIVE_MODEL_PATH: joi.string().allow('').default('/app/models/active-model.pt'),
+    ACTIVE_MODEL_PATH: joi.string().default('/app/models/active-model.pt'),
   })
   .unknown(true);
 
