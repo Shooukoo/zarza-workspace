@@ -47,7 +47,7 @@ Use the run configurations provided by the run widget in your IDE's toolbar. You
   |--------|-----------------|----------------|---------|
   | `dev` | `com.rubusai.app.dev` | Rubus AI (dev) | `http://<host>:3001`, HTTP sin cifrar permitido |
   | `staging` | `com.rubusai.app.stg` | Rubus AI (stg) | `https://staging.api.zarza.example` (marcador) |
-  | `prod` | `com.rubusai.app` | Rubus AI | `https://api.zarza.example` (marcador) |
+  | `prod` | `com.rubusai.app` | Rubus AI | `https://rubusai.tech` |
 
   - `assembleDebug` e `installDebug` sin flavor siguen existiendo, pero construyen o instalan los tres a la vez. Las tres apps pueden convivir instaladas.
   - Los APK quedan en `androidApp/build/outputs/apk/<flavor>/<buildType>/`.

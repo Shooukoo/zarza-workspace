@@ -28,7 +28,7 @@ variantes pueden coexistir instaladas en el mismo dispositivo.
 |--------|--------------|--------|---------|
 | `dev` | `com.example.rubus_ai.dev` | RubusAI Dev | `http://<host>:3001` (local) |
 | `staging` | `com.example.rubus_ai.stg` | RubusAI Stg | `https://staging.api.zarza.example` (placeholder) |
-| `prod` | `com.example.rubus_ai` | RubusAI | `https://api.zarza.example` (placeholder) |
+| `prod` | `com.example.rubus_ai` | RubusAI | `https://rubusai.tech` |
 
 > Las URLs de staging/prod son placeholders: cuando esos backends se
 > desplieguen, actualizar `lib/core/config/env_config.dart`.

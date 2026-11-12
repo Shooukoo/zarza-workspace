@@ -37,8 +37,8 @@ void main() {
     });
 
     test('prod usa https/wss con dominio de prod', () {
-      expect(EnvConfig.baseUrlFor(Environment.prod), 'https://api.zarza.example');
-      expect(EnvConfig.wsUrlFor(Environment.prod), 'wss://api.zarza.example/ws');
+      expect(EnvConfig.baseUrlFor(Environment.prod), 'https://rubusai.tech');
+      expect(EnvConfig.wsUrlFor(Environment.prod), 'wss://rubusai.tech/ws');
     });
 
     test('current es dev bajo flutter test y baseUrl/wsUrl delegan en él', () {

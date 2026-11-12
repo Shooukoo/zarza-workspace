@@ -24,7 +24,7 @@ class EnvConfigTest {
     fun prodIgnoraElHostDeDev() {
         val config = EnvConfig(Environment.PROD, devHost = "192.168.1.50")
 
-        assertEquals("https://api.zarza.example/api/v1", config.apiBaseUrl)
+        assertEquals("https://rubusai.tech/api/v1", config.apiBaseUrl)
     }
 
     @Test
@@ -32,7 +32,7 @@ class EnvConfigTest {
         val config = EnvConfig(Environment.PROD, devHost = "")
 
         assertEquals(Environment.PROD, config.environment)
-        assertEquals("https://api.zarza.example/api/v1", config.apiBaseUrl)
+        assertEquals("https://rubusai.tech/api/v1", config.apiBaseUrl)
     }
 
     @Test
@@ -58,6 +58,6 @@ class EnvConfigTest {
     fun prodUsaWssSinElPrefijoDeLaApi() {
         val config = EnvConfig(Environment.PROD, devHost = "")
 
-        assertEquals("wss://api.zarza.example/ws", config.wsUrl)
+        assertEquals("wss://rubusai.tech/ws", config.wsUrl)
     }
 }

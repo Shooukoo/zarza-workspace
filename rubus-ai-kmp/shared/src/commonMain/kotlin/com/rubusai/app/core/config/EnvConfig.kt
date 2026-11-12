@@ -24,13 +24,13 @@ class EnvConfig(val environment: Environment, devHost: String) {
     val apiBaseUrl: String = when (environment) {
         Environment.DEV -> "http://$devHost:3001/api/v1"
         Environment.STAGING -> "https://staging.api.zarza.example/api/v1"
-        Environment.PROD -> "https://api.zarza.example/api/v1"
+        Environment.PROD -> "https://rubusai.tech/api/v1"
     }
 
     /** URL del WebSocket (`/ws`, sin el prefijo `/api/v1`). Mismos hosts que [apiBaseUrl]. */
     val wsUrl: String = when (environment) {
         Environment.DEV -> "ws://$devHost:3001/ws"
         Environment.STAGING -> "wss://staging.api.zarza.example/ws"
-        Environment.PROD -> "wss://api.zarza.example/ws"
+        Environment.PROD -> "wss://rubusai.tech/ws"
     }
 }

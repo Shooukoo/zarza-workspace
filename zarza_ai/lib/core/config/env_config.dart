@@ -40,8 +40,7 @@ class EnvConfig {
         // Placeholder: reemplazar cuando exista el backend de staging.
         return 'https://staging.api.zarza.example';
       case Environment.prod:
-        // Placeholder: reemplazar cuando exista el backend de producción.
-        return 'https://api.zarza.example';
+        return 'https://rubusai.tech';
     }
   }
 
@@ -52,7 +51,7 @@ class EnvConfig {
       case Environment.staging:
         return 'wss://staging.api.zarza.example/ws';
       case Environment.prod:
-        return 'wss://api.zarza.example/ws';
+        return 'wss://rubusai.tech/ws';
     }
   }
 
