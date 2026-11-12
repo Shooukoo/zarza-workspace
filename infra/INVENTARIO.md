@@ -43,3 +43,15 @@ Docker salta UFW para puertos publicados: los compose publican solo en la IP de 
 | Servicio | Escucha en | Health | Límite de memoria |
 |---|---|---|---|
 | fruit-inference | http://100.115.227.49:8000 | `GET /health` | 8 GB |
+
+## rubus-app
+
+- Repo: `/home/deploy/zarza-workspace` (rama `chore/infra-produccion`). Compose: `infra/app/docker-compose.yml`, `.env` compartido por ambos servicios en `infra/app/.env` (600).
+- Migraciones Prisma: `docker compose -f infra/app/docker-compose.yml run --rm migrate`.
+
+| Servicio | Escucha en | Health | Límite de memoria |
+|---|---|---|---|
+| fruit-backend (REST + WS `/ws`) | http://100.112.223.6:3000 | `GET /api/v1/health` | 2 GB |
+| fruit-ms (consumidor RabbitMQ) | http://100.112.223.6:3002 (solo health) | `GET /health` | 1 GB |
+
+- Usuario administrador inicial: `admin@rubusai.tech` (contraseña en `infra/.env.local`, variable `ADMIN_PASSWORD`).
