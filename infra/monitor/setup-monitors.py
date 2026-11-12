@@ -33,7 +33,6 @@ with UptimeKumaApi(os.environ["KUMA_URL"]) as api:
     existentes = {m["name"] for m in api.get_monitors()}
     for nombre, url in HTTP:
         if nombre not in existentes:
-            # maxredirects=0: la redirección HTTP→HTTPS de nginx contaría como caída del healthz.
             api.add_monitor(type=MonitorType.HTTP, name=nombre, url=url, interval=60,
                             maxretries=2, expiryNotification=url.startswith("https"))
     for nombre, host, puerto in TCP:
