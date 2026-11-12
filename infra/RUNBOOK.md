@@ -6,9 +6,9 @@ Antes de empezar, cargar las llaves: `ssh-add ~/.ssh/hostinger_kv1_edge ~/.ssh/h
 | Servidor | Entrar | Compose (desde `~/zarza-workspace`) |
 |---|---|---|
 | rubus-edge | `ssh -i ~/.ssh/hostinger_kv1_edge deploy@179.66.141.161` | `infra/edge/docker-compose.yml` |
-| rubus-app | `ssh -i ~/.ssh/hostinger_kv2_backend deploy@2.25.120.29` | `infra/app/docker-compose.yml` |
+| rubus-app | `ssh -i ~/.ssh/hostinger_kv2_backend deploy@2.25.120.29` | `infra/app/docker-compose.yml`, `infra/monitor/docker-compose.yml` |
 | rubus-ia | `ssh -i ~/.ssh/hostinger_kv4_inference deploy@2.25.79.103` | `infra/ia/docker-compose.yml` |
-| rubus-datos | `ssh -i ~/.ssh/hostinger_kv4_database deploy@2.25.177.55` | `infra/datos/docker-compose.yml`, `infra/monitor/docker-compose.yml` |
+| rubus-datos | `ssh -i ~/.ssh/hostinger_kv4_database deploy@2.25.177.55` | `infra/datos/docker-compose.yml` |
 
 En los comandos de abajo, `$C` es `docker compose -f infra/<rol>/docker-compose.yml`, ejecutado en el servidor desde `~/zarza-workspace`.
 
@@ -39,7 +39,7 @@ $C logs -f --tail 100 fruit-backend    # uno solo
 docker stats --no-stream               # memoria y CPU
 ```
 
-Panel general: Uptime Kuma en http://100.109.194.99:3001 (hay que estar en Tailscale).
+Panel general: Uptime Kuma en http://100.112.223.6:3001 (hay que estar en Tailscale).
 Mensajes que agotaron reintentos: cola `ingestion_queue.dlq` en http://100.109.194.99:15672.
 
 ## Reiniciar servicios

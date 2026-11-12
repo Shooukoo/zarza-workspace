@@ -35,11 +35,11 @@ Docker salta UFW para puertos publicados: los compose publican solo en la IP de 
 
 - Backups: `infra/datos/backup.sh` por cron de `deploy`, diario a las 09:00 UTC, en `/home/deploy/backups/` (rotación de 7 días, log en `backups/backup.log`). Están en la misma VPS que la base.
 
-### Monitoreo (también en rubus-datos)
+### Monitoreo (rubus-app)
 
-- Uptime Kuma: http://100.109.194.99:3001 — solo por Tailscale. Usuario `admin`, contraseña en `infra/.env.local` (`KUMA_PASSWORD`).
-- Compose: `infra/monitor/docker-compose.yml` (proyecto `rubus-monitor`, volumen `rubus-monitor_kuma_data`), `.env` en `infra/monitor/.env`.
-- 9 monitores (cada 60 s), creados por `infra/monitor/setup-monitors.py`: web y API públicas (con aviso de caducidad del certificado), nginx, fruit-backend, fruit-ms, fruit-inference y los puertos de PostgreSQL, RabbitMQ y Redis.
+- Uptime Kuma: http://100.112.223.6:3001 — solo por Tailscale. Usuario `admin`, contraseña en `infra/.env.local` (`KUMA_PASSWORD`).
+- Compose: `infra/monitor/docker-compose.yml` (proyecto `rubus-monitor`, volumen `rubus-monitor_kuma_data`), `.env` en `infra/monitor/.env`. Se despliega con `infra/deploy.sh monitor`.
+- 9 monitores (cada 60 s), creados por `infra/monitor/setup-monitors.py`: web y API públicas, nginx, fruit-backend, fruit-ms, fruit-inference y los puertos de PostgreSQL, RabbitMQ y Redis.
 - Sin canal de notificación configurado: hay que añadirlo en la interfaz (Settings → Notifications).
 
 ## rubus-ia
@@ -80,10 +80,19 @@ Docker salta UFW para puertos publicados: los compose publican solo en la IP de 
 
 | Lugar | Contenido |
 |---|---|
-| `infra/.env.local` (máquina local, ignorado por git) | Copia de todo lo generado: contraseñas de datos, tokens entre servicios, `JWT_SECRET`, admin de la app y de Uptime Kuma |
+| `infra/.env.local` (copia en el checkout principal, ignorado por git) | Copia de todo lo generado: contraseñas de datos, tokens entre servicios, `JWT_SECRET`, admin de la app y de Uptime Kuma |
 | rubus-datos `infra/datos/.env` | Contraseñas de PostgreSQL, RabbitMQ y Redis |
 | rubus-ia `infra/ia/.env` | `INFERENCE_AUTH_TOKEN`, credenciales R2 |
 | rubus-app `infra/app/.env` | URLs con contraseña de datos, JWT, tokens internos, R2, Firebase |
 | rubus-edge `infra/edge/.env` | Solo `VITE_MAPBOX_TOKEN` (opcional, público) |
 
 Todos los `.env` de servidor tienen permisos 600 y están ignorados por git. Operación diaria: ver `RUNBOOK.md`.
+
+## Web pública: CSP y mapas
+
+- nginx (`infra/edge/nginx/https.conf`) envía `Content-Security-Policy`: scripts solo del propio dominio; estilos en línea permitidos (antd); fuentes de Google; imágenes de OpenStreetMap, Mapbox y R2; conexiones `self` y `wss://rubusai.tech`.
+- Capa satelital del mapa de calor: `VITE_MAPBOX_TOKEN` en `infra/edge/.env` (público, se incrusta al compilar la web). Sin él, el botón Satélite no aparece.
+
+## fruit-training
+
+No está desplegado en producción. Entrena en local. Por eso rubus-ia solo tiene `fruit-inference` y así el entrenamiento nunca le quita CPU a los análisis.
