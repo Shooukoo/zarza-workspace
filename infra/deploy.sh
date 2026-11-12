@@ -15,8 +15,8 @@ fi
 
 case "$ROL" in
   edge)          HOST=179.66.141.161; LLAVE=hostinger_kv1_edge ;;
-  app)           HOST=2.25.120.29;    LLAVE=hostinger_kv2_backend ;;
-  ia|monitor)    HOST=2.25.79.103;    LLAVE=hostinger_kv4_inference ;;
+  app|monitor)   HOST=2.25.120.29;    LLAVE=hostinger_kv2_backend ;;
+  ia)            HOST=2.25.79.103;    LLAVE=hostinger_kv4_inference ;;
   datos)         HOST=2.25.177.55;    LLAVE=hostinger_kv4_database ;;
   *) echo "rol desconocido: $ROL" >&2; exit 1 ;;
 esac
