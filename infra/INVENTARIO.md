@@ -55,3 +55,16 @@ Docker salta UFW para puertos publicados: los compose publican solo en la IP de 
 | fruit-ms (consumidor RabbitMQ) | http://100.112.223.6:3002 (solo health) | `GET /health` | 1 GB |
 
 - Usuario administrador inicial: `admin@rubusai.tech` (contraseña en `infra/.env.local`, variable `ADMIN_PASSWORD`).
+
+## rubus-edge
+
+- Repo: `/home/deploy/zarza-workspace` (rama `chore/infra-produccion`). Compose: `infra/edge/docker-compose.yml`, config de nginx en `infra/edge/nginx/https.conf`, `.env` en `infra/edge/.env` (solo `VITE_MAPBOX_TOKEN`, opcional).
+- UFW: además de SSH y Tailscale, `80/tcp` y `443/tcp` abiertos.
+- DNS (Hostinger): `A @ → 179.66.141.161`, `CNAME www → rubusai.tech`.
+
+| Servicio | Escucha en | Health |
+|---|---|---|
+| nginx (web estática + proxy `/api/` y `/ws` → `100.112.223.6:3000`) | 0.0.0.0:80 y :443 | `GET /healthz` |
+
+- TLS: Let's Encrypt para `rubusai.tech` y `www.rubusai.tech`, certbot en el host (webroot `/var/www/certbot`, certificados en `/etc/letsencrypt`). Renovación automática por `certbot.timer`; al renovar recarga nginx (`docker exec rubus-edge-web-1 nginx -s reload`). Cuenta de Let's Encrypt sin correo: no llegan avisos de caducidad.
+- `/api/v1/internal/*` devuelve 404 desde internet (endpoints entre servicios).
