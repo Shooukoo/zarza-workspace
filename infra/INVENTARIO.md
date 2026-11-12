@@ -34,3 +34,12 @@ Docker salta UFW para puertos publicados: los compose publican solo en la IP de 
 | Redis 7 | 100.109.194.99:6379 | `requirepass` | 1 GB |
 
 - Backups: `pg_dump` diario a las 09:00 UTC (cron de `deploy`) en `/home/deploy/backups/`, rotación de 7 días, log en `backups/backup.log`.
+
+## rubus-ia
+
+- Repo: `/home/deploy/zarza-workspace` (rama `chore/infra-produccion`). Compose: `infra/ia/docker-compose.yml`, `.env` en `infra/ia/.env` (600).
+- Pesos del modelo (fuera de la imagen y de git): `/home/deploy/rubus/models/best.pt` y `damage.pt`, montados en `/models` de solo lectura.
+
+| Servicio | Escucha en | Health | Límite de memoria |
+|---|---|---|---|
+| fruit-inference | http://100.115.227.49:8000 | `GET /health` | 8 GB |
