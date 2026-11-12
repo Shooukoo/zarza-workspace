@@ -10,6 +10,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Instala dependencias Python primero (capa cacheable)
+# PyTorch solo CPU: el wheel por defecto de PyPI arrastra CUDA (varios GB) y
+# ningún entorno de despliegue tiene GPU. Va antes de requirements.txt para que
+# ultralytics encuentre torch ya instalado y no baje la variante con CUDA.
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 

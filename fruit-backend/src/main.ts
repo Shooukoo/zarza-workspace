@@ -16,7 +16,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    // Detrás del proxy inverso, sin esto todas las peticiones llegan con la IP
+    // del proxy y el rate limiting trata a todos los usuarios como uno solo.
+    // TRUST_PROXY = IP(s) del proxy; sin definir no se confía en X-Forwarded-For.
+    new FastifyAdapter({ trustProxy: process.env.TRUST_PROXY ?? false }),
     {
       bufferLogs: true,
     },
